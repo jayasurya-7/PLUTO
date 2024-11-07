@@ -5,9 +5,12 @@ using System;
 using System.IO;
 using System.Runtime.Remoting.Messaging;
 using System.Text;
+using System.Data;
 using System.Diagnostics;
 using Unity.VisualScripting;
 using System.Drawing;
+using System.Linq;
+
 
 public class GameLog : MonoBehaviour
 {
@@ -15,7 +18,8 @@ public class GameLog : MonoBehaviour
     GameObject Player, Target, Enemy;
     public static string dateTime;
     public static string date;
-   
+    public static string sessionNum;
+
     string _fname;
     float time;
     bool logged = false;
@@ -38,35 +42,21 @@ public class GameLog : MonoBehaviour
     private static DataLogger _dlog;
   
 
-    public static bool isLogging { get; private set; }
+    public static bool isLogging { get; private set;}
   
 
     void Start()
     {
         dateTime = DateTime.Now.ToString("Dyyyy-MM-ddTHH-mm-ss");
         date = DateTime.Now.ToString("yyyy-MM-dd");
-        //File = Directory.CreateDirectory(Path.Combine(AppData.fileCreation.directoryPathSession, dateTime));
-        string dir = Path.Combine(DataManager.directoryPathSession, date);
+        sessionNum = "Session"+AppData.currentSessionNumber.ToString();
+        string dir = Path.Combine(DataManager.directoryPathSession, date, sessionNum);
         Directory.CreateDirectory(dir);
-        
-        //if(SessionDataHandler.lastSessionNumber== 0)
-        //{
-        //    int snNum = 001;
-        //}
-        //else
-        //{
-        //    int x = (int) SessionDataHandler.lastSessionNumber;
-        //    int snNum = x + 1;
-        //}
-        _fname = Path.Combine(dir,dateTime+".csv");
+       
+        _fname = Path.Combine(dir,AppData.selectMechanism+"_"+ AppData.selectedGame+"_"+dateTime+".csv");
         File.Create(_fname).Dispose();
         UnityEngine.Debug.Log(_fname+ "Created successfully");
         StartDataLog(_fname);
-
-
-
-
-
 
     }
 
@@ -91,7 +81,6 @@ public class GameLog : MonoBehaviour
         else
         {
             _dlog = null;
-
             isLogging = false;
         }
     }
@@ -126,17 +115,17 @@ public class GameLog : MonoBehaviour
     void Update()
     {
 
-        if (!AppData.isGameLogging) {
-            UnityEngine.Debug.Log("AppData.isGameLogging set to: " + AppData.isGameLogging);
+        if (!gameData.isGameLogging) {
+            UnityEngine.Debug.Log("AppData.isGameLogging set to: " + gameData.isGameLogging);
         }
 
-        if (AppData.isGameLogging)
+        if (gameData.isGameLogging)
         {
-            UnityEngine.Debug.Log(AppData.isGameLogging + "logging");
+            UnityEngine.Debug.Log(gameData.isGameLogging + "logging");
             Player = GameObject.FindGameObjectWithTag("Player");
             Target = GameObject.FindGameObjectWithTag("Target");
             Enemy = GameObject.FindGameObjectWithTag("Enemy");
-            if (AppData.game == "COMPENSATION")
+            if (gameData.game == "COMPENSATION")
             {
 
                 playerPos = Player.transform.eulerAngles.z.ToString();
@@ -205,9 +194,9 @@ public class GameLog : MonoBehaviour
                PlutoComm.target.ToString("G17"),
                playerPos,
                enemyPos,
-               AppData.events.ToString("F2"),
-               AppData.playerScore.ToString("F2"),
-               AppData.enemyScore.ToString("F2")
+               gameData.events.ToString("F2"),
+               gameData.playerScore.ToString("F2"),
+               gameData.enemyScore.ToString("F2")
             };
             string _dstring = String.Join(", ", _data);
             UnityEngine.Debug.Log("Xmen");

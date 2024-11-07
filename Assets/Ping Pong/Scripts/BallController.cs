@@ -69,7 +69,7 @@ public class BallController : MonoBehaviour
 
         if (rig2D.velocity.magnitude > 0.01f)
         {
-            AppData.events = Array.IndexOf(AppData.pongEvents, "moving");
+            gameData.events = Array.IndexOf(gameData.pongEvents, "moving");
         }
 
 
@@ -110,7 +110,7 @@ public class BallController : MonoBehaviour
             Vector2 d = new Vector2(1, y).normalized;
             initVelocity(d * speed);
 
-            AppData.events = Array.IndexOf(AppData.pongEvents, "enemyHit");
+            gameData.events = Array.IndexOf(gameData.pongEvents, "enemyHit");
 
             //_projection.SimulateTrajectory( transform.position, d * speed * 1.5F);
         }
@@ -126,7 +126,7 @@ public class BallController : MonoBehaviour
             //set angle and speed
             Vector2 d = new Vector2(-1, y).normalized;
             initVelocity(d * speed);
-            AppData.events = Array.IndexOf(AppData.pongEvents, "playerHit");
+            gameData.events = Array.IndexOf(gameData.pongEvents, "playerHit");
             
             //_projection.SimulateTrajectory( transform.position, d * speed * 1.5F);
         }
@@ -138,7 +138,7 @@ public class BallController : MonoBehaviour
                
 
             }
-            AppData.events = Array.IndexOf(AppData.pongEvents, "wallBounce");
+            gameData.events = Array.IndexOf(gameData.pongEvents, "wallBounce");
             //Debug.Log(preVel);
         }
         if (col.gameObject.name == "TopBound")
@@ -149,7 +149,7 @@ public class BallController : MonoBehaviour
                 
 
             }
-            AppData.events = Array.IndexOf(AppData.pongEvents, "wallBounce");
+            gameData.events = Array.IndexOf(gameData.pongEvents, "wallBounce");
             //Debug.Log(preVel);
         }
       

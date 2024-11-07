@@ -3,10 +3,12 @@ using System.Collections;
 using UnityEngine.SceneManagement;
 using UnityEngine.SocialPlatforms;
 using UnityEditor.SceneManagement;
+using NeuroRehabLibrary;
+
 
 public class UIManagerPP : MonoBehaviour
 {
-    GameObject[] pauseObjects, finishObjects,hideGameObjects;
+    GameObject[] pauseObjects, finishObjects;
     public BoundController rightBound;
     public BoundController leftBound;
     public bool isFinished;
@@ -14,96 +16,82 @@ public class UIManagerPP : MonoBehaviour
     public bool playerWon, enemyWon;
     public AudioClip[] audioClips; 
     public int win;
-    private bool isPaused = false;
-    // Use this for initialization
+    private bool isPaused = true;
+    private GameSession currentGameSession;
+
     void Start()
     {
         PlutoComm.OnButtonReleased += onPlutoButtonReleased;
         pauseObjects = GameObject.FindGameObjectsWithTag("ShowOnPause");
         finishObjects = GameObject.FindGameObjectsWithTag("ShowOnFinish");
-        hideGameObjects = new GameObject[] { GameObject.FindGameObjectWithTag("Target"), GameObject.FindGameObjectWithTag("Player"), 
-                                                GameObject.FindGameObjectWithTag("Enemy"), GameObject.FindGameObjectWithTag("hideOnFinish") };
         hideFinished();
-    }
+        StartNewGameSession();
 
-    // Update is called once per frame
+
+    }
     void Update()
     {
         CheckGameEndConditions();
-
         if (isFinished)
         {
             showFinished();
+           gameData.isGameLogging = false;
         }
-
         if ((Input.GetKeyDown(KeyCode.P) && !isFinished) || (isPressed && !isFinished))
         {
             if (!isPaused)
             {
-                PauseGame();
+                pauseGame();
             }
             else
             {
-                UnpauseGame();
+                resumeGame();
             }
-
-            isPressed = false;  // Reset isPressed after handling
+            isPressed = false; 
         }
-
-
-
-        
     }
-
-    //private IEnumerator WaitAndStopGameLogging()
-    //{
-    //    yield return new WaitForSeconds(2.0f);
-    //    AppData.isGameLogging = false;
-    //}
-
 
 
     private void CheckGameEndConditions()
     {
-        if (rightBound.enemyScore >= AppData.winningScore && !isFinished)
+        if (rightBound.enemyScore >= gameData.winningScore && !isFinished)
         {
             isFinished = true;
             enemyWon = true;
             playerWon = false;
-            GameEnd();
+            gameEnd();
         }
-        else if (leftBound.playerScore >= AppData.winningScore && !isFinished)
+        else if (leftBound.playerScore >= gameData.winningScore && !isFinished)
         {
             isFinished = true;
             enemyWon = false;
             playerWon = true;
-            GameEnd();
+            gameEnd();
         }
     }
-
-    private void GameEnd()
+    private void gameEnd()
     {
         Camera.main.GetComponent<AudioSource>().Stop();
         playAudio(enemyWon ? 1 : 0);
-        AppData.reps = 0;
+        gameData.reps = 0;
         showFinished();
+        EndCurrentGameSession();
     }
-
-    private void PauseGame()
+ private void pauseGame()
     {
         Time.timeScale = 0;
         isPaused = true;
         showPaused();
-        AppData.isGameLogging = false;
+        gameData.isGameLogging = false;
         Debug.Log("Game Paused");
     }
 
-    private void UnpauseGame()
+    private void resumeGame()
     {
         Time.timeScale = 1;
         isPaused = false;
         hidePaused();
-        AppData.isGameLogging = true;
+        gameData.isGameLogging = true;
         Debug.Log("Game Unpaused");
     }
 
@@ -115,12 +103,14 @@ public class UIManagerPP : MonoBehaviour
         //Reloads the Level
   public void LoadScene(string sceneName)
     {
+        EndCurrentGameSession();
        SceneManager.LoadScene(sceneName);
     }
 
     //Reloads the Level
     public void Reload()
     {
+        EndCurrentGameSession();
         SceneManager.LoadScene(SceneManager.GetActiveScene().name);
     }
     void playAudio(int clipNumber)
@@ -128,9 +118,7 @@ public class UIManagerPP : MonoBehaviour
         AudioSource audio = GetComponent<AudioSource>();
         audio.clip = audioClips[clipNumber];
         audio.Play();
-    }
-    
-    //shows objects with ShowOnPause tag
+    } 
     public void showPaused()
     {
         foreach (GameObject g in pauseObjects)
@@ -138,10 +126,7 @@ public class UIManagerPP : MonoBehaviour
             g.SetActive(true);
       
         }
-
     }
-
-    //hides objects with ShowOnPause tag
     public void hidePaused()
     {
         foreach (GameObject g in pauseObjects)
@@ -149,22 +134,16 @@ public class UIManagerPP : MonoBehaviour
             g.SetActive(false);
            
         }
-
     }
-
-    //shows objects with ShowOnFinish tag
     public void showFinished()
     {
         foreach (GameObject g in finishObjects)
         {
             g.SetActive(true);
-
         }
-    
+        Debug.Log("Player movement time to this point: " + gameData.moveTime.ToString("F2") + " seconds");
 
     }
-
-    //hides objects with ShowOnFinish tag
     public void hideFinished()
     {
         foreach (GameObject g in finishObjects)
@@ -173,7 +152,6 @@ public class UIManagerPP : MonoBehaviour
         }
 
     }
-
     private void OnDestroy()
     {
         if (ConnectToRobot.isPLUTO)
@@ -181,7 +159,46 @@ public class UIManagerPP : MonoBehaviour
             PlutoComm.OnButtonReleased -= onPlutoButtonReleased;
         }
     }
+    void StartNewGameSession()
+    {
+        currentGameSession = new GameSession
+        {
+            GameName = "PING-PONG",
+            Assessment = 0 // Example assessment value, adjust as needed
+        };
+
+        SessionManager.Instance.StartGameSession(currentGameSession);
+        Debug.Log($"Started new game session with session number: {currentGameSession.SessionNumber}");
+
+        SetSessionDetails();
+    }
+    private void SetSessionDetails()
+    {
+        string device = "PLUTO"; 
+        string assistMode = "Null"; 
+        string assistModeParameters = "Null"; 
+        string deviceSetupLocation = "Null"; // Set the device setup location
+        string gameParameter = "YourGameParameter"; // Set the game parameter
+        string trialdata = "YourGameParameter"; // Set the game parameter
+
+        string mech = AppData.selectMechanism;
+        SessionManager.Instance.SetDevice(device, currentGameSession);
+        SessionManager.Instance.SetAssistMode(assistMode, assistModeParameters, currentGameSession);
+        SessionManager.Instance.SetDeviceSetupLocation(deviceSetupLocation, currentGameSession);
+        SessionManager.Instance.SetGameParameter(gameParameter, currentGameSession);
+        SessionManager.Instance.mechanism(mech, currentGameSession);
+        SessionManager.Instance.SetTrialDataFileLocation(trialdata, currentGameSession);
 
 
 
+    }
+    void EndCurrentGameSession()
+    {
+        if (currentGameSession != null)
+        {
+            string movetime = gameData.moveTime.ToString("F0");
+            SessionManager.Instance.moveTime(movetime, currentGameSession);
+            SessionManager.Instance.EndGameSession(currentGameSession);
+        }
+    }
 }
