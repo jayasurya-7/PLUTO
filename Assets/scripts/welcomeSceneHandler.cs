@@ -12,6 +12,7 @@ using System.Globalization;
 using Unity.VisualScripting;
 using UnityEngine.SceneManagement;
 using System.Text.RegularExpressions;
+using NeuroRehabLibrary;
 
 public class welcomSceneHandler : MonoBehaviour
 {
@@ -26,7 +27,7 @@ public class welcomSceneHandler : MonoBehaviour
     public Image[] pies = new Image[7];
     public bool piChartUpdated = false; 
     private DaySummary[] daySummaries;
-    public static bool changeScene = false;
+    public static bool changeScene = false; 
     public readonly string nextScene = "chooseMechanism";
 
     // Private variables
@@ -42,6 +43,11 @@ public class welcomSceneHandler : MonoBehaviour
 
         // Initialize.
         AppData.initializeStuff();
+        //Neuro Library
+        string baseDirectory = DataManager.directoryPathSession;
+        Debug.Log(baseDirectory);
+        SessionManager.Initialize(DataManager.directoryPathSession);
+        SessionManager.Instance.Login();
         daySummaries = AppData.UserData.CalculateMoveTimePerDay();
 
         // Update summary display
@@ -103,7 +109,6 @@ public class welcomSceneHandler : MonoBehaviour
         piChartUpdated = true;
     }
 
-   
     private void OnApplicationQuit()
     {
         ConnectToRobot.disconnect();

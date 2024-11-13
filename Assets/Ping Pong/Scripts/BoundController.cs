@@ -5,18 +5,14 @@ using System;
 
 public class BoundController : MonoBehaviour
 {
-
-    //enemy transform
     public Transform enemy;
     public int enemyScore;
     public int playerScore;
     public AudioClip[] audioClips; // win ,loose
-
     void Start()
     {
         enemyScore = 0;
         playerScore = 0;
-        
     }
 
     void OnTriggerEnter2D(Collider2D other)
@@ -27,39 +23,41 @@ public class BoundController : MonoBehaviour
             {
                 playAudio(1);
                 enemyScore++;
-                AppData.enemyScore = enemyScore;
-                AppData.events = Array.IndexOf(AppData.pongEvents, "playerFail");
-                Debug.Log("enemyWINSCORE" + enemyScore);
-               
+                gameData.enemyScore = enemyScore;
+                gameData.events = Array.IndexOf(gameData.pongEvents, "playerFail");
             }
             else
             {
                 playerScore++;
-                AppData.playerScore = playerScore;
-                AppData.gameScore++;
-                AppData.events = Array.IndexOf(AppData.pongEvents, "enemyFail");
+                gameData.playerScore = playerScore;
+                gameData.gameScore++;
+                gameData.events = Array.IndexOf(gameData.pongEvents, "enemyFail");
                 playAudio(0);
             }
-
-
-            //Destroys other object
             Destroy(other.gameObject);
-
-            //sets enemy's position back to original
             enemy.position = new Vector3(-6, 0, 0);
-            //pauses game
-            if (AppData.enemyScore== AppData.winningScore ||  AppData.playerScore == AppData.winningScore)
+            if (gameData.enemyScore== gameData.winningScore ||  gameData.playerScore == gameData.winningScore)
             {
                 Time.timeScale = 0;
             }
-            //Time.timeScale = 0;
         }
-    }
+    } 
     void playAudio(int clipNumber)
     {
         AudioSource audio = GetComponent<AudioSource>();
         audio.clip = audioClips[clipNumber];
         audio.Play();
-
+    }
+    void ChangeColor(Color newColor)
+    {
+        SpriteRenderer spriteRenderer = GetComponent<SpriteRenderer>();
+        if (spriteRenderer != null)
+        {
+            spriteRenderer.color = newColor;
+        }
+        else
+        {
+            Debug.LogWarning("SpriteRenderer not found on the ball GameObject.");
+        }
     }
 }

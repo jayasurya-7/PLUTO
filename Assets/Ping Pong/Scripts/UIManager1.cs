@@ -2,27 +2,24 @@
 using System.Collections;
 using UnityEngine.SceneManagement;
 using static AppData;
+using UnityEngine.UI;
 using UnityEditor.SearchService;
 
 public class UIManager1 : MonoBehaviour
 {
-
-    GameObject[] pauseObjects, finishObjects;
     public BoundController rightBound;
     public BoundController leftBound;
-    public bool isFinished;
-    public bool playerWon, enemyWon;
-    public AudioClip[] audioClips; // winlevel loose
-    public int winScore = 7;
-    public int win;
+    public Button playButton;
+    public Button exitButton;
     public static bool isButtonPressed=false;
-    // Use this for initialization
     void Start()
     {
-        pauseObjects = GameObject.FindGameObjectsWithTag("ShowOnPause");
-        finishObjects = GameObject.FindGameObjectsWithTag("ShowOnFinish");
+
+        AppLogger.SetCurrentScene(SceneManager.GetActiveScene().name);
+        AppLogger.LogInfo($"{SceneManager.GetActiveScene().name} scene started.");
         isButtonPressed = false;
-        hideFinished();
+        playButton.onClick.AddListener(LoadNextScene);
+        exitButton.onClick.AddListener(onExitButtonClicked);
     }
 
     // Update is called once per frame
@@ -31,98 +28,27 @@ public class UIManager1 : MonoBehaviour
         if (ConnectToRobot.isPLUTO)
         {
             PlutoComm.OnButtonReleased += onPlutoButtonReleased;
-            //connect = true;
         }
         if (isButtonPressed)
         {
             LoadNextScene();
             isButtonPressed = false;
         }
-
     }
-
-
-    //Reloads the Level
-    public void Reload()
-    {
-        Application.LoadLevel(Application.loadedLevel);
-    }
-    void playAudio(int clipNumber)
-    {
-        AudioSource audio = GetComponent<AudioSource>();
-        audio.clip = audioClips[clipNumber];
-        audio.Play();
-
-    }
-    //controls the pausing of the scene
-    public void pauseControl()
-    {
-        if (Time.timeScale == 1)
-        {
-            Time.timeScale = 0;
-            showPaused();
-        }
-        else if (Time.timeScale == 0)
-        {
-            Time.timeScale = 1;
-            hidePaused();
-        }
-    }
-
-    //shows objects with ShowOnPause tag
-    public void showPaused()
-    {
-        foreach (GameObject g in pauseObjects)
-        {
-            g.SetActive(true);
-        }
-    }
-
-    //hides objects with ShowOnPause tag
-    public void hidePaused()
-    {
-        foreach (GameObject g in pauseObjects)
-        {
-            g.SetActive(false);
-        }
-    }
-
-    //shows objects with ShowOnFinish tag
-    public void showFinished()
-    {
-
-
-        foreach (GameObject g in finishObjects)
-        {
-            g.SetActive(true);
-        }
-    }
-
-    //hides objects with ShowOnFinish tag
-    public void hideFinished()
-    {
-        foreach (GameObject g in finishObjects)
-        {
-            g.SetActive(false);
-        }
-    }
-
-
     //loads inputted level
-    public void LoadLevel(string level)
+    public void onExitButtonClicked()
     {
-
-        SceneManager.LoadSceneAsync(level);
+        SceneManager.LoadScene("choosegame");
+        AppLogger.LogInfo("Switching scene to choosegame.");
     }
     public void onPlutoButtonReleased()
     {
-        
             isButtonPressed = true;
-      
     }
     void LoadNextScene()
     {
         SceneManager.LoadScene("pong_game");
+        AppLogger.LogInfo("Switching scene to pong_game."); 
 
     }
     private void OnDestroy()
