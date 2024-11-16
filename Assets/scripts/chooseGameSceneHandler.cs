@@ -49,6 +49,25 @@ public class ChooseGameSceneHandler : MonoBehaviour
             LoadSelectedGameScene(selectedGame);
             isButtonPressed = false;
         }
+        // Check for Ctrl + R key combination
+        if (Input.GetKey(KeyCode.LeftControl) && Input.GetKeyDown(KeyCode.R))
+        {
+            MoveToAssessmentScene();
+        }
+    }
+    // Method to handle scene change
+    void MoveToAssessmentScene()
+    {
+        string assessmentSceneName = "Assessment"; 
+        if (SceneManager.GetSceneByName(assessmentSceneName) != null)
+        {
+            Debug.Log("Moving to the assessment scene...");
+            SceneManager.LoadScene(assessmentSceneName);
+        }
+        else
+        {
+            Debug.LogError($"Scene '{assessmentSceneName}' not found! Ensure it is added in Build Settings.");
+        }
     }
     void AttachToggleListeners()
     {
