@@ -32,6 +32,7 @@ public static class DataManager
     public static string directoryPathSession;
     static string directoryPathRawData;
     public static string directoryMechData;
+    public static string directoryAROMData;
     public static string filePathConfigData { get; private set; }
     public static string filePathSessionData { get; private set; }
 
@@ -41,6 +42,7 @@ public static class DataManager
         directoryPathSession = directoryPath + "/sessions";
         directoryPathRawData = directoryPath + "/rawdata";
         directoryMechData = directoryPath + "/mech";
+        directoryAROMData = directoryMechData + "/AROM";
         filePathConfigData = directoryPath + "/configdata.csv";
         filePathSessionData = directoryPathSession + "/sessions.csv";
         // Check if the directory exists

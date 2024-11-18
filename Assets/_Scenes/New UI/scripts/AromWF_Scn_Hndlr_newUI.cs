@@ -1,0 +1,564 @@
+﻿using System;
+using System.Collections;
+using System.Collections.Generic;
+using System.Text;
+using UnityEngine;
+using UnityEngine.UI;
+using UnityEngine.SceneManagement;
+using TMPro;
+using TS.DoubleSlider;
+using UnityEngine.UIElements;
+
+
+public class AromWF_Scn_Hndlr_newUI : MonoBehaviour
+{
+
+    enum AssessStates
+    {
+        INIT = 0,
+        ASSESS = 1,
+        RELAX = 2
+    };
+    bool assessmentSaved;
+    public TMP_Text lText;
+    public TMP_Text rText;
+    public TMP_Text cText;
+    public TMP_Text relaxText;
+
+    public TMP_Text JointAngle;
+    public TMP_Text JointAngleHoc;
+
+    public TMP_Text warningText;
+    bool AssessmentValid;
+    private int _stpCount;
+    private int _stpCountTh = 00;
+    private float _lowSpdTh = 20f;
+    private float _tmin, _tmax;
+    private float _tmin1, _tmax1;
+
+    public float prommin;
+    public float prommax;
+    private double _strttime;
+    private double _initDur = 0f;
+    private double _assessDur = 180f;
+    private double _relaxDur = 3.0f;
+    private float _winT = 0;
+    private float _freq = 0.1f;
+    public static float _torqAmp = .7f;
+    private float _currTorq = 0;
+    private double _t;
+    private double _prevt;
+    private double _dt = 0.01;
+    public GameObject nextButton;
+    public GameObject startButton;
+    public GameObject curreposition;
+    public GameObject currepositionHoc;
+    //public GameObject AANScene;
+    private AssessStates _state;
+    private PromWF_Scn_Hndlr_newUI promWF_Scn_Hndlr_NewUI;
+    private float angLimit;
+    public DoubleSlider aromSlider;
+    public DoubleSlider promSlider;
+
+    public bool isSelected = false;
+    public bool isInteractable = false;
+
+    //public  GameObject PromButton;
+
+    public pannelselect PanelControl;
+
+    private bool isRestarting = false;
+
+    private List<string[]> DirectionText = new List<string[]>
+    {
+        new string[] { "Flexion", "Extension" },
+        new string[] { "Ulnar Dev.", "Radial Dev."},
+        new string[] { "Pronation", "Supination" },
+        new string[]{ "Open", "Open"},
+        new string[] {"",""},
+        new string[] {"",""}
+    };
+
+    private int _linx, _rinx;
+
+    // Use this for initialization
+    void Start()
+    {
+
+        //InitializeAssessment();
+        //aromSlider.UpdateMinMaxvalues = false;
+    }
+
+    private void InitializeAssessment()
+    {
+        aromSlider.UpdateMinMaxvalues = false;
+
+        nextButton.SetActive(false);
+        Debug.Log("Initializing AROM assessment");
+
+
+        if (PlutoComm.GetPlutoCodeFromLabel(PlutoComm.MECHANISMS, AppData.selectedMechanism) != 3)
+        {
+            angLimit = AppData.offsetAtNetral[PlutoComm.GetPlutoCodeFromLabel(PlutoComm.MECHANISMS, AppData.selectedMechanism)];
+
+            aromSlider.Setup(-angLimit, angLimit, AppData.oldAROM.tmin, AppData.oldAROM.tmax);
+
+
+            Debug.Log(AppData.newPROM.tmin + "qq");
+            Debug.Log(AppData.newPROM.tmax + "cc");
+            aromSlider.maxAng = 0;
+            aromSlider.minAng = 0;
+            aromSlider.UpdateMinMaxvalues = false;
+        }
+        else
+        {
+            //promt_min=AppData.newPROM.tmin;
+            // promt_max=AppData.newPROM.tma
+            float minAng = 0;
+            float maxAng = 90;
+
+            angLimit = 140.42f;
+
+            aromSlider.Setup(-angLimit, angLimit, AppData.oldAROM.tmin, AppData.oldAROM.tmax);
+
+            //Fillrect.Setup(-angLimit, angLimit,AppData.oldAROM.tmin, AppData.oldAROM.tmax);
+
+            aromSlider.minAng = 0;  // Set slider minimum to old AROM minimum
+            aromSlider.maxAng = 0;
+            aromSlider.UpdateMinMaxvalues = false;
+
+
+        }
+        if (PlutoComm.GetPlutoCodeFromLabel(PlutoComm.MECHANISMS, AppData.selectedMechanism) == 3)
+        {
+            cText.gameObject.SetActive(true); // Show the C Text
+            rText.gameObject.SetActive(true);
+
+            lText.gameObject.SetActive(true);
+
+            cText.text = "Closed"; // Set the C Text in the center
+        }
+        else
+        {
+            cText.gameObject.SetActive(false);
+        }
+        if (AppData.side == "right")
+        {
+            _rinx = 1;
+            _linx = 0;
+        }
+        else
+        {
+            _rinx = 0;
+            _linx = 1;
+        }
+        rText.gameObject.SetActive(true);
+        lText.gameObject.SetActive(true);
+        rText.text = DirectionText[PlutoComm.GetPlutoCodeFromLabel(PlutoComm.MECHANISMS, AppData.selectedMechanism)][_rinx];
+        lText.text = DirectionText[PlutoComm.GetPlutoCodeFromLabel(PlutoComm.MECHANISMS, AppData.selectedMechanism)][_linx];
+
+        // Initialize ROM assessment variable.s
+        _stpCount = 0;
+        _tmin = 180f;
+        _tmax = -180f;
+        _tmin1 = 180f;
+        _tmax1 = -180f;
+
+
+        // Start time.
+        _strttime = AppData.CurrentTime;
+
+        // Start data logging
+        //string _fname = AppData.GetNewFileName("arom");
+        //AppData.StartDataLog(_fname);
+
+
+        // Start state in ASSESS
+        _state = AssessStates.INIT;
+
+        UpdateGUI();
+        PlutoComm.setControlType("NONE");
+    }
+
+    public void OnStartButtonClick()
+    {
+        startAssessment(); // Starts the assessment
+        startButton.SetActive(false);
+        nextButton.SetActive(true);
+        //restartButton.SetActive(true);
+    }
+
+    private void RestartAssessment()
+    {
+        Start();
+    }
+
+    // Update is called once per frame
+    void Update()
+    {
+
+        Debug.Log(PlutoComm.angle);
+
+        if (isSelected)
+        {
+
+            _t = AppData.CurrentTime - _strttime;
+            switch (_state)
+            {
+                case AssessStates.INIT:
+                    //redoButton.SetActive(false);
+                    if (!isInteractable)
+                    {
+
+                        AppData.oldAROM = new AROM(AppData.selectedMechanism);
+                        InitializeAssessment();
+                        isInteractable = true;
+                    }
+                    startButton.SetActive(true);
+
+                    AppData.newPROM = new MechanismData(AppData.selectedMechanism);
+                   
+
+                    float newPROM_tmin = AppData.newPROM.tmin;
+                    float newPROM_tmax = AppData.newPROM.tmax;
+
+                    Debug.Log(newPROM_tmin + "eee" + newPROM_tmax + "maxx");
+
+
+                    prommin = AppData.newPROM.tmin;
+
+                    prommax = AppData.newPROM.tmax;
+
+                    if (Input.GetKeyDown(KeyCode.Return))
+                    {
+                        nextButton.SetActive(true);
+                        startAssessment();
+                    }
+                    //aromgreater();
+                    if (isRestarting)
+                    {
+                        // Display the "AROM not exceed" message and prevent other text updates
+                        relaxText.text = " AROM Should not Exceed PROM \n " +
+                                         "Please REDO PROM AGAIN";
+                        relaxText.color = Color.red; // Optional: Change the text color to red for emphasis
+                    }
+                    else
+                        if (PlutoComm.GetPlutoCodeFromLabel(PlutoComm.MECHANISMS, AppData.selectedMechanism) == 3)
+                    {
+                        float apertureMinCM = Mathf.Abs(Mathf.Deg2Rad * AppData.oldAROM.tmin * 6f);
+                        float apertureMaxCM = Mathf.Abs(Mathf.Deg2Rad * AppData.oldAROM.tmax * 6f);
+                        relaxText.color = Color.black;
+                        relaxText.text = "Prev Arom: " + apertureMinCM.ToString("0.0") + "cm : " + apertureMaxCM.ToString("0.0") + "cm (Aperture: " + Mathf.Abs(apertureMaxCM - apertureMinCM).ToString("0.0") + "cm)";
+
+                    }
+                    else
+                    {
+                        relaxText.color = Color.black;
+                        relaxText.text = "Prev AROM: " + (int)AppData.oldAROM.tmin + " : " + (int)AppData.oldAROM.tmax + " (" + (int)(AppData.oldAROM.tmax - AppData.oldAROM.tmin) + "°)";
+                        //"Press ENTER to start assessment \n"+
+                    }
+                    break;
+                case AssessStates.ASSESS:
+
+                    //aromgreater();
+                    startButton.SetActive(false);
+                    nextButton.SetActive(true);
+
+                    assessmentSaved = false;
+                    if ( Input.GetKeyDown(KeyCode.Return))
+                    {
+
+                        Debug.Log("Hello");
+                        AssessmentValid = true;
+                        _state = AssessStates.RELAX;
+                        onSavePressed();
+                        nextButton.SetActive(false);
+                        aromSlider.UpdateMinMaxvalues = false;
+                    }
+                    aromgreater();
+
+                    break;
+                case AssessStates.RELAX:
+                    if (AssessmentValid)
+
+                    {
+
+                        Debug.Log("Hello1");
+
+                        if (!assessmentSaved)
+                        {
+                            Debug.Log("Hello2");
+
+                            if (PlutoComm.GetPlutoCodeFromLabel(PlutoComm.MECHANISMS, AppData.selectedMechanism) == 3)
+                            {
+
+                                float apertureMinCM = Mathf.Abs(Mathf.Deg2Rad * AppData.oldAROM.tmin * 6f);
+                                float apertureMaxCM = Mathf.Abs(Mathf.Deg2Rad * AppData.oldAROM.tmax * 6f);
+                                float currentMinCM = Mathf.Abs(Mathf.Deg2Rad * aromSlider.minAng * 6f);
+                                float currentMaxCM = Mathf.Abs(Mathf.Deg2Rad * aromSlider.maxAng * 6f);
+
+
+                                relaxText.color = Color.black;
+                                relaxText.text = "Assessment Completed \n " + "Prev AROM: " + apertureMinCM.ToString("0.0") + "cm : " + apertureMaxCM.ToString("0.0") + "cm (Aperture: " + Mathf.Abs(apertureMaxCM - apertureMinCM).ToString("0.0") + "cm)\n" +
+                                    "Current AROM: " + currentMinCM.ToString("0.0") + "cm : " + currentMaxCM.ToString("0.0") + "cm (Aperture: " + Mathf.Abs(currentMaxCM - currentMinCM).ToString("0.0") + "cm)\n";
+                            }
+                            else
+                            {
+                                relaxText.color = Color.black;
+                                relaxText.text = "Assessment Completed \n " + "Prev AROM: " + (int)AppData.oldAROM.tmin + " : " + (int)AppData.oldAROM.tmax + " (" + (int)(AppData.oldAROM.tmax - AppData.oldAROM.tmin) + "°)\n" +
+                                    "Current AROM: " + (int)aromSlider.minAng + " : " + (int)aromSlider.maxAng + " (" + (int)(aromSlider.maxAng - aromSlider.minAng) + "°)\n";
+                            }
+
+                            /*if (AppData.inputPressed() || Input.GetKeyDown(KeyCode.Return))
+                            {
+                                onSavePressed();
+                            }*/
+                        }
+                        else
+                        {
+                            aromSlider.UpdateMinMaxvalues = false;
+                            Debug.Log("Hello3");
+
+                            if (PlutoComm.GetPlutoCodeFromLabel(PlutoComm.MECHANISMS, AppData.selectedMechanism) == 3)
+                            {
+                                float apertureMinCM = Mathf.Abs(Mathf.Deg2Rad * AppData.oldAROM.tmin * 6f);
+                                float apertureMaxCM = Mathf.Abs(Mathf.Deg2Rad * AppData.oldAROM.tmax * 6f);
+                                float currentMinCM = Mathf.Abs(Mathf.Deg2Rad * _tmin * 6f);
+                                float currentMaxCM = Mathf.Abs(Mathf.Deg2Rad * -_tmax * 6f);
+                                relaxText.color = Color.black;
+                                relaxText.text = "Assessment Completed \n" + "Prev AROM: " + apertureMinCM.ToString("0.0") + "cm : " + apertureMaxCM.ToString("0.0") + "cm (Aperture: " + Mathf.Abs(apertureMaxCM - apertureMinCM).ToString("0.0") + "cm)\n" +
+                                "Current AROM: " + currentMinCM.ToString("0.0") + "cm : " + currentMaxCM.ToString("0.0") + "cm (Aperture: " + Mathf.Abs(currentMaxCM - currentMinCM).ToString("0.0") + "cm)\n";
+                            }
+                            else
+                            {
+                                relaxText.color = Color.black;
+                                relaxText.text = relaxText.text = "Assessment Completed \n " + "Prev AROM: " + (int)AppData.oldAROM.tmin + " : " + (int)AppData.oldAROM.tmax + " (" + (int)(AppData.oldAROM.tmax - AppData.oldAROM.tmin) + "°)\n" +
+                                    "Current AROM: " + (int)_tmin + " : " + (int)_tmax + " (" + (int)(_tmax - _tmin) + "°)\n";
+                            }
+                            if (PlutoComm.GetPlutoCodeFromLabel(PlutoComm.MECHANISMS, AppData.selectedMechanism) < 4)
+                            {
+
+                                //AANScene.SetActive(true);
+
+                            }
+                            if (Input.GetKeyDown(KeyCode.Return))
+                            {
+
+                                //go to arom;
+
+                                Debug.Log("go to arom");
+
+
+                            }
+
+                        }
+                    }
+                    else
+                    {
+                        {
+                            relaxText.text = "PROM should be greater than AROM\n " +
+                                "Press ENTER Redo Assesment ";
+
+                        }
+
+                    }
+                    break;
+
+            }
+            UpdateGUI();
+        }
+        else
+        {
+
+            try
+            {
+
+
+            }
+            catch (Exception)
+            {
+
+            }
+
+            Debug.Log(" AROM deselected");
+        }
+    }
+
+    private void aromgreater()
+    {
+
+
+
+        if (aromSlider._currePostion.value <= prommin || aromSlider._currePostion.value >= prommax)
+        {
+
+            aromSlider.UpdateMinMaxvalues = false;
+            RestartAssessment();
+            isRestarting = true;
+            curreposition.SetActive(true);
+            if (PlutoComm.GetPlutoCodeFromLabel(PlutoComm.MECHANISMS, AppData.selectedMechanism) == 3)
+            {
+                currepositionHoc.SetActive(true);
+            }
+            else
+            {
+                currepositionHoc.SetActive(false);
+            }
+            relaxText.text = " AROM Do not Exceed PROM \n " +
+            "Please REDO PROM AGAIN";
+        }
+        else
+        {
+            aromSlider.UpdateMinMaxvalues = true;
+            curreposition.SetActive(true);
+            if (PlutoComm.GetPlutoCodeFromLabel(PlutoComm.MECHANISMS, AppData.selectedMechanism) == 3)
+            {
+                currepositionHoc.SetActive(true);
+            }
+            else
+            {
+                currepositionHoc.SetActive(false);
+            }
+
+            //warningText.gameObject.SetActive(false);
+            relaxText.text = "   ";
+        }
+    }
+
+    public void OnRedoaromButtonClick()
+    {
+
+        InitializeAssessment();
+        Debug.Log("Assessment Restarted");
+        Start();
+        aromSlider.UpdateMinMaxvalues = false;
+    }
+
+    public void aromButton()
+    {
+        Start();
+    }
+    public void OnNextButtonClick()
+    {
+        AssessmentValid = true;
+        _state = AssessStates.RELAX;
+        onSavePressed();
+        nextButton.SetActive(false);
+        aromSlider.UpdateMinMaxvalues = false;
+    }
+
+    public void startAssessment()
+    {
+        _state = AssessStates.ASSESS;
+        aromSlider.startAssessment(PlutoComm.angle);
+
+        aromSlider.UpdateMinMaxvalues = true;
+    }
+
+    bool validAssessment()
+    {
+        AppData.oldAROM = new AROM(AppData.selectedMechanism);
+        if (_tmin <= AppData.oldAROM.tmin && _tmax >= AppData.oldAROM.tmax)
+        {
+            return true;
+        }
+        else
+            return false;
+    }
+
+    public void onSavePressed()
+    {
+        Debug.Log("hello4");
+        _tmin = aromSlider.minAng;
+        _tmax = aromSlider.maxAng;
+        assessmentSaved = true;
+        AppData.newAROM = new AROM( AppData.side, _tmin, _tmax,
+         AppData.selectedMechanism, true);
+
+        if (PlutoComm.GetPlutoCodeFromLabel(PlutoComm.MECHANISMS, AppData.selectedMechanism) == 3)
+        {
+            float apertureMinCM = Mathf.Abs(Mathf.Deg2Rad * AppData.oldAROM.tmin * 6f);
+            float apertureMaxCM = Mathf.Abs(Mathf.Deg2Rad * AppData.oldAROM.tmax * 6f);
+            float currentMinCM = Mathf.Abs(Mathf.Deg2Rad * _tmin * 6f);
+            float currentMaxCM = Mathf.Abs(Mathf.Deg2Rad * -_tmax * 6f);
+            relaxText.color = Color.black;
+            relaxText.text = "Assessment Completed \n" + "Prev AROM: " + apertureMinCM.ToString("0.0") + "cm : " + apertureMaxCM.ToString("0.0") + "cm (Aperture: " + Mathf.Abs(apertureMaxCM - apertureMinCM).ToString("0.0") + "cm)\n" +
+                    "Current AROM: " + currentMinCM.ToString("0.0") + "cm : " + currentMaxCM.ToString("0.0") + "cm (Aperture: " + Mathf.Abs(currentMaxCM - currentMinCM).ToString("0.0") + "cm)\n";
+        }
+        else
+        {
+            // Stop logging
+            relaxText.color = Color.black;
+            relaxText.text = "Assessment Completed \n " + "Prev AROM: " + (int)AppData.oldAROM.tmin + " : " + (int)AppData.oldAROM.tmax + " (" + (int)(AppData.oldAROM.tmax - AppData.oldAROM.tmin) + "°)\n" +
+
+            "Currentt AROM: " + (int)_tmin + " : " + (int)_tmax + " (" + (int)(_tmax - _tmin) + "°)\n";
+
+
+
+
+        }
+        nextButton.SetActive(false);
+        //AppData.StopLogging();
+        aromSlider.UpdateMinMaxvalues = false;
+    }
+
+
+    private float window(float currt, float tT, float rT)
+    {
+        if (currt < 0)
+        {
+            return 0.0f;
+        }
+        else if (currt >= 0 && currt < (tT + rT))
+        {
+            return Mathf.Min(1.0f, currt / rT);
+        }
+        else if (currt >= (tT + rT) && currt < (tT + 2 * rT))
+        {
+            return 1.0f + (tT + rT - currt) / rT;
+        }
+        else
+        {
+            return 0.0f;
+        }
+    }
+
+    void OnApplicationQuit()
+    {
+        //AppData.WriteSessionInfo("Quiting Application from PROM Assessment scene.");
+        JediComm.Disconnect();
+    }
+
+    public void On_Back_Click()
+    {
+        //AppData.WriteSessionInfo("Back to Game menu.");
+        SceneManager.LoadScene(2);
+    }
+
+    private void UpdateGUI()
+    {
+        UpdateStatusText();
+    }
+
+    private void UpdateStatusText()
+    {
+        if (PlutoComm.GetPlutoCodeFromLabel(PlutoComm.MECHANISMS, AppData.selectedMechanism) != 3)
+        {
+            JointAngle.text = (PlutoComm.angle).ToString("0.0");
+
+        }
+        else
+            JointAngle.text = "Aperture" + Mathf.Abs((Mathf.Deg2Rad * PlutoComm.angle * 6f)).ToString("0.0") + "cm";
+        JointAngleHoc.text = "Aperture" + Mathf.Abs((Mathf.Deg2Rad * PlutoComm.angle * 6f)).ToString("0.0") + "cm";
+
+
+
+        //Debug.Log(AppData.plutoData.angle);
+        if (AppData.count[1]++ > AppData.Th[1])
+        {
+            //  statusText.text = "FR: " + ((int)MySerialThread.framerate).ToString();
+            AppData.count[1] = 0;
+        }
+    }
+
+}
