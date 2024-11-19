@@ -150,7 +150,7 @@ public class calibrationSceneHandler : MonoBehaviour
 
         PlutoComm.calibrate(selectedMechanism);
 
-        ApplyTorqueToMoveHandles(currentAngle, separationAngle);
+        ApplyTorqueToMoveHandles(0, separationAngle);
         Debug.Log("Current Angle after separation:" + currentAngle);
 
         yield return new WaitForSeconds(1.0f);
@@ -193,7 +193,7 @@ public class calibrationSceneHandler : MonoBehaviour
 
         PlutoComm.calibrate(selectedMechanism);
 
-        ApplyTorqueToMoveHandles(currentAngle, 16);
+        ApplyTorqueToMoveHandles(0, 16);
         Debug.Log("Current Angle after separation:" + currentAngle);
 
         yield return new WaitForSeconds(1.0f);
@@ -228,21 +228,21 @@ public class calibrationSceneHandler : MonoBehaviour
 
         ApplyTorqueToMoveHandles(currentAngle, togetherAngle);
 
-        yield return new WaitForSeconds(1.0f);
+        yield return new WaitForSeconds(1.0f); 
 
         float currentAngle1 = PlutoComm.getHOCDisplay(PlutoComm.angle);
         Debug.Log("Current Angle when together position" + currentAngle1);
 
-        if (!ChkPosTogetherWFEWURD(1, togetherAngle)) yield break;
+        if (!ChkPosTogetherFME(1, togetherAngle)) yield break;
 
         PlutoComm.calibrate(selectedMechanism);
 
-        ApplyTorqueToMoveHandles(currentAngle, 30);
+        ApplyTorqueToMoveHandles(0, separationAngle);
         Debug.Log("Current Angle after separation:" + currentAngle);
 
         yield return new WaitForSeconds(1.0f);
         currentAngle = PlutoComm.getHOCDisplay(PlutoComm.angle);
-        if (!ChkPosSeparationWFEWURD(currentAngle, 30)) yield break;
+        if (!ChkPosSeparationFME(currentAngle, separationAngle)) yield break;
 
 
         ApplyTorqueToMoveHandles(currentAngle, togetherAngle);
@@ -393,7 +393,7 @@ public class calibrationSceneHandler : MonoBehaviour
     }
     private bool ChkPosSeparationFME(float currentPosition, float targetPosition)
     {
-        if (currentPosition >= 29.0f)
+        if (currentPosition >= 14.0f)
         {
             textMessage.text = $"Separation Position reached! Current: {currentPosition}";
             return true;
