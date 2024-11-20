@@ -49,8 +49,6 @@ public class Pluto_SceneHandler : MonoBehaviour
         // Update the UI when starting
         UpdateUI();
     }
-
-    // Update is called once per frame
     void Update()
     {
         // Udpate UI
@@ -94,6 +92,7 @@ public class Pluto_SceneHandler : MonoBehaviour
             if (_mech == "HOC")
             {
                 controlTarget = PlutoComm.getHOCAngle(sldrTarget.value);
+                Debug.Log(controlTarget);
             }
             else
             {

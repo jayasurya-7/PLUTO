@@ -42,7 +42,7 @@ public static class PlutoComm
         "SET_CONTROL_TARGET",
         "SET_DIAGNOSTICS"
     };
-    public static readonly int[] CALIBANGLE = new int[] { 120, 120, 120, 140 };
+    public static readonly int[] CALIBANGLE = new int[] { 120, 120, 280, 140, 210,210 };
     public static readonly double[] TORQUE = new double[] { -MAXTORQUE, MAXTORQUE };
     public static readonly double[] POSITION = new double[] { -135, 0 };
     public static readonly double HOCScale = 3.97 * Math.PI / 180;
