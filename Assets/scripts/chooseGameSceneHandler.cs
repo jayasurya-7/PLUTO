@@ -1,3 +1,4 @@
+using System;
 using UnityEngine;
 using UnityEngine.SceneManagement;  
 using UnityEngine.UI;  
@@ -17,8 +18,8 @@ public class ChooseGameSceneHandler : MonoBehaviour
     private readonly Dictionary<string, string> gameScenes = new Dictionary<string, string>
     {
         { "pingPong", "pong_menu" },
-        { "Game2", "Game2Scene" },
-        { "Game3", "Game3Scene" }
+        { "tukTuk", "FlappyGame" },
+        { "hatTrick", "HatrickGame" }
     };
 
 
@@ -41,6 +42,7 @@ public class ChooseGameSceneHandler : MonoBehaviour
         AttachToggleListeners();
         playButton.onClick.AddListener(OnPlayButtonClicked);
         changeMech.onClick.AddListener(OnMechButtonClicked);
+        AppData.oldAROM=new AROM(AppData.selectedMechanism);
     }
     void Update()
     {   
@@ -48,6 +50,28 @@ public class ChooseGameSceneHandler : MonoBehaviour
         {
             LoadSelectedGameScene(selectedGame);
             isButtonPressed = false;
+        }
+        // Check for Ctrl + R key combination
+        if (Input.GetKey(KeyCode.LeftControl) && Input.GetKeyDown(KeyCode.R))
+        {
+            //assessment();
+            SceneManager.LoadScene("Assessment");
+            Debug.Log("angle:" + PlutoComm.angle);
+            //PlutoComm.calibrate(AppData.selectedMechanism);
+        }
+    }
+    // Method to handle scene change
+    void MoveToAssessmentScene()
+    {
+        string assessmentSceneName = "Assessment"; 
+        if (SceneManager.GetSceneByName(assessmentSceneName) != null)
+        {
+            Debug.Log("Moving to the assessment scene...");
+            SceneManager.LoadScene(assessmentSceneName);
+        }
+        else
+        {
+            Debug.LogError($"Scene '{assessmentSceneName}' not found! Ensure it is added in Build Settings.");
         }
     }
     void AttachToggleListeners()
@@ -117,6 +141,45 @@ public class ChooseGameSceneHandler : MonoBehaviour
             Debug.Log("No game selected. Please select a game.");
         }
     }
+    private void assessment()
+    {
+        string date = AppData.oldAROM.datetime; // Replace with your actual data source
+        Debug.Log($"AppData.oldAROM.datetime: {date}");
+
+        if (!string.IsNullOrEmpty(date))
+        {
+            // Parse the date string to a DateTime object
+            DateTime oldDate;
+            if (DateTime.TryParseExact(date, "dd-MM-yyyy HH:mm:ss", null, System.Globalization.DateTimeStyles.None, out oldDate))
+            {  // Calculate the difference between the old date and the current date
+                DateTime currentDate = DateTime.Now;
+                TimeSpan timeDifference = currentDate - oldDate;
+
+                Debug.Log($"Current Date: {currentDate}, Old Date: {oldDate}, Difference in Days: {timeDifference.TotalDays:F2}");
+
+
+                // Check if the difference is 7 days or more
+                if (timeDifference.TotalDays >= 7)
+                {
+                    Debug.Log("7 days passed. Loading Assessment Scene.");
+                    SceneManager.LoadScene("Assessment"); // Replace with your actual scene name
+                }
+                else
+                {
+                    Debug.Log($"Only {timeDifference.TotalDays} days have passed. 7 days required.");
+                }
+            }
+            else
+            {
+                Debug.LogError($"Invalid date format: {date}. Expected format: 'dd-MM-yyyy HH:mm:ss'.");
+            }
+        }
+        else
+        {
+            Debug.LogError("Date is null or empty.");
+        }
+    }
+
     private void OnDestroy()
     {
         if (ConnectToRobot.isPLUTO)
