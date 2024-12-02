@@ -12,11 +12,12 @@ public class calibrationSceneHandler : MonoBehaviour
     private bool isCalibrating = false;
     private float togetherPosition = 0.0f;
     private float togetherAngle = 0f;
-
     private float separationPosition = 11.0f;
-    private float separationAngle = 22.0f;
+    private float separationAngle = 180.0f;
+    private float separationAngleWFE = 140.0f;
     public TextMeshProUGUI textMessage;
     public TextMeshProUGUI mechText;
+
     private static bool connect = false;
     public Button exit;
     private string prevScene = "chooseMechanism";
@@ -26,6 +27,7 @@ public class calibrationSceneHandler : MonoBehaviour
 
     void Start()
     {
+
         AppLogger.SetCurrentScene(SceneManager.GetActiveScene().name);
         AppLogger.LogInfo($"{SceneManager.GetActiveScene().name} scene started.");
         selectedMechanism = AppData.selectedMechanism;
@@ -45,7 +47,6 @@ public class calibrationSceneHandler : MonoBehaviour
         if (ConnectToRobot.isPLUTO)
         {
             PlutoComm.OnButtonReleased += OnPlutoButtonReleased;
-
         }
 
         if (isCalibrating)
@@ -70,24 +71,17 @@ public class calibrationSceneHandler : MonoBehaviour
                 break;
 
             case "WFE":
-                StartCoroutine(autoCalibrateWFEandWURD());
-                break;
-
             case "WURD":
-                ;
-                StartCoroutine(autoCalibrateWFEandWURD());
+                StartCoroutine(autoCalibrate(togetherAngle, separationAngleWFE));
                 break;
 
             case "FPS":
-                StartCoroutine(autoCalibrateFPS());
+                StartCoroutine(autoCalibrate(togetherAngle, separationAngle));
                 break;
 
             case "FME1":
-                StartCoroutine(autoCalibrateFME());
-                break;
-
             case "FME2":
-                StartCoroutine(autoCalibrateFME());
+                StartCoroutine(autoCalibrate(togetherAngle, separationAngle));
                 break;
 
             default:
@@ -103,159 +97,49 @@ public class calibrationSceneHandler : MonoBehaviour
         textMessage.text = "Calibrating...";
 
         float currentDistance = PlutoComm.getHOCDisplay(PlutoComm.angle);
+        ApplyTorqueToSep(currentDistance, togetherPosition);
+        yield return new WaitForSeconds(1.5f);
 
-        ApplyTorqueToMoveHandles(currentDistance, 0);
-        yield return new WaitForSeconds(1.0f);
-
-        float currentDistance1 = PlutoComm.getHOCDisplay(PlutoComm.angle);
-        if (!CheckPositionTogether(1, togetherPosition)) yield break;
 
         PlutoComm.calibrate(selectedMechanism);
 
-        ApplyTorqueToMoveHandles(0, separationPosition);
+        ApplyTorque(PlutoComm.getHOCDisplay(PlutoComm.angle), separationPosition);
 
-        yield return new WaitForSeconds(1.0f);
-        currentDistance = PlutoComm.getHOCDisplay(PlutoComm.angle);
-        if (!CheckPositionSeparation(currentDistance, separationPosition)) yield break;
+        yield return new WaitForSeconds(1.5f);
 
-        ApplyTorqueToMoveHandles(currentDistance, togetherPosition);
+        if (!CheckPositionSeparation(PlutoComm.getHOCDisplay(PlutoComm.angle), separationPosition)) yield break;
 
-        yield return new WaitForSeconds(1.0f);
-        currentDistance = PlutoComm.getHOCDisplay(PlutoComm.angle);
+        ApplyTorqueToSep(PlutoComm.getHOCDisplay(PlutoComm.angle), togetherPosition);
 
-        isCalibrating = false;
-        textMessage.text = "Calibration Done";
-        textMessage.color = new Color32(62, 214, 111, 255);
-        PlutoComm.setControlType(PlutoComm.CONTROLTYPE[0]);
-
+        yield return new WaitForSeconds(1.5f);
+        if (!CheckPositionTogether(PlutoComm.getHOCDisplay(PlutoComm.angle), togetherPosition)) yield break;
+        textMsg();
         Invoke("LoadNextScene", 0.4f);
     }
 
-    IEnumerator autoCalibrateFPS()
+    IEnumerator autoCalibrate(float togetherAngle, float separationAngle)
     {
         textMessage.color = Color.black;
         textMessage.text = "Calibrating...";
 
-        float currentAngle = PlutoComm.getHOCDisplay(PlutoComm.angle);
-        Debug.Log("Current Angle when starting:" + currentAngle);
+        float currentAngle = PlutoComm.angle;
 
-        ApplyTorqueToMoveHandles(currentAngle, togetherAngle);
+        ApplyTorque(currentAngle, togetherAngle);
+        yield return new WaitForSeconds(1.5f);
 
-        yield return new WaitForSeconds(1.0f);
+        PlutoComm.calibrate(AppData.selectedMechanism);
 
-        float currentAngle1 = PlutoComm.getHOCDisplay(PlutoComm.angle);
-        Debug.Log("Current Angle when together position" + currentAngle1);
+        ApplyTorqueToSep(PlutoComm.angle, separationAngle);
 
-        if (!CheckPositionTogetherAng(1, togetherAngle)) yield break;
-
-        PlutoComm.calibrate(selectedMechanism);
-
-        ApplyTorqueToMoveHandles(currentAngle, separationAngle);
-        Debug.Log("Current Angle after separation:" + currentAngle);
-
-        yield return new WaitForSeconds(1.0f);
-        currentAngle = PlutoComm.getHOCDisplay(PlutoComm.angle);
-        if (!CheckPositionSeparationAng(currentAngle, separationAngle)) yield break;
+        yield return new WaitForSeconds(1.5f); 
+        if (!CheckPositionSeparation(PlutoComm.angle, separationAngle)) yield break;
+        ApplyTorque(PlutoComm.angle, togetherAngle);
 
 
-        ApplyTorqueToMoveHandles(currentAngle, togetherAngle);
-        Debug.Log("Current Angle last: " + currentAngle);
+        yield return new WaitForSeconds(1.5f);
 
-
-        yield return new WaitForSeconds(1.0f);
-        currentAngle = PlutoComm.getHOCDisplay(PlutoComm.angle);
-
-        isCalibrating = false;
-        textMessage.text = "Calibration Done";
-        textMessage.color = new Color32(62, 214, 111, 255);
-        PlutoComm.setControlType(PlutoComm.CONTROLTYPE[0]);
-
-        Invoke("LoadNextScene", 0.4f);
-    }
-
-    IEnumerator autoCalibrateWFEandWURD()
-    {
-        textMessage.color = Color.black;
-        textMessage.text = "Calibrating...";
-
-        //float currentAngle = PlutoComm.angle;
-        float currentAngle = PlutoComm.getHOCDisplay(PlutoComm.angle);
-        Debug.Log("Current Angle when starting:" + currentAngle);
-
-        ApplyTorqueToMoveHandles(currentAngle, togetherAngle);
-
-        yield return new WaitForSeconds(1.0f);
-
-        float currentAngle1 = PlutoComm.getHOCDisplay(PlutoComm.angle);
-        Debug.Log("Current Angle when together position" + currentAngle1);
-
-        if (!ChkPosTogetherWFEWURD(1, togetherAngle)) yield break;
-
-        PlutoComm.calibrate(selectedMechanism);
-
-        ApplyTorqueToMoveHandles(currentAngle, 16);
-        Debug.Log("Current Angle after separation:" + currentAngle);
-
-        yield return new WaitForSeconds(1.0f);
-        currentAngle = PlutoComm.getHOCDisplay(PlutoComm.angle);
-        if (!ChkPosSeparationWFEWURD(currentAngle, 16)) yield break;
-
-
-        ApplyTorqueToMoveHandles(currentAngle, togetherAngle);
-        Debug.Log("Current Angle last: " + currentAngle);
-
-
-        yield return new WaitForSeconds(1.0f);
-        currentAngle = PlutoComm.getHOCDisplay(PlutoComm.angle);
-
-        isCalibrating = false;
-        textMessage.text = "Calibration Done";
-        textMessage.color = new Color32(62, 214, 111, 255);
-        PlutoComm.setControlType(PlutoComm.CONTROLTYPE[0]);
-
-        Invoke("LoadNextScene", 0.4f);
-    }
-
-
-    IEnumerator autoCalibrateFME()
-    {
-        textMessage.color = Color.black;
-        textMessage.text = "Calibrating...";
-
-        //float currentAngle = PlutoComm.angle;
-        float currentAngle = PlutoComm.getHOCDisplay(PlutoComm.angle);
-        Debug.Log("Current Angle when starting:" + currentAngle);
-
-        ApplyTorqueToMoveHandles(currentAngle, togetherAngle);
-
-        yield return new WaitForSeconds(1.0f);
-
-        float currentAngle1 = PlutoComm.getHOCDisplay(PlutoComm.angle);
-        Debug.Log("Current Angle when together position" + currentAngle1);
-
-        if (!ChkPosTogetherWFEWURD(1, togetherAngle)) yield break;
-
-        PlutoComm.calibrate(selectedMechanism);
-
-        ApplyTorqueToMoveHandles(currentAngle, 30);
-        Debug.Log("Current Angle after separation:" + currentAngle);
-
-        yield return new WaitForSeconds(1.0f);
-        currentAngle = PlutoComm.getHOCDisplay(PlutoComm.angle);
-        if (!ChkPosSeparationWFEWURD(currentAngle, 30)) yield break;
-
-
-        ApplyTorqueToMoveHandles(currentAngle, togetherAngle);
-        Debug.Log("Current Angle last: " + currentAngle);
-
-
-        yield return new WaitForSeconds(1.0f);
-        currentAngle = PlutoComm.getHOCDisplay(PlutoComm.angle);
-
-        isCalibrating = false;
-        textMessage.text = "Calibration Done";
-        textMessage.color = new Color32(62, 214, 111, 255);
-        PlutoComm.setControlType(PlutoComm.CONTROLTYPE[0]);
+        if (!CheckPositionTogether(PlutoComm.angle, togetherAngle)) yield break;
+        textMsg();
 
         Invoke("LoadNextScene", 0.4f);
     }
@@ -265,14 +149,18 @@ public class calibrationSceneHandler : MonoBehaviour
         AppLogger.LogInfo($"Switching scene to '{nextScene}'.");
         SceneManager.LoadScene(nextScene);
     }
-    private void ApplyTorqueToMoveHandles(float currentPos, float targetPos)
+    private void ApplyTorque(float currentPos, float targetPos)
     {
-        float distance = targetPos - currentPos;
-        float torqueValue = (distance > 0) ? -0.1f : 0.1f;   // torque values Nm
+        float torqueValue = -0.1f;
         PlutoComm.setControlType("TORQUE");
         PlutoComm.setControlTarget(torqueValue);
     }
-
+    private void ApplyTorqueToSep(float currentPos, float targetPos)
+    {
+        float torqueValue = 0.1f;
+        PlutoComm.setControlType("TORQUE");
+        PlutoComm.setControlTarget(torqueValue);
+    }
 
     private void OnPlutoButtonReleased()
     {
@@ -282,130 +170,63 @@ public class calibrationSceneHandler : MonoBehaviour
 
     private bool CheckPositionTogether(float currentPosition, float targetPosition)
     {
-        if (currentPosition <= 1.5f)
+        float targetPos = targetPosition + 1.5f;
+        if (currentPosition <= targetPos)
         {
             return true;
         }
         else
         {
-            textMessage.text = $"Error: Together Position NOT reached! Current: {currentPosition}";
-            textMessage.color = Color.red;
-            isCalibrating = false;
-            PlutoComm.setControlType(PlutoComm.CONTROLTYPE[0]);
-            return false;
-        }
-    }
-    private bool CheckPositionTogetherAng(float currentPosition, float targetPosition)
-    {
-        if (currentPosition <= 1.5f)
-        {
-            textMessage.text = $"Together Position reached! Current: {currentPosition}";
-            return true;
-        }
-        else
-        {
-            textMessage.text = $"Error: Together Position NOT reached! Current: {currentPosition}";
-            textMessage.color = Color.red;
-            isCalibrating = false;
-            PlutoComm.setControlType(PlutoComm.CONTROLTYPE[0]);
-            return false;
-        }
-    }
-    private bool ChkPosTogetherWFEWURD(float currentPosition, float targetPosition)
-    {
-        if (currentPosition <= 1f)
-        {
-            textMessage.text = $"Together Position reached! Current: {currentPosition}";
-            return true;
-        }
-        else
-        {
-            textMessage.text = $"Error: Together Position NOT reached! Current: {currentPosition}";
-            textMessage.color = Color.red;
-            isCalibrating = false;
-            PlutoComm.setControlType(PlutoComm.CONTROLTYPE[0]);
-            return false;
-        }
-    }
-    private bool ChkPosTogetherFME(float currentPosition, float targetPosition)
-    {
-        if (currentPosition <= 1f)
-        {
-            textMessage.text = $"Together Position reached! Current: {currentPosition}";
-            return true;
-        }
-        else
-        {
-            textMessage.text = $"Error: Together Position NOT reached! Current: {currentPosition}";
-            textMessage.color = Color.red;
-            isCalibrating = false;
-            PlutoComm.setControlType(PlutoComm.CONTROLTYPE[0]);
+            errMsg();
             return false;
         }
     }
 
     private bool CheckPositionSeparation(float currentPosition, float targetPosition)
     {
-        if (currentPosition >= 9.0f)
-        {
-            return true;
+        if (selectedMechanism == "HOC") {
+            float targetPos = targetPosition - 3f;
+            if (currentPosition >= targetPos)
+            {
+                return true;
+            }
+            else
+            {
+                errMsg();
+                return false;
+            }
         }
         else
         {
-            textMessage.text = $"Error: Separation Position NOT reached! Current: {currentPosition}";
-            textMessage.color = Color.red;
-            isCalibrating = false;
-            PlutoComm.setControlType(PlutoComm.CONTROLTYPE[0]);
-            return false;
+            float targetPos = targetPosition - 2f;
+            if (currentPosition >= targetPos)
+            {
+                return true;
+            }
+            else
+            {
+                errMsg();
+                return false;
+            }
         }
+
     }
-    private bool CheckPositionSeparationAng(float currentPosition, float targetPosition)
+
+    private void errMsg()
     {
-        if (currentPosition >= 20.0f)
-        {
-            textMessage.text = $"Separation Position reached! Current: {currentPosition}";
-            return true;
-        }
-        else
-        {
-            textMessage.text = $"Error: Separation Position NOT reached! Current: {currentPosition}";
-            textMessage.color = Color.red;
-            isCalibrating = false;
-            PlutoComm.setControlType(PlutoComm.CONTROLTYPE[0]);
-            return false;
-        }
+        textMessage.text = $"Try Again.";
+        textMessage.color = Color.red;
+        isCalibrating = false;
+        PlutoComm.calibrate(AppData.selectedMechanism);
+        PlutoComm.setControlType(PlutoComm.CONTROLTYPE[0]);
     }
-    private bool ChkPosSeparationWFEWURD(float currentPosition, float targetPosition)
+
+    private void textMsg()
     {
-        if (currentPosition >= 16.0f)
-        {
-            textMessage.text = $"Separation Position reached! Current: {currentPosition}";
-            return true;
-        }
-        else
-        {
-            textMessage.text = $"Error: Separation Position NOT reached! Current: {currentPosition}";
-            textMessage.color = Color.red;
-            isCalibrating = false;
-            PlutoComm.setControlType(PlutoComm.CONTROLTYPE[0]);
-            return false;
-        }
-    }
-    private bool ChkPosSeparationFME(float currentPosition, float targetPosition)
-    {
-        if (currentPosition >= 29.0f)
-        {
-            textMessage.text = $"Separation Position reached! Current: {currentPosition}";
-            return true;
-        }
-        else
-        {
-            textMessage.text = $"Error: Separation Position NOT reached! Current: {currentPosition}";
-            textMessage.color = Color.red;
-            isCalibrating = false;
-            PlutoComm.setControlType(PlutoComm.CONTROLTYPE[0]);
-            return false;
-        }
+        isCalibrating = false;
+        textMessage.text = "Calibration Done";
+        textMessage.color = new Color32(62, 214, 111, 255);
+        PlutoComm.setControlType(PlutoComm.CONTROLTYPE[0]);
     }
     private void OnExitButtonClicked()
     {

@@ -35,9 +35,7 @@ public class MechanismSceneHandler : MonoBehaviour
         // Initialize if needed
         if (AppData.UserData.dTableConfig == null)
         {
-            // Inialize the logger
             AppLogger.StartLogging(SceneManager.GetActiveScene().name);
-            // Initialize.
             AppData.initializeStuff();
         }
         AppLogger.SetCurrentScene(SceneManager.GetActiveScene().name);
@@ -45,7 +43,7 @@ public class MechanismSceneHandler : MonoBehaviour
         AppLogger.SetCurrentMechanism("");
         // Attach PLUTO button event
         PlutoComm.OnButtonReleased += OnPlutoButtonReleased;
-
+        PlutoComm.calibrate("NOMECH");
         //checking time scale 
         if (Time.timeScale == 0)
         {
@@ -103,7 +101,7 @@ public class MechanismSceneHandler : MonoBehaviour
 
     IEnumerator DelayedAttachListeners()
     {
-        yield return new WaitForSeconds(1f);  
+        yield return new WaitForSeconds(0.3f);  
         AttachToggleListeners();
     }
 
