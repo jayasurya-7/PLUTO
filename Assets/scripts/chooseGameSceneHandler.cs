@@ -1,14 +1,17 @@
+using System;
 using UnityEngine;
 using UnityEngine.SceneManagement;  
 using UnityEngine.UI;  
 using System.Collections.Generic; 
-using System.Collections; 
+using System.Collections;
+using TMPro;
 
 public class ChooseGameSceneHandler : MonoBehaviour
 {
     public GameObject toggleGroup;  
     public Button playButton;   
-    public Button changeMech;  
+    public Button changeMech;
+    public TMP_Text result;
 
     private bool toggleSelected = false;  
     private string selectedGame;
@@ -17,8 +20,8 @@ public class ChooseGameSceneHandler : MonoBehaviour
     private readonly Dictionary<string, string> gameScenes = new Dictionary<string, string>
     {
         { "pingPong", "pong_menu" },
-        { "Game2", "Game2Scene" },
-        { "Game3", "Game3Scene" }
+        { "tukTuk", "FlappyGame" },
+        { "hatTrick", "HatrickGame" }
     };
 
 
@@ -41,6 +44,7 @@ public class ChooseGameSceneHandler : MonoBehaviour
         AttachToggleListeners();
         playButton.onClick.AddListener(OnPlayButtonClicked);
         changeMech.onClick.AddListener(OnMechButtonClicked);
+        AppData.oldAROM=new AROM(AppData.selectedMechanism);
     }
     void Update()
     {   
@@ -48,6 +52,24 @@ public class ChooseGameSceneHandler : MonoBehaviour
         {
             LoadSelectedGameScene(selectedGame);
             isButtonPressed = false;
+        }
+        if (Input.GetKey(KeyCode.LeftControl) && Input.GetKeyDown(KeyCode.R))
+        {
+            assessment();
+
+        }
+    }
+    void MoveToAssessmentScene()
+    {
+        string assessmentSceneName = "Assessment"; 
+        if (SceneManager.GetSceneByName(assessmentSceneName) != null)
+        {
+            Debug.Log("Moving to the assessment scene...");
+            SceneManager.LoadScene(assessmentSceneName);
+        }
+        else
+        {
+            Debug.LogError($"Scene '{assessmentSceneName}' not found! Ensure it is added in Build Settings.");
         }
     }
     void AttachToggleListeners()
@@ -117,6 +139,42 @@ public class ChooseGameSceneHandler : MonoBehaviour
             Debug.Log("No game selected. Please select a game.");
         }
     }
+    private void assessment()
+    {
+        string date = AppData.oldAROM.datetime; 
+        Debug.Log($"AppData.oldAROM.datetime: {date}");
+
+        if (!string.IsNullOrEmpty(date))
+        {
+            DateTime oldDate;
+            if (DateTime.TryParseExact(date, "dd-MM-yyyy HH:mm:ss", null, System.Globalization.DateTimeStyles.None, out oldDate))
+            {  
+                DateTime currentDate = DateTime.Now;
+                TimeSpan timeDifference = currentDate - oldDate;
+
+                result.text = $"Current Date: {currentDate}, Old Date: {oldDate}, Difference in Days: {timeDifference.TotalDays:F2}";
+
+                if (timeDifference.TotalDays >= 7)
+                {
+                    Debug.Log("7 days passed. Loading Assessment Scene.");
+                    SceneManager.LoadScene("Assessment"); 
+                }
+                else
+                {
+                    Debug.Log($"Only {timeDifference.TotalDays} days have passed. 7 days required.");
+                }
+            }
+            else
+            {
+                Debug.LogError($"Invalid date format: {date}. Expected format: 'dd-MM-yyyy HH:mm:ss'.");
+            }
+        }
+        else
+        {
+            Debug.LogError("Date is null or empty.");
+        }
+    }
+
     private void OnDestroy()
     {
         if (ConnectToRobot.isPLUTO)
