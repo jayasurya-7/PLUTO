@@ -4,16 +4,12 @@ using System.Collections;
 public class AutoPlayer : MonoBehaviour
 {
 
-    //Speed of the AI
     public float speed = 2.75F;
 
-    //the ball
     Transform ball;
 
-    //the ball's rigidbody 2D
     Rigidbody2D ballRig2D;
 
-    //bounds of AI
     public float topBound = 4.5F;
     public float bottomBound = -4.5F;
 
