@@ -1,0 +1,155 @@
+
+using System;
+using System.Collections;
+using System.Collections.Generic;
+using System.IO;
+using System.Linq;
+using TMPro;
+using UnityEngine;
+using UnityEngine.SceneManagement;
+using UnityEngine.UI;
+
+public class assessmentSceneHandler : MonoBehaviour
+{
+
+    public Button promButton;
+
+    public Button RedoPRom;
+    public Button aromButton;
+    public TextMeshProUGUI mechName;
+    
+    public PROMsceneHandler promHandler;
+    public AROMsceneHandler aromHandler;
+    public Image promImage;
+    public Image aromImage;
+    public TMP_Text Ins;
+    public GameObject[] aromSelected; 
+    public GameObject[] promSelected;
+    private string mech;
+    static int steps = 10;
+    public static float[] assistProfile = new float[steps];
+
+    //public ToggleGroup assistTG;
+
+
+    // Start is called before the first frame update
+    void Start()
+    {
+        //AppData.initializeStuff();
+
+        SelectpROM();
+        mech = AppData.selectedMechanism;
+        //UpdateAssistProfile();
+        mechName.text = PlutoComm.MECHANISMSTEXT[PlutoComm.GetPlutoCodeFromLabel(PlutoComm.MECHANISMS, mech)];
+      
+
+    }
+    void Update()
+    {
+        //Debug.Log(assistTG.ActiveToggles().FirstOrDefault().gameObject.name);
+        Debug.Log("device ang2: " + PlutoComm.angle);
+    }
+
+    
+
+    public void writeAssesmentFileAndExit()
+    {
+        SceneManager.LoadScene("choosegame");
+        Debug.Log("Wrote successfully");
+    }
+    public void SelectpROM()
+    {
+        promButton.Select();
+        if(AppData.selectedMechanism != "HOC")
+        {
+            Ins.text = "set mechanism to zero position and press  'K'  to set zero";
+
+        }
+        promImage.color = new Color(0f / 255f, 55f / 255f, 52f / 255f);
+        aromImage.color = new Color(220f / 255f, 83f / 255f, 87f / 255f, 1f);
+        promHandler.isSelected = true;
+        aromHandler.isSelected = false;
+        SetActiveStatus(aromSelected, false);
+        SetActiveStatus(promSelected, true);
+
+
+    }
+
+    public void SelectAROM()
+    {
+        promImage.color = new Color(220f / 255f, 83f / 255f, 87f / 255f, 1f);
+
+        aromImage.color =  new Color(0f / 255f, 55f / 255f, 52f / 255f);
+
+        promHandler.isSelected = false;
+        aromHandler.isSelected = true;
+
+        SetActiveStatus(aromSelected, true);
+        SetActiveStatus(promSelected, true);
+
+        AppData.newPROM = new MechanismData(AppData.selectedMechanism);
+
+        float newPROM_tmin = AppData.newPROM.tmin;
+        float newPROM_tmax = AppData.newPROM.tmax;
+        updateAROM();
+
+    }
+
+    public void updateAROM()
+    {
+        if (aromHandler.isSelected == true)
+        {
+            AppData.newPROM = new MechanismData(AppData.selectedMechanism);
+
+            float newPROM_tmin = AppData.newPROM.tmin;
+            float newPROM_tmax = AppData.newPROM.tmax;
+        }
+    }
+    private void SetActiveStatus(GameObject[] objects, bool status)
+    {
+       
+        foreach (GameObject obj in objects)
+        {
+            
+            obj.SetActive(status);
+        }
+    }
+    //  public void UpdateAssistProfile()
+    //{
+    //    float assist = 0;
+
+    //    switch (assistTG.ActiveToggles().FirstOrDefault().gameObject.name)
+    //    {
+    //        case "LOW":
+    //            assist = 0.2f;
+    //            break;
+    //        case "MEDIUM":
+    //            assist = 0.6f;
+    //            break;
+    //        case "HIGH":
+    //            assist = 1f;
+    //            break;
+    //        default:
+    //            Debug.LogWarning("Unknown toggle selected");
+    //            break;
+    //    }
+
+    //    for (int i = 0; i < assistProfile.Length; i++)
+    //    {
+    //        assistProfile[i] = assist;
+    //    }
+
+    //    Debug.Log("Assist array updated");
+
+
+    //}
+    public void chanceMech()
+    {
+        SceneManager.LoadScene("chooseMechanism");
+    }
+    public void gameScene()
+    {
+        SceneManager.LoadScene("choosegame");
+    }
+
+}
