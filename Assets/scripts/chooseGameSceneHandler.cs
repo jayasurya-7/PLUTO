@@ -5,6 +5,7 @@ using UnityEngine.UI;
 using System.Collections.Generic; 
 using System.Collections;
 using TMPro;
+using UnityEditor.U2D.Aseprite;
 
 public class ChooseGameSceneHandler : MonoBehaviour
 {
@@ -40,6 +41,7 @@ public class ChooseGameSceneHandler : MonoBehaviour
         AppLogger.SetCurrentScene(SceneManager.GetActiveScene().name);
         AppLogger.LogInfo($"{SceneManager.GetActiveScene().name} scene started.");
         AppLogger.SetCurrentGame("");
+        AppData.UserData.CalculateGameSpeedForLastUsageDay();
         PlutoComm.OnButtonReleased += OnPlutoButtonReleased;
         AttachToggleListeners();
         playButton.onClick.AddListener(OnPlayButtonClicked);
@@ -59,7 +61,7 @@ public class ChooseGameSceneHandler : MonoBehaviour
             SceneManager.LoadScene("Assessment");
 
         }
-        Debug.Log("device ang: " + PlutoComm.angle);
+       // Debug.Log("device ang: " + PlutoComm.angle);
     }
 
     void AttachToggleListeners()

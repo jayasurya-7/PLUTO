@@ -34,7 +34,7 @@ namespace NeuroRehabLibrary
                 using (var writer = new StreamWriter(csvFilePath, false, Encoding.UTF8))
                 {
                     writer.WriteLine("SessionNumber,DateTime,Device,Assessment,StartTime,StopTime,GameName,TrialDataFileLocation," +
-                        "DeviceSetupLocation,AssistMode,AssistModeParameters,GameParameter,Mechanism,MoveTime");
+                        "DeviceSetupLocation,AssistMode,AssistModeParameters,GameParameter,Mechanism,MoveTime,GameSpeed,SuccessRate");
                 }
                 Debug.Log("Initialized SessionManager with session number: 0" );
             }
@@ -169,7 +169,20 @@ namespace NeuroRehabLibrary
                 session.mechanism = mech;
             }
         }
-
+        public void gameSpeed(float gameSpeed, GameSession session)
+        {
+            if (session != null)
+            {
+                session.gameSpeed = gameSpeed;
+            }
+        }
+        public void successRate(float successRate, GameSession session)
+        {
+            if (session != null)
+            {
+                session.successRate = successRate;
+            }
+        }
 
         private void WriteSession(GameSession session)
         {
@@ -199,7 +212,10 @@ namespace NeuroRehabLibrary
                     session.AssistModeParameters,
                     session.GameParameter,
                     session.mechanism,
-                    session.moveTime);
+                    session.moveTime,
+                    session.gameSpeed,
+                    session.successRate
+                    );
 
                 writer.WriteLine(csvLine);
             }
@@ -223,6 +239,8 @@ namespace NeuroRehabLibrary
         public string GameParameter { get; set; }
         public string mechanism { get; set; }
         public string moveTime { get; set; }
+        public float gameSpeed { get; set; }
+        public float successRate { get; set; }
 
         public void SetStartTime()
         {

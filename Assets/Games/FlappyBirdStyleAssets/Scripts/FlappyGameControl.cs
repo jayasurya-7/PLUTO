@@ -95,6 +95,10 @@ public class FlappyGameControl : MonoBehaviour
         {
             gameduration -= Time.deltaTime;
         }
+        if (gameData.gameScore > 0 && gameData.gameScore < 11)
+        {
+            gameData.successRate = (float)gameData.gameScore / 10;
+        }
 
     }
 
@@ -167,7 +171,7 @@ public class FlappyGameControl : MonoBehaviour
                     GetComponent<AudioSource>().Play();
                 }
                 score += 1;
-                gameData.gameScore ++;
+                gameData.gameScore++;
 
              
             }
@@ -264,6 +268,8 @@ public class FlappyGameControl : MonoBehaviour
         {
             string trialdata = AppData.trialDataFileLocation;
             string movetime = gameData.moveTime.ToString("F0");
+            SessionManager.Instance.gameSpeed(gameData.gameSpeedTT, currentGameSession);
+            SessionManager.Instance.successRate(gameData.successRate, currentGameSession);
             SessionManager.Instance.SetTrialDataFileLocation(trialdata, currentGameSession);
             SessionManager.Instance.moveTime(movetime, currentGameSession);
             SessionManager.Instance.EndGameSession(currentGameSession);

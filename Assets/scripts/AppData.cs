@@ -226,6 +226,95 @@ public static class AppData
             }
         }
 
+        public static void CalculateGameSpeedForLastUsageDay()
+        {
+            // Validate the input mechanism
+            if (!PlutoDefs.Mechanisms.Contains(AppData.selectedMechanism))
+            {
+                UnityEngine.Debug.LogError($"Invalid mechanism: {selectedMechanism}");
+                return;
+            }
+
+            // Ensure session data is loaded
+            if (dTableSession == null || dTableSession.Rows.Count == 0)
+            {
+                UnityEngine.Debug.LogWarning("Session data is not available.");
+                return;
+            }
+
+            // Define the list of games directly in the function
+            List<string> games = new List<string> { "PING-PONG", "TUK-TUK", "HAT-Trick" };
+
+            // Find the last usage date for the selected mechanism across all games
+            var lastUsageDate = dTableSession.AsEnumerable()
+                .Where(row => row.Field<string>("Mechanism") == selectedMechanism)
+                .Select(row => DateTime.ParseExact(row.Field<string>("DateTime"), "dd-MM-yyyy HH:mm:ss", CultureInfo.InvariantCulture).Date)
+                .OrderByDescending(date => date)
+                .FirstOrDefault();
+
+            if (lastUsageDate == default(DateTime))
+            {
+                UnityEngine.Debug.LogWarning($"No usage data found for mechanism: {selectedMechanism}");
+                return;
+            }
+
+            UnityEngine.Debug.Log($"Last usage date for mechanism {selectedMechanism}: {lastUsageDate:dd-MM-yyyy}");
+
+            // Dictionary to hold updated GameSpeeds for the selected mechanism and its games
+            Dictionary<string, float> updatedGameSpeeds = new Dictionary<string, float>();
+
+            foreach (string game in games)
+            {
+                // Get last usage day's GameSpeed and SuccessRate for the selected mechanism and game
+                var rows = dTableSession.AsEnumerable()
+                    .Where(row => DateTime.ParseExact(row.Field<string>("DateTime"), "dd-MM-yyyy HH:mm:ss", CultureInfo.InvariantCulture).Date == lastUsageDate)
+                    .Where(row => row.Field<string>("GameName") == game && row.Field<string>("Mechanism") == selectedMechanism);
+
+                if (!rows.Any())
+                {
+                    updatedGameSpeeds[game] = 1f; // Default value if no data found
+                    continue;
+                }
+
+                // Calculate average GameSpeed and SuccessRate
+                float avgGameSpeed = rows.Average(row => Convert.ToSingle(row["GameSpeed"]));
+                float avgSuccessRate = rows.Average(row => Convert.ToSingle(row["SuccessRate"]));
+
+                // Increment GameSpeed if SuccessRate > 0.9
+                if (avgSuccessRate > 0.9f)
+                {
+                    updatedGameSpeeds[game] = avgGameSpeed + 0.5f;
+                }
+                else
+                {
+                    updatedGameSpeeds[game] = avgGameSpeed; // Retain current GameSpeed
+                }
+            }
+
+            // Log the updated GameSpeeds for debugging
+            UnityEngine.Debug.Log($"Updated GameSpeeds for Mechanism: {selectedMechanism}");
+            foreach (var game in updatedGameSpeeds)
+            {
+                UnityEngine.Debug.Log($"Game: {game.Key}, Updated GameSpeed: {game.Value}");
+                if(game.Key== games[0])
+                {
+                    UnityEngine.Debug.Log("games[0] :" + games[0]);
+                    gameData.gameSpeedPP=game.Value;
+                }
+                if (game.Key == games[1])
+                {
+                    gameData.gameSpeedTT = game.Value;
+                }
+                if (game.Key == games[2])
+                {
+                    gameData.gameSpeedHT = game.Value;
+                }
+            }
+
+            // Apply updated GameSpeeds back to your data structure (e.g., save to a file or update session data)
+            // Implement logic here to persist the updatedGameSpeeds
+        }
+
         private static void parseTherapyConfigData()
         {
             DataRow lastRow = dTableConfig.Rows[dTableConfig.Rows.Count - 1];
@@ -400,13 +489,18 @@ public static class gameData
     public static string wallBounce = "0";
     public static string enemyFail = "0";
     public static string playerFail = "0";
-    public static int winningScore = 3;
+    public static int winningScore = 10;
     public static float moveTime;
     public static readonly string[] pongEvents = new string[] { "moving", "wallBounce", "playerHit", "enemyHit", "playerFail", "enemyFail" };
     public static readonly string[] hatEvents = new string[] { "moving", "BallCaught", "BombCaught", "BallMissed", "BombMissed" };
     public static readonly string[] tukEvents = new string[] { "moving", "collided", "passed" };
     public static int events;
     public static string TargetPos;
+    public static float successRate;
+    public static float gameSpeedTT;
+    public static float gameSpeedPP;
+    public static float gameSpeedHT;
+
     private static DataLogger dataLog;
     private static string[] gameHeader = new string[] {
         "time","controltype","error","buttonState","angle","control",

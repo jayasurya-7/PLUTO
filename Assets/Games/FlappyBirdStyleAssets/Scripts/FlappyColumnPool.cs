@@ -92,7 +92,7 @@ public class FlappyColumnPool : MonoBehaviour
         }
         // FB_spawnTargets.instance.trailDuration = 10f / -FlappyGameControl.instance.scrollSpeed;
 
-        FlappyGameControl.instance.scrollSpeed = -2 - 2 * .1f;
+        FlappyGameControl.instance.scrollSpeed = -2 - 2 * (.1f + gameData.gameSpeedTT);
     }
 
     public void chooseBackground()

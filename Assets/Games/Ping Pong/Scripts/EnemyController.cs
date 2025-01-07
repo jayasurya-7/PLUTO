@@ -79,8 +79,8 @@ public class EnemyController : MonoBehaviour
 {
 
     //Speed of the enemy
-    public static float speed = 2.9F;
-
+    public static float speedDefault = 2.9F;
+    public static float speed;
     //the ball
     Transform ball;
 
@@ -99,6 +99,7 @@ public class EnemyController : MonoBehaviour
     }
     void Start()
     {
+        speed = speedDefault + gameData.gameSpeedPP;
         //Continously Invokes Move every x seconds (values may differ)
         InvokeRepeating("Move", .02F, .02F);
     }

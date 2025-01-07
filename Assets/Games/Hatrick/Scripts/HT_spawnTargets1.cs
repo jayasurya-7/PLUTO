@@ -81,11 +81,12 @@ public class HT_spawnTargets1 : MonoBehaviour
 
         System.Random rnd = new System.Random();
         //First4Targets = First4Targets.OrderBy(x => rnd.Next()).ToArray();
-       
 
 
 
-        
+        playSize = Camera.main.orthographicSize * Camera.main.aspect;
+
+
 
         setPrameters();
 
@@ -245,7 +246,8 @@ public class HT_spawnTargets1 : MonoBehaviour
 
 
 
-        return (-playSize + (angle - newPROM_tmin) * (2 * playSize) / (newPROM_tmax - newPROM_tmin));
+        // return (-playSize + (angle - newPROM_tmin) * (2 * playSize) / (newPROM_tmax - newPROM_tmin));
+        return Mathf.Lerp(-playSize, playSize, (angle - newPROM_tmin) / (newPROM_tmax - newPROM_tmin));
 
 
     }

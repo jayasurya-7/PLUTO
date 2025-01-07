@@ -19,8 +19,10 @@ public class HatGameController : MonoBehaviour
     public GameObject[] ball;
     Rigidbody2D rig2D;
     private float gameMoveTime = 0f;
-    private float lastTimestamp = 0f;     
-
+    private float lastTimestamp = 0f;
+    private float playSize;
+    private float gameSpeed=1f;
+    private float successRate=1f;
     public int score = 0;
     float maxwidth;
     float trialTime = 90;
@@ -39,9 +41,15 @@ public class HatGameController : MonoBehaviour
         else
             Destroy(gameObject);
 
+        playSize = Camera.main.orthographicSize * Camera.main.aspect;
+
+
     }
     void Start()
     {
+        AppLogger.SetCurrentScene(SceneManager.GetActiveScene().name);
+        AppLogger.LogInfo($"{SceneManager.GetActiveScene().name} scene started.");
+
         foreach (GameObject b in ball)
         {
             rig2D = b.GetComponent<Rigidbody2D>();  
@@ -65,7 +73,7 @@ public class HatGameController : MonoBehaviour
         PlutoComm.OnButtonReleased += onPlutoButtonReleased;
         UpdateText();
         HT_spawnTargets1.instance.playSize = maxwidth * 0.8f;
-        StartNewGameSession();
+       // StartNewGameSession();
     }
     void Update()
     {
@@ -101,8 +109,8 @@ public class HatGameController : MonoBehaviour
                 {
                     isPlaying = false;
                     gameData.isGameLogging=false;
-                     SceneManager.LoadScene(SceneManager.GetActiveScene().name);
-                       StartButton.SetActive(true);
+                    SceneManager.LoadScene(SceneManager.GetActiveScene().name);
+                    StartButton.SetActive(true);
 
                     if (HatGameController.instance.score > 0.8 * HT_spawnTargets1.instance.count)
                     {
@@ -129,10 +137,11 @@ public class HatGameController : MonoBehaviour
         if (timeLeft > 0 && balldestroyed)
         {
             balldestroyed = false;
-            HTDifficultyManager.ballSpeed = 2f + 0.3f * 1;
+            //HTDifficultyManager.ballSpeed = 2f + 0.3f * 1;
+            HTDifficultyManager.ballSpeed = 2f + 0.3f *(1 +gameData.gameSpeedHT);
             HT_spawnTargets1.instance.trailDuration = (8.0f / HTDifficultyManager.ballSpeed) * 0.8f;
 
-           float x = UnityEngine.Random.Range(-9, 9);
+           float x = UnityEngine.Random.Range(-playSize +0.5f, playSize - 0.5f);
             Vector3 spawnPosition = new Vector3(
                 x,
                 6f,
@@ -168,6 +177,10 @@ public class HatGameController : MonoBehaviour
     {
         timeLeftText.text = "Time left : " + ((int)timeLeft).ToString();
         ScoreText.text = "Score:"+ gameData.gameScore;
+        if (gameData.gameScore>0 && gameData.gameScore<11 )
+        {
+            gameData.successRate = (float)gameData.gameScore / 10;
+        }
     }
     private void onPlutoButtonReleased()
     {
@@ -182,6 +195,7 @@ public class HatGameController : MonoBehaviour
         StartNewGameSession();
         gameData.isGameLogging = true;
         timeLeft = trialTime;
+        AppLogger.LogInfo("HatGame Started");
         SpawnTarget();
 
 
@@ -221,13 +235,15 @@ public class HatGameController : MonoBehaviour
             string movetime = gameData.moveTime.ToString("F0");
             SessionManager.Instance.SetTrialDataFileLocation(trialdata, currentGameSession);
             SessionManager.Instance.moveTime(movetime, currentGameSession);
+            SessionManager.Instance.gameSpeed(gameData.gameSpeedHT,currentGameSession);
+            SessionManager.Instance.successRate(gameData.successRate, currentGameSession);
             SessionManager.Instance.EndGameSession(currentGameSession);
         }
     }
 
     public void Reload()
     {
-        //SceneManager.LoadScene(SceneManager.L)
+        //  SceneManager.LoadScene(SceneManager.L)
         //  GameOverObject.SetActive(false);
     }
     public void exitGame()
@@ -236,3 +252,4 @@ public class HatGameController : MonoBehaviour
         SceneManager.LoadScene("choosegame");
     }
 }
+

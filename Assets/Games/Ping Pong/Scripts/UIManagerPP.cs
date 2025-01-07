@@ -36,7 +36,10 @@ public class UIManagerPP : MonoBehaviour
             StartNewGameSession();
         }
         //PlutoComm.calibrate(AppData.selectedMechanism);
-
+        //if(gameData.successRate != 0)
+        //{
+        //    gameData.successRate = 0;
+        //}
     }
     void Update()
     {
@@ -46,7 +49,7 @@ public class UIManagerPP : MonoBehaviour
             gameMoveTime += currentTime - lastTimestamp;
             lastTimestamp = currentTime;
         }
-        else
+        else 
         {
             lastTimestamp = Time.unscaledTime; // Update timestamp even if paused or finished
         }
@@ -75,6 +78,12 @@ public class UIManagerPP : MonoBehaviour
                 resumeGame();
             }
             isPressed = false; 
+        }
+        if (gameData.playerScore > 0 && gameData.playerScore < 11)
+        {
+            Debug.Log((float)gameData.playerScore / 10+ " scrorrr");
+            gameData.successRate = (float)gameData.playerScore / 10;
+            Debug.Log((float)gameData.successRate+" scrorrr");
         }
     }
 
@@ -231,6 +240,9 @@ public class UIManagerPP : MonoBehaviour
         {
             string trialdata = AppData.trialDataFileLocation;
             string movetime = gameData.moveTime.ToString("F0");
+            SessionManager.Instance.gameSpeed(gameData.gameSpeedPP, currentGameSession);
+            SessionManager.Instance.successRate(gameData.successRate, currentGameSession);
+            Debug.Log("speed and sr :"+ gameData.gameSpeedPP+"+"+ gameData.successRate);
             SessionManager.Instance.SetTrialDataFileLocation(trialdata, currentGameSession);
             SessionManager.Instance.moveTime(movetime, currentGameSession);
             SessionManager.Instance.EndGameSession(currentGameSession);
