@@ -217,7 +217,6 @@ public static class AppData
             mechMoveTimePrev = createMoveTimeDictionary();
             for (int i = 0; i < PlutoDefs.Mechanisms.Length; i++)
             {
-                // Get the total movement time for each mechanism
                 var _totalMoveTime = dTableSession.AsEnumerable()
                     .Where(row => DateTime.ParseExact(row.Field<string>("DateTime"), "dd-MM-yyyy HH:mm:ss", CultureInfo.InvariantCulture).Date == DateTime.Now.Date)
                     .Where(row => row.Field<string>("Mechanism") == PlutoDefs.Mechanisms[i])
@@ -226,29 +225,26 @@ public static class AppData
             }
         }
 
+
         public static void CalculateGameSpeedForLastUsageDay()
         {
-            // Validate the input mechanism
-            if (!PlutoDefs.Mechanisms.Contains(AppData.selectedMechanism))
-            {
-                UnityEngine.Debug.LogError($"Invalid mechanism: {selectedMechanism}");
-                return;
-            }
-
-            // Ensure session data is loaded
             if (dTableSession == null || dTableSession.Rows.Count == 0)
             {
                 UnityEngine.Debug.LogWarning("Session data is not available.");
                 return;
             }
+            Dictionary<string, float> gameIncrements = new Dictionary<string, float>
+                {
+                    { "PING-PONG", 0.5f },
+                    { "TUK-TUK", 0.2f },
+                    { "HAT-Trick", 1f }
+                };
 
-            // Define the list of games directly in the function
-            List<string> games = new List<string> { "PING-PONG", "TUK-TUK", "HAT-Trick" };
 
-            // Find the last usage date for the selected mechanism across all games
             var lastUsageDate = dTableSession.AsEnumerable()
                 .Where(row => row.Field<string>("Mechanism") == selectedMechanism)
                 .Select(row => DateTime.ParseExact(row.Field<string>("DateTime"), "dd-MM-yyyy HH:mm:ss", CultureInfo.InvariantCulture).Date)
+                .Where(date => date < DateTime.Now.Date) // Exclude today
                 .OrderByDescending(date => date)
                 .FirstOrDefault();
 
@@ -260,59 +256,43 @@ public static class AppData
 
             UnityEngine.Debug.Log($"Last usage date for mechanism {selectedMechanism}: {lastUsageDate:dd-MM-yyyy}");
 
-            // Dictionary to hold updated GameSpeeds for the selected mechanism and its games
             Dictionary<string, float> updatedGameSpeeds = new Dictionary<string, float>();
 
-            foreach (string game in games)
+            foreach (var game in gameIncrements.Keys)
             {
-                // Get last usage day's GameSpeed and SuccessRate for the selected mechanism and game
                 var rows = dTableSession.AsEnumerable()
                     .Where(row => DateTime.ParseExact(row.Field<string>("DateTime"), "dd-MM-yyyy HH:mm:ss", CultureInfo.InvariantCulture).Date == lastUsageDate)
                     .Where(row => row.Field<string>("GameName") == game && row.Field<string>("Mechanism") == selectedMechanism);
 
-                if (!rows.Any())
-                {
-                    updatedGameSpeeds[game] = 1f; // Default value if no data found
-                    continue;
-                }
+                float previousGameSpeed = rows.Any() ? rows.Average(row => Convert.ToSingle(row["GameSpeed"])) : 0f;
+                float avgSuccessRate = rows.Any() ? rows.Average(row => Convert.ToSingle(row["SuccessRate"])) : 0f;
 
-                // Calculate average GameSpeed and SuccessRate
-                float avgGameSpeed = rows.Average(row => Convert.ToSingle(row["GameSpeed"]));
-                float avgSuccessRate = rows.Average(row => Convert.ToSingle(row["SuccessRate"]));
-
-                // Increment GameSpeed if SuccessRate > 0.9
-                if (avgSuccessRate > 0.9f)
+                if (avgSuccessRate >= 0.9f)
                 {
-                    updatedGameSpeeds[game] = avgGameSpeed + 0.5f;
+                    updatedGameSpeeds[game] = previousGameSpeed + gameIncrements[game];
                 }
                 else
                 {
-                    updatedGameSpeeds[game] = avgGameSpeed; // Retain current GameSpeed
+                    updatedGameSpeeds[game] = previousGameSpeed;
                 }
             }
-
-            // Log the updated GameSpeeds for debugging
-            UnityEngine.Debug.Log($"Updated GameSpeeds for Mechanism: {selectedMechanism}");
+            
             foreach (var game in updatedGameSpeeds)
             {
                 UnityEngine.Debug.Log($"Game: {game.Key}, Updated GameSpeed: {game.Value}");
-                if(game.Key== games[0])
+                if (game.Key == "PING-PONG")
                 {
-                    UnityEngine.Debug.Log("games[0] :" + games[0]);
-                    gameData.gameSpeedPP=game.Value;
+                    gameData.gameSpeedPP = game.Value;
                 }
-                if (game.Key == games[1])
+                else if (game.Key == "TUK-TUK")
                 {
                     gameData.gameSpeedTT = game.Value;
                 }
-                if (game.Key == games[2])
+                else if (game.Key == "HAT-Trick")
                 {
                     gameData.gameSpeedHT = game.Value;
                 }
             }
-
-            // Apply updated GameSpeeds back to your data structure (e.g., save to a file or update session data)
-            // Implement logic here to persist the updatedGameSpeeds
         }
 
         private static void parseTherapyConfigData()

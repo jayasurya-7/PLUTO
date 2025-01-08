@@ -47,7 +47,7 @@ public class assessmentSceneHandler : MonoBehaviour
     void Update()
     {
         //Debug.Log(assistTG.ActiveToggles().FirstOrDefault().gameObject.name);
-        Debug.Log("device ang2: " + PlutoComm.angle);
+      //  Debug.Log("device ang2: " + PlutoComm.angle);
     }
 
     

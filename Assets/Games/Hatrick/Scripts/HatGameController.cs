@@ -81,7 +81,7 @@ public class HatGameController : MonoBehaviour
         {
             float currentTime = Time.unscaledTime;
             gameMoveTime += currentTime - lastTimestamp;
-            Debug.Log("ang " +PlutoComm.angle);
+            //Debug.Log("ang " +PlutoComm.angle);
             lastTimestamp = currentTime;
         }
         else

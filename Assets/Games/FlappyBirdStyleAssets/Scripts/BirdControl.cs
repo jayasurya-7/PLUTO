@@ -57,7 +57,7 @@ public class BirdControl : MonoBehaviour
     {
        
         gameData.events = Array.IndexOf(gameData.tukEvents, "moving");
-        Debug.Log("ang1 :" + PlutoComm.angle);
+        //Debug.Log("ang1 :" + PlutoComm.angle);
         //checkPlayerMovement();
 
 

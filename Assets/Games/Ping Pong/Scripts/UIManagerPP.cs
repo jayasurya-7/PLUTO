@@ -81,9 +81,9 @@ public class UIManagerPP : MonoBehaviour
         }
         if (gameData.playerScore > 0 && gameData.playerScore < 11)
         {
-            Debug.Log((float)gameData.playerScore / 10+ " scrorrr");
+           // Debug.Log((float)gameData.playerScore / 10+ " scrorrr");
             gameData.successRate = (float)gameData.playerScore / 10;
-            Debug.Log((float)gameData.successRate+" scrorrr");
+          //  Debug.Log((float)gameData.successRate+" scrorrr");
         }
     }
 
