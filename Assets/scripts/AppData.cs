@@ -30,6 +30,7 @@ public static class AppData
     // COM Port for the device
     public static readonly string COMPort = "COM4";
     public static SubjectData subjd { get; private set; }
+
     static public float[] offsetAtNeutral = new float[] { 70, 70, 90, 0, 270/2 , 270/2  };
 
     // Old and new PROM
@@ -217,6 +218,7 @@ public static class AppData
             mechMoveTimePrev = createMoveTimeDictionary();
             for (int i = 0; i < PlutoDefs.Mechanisms.Length; i++)
             {
+                // Get the total movement time for each mechanism
                 var _totalMoveTime = dTableSession.AsEnumerable()
                     .Where(row => DateTime.ParseExact(row.Field<string>("DateTime"), "dd-MM-yyyy HH:mm:ss", CultureInfo.InvariantCulture).Date == DateTime.Now.Date)
                     .Where(row => row.Field<string>("Mechanism") == PlutoDefs.Mechanisms[i])
@@ -276,7 +278,7 @@ public static class AppData
                     updatedGameSpeeds[game] = previousGameSpeed;
                 }
             }
-            
+            UnityEngine.Debug.Log($"Updated GameSpeeds for Mechanism: {selectedMechanism}");
             foreach (var game in updatedGameSpeeds)
             {
                 UnityEngine.Debug.Log($"Game: {game.Key}, Updated GameSpeed: {game.Value}");

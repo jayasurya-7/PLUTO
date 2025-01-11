@@ -1,5 +1,6 @@
 
 using Newtonsoft.Json.Linq;
+using System;
 using System.Collections;
 using System.Collections.Concurrent;
 using System.Collections.Generic;
@@ -38,7 +39,7 @@ public class summarySceneHandler : MonoBehaviour
     {
         title = button.gameObject.name.ToUpper();
         Debug.Log("button name:" + title);
-        int n = PlutoComm.GetPlutoCodeFromLabel(PlutoComm.MECHANISMS, title);
+        int n = Array.IndexOf(PlutoComm.MECHANISMS, title);
         title = PlutoComm.MECHANISMSTEXT[n];
         sessionDataHandler.CalculateMovTimeForMechanism(button.gameObject.name.ToUpper());
         UpdateChartData();
@@ -110,7 +111,7 @@ public class summarySceneHandler : MonoBehaviour
         }
 
         // Clear any previous data from the chart
-        int n = PlutoComm.GetPlutoCodeFromLabel(PlutoComm.MECHANISMS, title);
+        int n = Array.IndexOf(PlutoComm.MECHANISMS, title);
 
         barchart.RemoveData();
         barchart.EnsureChartComponent<Title>().text = title;

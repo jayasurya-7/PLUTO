@@ -109,9 +109,9 @@ public class AROMsceneHandler : MonoBehaviour
                 writer.WriteLine("datetime,side,tmin,tmax");
             }
         }
-        if (PlutoComm.GetPlutoCodeFromLabel(PlutoComm.MECHANISMS, AppData.selectedMechanism) != 3)
+        if (Array.IndexOf(PlutoComm.MECHANISMS, AppData.selectedMechanism) != 3)
         {
-            angLimit = AppData.offsetAtNeutral[PlutoComm.GetPlutoCodeFromLabel(PlutoComm.MECHANISMS, AppData.selectedMechanism)];
+            angLimit = AppData.offsetAtNeutral[Array.IndexOf(PlutoComm.MECHANISMS, AppData.selectedMechanism)];
 
             aromSlider.Setup(-angLimit, angLimit, AppData.oldAROM.tmin, AppData.oldAROM.tmax);
 
@@ -138,7 +138,7 @@ public class AROMsceneHandler : MonoBehaviour
 
 
         }
-        if (PlutoComm.GetPlutoCodeFromLabel(PlutoComm.MECHANISMS, AppData.selectedMechanism) == 3)
+        if (Array.IndexOf(PlutoComm.MECHANISMS, AppData.selectedMechanism) == 3)
         {
             cText.gameObject.SetActive(true); // Show the C Text
             rText.gameObject.SetActive(true);
@@ -163,8 +163,8 @@ public class AROMsceneHandler : MonoBehaviour
         }
         rText.gameObject.SetActive(true);
         lText.gameObject.SetActive(true);
-        rText.text = DirectionText[PlutoComm.GetPlutoCodeFromLabel(PlutoComm.MECHANISMS, AppData.selectedMechanism)][_rinx];
-        lText.text = DirectionText[PlutoComm.GetPlutoCodeFromLabel(PlutoComm.MECHANISMS, AppData.selectedMechanism)][_linx];
+        rText.text = DirectionText[Array.IndexOf(PlutoComm.MECHANISMS, AppData.selectedMechanism)][_rinx];
+        lText.text = DirectionText[Array.IndexOf(PlutoComm.MECHANISMS, AppData.selectedMechanism)][_linx];
 
         // Initialize ROM assessment variable.s
         _stpCount = 0;
@@ -255,7 +255,7 @@ public class AROMsceneHandler : MonoBehaviour
                                          "Please REDO PROM AGAIN";
                     }
                     else
-                        if (PlutoComm.GetPlutoCodeFromLabel(PlutoComm.MECHANISMS, AppData.selectedMechanism) == 3)
+                        if (Array.IndexOf(PlutoComm.MECHANISMS, AppData.selectedMechanism) == 3)
                     {
                         float apertureMinCM = Mathf.Abs(Mathf.Deg2Rad * AppData.oldAROM.tmin * 6f);
                         float apertureMaxCM = Mathf.Abs(Mathf.Deg2Rad * AppData.oldAROM.tmax * 6f);
@@ -296,7 +296,7 @@ public class AROMsceneHandler : MonoBehaviour
                         if (!assessmentSaved)
                         {
 
-                            if (PlutoComm.GetPlutoCodeFromLabel(PlutoComm.MECHANISMS, AppData.selectedMechanism) == 3)
+                            if (Array.IndexOf(PlutoComm.MECHANISMS, AppData.selectedMechanism) == 3)
                             {
 
                                 float apertureMinCM = Mathf.Abs(Mathf.Deg2Rad * AppData.oldAROM.tmin * 6f);
@@ -325,7 +325,7 @@ public class AROMsceneHandler : MonoBehaviour
                             aromSlider.UpdateMinMaxvalues = false;
                             Debug.Log("Hello3");
 
-                            if (PlutoComm.GetPlutoCodeFromLabel(PlutoComm.MECHANISMS, AppData.selectedMechanism) == 3)
+                            if (Array.IndexOf(PlutoComm.MECHANISMS, AppData.selectedMechanism) == 3)
                             {
                                 float apertureMinCM = Mathf.Abs(Mathf.Deg2Rad * AppData.oldAROM.tmin * 6f);
                                 float apertureMaxCM = Mathf.Abs(Mathf.Deg2Rad * AppData.oldAROM.tmax * 6f);
@@ -342,7 +342,7 @@ public class AROMsceneHandler : MonoBehaviour
 
                                 SceneManager.LoadScene("choosegame");
                             }
-                            if (PlutoComm.GetPlutoCodeFromLabel(PlutoComm.MECHANISMS, AppData.selectedMechanism) < 4)
+                            if (Array.IndexOf(PlutoComm.MECHANISMS, AppData.selectedMechanism) < 4)
                             {
                             }
                             if (Input.GetKeyDown(KeyCode.Return))
@@ -387,7 +387,7 @@ public class AROMsceneHandler : MonoBehaviour
             RestartAssessment();
             isRestarting = true;
             curreposition.SetActive(true);
-            if (PlutoComm.GetPlutoCodeFromLabel(PlutoComm.MECHANISMS, AppData.selectedMechanism) == 3)
+            if (Array.IndexOf(PlutoComm.MECHANISMS, AppData.selectedMechanism) == 3)
             {
                 currepositionHoc.SetActive(true);
             }
@@ -403,7 +403,7 @@ public class AROMsceneHandler : MonoBehaviour
             aromSlider.UpdateMinMaxvalues = true;
             AssessmentValid = true;
             curreposition.SetActive(true);
-            if (PlutoComm.GetPlutoCodeFromLabel(PlutoComm.MECHANISMS, AppData.selectedMechanism) == 3)
+            if (Array.IndexOf(PlutoComm.MECHANISMS, AppData.selectedMechanism) == 3)
             {
                 currepositionHoc.SetActive(true);
             }
@@ -464,7 +464,7 @@ public class AROMsceneHandler : MonoBehaviour
         AppData.newAROM = new AROM( AppData.side, _tmin, _tmax,
          AppData.selectedMechanism, true);
 
-        if (PlutoComm.GetPlutoCodeFromLabel(PlutoComm.MECHANISMS, AppData.selectedMechanism) == 3)
+        if (Array.IndexOf(PlutoComm.MECHANISMS, AppData.selectedMechanism) == 3)
         {
             float apertureMinCM = Mathf.Abs(Mathf.Deg2Rad * AppData.oldAROM.tmin * 6f);
             float apertureMaxCM = Mathf.Abs(Mathf.Deg2Rad * AppData.oldAROM.tmax * 6f);
@@ -523,7 +523,7 @@ public class AROMsceneHandler : MonoBehaviour
 
     private void UpdateStatusText()
     {
-        if (PlutoComm.GetPlutoCodeFromLabel(PlutoComm.MECHANISMS, AppData.selectedMechanism) != 3)
+        if (Array.IndexOf(PlutoComm.MECHANISMS, AppData.selectedMechanism) != 3)
         {
             JointAngle.text = (PlutoComm.angle).ToString("0.0");
 

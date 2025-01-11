@@ -134,7 +134,7 @@ namespace TS.DoubleSlider
             _oldROMRect = oldROMArea.transform.GetChild(0).transform as RectTransform;
             _oldROMRectHoc = oldROMAreaHoc.transform.GetChild(0).transform as RectTransform;
             Debug.Log("Selected Mechanism :"+ AppData.selectedMechanism);
-            if (PlutoComm.GetPlutoCodeFromLabel(PlutoComm.MECHANISMS, AppData.selectedMechanism) == 3)
+            if (Array.IndexOf(PlutoComm.MECHANISMS, AppData.selectedMechanism) == 4)
           {
 
             _sliderMaxHoc.gameObject.SetActive(true);
@@ -168,7 +168,7 @@ namespace TS.DoubleSlider
         {
 
            
-            if (PlutoComm.GetPlutoCodeFromLabel(PlutoComm.MECHANISMS, AppData.selectedMechanism) == 3)
+            if (Array.IndexOf(PlutoComm.MECHANISMS, AppData.selectedMechanism) == 4)
           {
               _currePostion.gameObject.SetActive(true);
               _currePostionHoc.gameObject.SetActive(true);
@@ -210,7 +210,7 @@ namespace TS.DoubleSlider
         public void updateMinMaxVal()
         {
 
-             if (PlutoComm.GetPlutoCodeFromLabel(PlutoComm.MECHANISMS, AppData.selectedMechanism) == 3)
+             if (Array.IndexOf(PlutoComm.MECHANISMS, AppData.selectedMechanism) == 4)
         {
         // Get the current position value
            float currentValue = -_currePostionHoc.value;
@@ -280,7 +280,7 @@ namespace TS.DoubleSlider
             _initialMinValue = initialMinValue;
             _initialMaxValue = initialMaxValue;
 
-        if (PlutoComm.GetPlutoCodeFromLabel(PlutoComm.MECHANISMS, AppData.selectedMechanism) == 3)
+        if (Array.IndexOf(PlutoComm.MECHANISMS, AppData.selectedMechanism) == 4)
           {
             _sliderMinHoc.Setup(-_initialMinValue, minValue, maxValue, MinValueChanged);
             _sliderMaxHoc.Setup(-_initialMaxValue, minValue, maxValue, MaxValueChanged);
@@ -343,7 +343,7 @@ namespace TS.DoubleSlider
         private void OldROMRECT()
         {
 
-            if (PlutoComm.GetPlutoCodeFromLabel(PlutoComm.MECHANISMS, AppData.selectedMechanism) == 3)
+            if (Array.IndexOf(PlutoComm.MECHANISMS, AppData.selectedMechanism) == 4)
           {
             // Calculate and set the position for OldROMRect1
             
@@ -376,7 +376,7 @@ namespace TS.DoubleSlider
         private void MinValueChanged(float value)
         {
 
-            if (PlutoComm.GetPlutoCodeFromLabel(PlutoComm.MECHANISMS, AppData.selectedMechanism)     ==3)
+            if (Array.IndexOf(PlutoComm.MECHANISMS, AppData.selectedMechanism)     ==4)
             {
             
             {
@@ -427,7 +427,7 @@ namespace TS.DoubleSlider
         private void MaxValueChanged(float value)
         {
 
-            if (PlutoComm.GetPlutoCodeFromLabel(PlutoComm.MECHANISMS, AppData.selectedMechanism) ==3)
+            if (Array.IndexOf(PlutoComm.MECHANISMS, AppData.selectedMechanism) ==4)
             {
             {
              

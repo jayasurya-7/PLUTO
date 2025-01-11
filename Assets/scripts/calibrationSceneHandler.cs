@@ -17,7 +17,7 @@ public class calibrationSceneHandler : MonoBehaviour
     private float separationAngleWFE = 140.0f;
     public TextMeshProUGUI textMessage;
     public TextMeshProUGUI mechText;
-
+    public TextMeshProUGUI angText;
     private static bool connect = false;
     public Button exit;
     private string prevScene = "chooseMechanism";
@@ -31,14 +31,13 @@ public class calibrationSceneHandler : MonoBehaviour
         AppLogger.SetCurrentScene(SceneManager.GetActiveScene().name);
         AppLogger.LogInfo($"{SceneManager.GetActiveScene().name} scene started.");
         selectedMechanism = AppData.selectedMechanism;
-        int mechNumber = PlutoComm.GetPlutoCodeFromLabel(PlutoComm.MECHANISMS, selectedMechanism);
-        mechText.text = PlutoComm.MECHANISMSTEXT[mechNumber];
+        mechText.text = PlutoComm.MECHANISMSTEXT[PlutoComm.GetPlutoCodeFromLabel(PlutoComm.MECHANISMS, selectedMechanism)];
         exit.onClick.AddListener(OnExitButtonClicked);
-
     }
 
     void Update()
     {
+        PlutoComm.sendHeartbeat();
         if (Input.GetKeyDown(KeyCode.C) && !isCalibrating)
         {
             PerformCalibration();
@@ -54,6 +53,8 @@ public class calibrationSceneHandler : MonoBehaviour
             PerformCalibration();
             isCalibrating = false;
         }
+        angText.text = PlutoComm.angle.ToString("F3");
+       // Debug.Log("angle :" + PlutoComm.angle);
     }
 
     private void PerformCalibration()
@@ -102,7 +103,7 @@ public class calibrationSceneHandler : MonoBehaviour
 
 
         PlutoComm.calibrate(selectedMechanism);
-
+        
         ApplyTorque(PlutoComm.getHOCDisplay(PlutoComm.angle), separationPosition);
 
         yield return new WaitForSeconds(1.5f);
@@ -140,7 +141,8 @@ public class calibrationSceneHandler : MonoBehaviour
 
         if (!CheckPositionTogether(PlutoComm.angle, togetherAngle)) yield break;
         textMsg();
-
+        PlutoComm.setControlBound(0.11f);
+        PlutoComm.setControlDir(-1);
         Invoke("LoadNextScene", 0.4f);
     }
 
@@ -151,13 +153,13 @@ public class calibrationSceneHandler : MonoBehaviour
     }
     private void ApplyTorque(float currentPos, float targetPos)
     {
-        float torqueValue = -0.1f;
+        float torqueValue = -0.07f;
         PlutoComm.setControlType("TORQUE");
         PlutoComm.setControlTarget(torqueValue);
     }
     private void ApplyTorqueToSep(float currentPos, float targetPos)
     {
-        float torqueValue = 0.1f;
+        float torqueValue = 0.07f;
         PlutoComm.setControlType("TORQUE");
         PlutoComm.setControlTarget(torqueValue);
     }

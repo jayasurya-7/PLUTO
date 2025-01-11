@@ -114,7 +114,7 @@ public class PROMsceneHandler : MonoBehaviour {
             }
         }
 
-        if (PlutoComm.GetPlutoCodeFromLabel(PlutoComm.MECHANISMS, AppData.selectedMechanism) != 3)
+        if (Array.IndexOf(PlutoComm.MECHANISMS, AppData.selectedMechanism) != 4)
         {
          angLimit = AppData.offsetAtNeutral[PlutoComm.GetPlutoCodeFromLabel(PlutoComm.MECHANISMS, AppData.selectedMechanism)];
 
@@ -143,7 +143,7 @@ public class PROMsceneHandler : MonoBehaviour {
 
 
         //PlutoComm.OnButtonReleased += onPlutoButtonReleased;
-        if (PlutoComm.GetPlutoCodeFromLabel(PlutoComm.MECHANISMS, AppData.selectedMechanism) == 3)
+        if (Array.IndexOf(PlutoComm.MECHANISMS, AppData.selectedMechanism) == 4)
     {
         cText.gameObject.SetActive(true); // Show the C Text
         rText.gameObject.SetActive(true); 
@@ -232,7 +232,7 @@ public class PROMsceneHandler : MonoBehaviour {
 
         if (isSelected)
         {
-            if(PlutoComm.GetPlutoCodeFromLabel(PlutoComm.MECHANISMS, AppData.selectedMechanism) ==3)
+            if(Array.IndexOf(PlutoComm.MECHANISMS, AppData.selectedMechanism) ==4)
             {
                 CurrPositioncursorHoc.SetActive(true);
                 CurrPositioncursor.SetActive(true);
@@ -276,7 +276,7 @@ public class PROMsceneHandler : MonoBehaviour {
                         isButtonPressed = false;
                     }
                     //Debug.Log("mech No:" + PlutoComm.GetPlutoCodeFromLabel(PlutoComm.MECHANISMS, AppData.selectedMechanism));
-                    if (PlutoComm.GetPlutoCodeFromLabel(PlutoComm.MECHANISMS, AppData.selectedMechanism) == 3)
+                    if (Array.IndexOf(PlutoComm.MECHANISMS, AppData.selectedMechanism) == 4)
                     {
                         // Convert tmin and tmax from degrees to centimeters
                         float max = AppData.oldPROM.tmax/2;
@@ -337,7 +337,7 @@ public class PROMsceneHandler : MonoBehaviour {
                             // relaxText.color = Color.green;
 
                            
-                            if (PlutoComm.GetPlutoCodeFromLabel(PlutoComm.MECHANISMS, AppData.selectedMechanism) == 3)
+                            if (Array.IndexOf(PlutoComm.MECHANISMS, AppData.selectedMechanism) == 4)
                            {
 
                             float apertureMinCM = Mathf.Abs(Mathf.Deg2Rad * AppData.oldPROM.tmin * 6f);
@@ -366,7 +366,7 @@ public class PROMsceneHandler : MonoBehaviour {
                         else
                         {
                             
-                            if (PlutoComm.GetPlutoCodeFromLabel(PlutoComm.MECHANISMS, AppData.selectedMechanism) == 3)
+                            if (Array.IndexOf(PlutoComm.MECHANISMS, AppData.selectedMechanism) == 4)
                             {
                                 float currentMinCM = Mathf.Abs(Mathf.Deg2Rad * _tmin * 6f);
                                 float currentMaxCM = Mathf.Abs(Mathf.Deg2Rad * -_tmax * 6f);
@@ -379,7 +379,7 @@ public class PROMsceneHandler : MonoBehaviour {
                             relaxText.text = relaxText.text = "Assessment Completed \n " +
                                 "Currentt PROM: " + (int)_tmin + " : " + (int)_tmax + " (" + (int)(_tmax - _tmin) + "°)\n";
                             }
-                            if (PlutoComm.GetPlutoCodeFromLabel(PlutoComm.MECHANISMS, AppData.selectedMechanism) < 4)
+                            if (Array.IndexOf(PlutoComm.MECHANISMS, AppData.selectedMechanism) < 5)
                             {
 
                                 //AANScene.SetActive(true);
@@ -410,7 +410,7 @@ public class PROMsceneHandler : MonoBehaviour {
 
         
 
-            if(PlutoComm.GetPlutoCodeFromLabel(PlutoComm.MECHANISMS, AppData.selectedMechanism) == 3)
+            if(Array.IndexOf(PlutoComm.MECHANISMS, AppData.selectedMechanism) == 4)
             {
             float apertureMinCM = Mathf.Abs(Mathf.Deg2Rad * AppData.oldPROM.tmin * 6f);
             float apertureMaxCM = Mathf.Abs(Mathf.Deg2Rad * AppData.oldPROM.tmax * 6f);
@@ -504,7 +504,7 @@ public class PROMsceneHandler : MonoBehaviour {
 
         nextButton.SetActive(false);
        
-        if (PlutoComm.GetPlutoCodeFromLabel(PlutoComm.MECHANISMS, AppData.selectedMechanism) == 3)
+        if (Array.IndexOf(PlutoComm.MECHANISMS, AppData.selectedMechanism) == 4)
             {
                 float currentMinCM = Mathf.Abs(Mathf.Deg2Rad * _tmin * 6f);
                 float currentMaxCM = Mathf.Abs(Mathf.Deg2Rad * -_tmax * 6f);
@@ -592,7 +592,7 @@ public class PROMsceneHandler : MonoBehaviour {
     }
     private void UpdateStatusText()
     {
-        if (PlutoComm.GetPlutoCodeFromLabel(PlutoComm.MECHANISMS, AppData.selectedMechanism) != 3)
+        if (Array.IndexOf(PlutoComm.MECHANISMS, AppData.selectedMechanism) != 4)
         {
             JointAngle.text =  (PlutoComm.angle).ToString("0.0") ;
         }

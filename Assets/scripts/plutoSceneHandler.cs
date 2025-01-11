@@ -73,6 +73,8 @@ public class Pluto_SceneHandler : MonoBehaviour
     // Update is called once per frame
     void Update()
     {
+        // Pluto heartbeat
+        PlutoComm.sendHeartbeat();
         // Check if there is an changing target being sent to the robot.
         if (_changingTarget)
         {
@@ -86,6 +88,8 @@ public class Pluto_SceneHandler : MonoBehaviour
             PlutoComm.setControlTarget(controlTarget);
         }
         // Udpate UI
+        
+       // Debug.Log(PlutoComm.CONTROLTYPE[PlutoComm.controlType]);
         UpdateUI();
     }
 
@@ -368,12 +372,23 @@ public class Pluto_SceneHandler : MonoBehaviour
     {
         int _mechInx = ddCalibMech.value + 1;
         // Run the calibration state machine.
+        Debug.Log($"{calibState} " + $"{PlutoComm.CALIBRATION[PlutoComm.calibration]}");
         switch (calibState)
         {
             case CalibrationState.WAIT_FOR_ZERO_SET:
                 calibState = CalibrationState.ZERO_SET;
                 // Get the current mechanism for calibration.
-                PlutoComm.calibrate(PlutoComm.MECHANISMS[_mechInx]);
+                //PlutoComm.calibrate(PlutoComm.MECHANISMS[_mechInx]);
+                if (PlutoComm.CALIBRATION[PlutoComm.calibration] == "NOCALIB")
+                {
+                    // Get the current mechanism for calibration.
+                    PlutoComm.calibrate(PlutoComm.MECHANISMS[_mechInx]);
+                    Debug.Log(PlutoComm.MECHANISMS[_mechInx]);
+                }
+                else
+                {
+                    calibState = CalibrationState.ZERO_SET;
+                }
                 break;
             case CalibrationState.ZERO_SET:
                 if (Math.Abs(PlutoComm.angle) >= 0.9 * PlutoComm.CALIBANGLE[_mechInx] 

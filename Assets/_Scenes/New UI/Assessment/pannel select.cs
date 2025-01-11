@@ -46,6 +46,7 @@ public class assessmentSceneHandler : MonoBehaviour
     }
     void Update()
     {
+        PlutoComm.sendHeartbeat();
         //Debug.Log(assistTG.ActiveToggles().FirstOrDefault().gameObject.name);
       //  Debug.Log("device ang2: " + PlutoComm.angle);
     }

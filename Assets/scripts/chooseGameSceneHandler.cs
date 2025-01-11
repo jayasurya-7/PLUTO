@@ -47,9 +47,11 @@ public class ChooseGameSceneHandler : MonoBehaviour
         playButton.onClick.AddListener(OnPlayButtonClicked);
         changeMech.onClick.AddListener(OnMechButtonClicked);
         AppData.oldAROM=new AROM(AppData.selectedMechanism);
+       
     }
     void Update()
     {   
+        PlutoComm.sendHeartbeat();
         if (isButtonPressed)
         {
             LoadSelectedGameScene(selectedGame);

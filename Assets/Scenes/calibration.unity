@@ -897,7 +897,7 @@ MonoBehaviour:
   m_EditorClassIdentifier: 
   textMessage: {fileID: 707591900}
   mechText: {fileID: 381258295}
-  angle: {fileID: 524501913}
+  angText: {fileID: 524501913}
   exit: {fileID: 120802118}
 --- !u!1 &805643426
 GameObject:
