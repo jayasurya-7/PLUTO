@@ -98,8 +98,8 @@ public class HT_spawnTargets1 : MonoBehaviour
     void Update()
     {
         stopClock -= Time.deltaTime;
-       
 
+        PlutoComm.sendHeartbeat();
 
 
 
@@ -110,10 +110,10 @@ public class HT_spawnTargets1 : MonoBehaviour
             initialTorque = 0;
 
         }
-      
 
 
 
+       // Debug.Log(PlutoComm.CONTROLTYPE[PlutoComm.controlType]);
 
 
 
@@ -206,7 +206,7 @@ public class HT_spawnTargets1 : MonoBehaviour
 
         }
         avgSuccessRate = (float)successRate.Sum() / (float)successRate.Length;
-        Debug.Log(avgSuccessRate);
+        //Debug.Log(avgSuccessRate);
     }
 
 
@@ -242,7 +242,7 @@ public class HT_spawnTargets1 : MonoBehaviour
 
         float newPROM_tmin = AppData.newPROM.tmin;
         float newPROM_tmax = AppData.newPROM.tmax;
-        Debug.Log(newPROM_tmin + "+" + newPROM_tmax);
+        //Debug.Log(newPROM_tmin + "+" + newPROM_tmax);
 
 
 
@@ -263,7 +263,7 @@ public class HT_spawnTargets1 : MonoBehaviour
         initialTorque = 0;
         stopClock = trailDuration;
         onceReached = false;
-        Debug.Log(targetAngle + "," + index);
+        //Debug.Log(targetAngle + "," + index);
        
         paramSet = true;
     }

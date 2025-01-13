@@ -6,6 +6,7 @@ using UnityEngine.SceneManagement;
 using System.IO;
 using System;
 using NeuroRehabLibrary;
+using TMPro;
 
 public class HatGameController : MonoBehaviour
 {
@@ -30,7 +31,62 @@ public class HatGameController : MonoBehaviour
     public bool balldestroyed = true;
     int count;
     public bool isPressed = false;
+    private float x;
     private GameSession currentGameSession;
+
+    //AAN
+
+
+    // Control variables
+    private bool isRunning = false;
+    //private float controlTarget = 0.0f;
+    //private float controlBound = 0.0f;
+    private const float tgtDuration = 3.0f;
+    private float _currentTime = 0;
+    private float _initialTarget = 0;
+    private float _finalTarget = 0;
+    //private bool _changingTarget = false;
+
+    // Discrete movements related variables
+    private uint trialNo = 0;
+    // Define variables for a discrete movement state machine
+    // Enumerated variable for states
+    private enum DiscreteMovementTrialState
+    {
+        Rest,           // Resting state
+        SetTarget,      // Set the target
+        Moving,         // Start Movement.
+        Success,        // Successfull reach
+        Failure,        // Failed reach
+    }
+    private DiscreteMovementTrialState _trialState;
+    private static readonly IReadOnlyList<float> stateDurations = Array.AsReadOnly(new float[] {
+        1.00f,          // Rest duration
+        0.25f,          // Target set duration
+        5.00f,          // Maximum movement duration
+        0.25f,          // Successful reach
+        0.25f,          // Failed reach
+    });
+    private const float tgtHoldDuration = 1f;
+    private float _trialTarget = 0f;
+    private float _currTgtForDisplay;
+    private float trialDuration = 0f;
+    private float stateStartTime = 0f;
+    private float _tempIntraStateTimer = 0f;
+
+    // Control bound adaptation variables
+    private float prevControlBound = 0.16f;
+    // Magical minimum value where the mechanisms mostly move without too much instability.
+    private float currControlBound = 0.16f;
+    private const float cbChangeDuration = 2.0f;
+    private sbyte currControlDir = 0;
+    private float _currCBforDisplay;
+    //private int successRate;
+   // public Button btnStartStop;
+
+
+    // AAN class
+    private PlutoAANController aanCtrler;
 
     private void Awake()
     {
@@ -49,6 +105,11 @@ public class HatGameController : MonoBehaviour
     {
         AppLogger.SetCurrentScene(SceneManager.GetActiveScene().name);
         AppLogger.LogInfo($"{SceneManager.GetActiveScene().name} scene started.");
+
+        // Set Control mode.
+        
+        //successRate = 0;
+        // Start the state machine.
 
         foreach (GameObject b in ball)
         {
@@ -73,10 +134,13 @@ public class HatGameController : MonoBehaviour
         PlutoComm.OnButtonReleased += onPlutoButtonReleased;
         UpdateText();
         HT_spawnTargets1.instance.playSize = maxwidth * 0.8f;
-       // StartNewGameSession();
+
+        PlutoComm.setControlType("POSITIONAAN");
+        // StartNewGameSession();
     }
     void Update()
     {
+        PlutoComm.sendHeartbeat();
         if (Time.timeScale > 0 && isPlaying)
         {
             float currentTime = Time.unscaledTime;
@@ -88,6 +152,12 @@ public class HatGameController : MonoBehaviour
         {
             lastTimestamp = Time.unscaledTime; // Update timestamp even if paused or finished
         }
+        if (PlutoComm.CONTROLTYPE[PlutoComm.controlType]!= "POSITIONAAN")
+        {
+            PlutoComm.setControlType("POSITIONAAN");
+        }
+
+       // RunTrialStateMachine();
 
         if (isPressed && !isPlaying)
         {
@@ -127,7 +197,149 @@ public class HatGameController : MonoBehaviour
         }
         UpdateText();
          gameData.moveTime = gameMoveTime;
+        if (isRunning == false) return;
+
+        // Update trial time
+        trialDuration += Time.deltaTime;
+
+        // Run trial state machine
+        RunTrialStateMachine();
     }
+
+    private void RunTrialStateMachine()
+    {
+        float _deltime = trialDuration - stateStartTime;
+        bool _statetimeout = _deltime >= stateDurations[(int)_trialState];
+        // Time when target is reached.
+       
+        bool _tgtreached = Math.Abs(_trialTarget - PlutoComm.angle) <= 5.0f;
+        switch (_trialState)
+        {
+            case DiscreteMovementTrialState.Rest:
+                // Check if the rest time has run out.
+                if (_statetimeout)
+                {
+                    SetTrialState(DiscreteMovementTrialState.SetTarget);
+                    Debug.Log("JS"); 
+                }
+                break;
+            case DiscreteMovementTrialState.SetTarget:
+                if (_statetimeout)
+                {
+                    SetTrialState(DiscreteMovementTrialState.Moving);
+                    Debug.Log("JSx");
+                }
+                break;
+            case DiscreteMovementTrialState.Moving:
+                // Update control bound smoothly.
+                UpdateControlBoundSmoothly();
+                // Update the position control target smoothly.
+                UpdatePositionTargetSmoothly();
+
+                // Check if the target has been reached
+                if (_tgtreached)
+                {
+                    _tempIntraStateTimer += Time.deltaTime;
+                    isRunning = false;
+                }
+                else
+                {
+                    _tempIntraStateTimer = 0;
+                }
+                // Check if target time has been reached.
+                if (_tempIntraStateTimer >= tgtHoldDuration || Math.Abs(PlutoComm.angle) == _finalTarget)
+                {
+                    SetTrialState(DiscreteMovementTrialState.Success);
+                }
+                else if (_statetimeout)
+                {
+                    SetTrialState(DiscreteMovementTrialState.Failure);
+                }
+                break;
+            case DiscreteMovementTrialState.Success:
+            case DiscreteMovementTrialState.Failure:
+                if (_statetimeout) SetTrialState(DiscreteMovementTrialState.Rest);
+                break;
+        }
+    }
+
+    private void SetTrialState(DiscreteMovementTrialState newState)
+    {
+        _trialState = newState;
+        switch (newState)
+        {
+            case DiscreteMovementTrialState.Rest:
+                trialDuration = 0f;
+                prevControlBound = PlutoComm.controlBound;
+                currControlBound = aanCtrler.getControlBoundForTrial();
+                trialNo += 1;
+                Debug.Log("Checking");
+                // Reset target timer (for display purposes).
+                _tempIntraStateTimer = 0f;
+                break;
+            case DiscreteMovementTrialState.SetTarget:
+                // Random select target from the appropriate range.
+                float _tgtscale = UnityEngine.Random.Range(0.0f, 1.0f);
+                _trialTarget = x;
+                break;
+            case DiscreteMovementTrialState.Moving:
+                // Start the position control to the tatget location.
+                _initialTarget = PlutoComm.angle;
+                _finalTarget = x;
+                // Set new trial target.
+                aanCtrler.setNewTrialDetails(_initialTarget, _finalTarget);
+                // Set control direction
+                PlutoComm.setControlDir(aanCtrler.getControlDirectionForTrial());
+                Debug.Log("Value of CB:" + aanCtrler.getControlDirectionForTrial());
+                _tempIntraStateTimer = 0f;
+                break;
+            case DiscreteMovementTrialState.Success:
+                // Update trial result.
+                Debug.Log("Success");
+                isRunning = false;
+                SetTrialState(DiscreteMovementTrialState.Rest);
+                //PlutoComm.setControlType("NONE");
+
+                //aanCtrler.upateTrialResult(true);
+                // Update adaptation row.
+                // WriteTrialRowInfo(1);
+                break;
+            case DiscreteMovementTrialState.Failure:
+                //aanCtrler.upateTrialResult(false);
+                Debug.Log("Failure");
+                isRunning = false;
+                SetTrialState(DiscreteMovementTrialState.Rest);
+                // PlutoComm.setControlType("NONE");
+                //WriteTrialRowInfo(0);
+                break;
+        }
+        stateStartTime = trialDuration;
+    }
+
+
+
+    private void UpdateControlBoundSmoothly()
+    {
+        PlutoComm.setControlBound(0.74f);
+        if ((prevControlBound == currControlBound) ||
+            ((trialDuration - stateStartTime) >= cbChangeDuration))
+        {
+            return;
+        }
+    }
+
+    private void UpdatePositionTargetSmoothly()
+    {
+        float _t = (trialDuration - stateStartTime) / tgtDuration;
+        // Limit _t between 0 and 1.
+        _t = Mathf.Clamp(_t, 0, 1);
+        // Compute the current target value using the minimum jerk trajectory.
+        _currTgtForDisplay = _initialTarget + (_finalTarget - _initialTarget) * (10 * Mathf.Pow(_t, 3) - 15 * Mathf.Pow(_t, 4) + 6 * Mathf.Pow(_t, 5));
+        // Update position target
+        // 
+        PlutoComm.setControlTarget(_currTgtForDisplay);
+    }
+
 
     public void SpawnTarget()
     {
@@ -141,7 +353,8 @@ public class HatGameController : MonoBehaviour
             HTDifficultyManager.ballSpeed = 2f + 0.3f *(1 +gameData.gameSpeedHT);
             HT_spawnTargets1.instance.trailDuration = (8.0f / HTDifficultyManager.ballSpeed) * 0.8f;
 
-           float x = UnityEngine.Random.Range(-playSize +0.5f, playSize - 0.5f);
+            x = UnityEngine.Random.Range(-playSize +0.5f, playSize - 0.5f);
+            Debug.Log("position :"+ x);
             Vector3 spawnPosition = new Vector3(
                 x,
                 6f,
@@ -149,7 +362,7 @@ public class HatGameController : MonoBehaviour
                 );
 
             Quaternion spawnRotation = Quaternion.identity;
-
+            
             int rand = UnityEngine.Random.Range(0, 5);
             if (rand < 5)
             {
@@ -195,6 +408,15 @@ public class HatGameController : MonoBehaviour
         StartNewGameSession();
         gameData.isGameLogging = true;
         timeLeft = trialTime;
+        aanCtrler = new PlutoAANController();
+        // Change button text
+        isRunning = true;
+        SetTrialState(DiscreteMovementTrialState.Rest);
+        PlutoComm.setControlType("POSITIONAAN");
+        PlutoComm.setControlBound(currControlBound);
+        PlutoComm.setControlDir(0);
+        trialNo = 0;
+        SetTrialState(DiscreteMovementTrialState.Moving );
         AppLogger.LogInfo("HatGame Started");
         SpawnTarget();
 
