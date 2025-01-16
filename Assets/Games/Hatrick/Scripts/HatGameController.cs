@@ -3,36 +3,46 @@ using System.Collections.Generic;
 using UnityEngine;
 using UnityEngine.UI;
 using UnityEngine.SceneManagement;
-using System.IO;
-using System;
 using NeuroRehabLibrary;
 using TMPro;
+using System;
 
 public class HatGameController : MonoBehaviour
 {
     public static HatGameController instance;
-    public bool isPlaying = false;
+
     public Text ScoreText;
     public Text timeLeftText;
     public GameObject GameOverObject;
     public GameObject StartButton;
+    public GameObject PauseButton;
+    public GameObject ResumeButton;
     public Camera cam;
     public GameObject[] ball;
-    Rigidbody2D rig2D;
+
+    private Rigidbody2D rig2D;
     private float gameMoveTime = 0f;
     private float lastTimestamp = 0f;
     private float playSize;
-    private float gameSpeed=1f;
-    private float successRate=1f;
+    private float gameSpeed = 1f;
+    private float successRate = 1f;
     public int score = 0;
-    float maxwidth;
-    float trialTime = 90;
-    float timeLeft;
+    private float maxwidth;
+    private float trialTime = 90f;
+    private float timeLeft;
     public bool balldestroyed = true;
-    int count;
-    public bool isPressed = false;
+    private bool isPressed = false;
+    private bool isPaused = false;
+    private int count;
     private float x;
+
     private GameSession currentGameSession;
+
+    private enum GameState { NotStarted, Playing, Paused, GameOver }
+    private GameState currentState = GameState.NotStarted;
+    private bool isPlaying = false; // Tracks whether the game is currently active
+    private float Player;
+
 
     //AAN
 
@@ -63,7 +73,7 @@ public class HatGameController : MonoBehaviour
     private static readonly IReadOnlyList<float> stateDurations = Array.AsReadOnly(new float[] {
         1.00f,          // Rest duration
         0.25f,          // Target set duration
-        5.00f,          // Maximum movement duration
+        3.00f,          // Maximum movement duration
         0.25f,          // Successful reach
         0.25f,          // Failed reach
     });
@@ -82,11 +92,15 @@ public class HatGameController : MonoBehaviour
     private sbyte currControlDir = 0;
     private float _currCBforDisplay;
     //private int successRate;
-   // public Button btnStartStop;
+    // public Button btnStartStop;
 
 
     // AAN class
     private PlutoAANController aanCtrler;
+    public bool IsPlaying // Expose the variable as read-only if needed elsewhere
+    {
+        get { return isPlaying; }
+    }
 
     private void Awake()
     {
@@ -95,115 +109,251 @@ public class HatGameController : MonoBehaviour
             instance = this;
         }
         else
+        {
             Destroy(gameObject);
+        }
 
         playSize = Camera.main.orthographicSize * Camera.main.aspect;
-
-
     }
+
     void Start()
     {
-        AppLogger.SetCurrentScene(SceneManager.GetActiveScene().name);
-        AppLogger.LogInfo($"{SceneManager.GetActiveScene().name} scene started.");
-
-        // Set Control mode.
-        
-        //successRate = 0;
-        // Start the state machine.
-
-        foreach (GameObject b in ball)
-        {
-            rig2D = b.GetComponent<Rigidbody2D>();  
-        }
-        rig2D = this.gameObject.GetComponent<Rigidbody2D>();
-
-        isPlaying = false;
-        gameData.isGameLogging = true;
-        timeLeftText = GameObject.FindGameObjectWithTag("TimeLeftText").GetComponent<Text>();
-        ScoreText = GameObject.FindGameObjectWithTag("ScoreText").GetComponent<Text>();
-        StartButton.SetActive(false);
-        if (cam == null)
-        {
-            cam = Camera.main;
-        }
-        lastTimestamp = Time.unscaledTime;
-        Vector3 UpperCorner = new Vector3(Screen.width, Screen.height, 0);
-        float hatwidth = GameObject.Find("HatFrontSprite").GetComponent<Renderer>().bounds.extents.x;
-        Vector3 targetWidth = cam.ScreenToWorldPoint(UpperCorner);
-        maxwidth = targetWidth.x - hatwidth;
-        PlutoComm.OnButtonReleased += onPlutoButtonReleased;
-        UpdateText();
-        HT_spawnTargets1.instance.playSize = maxwidth * 0.8f;
-
-        PlutoComm.setControlType("POSITIONAAN");
-        // StartNewGameSession();
+        InitializeGame();
     }
+
     void Update()
     {
         PlutoComm.sendHeartbeat();
+        PlutoComm.setControlType("POSITIONAAN");
+        if (currentState == GameState.Playing)
+        {
+            HandleGameUpdate();
+        }
+        if (isPressed)
+        {
+            if (!isPlaying && !isPaused)
+            {
+                StartGame();
+                isPressed = false;
+            }else if (isPlaying && !isPaused)
+            {
+                PauseGame();
+                isPressed = false;
+            }
+            else if (isPlaying && isPaused)
+            {
+                ResumeGame();
+                isPressed = false;
+            }
+        }
+
+         Player = GameObject.FindGameObjectWithTag("Player").transform.position.x;
+        // Update trial time
+        trialDuration += Time.deltaTime;
+        if (isRunning) { 
+            RunTrialStateMachine();
+        }
+        // Run trial state machine
+        Debug.Log("_trialState                  ;" + _trialState);
+    }
+
+    public void StartGame()
+    {
+        if (currentState == GameState.NotStarted || currentState == GameState.Paused)
+        {
+            currentState = GameState.Playing;
+            isPlaying = true;
+            timeLeft = trialTime;
+            lastTimestamp = Time.unscaledTime;
+            gameMoveTime = 0f;
+            aanCtrler = new PlutoAANController();
+            // Change button text
+            isRunning = true;
+            SetTrialState(DiscreteMovementTrialState.Rest);
+            PlutoComm.setControlType("POSITIONAAN");
+            PlutoComm.setControlBound(currControlBound);
+            PlutoComm.setControlDir(0);
+            trialNo = 0;
+
+            StartNewGameSession();
+            gameData.isGameLogging = true;
+
+            StartButton.SetActive(false);
+            PauseButton.SetActive(true);
+            ResumeButton.SetActive(false);
+
+            AppLogger.LogInfo("Game Started.");
+            SpawnTarget();
+        }
+    }
+
+    public void PauseGame()
+    {
+        if (currentState == GameState.Playing)
+        {
+            currentState = GameState.Paused;
+            isPlaying = false;
+            isPaused = true;
+            Time.timeScale = 0;
+            PauseButton.SetActive(false);
+            ResumeButton.SetActive(true);
+
+            AppLogger.LogInfo("Game Paused.");
+        }
+    }
+
+    public void ResumeGame()
+    {
+        if (currentState == GameState.Paused)
+        {
+            currentState = GameState.Playing;
+            isPlaying = true;
+
+            Time.timeScale = 1;
+            PauseButton.SetActive(true);
+            ResumeButton.SetActive(false);
+
+            AppLogger.LogInfo("Game Resumed.");
+        }
+    }
+
+    public void RestartGame()
+    {
+        currentState = GameState.NotStarted;
+        isPlaying = false;
+        score = 0;
+        HT_spawnTargets1.instance.count = 0;
+
+        SceneManager.LoadScene(SceneManager.GetActiveScene().name);
+    }
+
+    private void HandleGameUpdate()
+    {
+        PlutoComm.sendHeartbeat();
+
         if (Time.timeScale > 0 && isPlaying)
         {
             float currentTime = Time.unscaledTime;
             gameMoveTime += currentTime - lastTimestamp;
-            //Debug.Log("ang " +PlutoComm.angle);
             lastTimestamp = currentTime;
-        }
-        else
-        {
-            lastTimestamp = Time.unscaledTime; // Update timestamp even if paused or finished
-        }
-        if (PlutoComm.CONTROLTYPE[PlutoComm.controlType]!= "POSITIONAAN")
-        {
-            PlutoComm.setControlType("POSITIONAAN");
-        }
 
-       // RunTrialStateMachine();
-
-        if (isPressed && !isPlaying)
-        {
-            Restart();
-            isPressed= false;
-        }
-        if (isPlaying)
-        {
             timeLeft -= Time.deltaTime;
-
-
-            if (timeLeft < 0)
+            if (timeLeft <= 0)
             {
-                int win;
                 timeLeft = 0;
-               
-                EndCurrentGameSession();
-                if (balldestroyed)
-                {
-                    isPlaying = false;
-                    gameData.isGameLogging=false;
-                    SceneManager.LoadScene(SceneManager.GetActiveScene().name);
-                    StartButton.SetActive(true);
-
-                    if (HatGameController.instance.score > 0.8 * HT_spawnTargets1.instance.count)
-                    {
-                        win = 1;
-                    }
-                    else
-                    {
-                        win = -1;
-                    }
-                    score = 0;
-                    HT_spawnTargets1.instance.count = 0;
-                }
+                GameOver();
             }
         }
+
         UpdateText();
-         gameData.moveTime = gameMoveTime;
-        if (isRunning == false) return;
+        gameData.moveTime = gameMoveTime;
+    }
 
-        // Update trial time
-        trialDuration += Time.deltaTime;
+    private void GameOver()
+    {
+        currentState = GameState.GameOver;
+        isPlaying = false;
+        gameData.isGameLogging = false;
 
-        // Run trial state machine
+        EndCurrentGameSession();
+        SceneManager.LoadScene(SceneManager.GetActiveScene().name);
+
+        AppLogger.LogInfo("Game Over.");
+    }
+
+    public void SpawnTarget()
+    {
         RunTrialStateMachine();
+        if (timeLeft > 0 && balldestroyed)
+        {
+            balldestroyed = false;
+
+            float ballSpeed = 2f + 0.3f * (1 + gameData.gameSpeedHT);
+            float trailDuration = (8.0f / ballSpeed) * 0.8f;
+            HT_spawnTargets1.instance.trailDuration = trailDuration;
+
+            x = UnityEngine.Random.Range(-playSize + 0.5f, playSize - 0.5f);
+            Vector3 spawnPosition = new Vector3(x, 6f, 0);
+            Quaternion spawnRotation = Quaternion.identity;
+
+            GameObject target = Instantiate(
+                ball[UnityEngine.Random.Range(0, ball.Length)],
+                spawnPosition,
+                spawnRotation
+            );
+            target.GetComponent<Rigidbody2D>().velocity = new Vector2(0, -ballSpeed);
+            target.transform.localScale = HTDifficultyManager.Scale;
+
+            HT_spawnTargets1.instance.stopClock = trailDuration;
+        }
+    }
+
+    private void InitializeGame()
+    {
+        AppLogger.SetCurrentScene(SceneManager.GetActiveScene().name);
+        AppLogger.LogInfo($"{SceneManager.GetActiveScene().name} scene initialized.");
+
+        rig2D = GetComponent<Rigidbody2D>();
+        gameData.isGameLogging = false;
+
+        timeLeftText = GameObject.FindGameObjectWithTag("TimeLeftText").GetComponent<Text>();
+        ScoreText = GameObject.FindGameObjectWithTag("ScoreText").GetComponent<Text>();
+
+        StartButton.SetActive(true);
+        PauseButton.SetActive(false);
+        ResumeButton.SetActive(false);
+
+        if (cam == null)
+        {
+            cam = Camera.main;
+        }
+
+        lastTimestamp = Time.unscaledTime;
+        maxwidth = Camera.main.ScreenToWorldPoint(new Vector3(Screen.width, Screen.height, 0)).x - 0.5f;
+       // maxwidth = targetWidth.x - hatwidth;
+        PlutoComm.OnButtonReleased += onPlutoButtonReleased;
+        //UpdateText();
+        //HT_spawnTargets1.instance.playSize = maxwidth * 0.8f;
+        //PlutoComm.OnButtonReleased += () => { if (currentState == GameState.Paused) ResumeGame(); };
+    }
+
+    private void UpdateText()
+    {
+        timeLeftText.text = $"Time Left: {(int)timeLeft}";
+        ScoreText.text = $"Score: {gameData.gameScore}";
+    }
+
+    private void StartNewGameSession()
+    {
+        currentGameSession = new GameSession
+        {
+            GameName = "HAT-Trick",
+            Assessment = 0
+        };
+
+        SessionManager.Instance.StartGameSession(currentGameSession);
+        AppLogger.LogInfo($"Game session {currentGameSession.SessionNumber} started.");
+    }
+
+    private void EndCurrentGameSession()
+    {
+        if (currentGameSession != null)
+        {
+            SessionManager.Instance.SetTrialDataFileLocation(AppData.trialDataFileLocation, currentGameSession);
+            SessionManager.Instance.moveTime(gameData.moveTime.ToString("F0"), currentGameSession);
+            SessionManager.Instance.gameSpeed(gameData.gameSpeedHT, currentGameSession);
+            SessionManager.Instance.successRate(gameData.successRate, currentGameSession);
+            SessionManager.Instance.EndGameSession(currentGameSession);
+        }
+    }
+    public void exitGame()
+    {
+        //EndCurrentGameSession();
+        SceneManager.LoadScene("choosegame");
+    }
+    private void onPlutoButtonReleased()
+    {
+        isPressed = true;
     }
 
     private void RunTrialStateMachine()
@@ -211,7 +361,7 @@ public class HatGameController : MonoBehaviour
         float _deltime = trialDuration - stateStartTime;
         bool _statetimeout = _deltime >= stateDurations[(int)_trialState];
         // Time when target is reached.
-       
+
         bool _tgtreached = Math.Abs(_trialTarget - PlutoComm.angle) <= 5.0f;
         switch (_trialState)
         {
@@ -220,7 +370,7 @@ public class HatGameController : MonoBehaviour
                 if (_statetimeout)
                 {
                     SetTrialState(DiscreteMovementTrialState.SetTarget);
-                    Debug.Log("JS"); 
+                    Debug.Log("JS");
                 }
                 break;
             case DiscreteMovementTrialState.SetTarget:
@@ -241,6 +391,7 @@ public class HatGameController : MonoBehaviour
                 {
                     _tempIntraStateTimer += Time.deltaTime;
                     isRunning = false;
+                    Debug.Log("Target Reached");
                 }
                 else
                 {
@@ -273,7 +424,6 @@ public class HatGameController : MonoBehaviour
                 prevControlBound = PlutoComm.controlBound;
                 currControlBound = aanCtrler.getControlBoundForTrial();
                 trialNo += 1;
-                Debug.Log("Checking");
                 // Reset target timer (for display purposes).
                 _tempIntraStateTimer = 0f;
                 break;
@@ -284,8 +434,11 @@ public class HatGameController : MonoBehaviour
                 break;
             case DiscreteMovementTrialState.Moving:
                 // Start the position control to the tatget location.
-                _initialTarget = PlutoComm.angle;
+                // _initialTarget = PlutoComm.angle;
+                _initialTarget = Player;
+                //_finalTarget = CalculateAngleFromX(x);
                 _finalTarget = x;
+                Debug.Log("yyy:"+ _initialTarget + "+" + _finalTarget);
                 // Set new trial target.
                 aanCtrler.setNewTrialDetails(_initialTarget, _finalTarget);
                 // Set control direction
@@ -296,7 +449,7 @@ public class HatGameController : MonoBehaviour
             case DiscreteMovementTrialState.Success:
                 // Update trial result.
                 Debug.Log("Success");
-                isRunning = false;
+               // isRunning = false;
                 SetTrialState(DiscreteMovementTrialState.Rest);
                 //PlutoComm.setControlType("NONE");
 
@@ -307,7 +460,7 @@ public class HatGameController : MonoBehaviour
             case DiscreteMovementTrialState.Failure:
                 //aanCtrler.upateTrialResult(false);
                 Debug.Log("Failure");
-                isRunning = false;
+                //isRunning = false;
                 SetTrialState(DiscreteMovementTrialState.Rest);
                 // PlutoComm.setControlType("NONE");
                 //WriteTrialRowInfo(0);
@@ -339,139 +492,33 @@ public class HatGameController : MonoBehaviour
         // 
         PlutoComm.setControlTarget(_currTgtForDisplay);
     }
-
-
-    public void SpawnTarget()
+    private float CalculateAngleFromX(float x)
     {
-        count++;
-        GameObject target;
+        // Assuming y = 1 for a fixed vertical reference
+        float y = 1.0f;
 
-        if (timeLeft > 0 && balldestroyed)
-        {
-            balldestroyed = false;
-            //HTDifficultyManager.ballSpeed = 2f + 0.3f * 1;
-            HTDifficultyManager.ballSpeed = 2f + 0.3f *(1 +gameData.gameSpeedHT);
-            HT_spawnTargets1.instance.trailDuration = (8.0f / HTDifficultyManager.ballSpeed) * 0.8f;
+        // Calculate the angle in degrees
+        float angle = Mathf.Atan2(y, x) * Mathf.Rad2Deg;
 
-            x = UnityEngine.Random.Range(-playSize +0.5f, playSize - 0.5f);
-            Debug.Log("position :"+ x);
-            Vector3 spawnPosition = new Vector3(
-                x,
-                6f,
-                0
-                );
+        // Ensure the angle is normalized (0 to 360 degrees)
+        if (angle < 0) angle += 360;
+        Debug.Log(angle + "angg");
 
-            Quaternion spawnRotation = Quaternion.identity;
-            
-            int rand = UnityEngine.Random.Range(0, 5);
-            if (rand < 5)
-            {
-                int i = UnityEngine.Random.Range(0, 2);
-                target = Instantiate(ball[i], spawnPosition, spawnRotation);
-                target.GetComponent<Rigidbody2D>().velocity = new Vector2(0, -HTDifficultyManager.ballSpeed);
-                target.transform.localScale = HTDifficultyManager.Scale;
-            }
-            else
-            {
-                Debug.Log("here");
-                target = Instantiate(ball[0], spawnPosition, spawnRotation);
-                target.GetComponent<Rigidbody2D>().velocity = new Vector2(0, -HTDifficultyManager.ballSpeed);
-            }
-
-            HT_spawnTargets1.instance.stopClock = HT_spawnTargets1.instance.trailDuration;
-
-        }
-        else if( timeLeft<= 0)
-        {
-            EndCurrentGameSession();
-        }
-    }
-    public void UpdateText()
-    {
-        timeLeftText.text = "Time left : " + ((int)timeLeft).ToString();
-        ScoreText.text = "Score:"+ gameData.gameScore;
-        if (gameData.gameScore>0 && gameData.gameScore<11 )
-        {
-            gameData.successRate = (float)gameData.gameScore / 10;
-        }
-    }
-    private void onPlutoButtonReleased()
-    {
-        isPressed = true;
-    }
-    public void Restart()
-    {
-        balldestroyed = true;
-        isPlaying = true;
-         gameMoveTime = 0f;
-        lastTimestamp = Time.unscaledTime;
-        StartNewGameSession();
-        gameData.isGameLogging = true;
-        timeLeft = trialTime;
-        aanCtrler = new PlutoAANController();
-        // Change button text
-        isRunning = true;
-        SetTrialState(DiscreteMovementTrialState.Rest);
-        PlutoComm.setControlType("POSITIONAAN");
-        PlutoComm.setControlBound(currControlBound);
-        PlutoComm.setControlDir(0);
-        trialNo = 0;
-        SetTrialState(DiscreteMovementTrialState.Moving );
-        AppLogger.LogInfo("HatGame Started");
-        SpawnTarget();
-
-
-    }
-    void StartNewGameSession()
-    {
-        currentGameSession = new GameSession
-        {
-            GameName = "HAT-Trick",
-            Assessment = 0
-        };
-
-        SessionManager.Instance.StartGameSession(currentGameSession);
-        Debug.Log($"Started new game session with session number: {currentGameSession.SessionNumber}");
-
-        SetSessionDetails();
-    }
-    private void SetSessionDetails()
-    {
-        string device = "PLUTO";
-        string assistMode = "Null";
-        string assistModeParameters = "Null";
-        string deviceSetupLocation = "CMC-Bioeng-dpt";
-        string gameParameter = "YourGameParameter";
-        string mech = AppData.selectedMechanism;
-        SessionManager.Instance.SetDevice(device, currentGameSession);
-        SessionManager.Instance.SetAssistMode(assistMode, assistModeParameters, currentGameSession);
-        SessionManager.Instance.SetDeviceSetupLocation(deviceSetupLocation, currentGameSession);
-        SessionManager.Instance.SetGameParameter(gameParameter, currentGameSession);
-        SessionManager.Instance.mechanism(mech, currentGameSession);
-    }
-    void EndCurrentGameSession()
-    {
-        if (currentGameSession != null)
-        {
-            string trialdata = AppData.trialDataFileLocation;
-            string movetime = gameData.moveTime.ToString("F0");
-            SessionManager.Instance.SetTrialDataFileLocation(trialdata, currentGameSession);
-            SessionManager.Instance.moveTime(movetime, currentGameSession);
-            SessionManager.Instance.gameSpeed(gameData.gameSpeedHT,currentGameSession);
-            SessionManager.Instance.successRate(gameData.successRate, currentGameSession);
-            SessionManager.Instance.EndGameSession(currentGameSession);
-        }
+        return angle;
     }
 
-    public void Reload()
+    // Example in SetTrialState or SpawnTarget
+    private void ExampleUsage()
     {
-        //  SceneManager.LoadScene(SceneManager.L)
-        //  GameOverObject.SetActive(false);
+        // Convert the x-position to an angle
+        float angle = CalculateAngleFromX(x);
+
+        // Use the angle for your mechanism
+        PlutoComm.setControlTarget(angle);
+
+        Debug.Log($"Converted X Position: {x} to Angle: {angle} degrees");
     }
-    public void exitGame()
-    {
-        EndCurrentGameSession();
-        SceneManager.LoadScene("choosegame");
-    }
+
+
+
 }
-

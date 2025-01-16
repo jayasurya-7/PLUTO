@@ -103,7 +103,7 @@ public class HT_spawnTargets1 : MonoBehaviour
 
 
 
-        if (!HatGameController.instance.isPlaying || Time.timeScale == 0 || Mathf.Abs(PlutoComm.angle) > 130)
+        if (!HatGameController.instance.IsPlaying || Time.timeScale == 0 || Mathf.Abs(PlutoComm.angle) > 130)
         {
             stopClock = trailDuration;
             prevTorq = 0;

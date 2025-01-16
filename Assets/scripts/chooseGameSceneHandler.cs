@@ -25,6 +25,11 @@ public class ChooseGameSceneHandler : MonoBehaviour
         { "hatTrick", "HatrickGame" }
     };
     //AAN
+    private bool lisRunning = false; // Tracks if the automatic movement is running
+    private float targetAngle = 50.0f; // The target angle to reach
+    private bool targetReached = false; // Tracks if the target is reached
+
+    private const float targetTolerance = 10.0f; // Tolerance for reaching the target
 
 
     // Control variables
@@ -90,7 +95,7 @@ public class ChooseGameSceneHandler : MonoBehaviour
             AppData.selectedMechanism = "HOC";
             AppLogger.SetCurrentMechanism(AppData.selectedMechanism);
         }
-        btnStartStop.onClick.AddListener(delegate { OnStartStopDemo(); });
+       // btnStartStop.onClick.AddListener(delegate { OnStartStopDemo(); });
         AppLogger.SetCurrentScene(SceneManager.GetActiveScene().name);
         AppLogger.LogInfo($"{SceneManager.GetActiveScene().name} scene started.");
         AppLogger.SetCurrentGame("");
@@ -101,7 +106,10 @@ public class ChooseGameSceneHandler : MonoBehaviour
         playButton.onClick.AddListener(OnPlayButtonClicked);
         changeMech.onClick.AddListener(OnMechButtonClicked);
         AppData.oldAROM=new AROM(AppData.selectedMechanism);
-       
+
+        // Start the mechanism movement after a delay of 1 second
+        StartCoroutine(SetMechanismToTargetAfterDelay(1.0f));
+
     }
     void Update()
     {   
@@ -118,15 +126,45 @@ public class ChooseGameSceneHandler : MonoBehaviour
 
         }
 
+        // Monitor the mechanism's progress if it's running
+        if (isRunning && !targetReached)
+        {
+            float currentAngle = PlutoComm.angle;
+
+            // Check if the mechanism has reached the target
+            if (Mathf.Abs(currentAngle - targetAngle) <= targetTolerance)
+            {
+                targetReached = true;
+                isRunning = false;
+
+                // Set control type to NONE after reaching the target
+                PlutoComm.setControlType("NONE");
+                Debug.Log($"Target reached: {currentAngle}. Control type set to NONE.");
+            }
+        }
+
         Debug.Log("device ang: " + PlutoComm.angle);
         // Check if the demo is running.
-        if (isRunning == false) return;
+        //if (isRunning == false) return;
 
-        // Update trial time
-        trialDuration += Time.deltaTime;
+        //// Update trial time
+        //trialDuration += Time.deltaTime;
 
-        // Run trial state machine
-        RunTrialStateMachine();
+        //// Run trial state machine
+        //RunTrialStateMachine();
+    }
+
+    private IEnumerator SetMechanismToTargetAfterDelay(float delay)
+    {
+        yield return new WaitForSeconds(delay);
+
+        // Start moving the mechanism to the target angle
+        PlutoComm.setControlType("POSITIONAAN");
+        PlutoComm.setControlBound(0.3f);
+        PlutoComm.setControlTarget(targetAngle);
+        isRunning = true;
+
+        Debug.Log($"Started moving mechanism to {targetAngle} degrees.");
     }
 
     void AttachToggleListeners()
@@ -138,32 +176,6 @@ public class ChooseGameSceneHandler : MonoBehaviour
             {
                 toggleComponent.onValueChanged.AddListener(delegate { CheckToggleStates(); });
             }
-        }
-    }
-    private void OnStartStopDemo()
-    {
-        if (isRunning)
-        {
-            btnStartStop.GetComponentInChildren<TMP_Text>().text = "Start Demo";
-            isRunning = false;
-            // Stop control.
-            PlutoComm.setControlType("NONE");
-        }
-        else
-        {
-            // Pluto AAN controller
-            aanCtrler = new PlutoAANController();
-            // Change button text
-            btnStartStop.GetComponentInChildren<TMP_Text>().text = "Stop Demo";
-            isRunning = true;
-            // Set Control mode.
-            PlutoComm.setControlType("POSITIONAAN");
-            PlutoComm.setControlBound(currControlBound);
-            PlutoComm.setControlDir(0);
-            trialNo = 0;
-            //successRate = 0;
-            // Start the state machine.
-            SetTrialState(DiscreteMovementTrialState.Rest);
         }
     }
 
@@ -201,145 +213,7 @@ public class ChooseGameSceneHandler : MonoBehaviour
 
 
 
-    private void RunTrialStateMachine()
-    {
-        float _deltime = trialDuration - stateStartTime;
-        bool _statetimeout = _deltime >= stateDurations[(int)_trialState];
-        // Time when target is reached.
-        bool _tgtreached = Math.Abs(_trialTarget - PlutoComm.angle) <= 5.0f;
-        switch (_trialState)
-        {
-            case DiscreteMovementTrialState.Rest:
-                // Check if the rest time has run out.
-                if (_statetimeout)
-                {
-                    SetTrialState(DiscreteMovementTrialState.SetTarget);
-                }
-                break;
-            case DiscreteMovementTrialState.SetTarget:
-                if (_statetimeout)
-                {
-                    SetTrialState(DiscreteMovementTrialState.Moving);
-                }
-                break;
-            case DiscreteMovementTrialState.Moving:
-                // Update control bound smoothly.
-                UpdateControlBoundSmoothly();
-                // Update the position control target smoothly.
-                UpdatePositionTargetSmoothly();
-
-                // Check if the target has been reached
-                if (_tgtreached)
-                {
-                    _tempIntraStateTimer += Time.deltaTime;
-                    isRunning = false;
-                }
-                else
-                {
-                    _tempIntraStateTimer = 0;
-                }
-                // Check if target time has been reached.
-                if (_tempIntraStateTimer >= tgtHoldDuration || Math.Abs(PlutoComm.angle) == _finalTarget) 
-                {
-                    SetTrialState(DiscreteMovementTrialState.Success);
-                }
-                else if (_statetimeout)
-                {
-                    SetTrialState(DiscreteMovementTrialState.Failure);
-                }
-                break;
-            case DiscreteMovementTrialState.Success:
-            case DiscreteMovementTrialState.Failure:
-                if (_statetimeout) SetTrialState(DiscreteMovementTrialState.Rest);
-                break;
-        }
-    }
-
-    private void SetTrialState(DiscreteMovementTrialState newState)
-    {
-        _trialState = newState;
-        switch (newState)
-        {
-            case DiscreteMovementTrialState.Rest:
-                trialDuration = 0f;
-                prevControlBound = PlutoComm.controlBound;
-                currControlBound = aanCtrler.getControlBoundForTrial();
-                trialNo += 1;
-                
-                // Reset target timer (for display purposes).
-                _tempIntraStateTimer = 0f;
-                break;
-            case DiscreteMovementTrialState.SetTarget:
-                // Random select target from the appropriate range.
-                float _tgtscale = UnityEngine.Random.Range(0.0f, 1.0f);
-                _trialTarget = -51.0f;
-                break;
-            case DiscreteMovementTrialState.Moving:
-                // Start the position control to the tatget location.
-                _initialTarget = PlutoComm.angle;
-                _finalTarget = _trialTarget;
-                // Set new trial target.
-                aanCtrler.setNewTrialDetails(_initialTarget, _finalTarget);
-                // Set control direction
-                PlutoComm.setControlDir(aanCtrler.getControlDirectionForTrial());
-                Debug.Log("Value of CB:" + aanCtrler.getControlDirectionForTrial());
-                _tempIntraStateTimer = 0f;
-                break;
-            case DiscreteMovementTrialState.Success:
-                // Update trial result.
-                Debug.Log("Success");
-                isRunning = false;
-                PlutoComm.setControlType("NONE");
-
-                //aanCtrler.upateTrialResult(true);
-                // Update adaptation row.
-                // WriteTrialRowInfo(1);
-                break;
-            case DiscreteMovementTrialState.Failure:
-                //aanCtrler.upateTrialResult(false);
-                Debug.Log("Failure");
-                isRunning = false;
-                PlutoComm.setControlType("NONE");
-                //WriteTrialRowInfo(0);
-                break;
-        }
-        stateStartTime = trialDuration;
-    }
-
-
-
-    private void UpdateControlBoundSmoothly()
-    {
-        PlutoComm.setControlBound(0.74f);
-        if ((prevControlBound == currControlBound) ||
-            ((trialDuration - stateStartTime) >= cbChangeDuration))
-        {
-            return;
-        }
-        //// Implement the minimum jerk trajectory.
-        //float _t = (trialDuration - stateStartTime) / cbChangeDuration;
-        //// Limit _t between 0 and 1.
-        //_t = Mathf.Clamp(_t, 0, 1);
-        //// Compute the CB value using the minimum jerk trajectory.
-        //_currCBforDisplay = prevControlBound + (currControlBound - prevControlBound) * (10 * Mathf.Pow(_t, 3) - 15 * Mathf.Pow(_t, 4) + 6 * Mathf.Pow(_t, 5));
-        //// Update control bound.
-        ////PlutoComm.setControlBound(_currCBforDisplay);
-        //Debug.Log("_curr :" + _currCBforDisplay);
-        //Debug.Log("_curr :" + _t);
-    }
-
-    private void UpdatePositionTargetSmoothly()
-    {
-        float _t = (trialDuration - stateStartTime) / tgtDuration;
-        // Limit _t between 0 and 1.
-        _t = Mathf.Clamp(_t, 0, 1);
-        // Compute the current target value using the minimum jerk trajectory.
-        _currTgtForDisplay = _initialTarget + (_finalTarget - _initialTarget) * (10 * Mathf.Pow(_t, 3) - 15 * Mathf.Pow(_t, 4) + 6 * Mathf.Pow(_t, 5));
-        // Update position target
-        // 
-        PlutoComm.setControlTarget(_currTgtForDisplay);
-    }
-
+   
     private void OnMechButtonClicked()
     {
         SceneManager.LoadScene(changeScene);

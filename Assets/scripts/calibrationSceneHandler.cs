@@ -141,8 +141,7 @@ public class calibrationSceneHandler : MonoBehaviour
 
         if (!CheckPositionTogether(PlutoComm.angle, togetherAngle)) yield break;
         textMsg();
-        PlutoComm.setControlBound(0.11f);
-        PlutoComm.setControlDir(-1);
+        
         Invoke("LoadNextScene", 0.4f);
     }
 
@@ -153,13 +152,13 @@ public class calibrationSceneHandler : MonoBehaviour
     }
     private void ApplyTorque(float currentPos, float targetPos)
     {
-        float torqueValue = -0.07f;
+        float torqueValue = -0.1f;
         PlutoComm.setControlType("TORQUE");
         PlutoComm.setControlTarget(torqueValue);
     }
     private void ApplyTorqueToSep(float currentPos, float targetPos)
     {
-        float torqueValue = 0.07f;
+        float torqueValue = 0.1f;
         PlutoComm.setControlType("TORQUE");
         PlutoComm.setControlTarget(torqueValue);
     }
