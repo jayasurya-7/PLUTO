@@ -2629,7 +2629,7 @@ MonoBehaviour:
   score: 0
   balldestroyed: 1
   targetSpwan: 0
-  targetImage: {fileID: 0}
+  targetImage: {fileID: 344611146}
 --- !u!4 &768395343
 Transform:
   m_ObjectHideFlags: 0

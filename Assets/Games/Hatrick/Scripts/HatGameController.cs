@@ -611,6 +611,7 @@ using UnityEngine.SceneManagement;
 using NeuroRehabLibrary;
 using TMPro;
 using System;
+using Unity.Mathematics;
 
 public class HatGameController : MonoBehaviour
 {
@@ -696,6 +697,10 @@ public class HatGameController : MonoBehaviour
     private sbyte currControlDir = 0;
     private float _currCBforDisplay;
     //private int successRate;
+    public Image targetImage; // Assign this in the Inspector
+    private int randomTargetIndex;
+    private int spawnCounter = 0;
+    private System.Random random = new System.Random();
     private PlutoAANController aanCtrler;
     public bool IsPlaying // Expose the variable as read-only if needed elsewhere
     {
@@ -968,10 +973,28 @@ public class HatGameController : MonoBehaviour
                 // Debug.Log("valuee 1 :" + (targetPosition > playerPosition ? 1 : -1));
                 //Debug.Log("valuee 2 :" + targetPosition + "  +  "+ PlutoComm.CONTROLTYPE[PlutoComm.controlType]);
                 PlutoComm.setControlDir(dir);
-                PlutoComm.setControlBound(0.2f);
+                PlutoComm.setControlBound(0.25f);
                 PlutoComm.setControlTarget(targetAngle);
             }
             // Set targetSpawn to true only if ball[0] is instantiated
+            if (spawnCounter % 10 == 1) // Reset at the start of every 10 targets
+            {
+                randomTargetIndex = random.Next(1, 11); // Choose a random number between 1 and 10
+                Debug.Log($"Image will be applied to target {randomTargetIndex} in this set of 10 spawns.");
+            }
+
+            // Check if the current spawn matches the randomly chosen index
+            if (spawnCounter % 10 == randomTargetIndex)
+            {
+                targetImage.gameObject.SetActive(true); // Display the image
+                Debug.Log("Displaying the target image!");
+            }
+            else
+            {
+                targetImage.gameObject.SetActive(false); // Hide the image
+            }
+
+            spawnCounter++; // Increment spawn counter
         }
     }
 
