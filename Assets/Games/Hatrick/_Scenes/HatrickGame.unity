@@ -1094,8 +1094,8 @@ RectTransform:
   m_LocalEulerAnglesHint: {x: 0, y: 0, z: 0}
   m_AnchorMin: {x: 0.5, y: 0.5}
   m_AnchorMax: {x: 0.5, y: 0.5}
-  m_AnchoredPosition: {x: 0, y: 26.47}
-  m_SizeDelta: {x: 800, y: 152.92}
+  m_AnchoredPosition: {x: 0, y: 44.86}
+  m_SizeDelta: {x: 800, y: 233.87}
   m_Pivot: {x: 0.5, y: 0.5}
 --- !u!114 &344611146
 MonoBehaviour:
@@ -2628,6 +2628,8 @@ MonoBehaviour:
   - {fileID: 5816639487924542826, guid: ce4947480cfae4d419b3b2e2378e25fd, type: 3}
   score: 0
   balldestroyed: 1
+  targetSpwan: 0
+  targetImage: {fileID: 0}
 --- !u!4 &768395343
 Transform:
   m_ObjectHideFlags: 0

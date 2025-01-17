@@ -97,6 +97,7 @@ public class HatController : MonoBehaviour
             gameData.gameScore++;
             HT_spawnTargets1.instance.reached = true;
             HatGameController.instance.balldestroyed = true;
+            HatGameController.instance.targetSpwan = false;
             HatGameController.instance.SpawnTarget();
             Destroy(collision.gameObject);
         }
@@ -110,6 +111,7 @@ public class HatController : MonoBehaviour
             gameData.gameScore--;
             HT_spawnTargets1.instance.reached = true;
             HatGameController.instance.balldestroyed = true;
+            HatGameController.instance.targetSpwan = false;
             HatGameController.instance.SpawnTarget();
             Destroy(collision.gameObject);
         }

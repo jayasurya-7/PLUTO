@@ -109,7 +109,7 @@ public class AROMsceneHandler : MonoBehaviour
                 writer.WriteLine("datetime,side,tmin,tmax");
             }
         }
-        if (Array.IndexOf(PlutoComm.MECHANISMS, AppData.selectedMechanism) != 3)
+        if (Array.IndexOf(PlutoComm.MECHANISMS, AppData.selectedMechanism) != 4)
         {
             angLimit = AppData.offsetAtNeutral[Array.IndexOf(PlutoComm.MECHANISMS, AppData.selectedMechanism)];
 
@@ -138,7 +138,7 @@ public class AROMsceneHandler : MonoBehaviour
 
 
         }
-        if (Array.IndexOf(PlutoComm.MECHANISMS, AppData.selectedMechanism) == 3)
+        if (Array.IndexOf(PlutoComm.MECHANISMS, AppData.selectedMechanism) == 4)
         {
             cText.gameObject.SetActive(true); // Show the C Text
             rText.gameObject.SetActive(true);
@@ -255,7 +255,7 @@ public class AROMsceneHandler : MonoBehaviour
                                          "Please REDO PROM AGAIN";
                     }
                     else
-                        if (Array.IndexOf(PlutoComm.MECHANISMS, AppData.selectedMechanism) == 3)
+                        if (Array.IndexOf(PlutoComm.MECHANISMS, AppData.selectedMechanism) == 4)
                     {
                         float apertureMinCM = Mathf.Abs(Mathf.Deg2Rad * AppData.oldAROM.tmin * 6f);
                         float apertureMaxCM = Mathf.Abs(Mathf.Deg2Rad * AppData.oldAROM.tmax * 6f);
@@ -296,7 +296,7 @@ public class AROMsceneHandler : MonoBehaviour
                         if (!assessmentSaved)
                         {
 
-                            if (Array.IndexOf(PlutoComm.MECHANISMS, AppData.selectedMechanism) == 3)
+                            if (Array.IndexOf(PlutoComm.MECHANISMS, AppData.selectedMechanism) == 4)
                             {
 
                                 float apertureMinCM = Mathf.Abs(Mathf.Deg2Rad * AppData.oldAROM.tmin * 6f);
@@ -325,7 +325,7 @@ public class AROMsceneHandler : MonoBehaviour
                             aromSlider.UpdateMinMaxvalues = false;
                             Debug.Log("Hello3");
 
-                            if (Array.IndexOf(PlutoComm.MECHANISMS, AppData.selectedMechanism) == 3)
+                            if (Array.IndexOf(PlutoComm.MECHANISMS, AppData.selectedMechanism) == 4)
                             {
                                 float apertureMinCM = Mathf.Abs(Mathf.Deg2Rad * AppData.oldAROM.tmin * 6f);
                                 float apertureMaxCM = Mathf.Abs(Mathf.Deg2Rad * AppData.oldAROM.tmax * 6f);
@@ -387,7 +387,7 @@ public class AROMsceneHandler : MonoBehaviour
             RestartAssessment();
             isRestarting = true;
             curreposition.SetActive(true);
-            if (Array.IndexOf(PlutoComm.MECHANISMS, AppData.selectedMechanism) == 3)
+            if (Array.IndexOf(PlutoComm.MECHANISMS, AppData.selectedMechanism) == 4)
             {
                 currepositionHoc.SetActive(true);
             }
@@ -403,7 +403,7 @@ public class AROMsceneHandler : MonoBehaviour
             aromSlider.UpdateMinMaxvalues = true;
             AssessmentValid = true;
             curreposition.SetActive(true);
-            if (Array.IndexOf(PlutoComm.MECHANISMS, AppData.selectedMechanism) == 3)
+            if (Array.IndexOf(PlutoComm.MECHANISMS, AppData.selectedMechanism) == 4)
             {
                 currepositionHoc.SetActive(true);
             }
@@ -464,7 +464,7 @@ public class AROMsceneHandler : MonoBehaviour
         AppData.newAROM = new AROM( AppData.side, _tmin, _tmax,
          AppData.selectedMechanism, true);
 
-        if (Array.IndexOf(PlutoComm.MECHANISMS, AppData.selectedMechanism) == 3)
+        if (Array.IndexOf(PlutoComm.MECHANISMS, AppData.selectedMechanism) == 4)
         {
             float apertureMinCM = Mathf.Abs(Mathf.Deg2Rad * AppData.oldAROM.tmin * 6f);
             float apertureMaxCM = Mathf.Abs(Mathf.Deg2Rad * AppData.oldAROM.tmax * 6f);
@@ -523,7 +523,7 @@ public class AROMsceneHandler : MonoBehaviour
 
     private void UpdateStatusText()
     {
-        if (Array.IndexOf(PlutoComm.MECHANISMS, AppData.selectedMechanism) != 3)
+        if (Array.IndexOf(PlutoComm.MECHANISMS, AppData.selectedMechanism) != 4)
         {
             JointAngle.text = (PlutoComm.angle).ToString("0.0");
 
