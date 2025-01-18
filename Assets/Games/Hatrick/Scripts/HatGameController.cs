@@ -976,15 +976,8 @@ public class HatGameController : MonoBehaviour
                 PlutoComm.setControlBound(0.25f);
                 PlutoComm.setControlTarget(targetAngle);
             }
-            // Set targetSpawn to true only if ball[0] is instantiated
-            if (spawnCounter % 10 == 1) // Reset at the start of every 10 targets
-            {
-                randomTargetIndex = random.Next(1, 11); // Choose a random number between 1 and 10
-                Debug.Log($"Image will be applied to target {randomTargetIndex} in this set of 10 spawns.");
-            }
-
             // Check if the current spawn matches the randomly chosen index
-            if (spawnCounter % 10 == randomTargetIndex)
+            if (spawnCounter == randomTargetIndex)
             {
                 targetImage.gameObject.SetActive(true); // Display the image
                 Debug.Log("Displaying the target image!");
@@ -997,37 +990,6 @@ public class HatGameController : MonoBehaviour
             spawnCounter++; // Increment spawn counter
         }
     }
-
-    //public void SpawnTarget()
-    //{
-    //    if (timeLeft > 0 && balldestroyed)
-    //    {
-    //        balldestroyed = false;
-    //        float ballSpeed = 2f + 0.3f * (1 + gameData.gameSpeedHT);
-    //        float trailDuration = (8.0f / ballSpeed) * 0.8f;
-    //        HT_spawnTargets1.instance.trailDuration = trailDuration;
-    //        targetSpwan = true;
-    //        x = UnityEngine.Random.Range(-playSize + 0.5f, playSize - 0.5f);
-    //        y = UnityEngine.Random.Range(-170.0f, 90.0f);
-    //        Vector3 spawnPosition = new Vector3(x, 6f, 0);
-    //        Quaternion spawnRotation = Quaternion.identity;
-
-    //        GameObject target = Instantiate(
-    //            ball[UnityEngine.Random.Range(0, ball.Length)],
-    //            spawnPosition,
-    //            spawnRotation
-    //        );
-    //        target.GetComponent<Rigidbody2D>().velocity = new Vector2(0, -ballSpeed);
-    //        target.transform.localScale = HTDifficultyManager.Scale;
-
-    //        HT_spawnTargets1.instance.stopClock = trailDuration;
-
-    //        targetPosition = x; // Set target position for the mechanism
-    //        Debug.Log("valuee 1 :" + (targetPosition > playerPosition ? 1 : -1));
-    //        Debug.Log("valuee 2 :" + targetPosition + "  +  ");
-
-    //    }
-    //}
     private void UpdateControlBoundSmoothly()
     {
         // Only update control bound if the target has been spawned.
@@ -1082,6 +1044,7 @@ public class HatGameController : MonoBehaviour
         lastTimestamp = Time.unscaledTime;
         maxwidth = Camera.main.ScreenToWorldPoint(new Vector3(Screen.width, Screen.height, 0)).x - 0.5f;
         PlutoComm.OnButtonReleased += onPlutoButtonReleased;
+        randomTargetIndex = random.Next(1, 11);
     }
 
     private void UpdateText()

@@ -142,16 +142,6 @@ public class ChooseGameSceneHandler : MonoBehaviour
                 Debug.Log($"Target reached: {currentAngle}. Control type set to NONE.");
             }
         }
-
-        Debug.Log("device ang: " + PlutoComm.angle);
-        // Check if the demo is running.
-        //if (isRunning == false) return;
-
-        //// Update trial time
-        //trialDuration += Time.deltaTime;
-
-        //// Run trial state machine
-        //RunTrialStateMachine();
     }
 
     private IEnumerator SetMechanismToTargetAfterDelay(float delay)
