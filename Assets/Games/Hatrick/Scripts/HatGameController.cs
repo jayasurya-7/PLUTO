@@ -778,23 +778,31 @@ public class HatGameController : MonoBehaviour
     {
         case DiscreteMovementTrialState.Rest:
             // Check if a target has spawned and wait 0.5 seconds before transitioning to Moving state
-            if (targetSpwan && trialDuration >= 0.5f)
+            if (targetSpwan && trialDuration >= 0.25f)
             {
                 SetTrialState(DiscreteMovementTrialState.Moving);
             }
             break;
 
         case DiscreteMovementTrialState.Moving:
-            // Update smooth transitions for control bound and target
-            UpdateControlBoundSmoothly();
-            UpdatePositionTargetSmoothly();
+                // Update smooth transitions for control bound and target
+                if (targetSpwan)
+                {
+                    UpdateControlBoundSmoothly();
+                    UpdatePositionTargetSmoothly();
 
-            // Transition back to Rest after 4 seconds
-            if (trialDuration >= 4f)
-            {
-                Debug.Log("Target reached. Returning to Rest state.");
-                SetTrialState(DiscreteMovementTrialState.Rest);
-            }
+                    // Transition back to Rest after 4 seconds
+                    if (trialDuration >= 4.5f)
+                    {
+                        Debug.Log("Target reached. Returning to Rest state.");
+                        SetTrialState(DiscreteMovementTrialState.Rest);
+                    }
+                }
+                else
+                {
+                    Debug.Log("Not executed");
+                }
+            
             break;
     }
 }
@@ -959,13 +967,14 @@ private void SetTrialState(DiscreteMovementTrialState newState)
             Debug.Log("ta :"+ targetAngle);
             if (targetSpwan)
             {
+
                 //float targetAngle = (PlutoComm.angle > 0f) ? -60f : 60f;
-                sbyte dir = (sbyte)(targetPosition > playerPosition ? 1 : -1);
+               // sbyte dir = (sbyte)(targetPosition > playerPosition ? 1 : -1);
                 // Debug.Log("valuee 1 :" + (targetPosition > playerPosition ? 1 : -1));
                 //Debug.Log("valuee 2 :" + targetPosition + "  +  "+ PlutoComm.CONTROLTYPE[PlutoComm.controlType]);
-                PlutoComm.setControlDir(dir);
-                PlutoComm.setControlBound(0.25f);
-                PlutoComm.setControlTarget(targetAngle);
+               // PlutoComm.setControlDir(dir);
+               // PlutoComm.setControlBound(0.25f);
+                //PlutoComm.setControlTarget(targetAngle);
             }
             // Check if the current spawn matches the randomly chosen index
             if (spawnCounter == randomTargetIndex)
@@ -1069,7 +1078,16 @@ private void UpdatePositionTargetSmoothly()
         PlutoComm.OnButtonReleased += onPlutoButtonReleased;
         randomTargetIndex = random.Next(1, 11);
     }
-
+    private float ScreenPositionToAngle(float screenPosition)
+    {
+        float calibAngleRange = PlutoComm.CALIBANGLE[PlutoComm.mechanism];
+        float angle = Mathf.Lerp(
+            -calibAngleRange / 2, // Minimum angle
+            calibAngleRange / 2,  // Maximum angle
+            (screenPosition + playSize) / (2 * playSize) // Normalized position
+        );
+        return angle;
+    }
     private void UpdateText()
     {
         timeLeftText.text = $"Time Left: {(int)timeLeft}";
