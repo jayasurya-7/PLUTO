@@ -641,6 +641,7 @@ public class HatGameController : MonoBehaviour
     private bool isPaused = false;
     private int count;
     private float x;
+    private float targetAngle;
 
     private GameSession currentGameSession;
 
@@ -653,7 +654,7 @@ public class HatGameController : MonoBehaviour
     private enum GameState { NotStarted, Playing, Paused, GameOver }
     private GameState currentState = GameState.NotStarted;
 
-    private enum DiscreteMovementTrialState { Rest,SetTarget,Moving }
+    private enum DiscreteMovementTrialState { Rest,Moving }
     private DiscreteMovementTrialState trialState = DiscreteMovementTrialState.Rest;
 
     private float targetPosition;
@@ -756,85 +757,73 @@ public class HatGameController : MonoBehaviour
                 isPressed = false;
             }
         }
+        RunTrialStateMachine();
 
+        // Update trialDuration (assuming it's in seconds)
+        if (_trialState == DiscreteMovementTrialState.Moving)
+        {
+            trialDuration += Time.deltaTime;
+        }
         Player = GameObject.FindGameObjectWithTag("Player").transform.position.x;
         //Debug.Log("targetSpawn        ;" + targetSpwan);
     }
 
 
-    private void RunTrialStateMachine()
+  private void RunTrialStateMachine()
+{
+    // Use a timer to track state durations
+    trialDuration += Time.deltaTime;
+
+    switch (_trialState)
     {
-        bool targetReached = Math.Abs(_trialTarget - PlutoComm.angle) <= 5.0f;
+        case DiscreteMovementTrialState.Rest:
+            // Check if a target has spawned and wait 0.5 seconds before transitioning to Moving state
+            if (targetSpwan && trialDuration >= 0.5f)
+            {
+                SetTrialState(DiscreteMovementTrialState.Moving);
+            }
+            break;
 
-        switch (_trialState)
-        {
-            case DiscreteMovementTrialState.Rest:
-                // Only transition to the next state when the target has been spawned.
-                if (targetSpwan)
-                {
-                    SetTrialState(DiscreteMovementTrialState.SetTarget);
-                }
-                break;
+        case DiscreteMovementTrialState.Moving:
+            // Update smooth transitions for control bound and target
+            UpdateControlBoundSmoothly();
+            UpdatePositionTargetSmoothly();
 
-            case DiscreteMovementTrialState.SetTarget:
-                // Once target is set, move to the "Moving" state.
-                if (targetSpwan)
-                {
-                    SetTrialState(DiscreteMovementTrialState.Moving);
-                }
-                break;
-
-            case DiscreteMovementTrialState.Moving:
-                UpdateControlBoundSmoothly();
-                UpdatePositionTargetSmoothly();
-                // Check if the mechanism has reached the target.
-                if (targetReached)
-                {
-                    // Target has been reached, reset any temporary timers or variables.
-                    Debug.Log("Target Reached");
-                    SetTrialState(DiscreteMovementTrialState.Rest); // Move back to Rest state or another trial.
-                }
-               // Debug.Log("Running +"+ PlutoComm.angle+" + "+ PlutoComm.CONTROLTYPE[PlutoComm.controlType]);
-                break;
-        }
+            // Transition back to Rest after 4 seconds
+            if (trialDuration >= 4f)
+            {
+                Debug.Log("Target reached. Returning to Rest state.");
+                SetTrialState(DiscreteMovementTrialState.Rest);
+            }
+            break;
     }
+}
+private void SetTrialState(DiscreteMovementTrialState newState)
+{
+    _trialState = newState;
 
-
-
-    private void SetTrialState(DiscreteMovementTrialState newState)
+    switch (newState)
     {
-        _trialState = newState;
-        switch (newState)
-        {
-            case DiscreteMovementTrialState.Rest:
-                trialDuration = 0f;
-                prevControlBound = PlutoComm.controlBound;
-                currControlBound = 0.3f;
-                trialNo += 1;
-                // Reset target timer (for display purposes).
-                _tempIntraStateTimer = 0f;
-                break;
-            case DiscreteMovementTrialState.SetTarget:
-                // Random select target from the appropriate range.
-                _trialTarget = y;
-     
-                break;
-            case DiscreteMovementTrialState.Moving:
-                // Start the position control to the tatget location.
-                _initialTarget = PlutoComm.angle;
-                _finalTarget = _trialTarget;
-                // Set new trial target.
-                aanCtrler.setNewTrialDetails(_initialTarget, _finalTarget);
-                PlutoComm.setControlDir((sbyte)(targetPosition > playerPosition ? 1 : -1));
-                // Set control direction
-               // PlutoComm.setControlDir(aanCtrler.getControlDirectionForTrial());
-                Debug.Log("Value of CB:" + aanCtrler.getControlDirectionForTrial());
-                _tempIntraStateTimer = 0f;
-                break;
-            
-        }
-        stateStartTime = trialDuration;
+        case DiscreteMovementTrialState.Rest:
+            trialDuration = 0f;
+            targetSpwan = false; // Reset target spawn flag
+            break;
+
+        case DiscreteMovementTrialState.Moving:
+            trialDuration = 0f;
+            // Set initial and final targets for smooth transition
+            _initialTarget = PlutoComm.angle;
+            _finalTarget = targetAngle;
+
+            // Update control direction based on target position
+            PlutoComm.setControlDir((sbyte)(targetPosition > playerPosition ? 1 : -1));
+
+            // Initialize new trial details
+            aanCtrler.setNewTrialDetails(_initialTarget, _finalTarget);
+            break;
     }
+}
+
 
 
     public void StartGame()
@@ -966,9 +955,11 @@ public class HatGameController : MonoBehaviour
             HT_spawnTargets1.instance.stopClock = trailDuration;
 
             targetPosition = x; // Set target position for the mechanism
+            targetAngle = ScreenPositionToAngle(targetPosition); // Convert to angle
+            Debug.Log("ta :"+ targetAngle);
             if (targetSpwan)
             {
-                float targetAngle = (PlutoComm.angle > 0f) ? -60f : 60f;
+                //float targetAngle = (PlutoComm.angle > 0f) ? -60f : 60f;
                 sbyte dir = (sbyte)(targetPosition > playerPosition ? 1 : -1);
                 // Debug.Log("valuee 1 :" + (targetPosition > playerPosition ? 1 : -1));
                 //Debug.Log("valuee 2 :" + targetPosition + "  +  "+ PlutoComm.CONTROLTYPE[PlutoComm.controlType]);
@@ -990,37 +981,69 @@ public class HatGameController : MonoBehaviour
             spawnCounter++; // Increment spawn counter
         }
     }
+    // private void UpdateControlBoundSmoothly()
+    // {
+    //     // Only update control bound if the target has been spawned.
+    //     if (!targetSpwan) return;
+
+    //     // Time variable for smooth transition of control bounds.
+    //     float _t = (trialDuration - stateStartTime) / cbChangeDuration;
+    //     _t = Mathf.Clamp(_t, 0, 1); // Clamp t between 0 and 1.
+
+    //     // Compute the control bound value using the minimum jerk trajectory.
+    //     _currCBforDisplay = prevControlBound + (currControlBound - prevControlBound) * (10 * Mathf.Pow(_t, 3) - 15 * Mathf.Pow(_t, 4) + 6 * Mathf.Pow(_t, 5));
+
+    //     // Update the control bound in the system.
+    //     PlutoComm.setControlBound(_currCBforDisplay);
+    // }
+
+    // private void UpdatePositionTargetSmoothly()
+    // {
+    //     // Only update position target if the target has been spawned.
+    //     if (!targetSpwan) return;
+
+    //     // Time variable for smooth transition of target position.
+    //     float _t = (trialDuration - stateStartTime) / tgtDuration;
+    //     _t = Mathf.Clamp(_t, 0, 1); // Clamp t between 0 and 1.
+
+    //     // Compute the current target value using the minimum jerk trajectory.
+    //     _currTgtForDisplay = _initialTarget + (_finalTarget - _initialTarget) * (10 * Mathf.Pow(_t, 3) - 15 * Mathf.Pow(_t, 4) + 6 * Mathf.Pow(_t, 5));
+
+    //     // Update the position target in the system.
+    //     PlutoComm.setControlTarget(_currTgtForDisplay);
+    // }
+
     private void UpdateControlBoundSmoothly()
-    {
-        // Only update control bound if the target has been spawned.
-        if (!targetSpwan) return;
+{
+    if (!targetSpwan) return;
+    // Interpolation factor (t) for smooth transition
+    float t = trialDuration / 4f; // Normalize by the Moving state duration (4 seconds)
 
-        // Time variable for smooth transition of control bounds.
-        float _t = (trialDuration - stateStartTime) / cbChangeDuration;
-        _t = Mathf.Clamp(_t, 0, 1); // Clamp t between 0 and 1.
+    // Smoothly interpolate control bound from its current position to the target
+    float smoothedControlBound = Mathf.Lerp(0.25f, 0.75f, t);
 
-        // Compute the control bound value using the minimum jerk trajectory.
-        _currCBforDisplay = prevControlBound + (currControlBound - prevControlBound) * (10 * Mathf.Pow(_t, 3) - 15 * Mathf.Pow(_t, 4) + 6 * Mathf.Pow(_t, 5));
+    // Update the control direction
+    PlutoComm.setControlBound(smoothedControlBound);
 
-        // Update the control bound in the system.
-        PlutoComm.setControlBound(_currCBforDisplay);
-    }
+    // Optionally log or debug for visualization
+    Debug.Log($"Control Bound updated smoothly to: {smoothedControlBound}");
+}
+private void UpdatePositionTargetSmoothly()
+{
+    // Interpolation factor (t) for smooth transition
+    float t = trialDuration / 4f; // Normalize by the Moving state duration (4 seconds)
 
-    private void UpdatePositionTargetSmoothly()
-    {
-        // Only update position target if the target has been spawned.
-        if (!targetSpwan) return;
+    // Smoothly interpolate the target position
+    float smoothedTargetPosition = Mathf.Lerp(_initialTarget, _finalTarget, t);
 
-        // Time variable for smooth transition of target position.
-        float _t = (trialDuration - stateStartTime) / tgtDuration;
-        _t = Mathf.Clamp(_t, 0, 1); // Clamp t between 0 and 1.
+    // Update the target position
+    PlutoComm.setControlTarget(smoothedTargetPosition);
 
-        // Compute the current target value using the minimum jerk trajectory.
-        _currTgtForDisplay = _initialTarget + (_finalTarget - _initialTarget) * (10 * Mathf.Pow(_t, 3) - 15 * Mathf.Pow(_t, 4) + 6 * Mathf.Pow(_t, 5));
+    // Optionally log or debug for visualization
+    Debug.Log($"Target position updated smoothly to: {smoothedTargetPosition}");
+}
 
-        // Update the position target in the system.
-        PlutoComm.setControlTarget(_currTgtForDisplay);
-    }
+
     private void InitializeGame()
     {
         AppLogger.SetCurrentScene(SceneManager.GetActiveScene().name);
