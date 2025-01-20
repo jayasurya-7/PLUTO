@@ -111,16 +111,14 @@ public class AROMsceneHandler : MonoBehaviour
         }
         if (Array.IndexOf(PlutoComm.MECHANISMS, AppData.selectedMechanism) != 4)
         {
-            angLimit = AppData.offsetAtNeutral[Array.IndexOf(PlutoComm.MECHANISMS, AppData.selectedMechanism)];
+            angLimit = AppData.offsetAtNeutral[PlutoComm.GetPlutoCodeFromLabel(PlutoComm.MECHANISMS, AppData.selectedMechanism)];
 
             aromSlider.Setup(-angLimit, angLimit, AppData.oldAROM.tmin, AppData.oldAROM.tmax);
-
-
-            Debug.Log(AppData.newPROM.tmin + "qq");
-            Debug.Log(AppData.newPROM.tmax + "cc");
             aromSlider.maxAng = 0;
             aromSlider.minAng = 0;
             aromSlider.UpdateMinMaxvalues = false;
+            Debug.Log($"Slider Min: {aromSlider.minAng}, Max: {aromSlider.maxAng}, arom:{AppData.oldAROM.tmin},{AppData.oldAROM.tmax}");
+
         }
         else
         {
@@ -163,8 +161,8 @@ public class AROMsceneHandler : MonoBehaviour
         }
         rText.gameObject.SetActive(true);
         lText.gameObject.SetActive(true);
-        rText.text = DirectionText[Array.IndexOf(PlutoComm.MECHANISMS, AppData.selectedMechanism)][_rinx];
-        lText.text = DirectionText[Array.IndexOf(PlutoComm.MECHANISMS, AppData.selectedMechanism)][_linx];
+        rText.text = DirectionText[PlutoComm.GetPlutoCodeFromLabel(PlutoComm.MECHANISMS, AppData.selectedMechanism)][_rinx];
+        lText.text = DirectionText[PlutoComm.GetPlutoCodeFromLabel(PlutoComm.MECHANISMS, AppData.selectedMechanism)][_linx];
 
         // Initialize ROM assessment variable.s
         _stpCount = 0;
@@ -225,6 +223,7 @@ public class AROMsceneHandler : MonoBehaviour
                         InitializeAssessment();
 
                         isInteractable = true;
+                        Debug.Log("isin");
                     }
                     startButton.SetActive(true);
 
@@ -234,7 +233,7 @@ public class AROMsceneHandler : MonoBehaviour
                     float newPROM_tmin = AppData.newPROM.tmin;
                     float newPROM_tmax = AppData.newPROM.tmax;
 
-                    //Debug.Log(newPROM_tmin + "eee" + newPROM_tmax + "maxx");
+                    Debug.Log(newPROM_tmin + "eee" + newPROM_tmax + "maxx");
 
 
                     prommin = AppData.newPROM.tmin;
@@ -443,6 +442,7 @@ public class AROMsceneHandler : MonoBehaviour
         _state = AssessStates.ASSESS;
         aromSlider.startAssessment(PlutoComm.angle);
         aromSlider.UpdateMinMaxvalues = true;
+        Debug.Log("Why Not");
     }
 
     bool validAssessment()

@@ -689,7 +689,8 @@ public class HatGameController : MonoBehaviour
     private float trialDuration = 0f;
     private float stateStartTime = 0f;
     private float _tempIntraStateTimer = 0f;
-
+    public bool aromRangeSpawn=false;
+    public Toggle spawnAreaToggle; // Add this to the Inspector
     // Control bound adaptation variables
     private float prevControlBound = 0.3f;
     // Magical minimum value where the mechanisms mostly move without too much instability.
@@ -718,7 +719,10 @@ public class HatGameController : MonoBehaviour
         {
             Destroy(gameObject);
         }
-
+        if (spawnAreaToggle != null)
+        {
+            spawnAreaToggle.onValueChanged.AddListener(OnToggleSpawnArea);
+        }
         playSize = Camera.main.orthographicSize * Camera.main.aspect;
     }
 
@@ -832,7 +836,44 @@ private void SetTrialState(DiscreteMovementTrialState newState)
     }
 }
 
+    private float SpawnTargetArea()
+    {
+        // Get the AROM range
+        AppData.newAROM = new AROM(AppData.selectedMechanism);
+        float aromMin = AppData.newAROM.tmin; // Minimum angle for AROM
+        float aromMax = AppData.newAROM.tmax; // Maximum angle for AROM
 
+        // Map the AROM range to the smaller playSize within the PROM playSize
+        float xMin = MapAROMToPROMPlaySize(aromMin);
+        float xMax = MapAROMToPROMPlaySize(aromMax);
+
+        // Generate a random target position within the smaller mapped range
+        float targetPosition = UnityEngine.Random.Range(xMin, xMax);
+
+        Debug.Log($"Spawned Target Area Position: {targetPosition} (AROM Min: {aromMin}, Max: {aromMax}, Mapped X Min: {xMin}, Mapped X Max: {xMax})");
+        return targetPosition;
+    }
+
+    // Helper function to map an AROM angle to a smaller range within the PROM playSize
+    private float MapAROMToPROMPlaySize(float angle)
+    {
+        // Get the PROM range
+        AppData.newPROM = new MechanismData(AppData.selectedMechanism);
+        float promMin = AppData.newPROM.tmin; // Minimum angle for PROM
+        float promMax = AppData.newPROM.tmax; // Maximum angle for PROM
+
+        // Calculate the PROM playSize range
+        float promRange = promMax - promMin;
+
+        // Calculate the normalized AROM range within PROM (e.g., AROM is 50% of PROM range)
+        float normalizedAROM = (angle - promMin) / promRange;
+
+        // Scale to a smaller playSize range (e.g., 50% of PROM playSize)
+        float scalingFactor = 0.5f; // Adjust this as needed to set how much smaller AROM is
+        float adjustedRange = scalingFactor * 2 * playSize;
+
+        return Mathf.Lerp(-adjustedRange / 2, adjustedRange / 2, normalizedAROM);
+    }
 
     public void StartGame()
     {
@@ -933,7 +974,12 @@ private void SetTrialState(DiscreteMovementTrialState newState)
         AppLogger.LogInfo("Game Over.");
     }
 
-
+    // Toggle callback to enable or disable spawn area
+    private void OnToggleSpawnArea(bool isEnabled)
+    {
+        aromRangeSpawn = isEnabled;
+        Debug.Log("Spawn Area Enabled: " + isEnabled);
+    }
     public void SpawnTarget()
     {
         if (timeLeft > 0 && balldestroyed)
@@ -942,10 +988,20 @@ private void SetTrialState(DiscreteMovementTrialState newState)
             float ballSpeed = 2f + 0.3f * (1 + gameData.gameSpeedHT);
             float trailDuration = (8.0f / ballSpeed) * 0.8f;
             HT_spawnTargets1.instance.trailDuration = trailDuration;
+            Debug.Log("SPAWNNING");
+            // Use SpawnTargetArea if toggle is enabled
+            if (aromRangeSpawn)
+            {
+                targetPosition = SpawnTargetArea();
+            }
+            else
+            {
+                x = UnityEngine.Random.Range(-playSize + 0.5f, playSize - 0.5f);
+                //y = UnityEngine.Random.Range(-170.0f, 90.0f);
+                targetPosition = x;
 
-            x = UnityEngine.Random.Range(-playSize + 0.5f, playSize - 0.5f);
-            y = UnityEngine.Random.Range(-170.0f, 90.0f);
-            Vector3 spawnPosition = new Vector3(x, 6f, 0);
+            }
+            Vector3 spawnPosition = new Vector3(targetPosition, 6f, 0);
             Quaternion spawnRotation = Quaternion.identity;
 
             // Randomly select a ball to instantiate
@@ -955,16 +1011,16 @@ private void SetTrialState(DiscreteMovementTrialState newState)
                 spawnPosition,
                 spawnRotation
             );
-            targetSpwan = (ballIndex == 0);
+            targetSpwan = ((ballIndex == 0)|| (ballIndex == 2)|| (ballIndex == 3));
 
             target.GetComponent<Rigidbody2D>().velocity = new Vector2(0, -ballSpeed);
             target.transform.localScale = HTDifficultyManager.Scale;
 
             HT_spawnTargets1.instance.stopClock = trailDuration;
 
-            targetPosition = x; // Set target position for the mechanism
+            //targetPosition = x; // Set target position for the mechanism
             targetAngle = ScreenPositionToAngle(targetPosition); // Convert to angle
-            Debug.Log("ta :"+ targetAngle);
+           // Debug.Log("ta :"+ targetAngle);
             if (targetSpwan)
             {
 
@@ -1026,16 +1082,16 @@ private void SetTrialState(DiscreteMovementTrialState newState)
 {
     if (!targetSpwan) return;
     // Interpolation factor (t) for smooth transition
-    float t = trialDuration / 4f; // Normalize by the Moving state duration (4 seconds)
+    float t = trialDuration / 4.5f; // Normalize by the Moving state duration (4 seconds)
 
     // Smoothly interpolate control bound from its current position to the target
-    float smoothedControlBound = Mathf.Lerp(0.25f, 0.75f, t);
+    float smoothedControlBound = Mathf.Lerp(0.1f, 0.6f, t);
 
     // Update the control direction
     PlutoComm.setControlBound(smoothedControlBound);
 
     // Optionally log or debug for visualization
-    Debug.Log($"Control Bound updated smoothly to: {smoothedControlBound}");
+    //Debug.Log($"Control Bound updated smoothly to: {smoothedControlBound}");
 }
 private void UpdatePositionTargetSmoothly()
 {
@@ -1049,7 +1105,7 @@ private void UpdatePositionTargetSmoothly()
     PlutoComm.setControlTarget(smoothedTargetPosition);
 
     // Optionally log or debug for visualization
-    Debug.Log($"Target position updated smoothly to: {smoothedTargetPosition}");
+    //Debug.Log($"Target position updated smoothly to: {smoothedTargetPosition}");
 }
 
 
@@ -1104,6 +1160,21 @@ private void UpdatePositionTargetSmoothly()
 
         SessionManager.Instance.StartGameSession(currentGameSession);
         AppLogger.LogInfo($"Game session {currentGameSession.SessionNumber} started.");
+        SetSessionDetails();
+    }
+    private void SetSessionDetails()
+    {
+        string device = "PLUTO";
+        string assistMode = "Null";
+        string assistModeParameters = "Null";
+        string deviceSetupLocation = "CMC-Bioeng-dpt";
+        string gameParameter = "YourGameParameter";
+        string mech = AppData.selectedMechanism;
+        SessionManager.Instance.SetDevice(device, currentGameSession);
+        SessionManager.Instance.SetAssistMode(assistMode, assistModeParameters, currentGameSession);
+        SessionManager.Instance.SetDeviceSetupLocation(deviceSetupLocation, currentGameSession);
+        SessionManager.Instance.SetGameParameter(gameParameter, currentGameSession);
+        SessionManager.Instance.mechanism(mech, currentGameSession);
     }
 
     private void EndCurrentGameSession()
@@ -1119,7 +1190,7 @@ private void UpdatePositionTargetSmoothly()
     }
     public void exitGame()
     {
-        //EndCurrentGameSession();
+        EndCurrentGameSession();
         SceneManager.LoadScene("choosegame");
     }
     private void onPlutoButtonReleased()

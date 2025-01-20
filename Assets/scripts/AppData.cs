@@ -31,7 +31,7 @@ public static class AppData
     public static readonly string COMPort = "COM5";
     public static SubjectData subjd { get; private set; }
 
-    static public float[] offsetAtNeutral = new float[] { 70, 70, 90, 0, 270/2 , 270/2  };
+    static public float[] offsetAtNeutral = new float[] { 70, 70, 90, 0, 90 , 90  };
 
     // Old and new PROM
     public static MechanismData oldPROM;

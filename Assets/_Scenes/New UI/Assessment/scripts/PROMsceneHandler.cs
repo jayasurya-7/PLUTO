@@ -118,7 +118,7 @@ public class PROMsceneHandler : MonoBehaviour {
         {
          angLimit = AppData.offsetAtNeutral[PlutoComm.GetPlutoCodeFromLabel(PlutoComm.MECHANISMS, AppData.selectedMechanism)];
 
-        Debug.Log("prom:" + AppData.oldPROM.tmin + "," + AppData.oldPROM.tmax);
+       // Debug.Log("prom:" + AppData.oldPROM.tmin + "," + AppData.oldPROM.tmax);
         promSlider.Setup(-angLimit, angLimit, AppData.oldPROM.tmin, AppData.oldPROM.tmax);
         promSlider.minAng = 0;
         promSlider.maxAng =0;
@@ -270,7 +270,7 @@ public class PROMsceneHandler : MonoBehaviour {
                     if (isButtonPressed || Input.GetKeyDown(KeyCode.Return))
                     {
                         nextButton.SetActive(true);
-                        Debug.Log(PlutoComm.angle);
+                       // Debug.Log(PlutoComm.angle);
                         
                         startAssessment();
                         isButtonPressed = false;
@@ -299,7 +299,7 @@ public class PROMsceneHandler : MonoBehaviour {
                     //restartButton.SetActive(true);
                     _tmin = promSlider.minAng;
                     _tmax = promSlider.maxAng;
-                    Debug.Log("tmin : " + _tmin + "," + "tmax : " + _tmax);
+                   // Debug.Log("tmin : " + _tmin + "," + "tmax : " + _tmax);
 
                     assessmentSaved = false;
                     relaxText.text = "Prev PROM: " + (int)AppData.oldPROM.tmin + " : " + (int)AppData.oldPROM.tmax + " (" + (int)(AppData.oldPROM.tmax - AppData.oldPROM.tmin) + "°)";
@@ -528,12 +528,10 @@ public class PROMsceneHandler : MonoBehaviour {
         promSlider.minAng = 0;
         promSlider.maxAng = 0;
        
-
-        {
          promSlider.startAssessment(PlutoComm.angle);
-            Debug.Log("AROM moved:"+PlutoComm.angle);
+           // Debug.Log("AROM moved:"+PlutoComm.angle);
             promSlider.UpdateMinMaxvalues = true;
-        }
+        
         
 
     }

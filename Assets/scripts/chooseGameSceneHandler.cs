@@ -26,7 +26,7 @@ public class ChooseGameSceneHandler : MonoBehaviour
     };
     //AAN
     private bool lisRunning = false; // Tracks if the automatic movement is running
-    private float targetAngle = 50.0f; // The target angle to reach
+   // private float targetAngle = 50.0f; // The target angle to reach
     private bool targetReached = false; // Tracks if the target is reached
 
     private const float targetTolerance = 10.0f; // Tolerance for reaching the target
@@ -79,7 +79,7 @@ public class ChooseGameSceneHandler : MonoBehaviour
     //private int successRate;
     public Button btnStartStop;
 
-
+    private float targetAngle = 0;
     // AAN class
     private PlutoAANController aanCtrler;
     void Start()
@@ -92,10 +92,14 @@ public class ChooseGameSceneHandler : MonoBehaviour
             AppLogger.StartLogging(SceneManager.GetActiveScene().name);
             // Initialize.
             AppData.initializeStuff();
-            AppData.selectedMechanism = "HOC";
+            AppData.selectedMechanism = "FPS";
             AppLogger.SetCurrentMechanism(AppData.selectedMechanism);
         }
-       // btnStartStop.onClick.AddListener(delegate { OnStartStopDemo(); });
+        AppData.oldPROM = new MechanismData(AppData.selectedMechanism);
+        //targetAngle = (AppData.oldPROM.tmax + AppData.oldPROM.tmin)/2;
+        targetAngle= AppData.offsetAtNeutral[PlutoComm.GetPlutoCodeFromLabel(PlutoComm.MECHANISMS,AppData.selectedMechanism)];
+        Debug.Log("PROM : " + AppData.oldPROM.tmax + " + " + AppData.oldPROM.tmin);
+        // btnStartStop.onClick.AddListener(delegate { OnStartStopDemo(); });
         AppLogger.SetCurrentScene(SceneManager.GetActiveScene().name);
         AppLogger.LogInfo($"{SceneManager.GetActiveScene().name} scene started.");
         AppLogger.SetCurrentGame("");
@@ -150,7 +154,7 @@ public class ChooseGameSceneHandler : MonoBehaviour
 
         // Start moving the mechanism to the target angle
         PlutoComm.setControlType("POSITIONAAN");
-        PlutoComm.setControlBound(0.3f);
+        PlutoComm.setControlBound(0.2f);
         PlutoComm.setControlTarget(targetAngle);
         isRunning = true;
 
@@ -215,8 +219,9 @@ public class ChooseGameSceneHandler : MonoBehaviour
         if (gameScenes.TryGetValue(game, out string sceneName))
         {
             Debug.Log("Scene name:"+ sceneName);
-            if (AppData.selectedMechanism != "HOC") { 
-            PlutoComm.calibrate(AppData.selectedMechanism); //its temp, needs to set 0 using control type 
+            if (AppData.selectedMechanism != "HOC")
+            {
+                PlutoComm.calibrate(AppData.selectedMechanism); //its temp, needs to set 0 using control type 
             }
             SceneManager.LoadScene(sceneName);
         }
