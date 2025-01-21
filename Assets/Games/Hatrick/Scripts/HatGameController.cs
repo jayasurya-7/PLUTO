@@ -107,8 +107,12 @@ public class HatGameController : MonoBehaviour
     void Update()
     {
         PlutoComm.sendHeartbeat();
+
+
+
         if (PlutoComm.CONTROLTYPE[PlutoComm.controlType] == "NONE") {
             PlutoComm.setControlType("POSITIONAAN");
+            Debug.Log("counted");
         }
         if (currentState == GameState.Playing)
         {
@@ -295,7 +299,6 @@ private void SetTrialState(DiscreteMovementTrialState newState)
 
     private void HandleGameUpdate()
     {
-        PlutoComm.sendHeartbeat();
 
         if (Time.timeScale > 0 && isPlaying)
         {
@@ -446,6 +449,10 @@ private void UpdatePositionTargetSmoothly()
     {
         timeLeftText.text = $"Time Left: {(int)timeLeft}";
         ScoreText.text = $"Score: {gameData.gameScore}";
+        if (gameData.gameScore > 0 && gameData.gameScore < 11)
+        {
+            gameData.successRate = (float)gameData.gameScore / 10;
+        }
     }
 
     private void StartNewGameSession()

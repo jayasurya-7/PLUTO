@@ -99,7 +99,7 @@ public class HT_spawnTargets1 : MonoBehaviour
     {
         stopClock -= Time.deltaTime;
 
-        PlutoComm.sendHeartbeat();
+        //PlutoComm.sendHeartbeat();
 
 
 
