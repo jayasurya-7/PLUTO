@@ -34,7 +34,7 @@ public static class DataManager
     public static string directoryMechData;
     public static string directoryAROMData;
     public static string directoryPROMData;
-    public static string filePathConfigData { get; private set; }
+    public static string filePathConfigData = directoryPath + "/configdata.csv";
     public static string filePathSessionData { get; private set; }
 
     public static void createFileStructure()
@@ -55,7 +55,7 @@ public static class DataManager
             Directory.CreateDirectory(directoryPathConfig);
             Directory.CreateDirectory(directoryPathSession);
             Directory.CreateDirectory(directoryPathRawData);
-            File.Create(filePathConfigData).Dispose();
+            //File.Create(filePathConfigData).Dispose();
             Debug.Log("Directory created at: " + directoryPath);
         };
     }

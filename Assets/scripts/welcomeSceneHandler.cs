@@ -40,22 +40,29 @@ public class welcomSceneHandler : MonoBehaviour
         AppLogger.StartLogging(SceneManager.GetActiveScene().name);
         AppLogger.SetCurrentScene(SceneManager.GetActiveScene().name);
         AppLogger.LogInfo($"{SceneManager.GetActiveScene().name} scene started.");
-
-        // Initialize.
-        AppData.initializeStuff();
-        //Neuro Library
-        string baseDirectory = DataManager.directoryPathSession;
-        Debug.Log(baseDirectory);
-        SessionManager.Initialize(DataManager.directoryPathSession);
-        SessionManager.Instance.Login();
-        daySummaries = AppData.UserData.CalculateMoveTimePerDay();
-
-        // Update summary display
-        if (!piChartUpdated)
+        if (!File.Exists(DataManager.filePathConfigData))
         {
-            UpdateUserData();
-            UpdatePieChart();
+            SceneManager.LoadScene("configuration");
         }
+        else
+        {
+            // Initialize.
+            AppData.initializeStuff();
+            //Neuro Library
+            string baseDirectory = DataManager.directoryPathSession;
+            Debug.Log(baseDirectory);
+            SessionManager.Initialize(DataManager.directoryPathSession);
+            SessionManager.Instance.Login();
+            daySummaries = AppData.UserData.CalculateMoveTimePerDay();
+
+            // Update summary display
+            if (!piChartUpdated)
+            {
+                UpdateUserData();
+                UpdatePieChart();
+            }
+        }
+        
     }
 
     // Update is called once per frame

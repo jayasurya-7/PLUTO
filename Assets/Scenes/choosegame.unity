@@ -530,7 +530,7 @@ MonoBehaviour:
   m_Name: 
   m_EditorClassIdentifier: 
   m_Material: {fileID: 0}
-  m_Color: {r: 0.1013261, g: 0.6509434, b: 0.4426673, a: 1}
+  m_Color: {r: 0, g: 0.21568628, b: 0.20392157, a: 1}
   m_RaycastTarget: 1
   m_RaycastPadding: {x: 0, y: 0, z: 0, w: 0}
   m_Maskable: 1
@@ -576,7 +576,7 @@ MonoBehaviour:
     m_SelectOnRight: {fileID: 0}
   m_Transition: 1
   m_Colors:
-    m_NormalColor: {r: 0.17328231, g: 0.6226415, b: 0.44317868, a: 1}
+    m_NormalColor: {r: 1, g: 1, b: 1, a: 1}
     m_HighlightedColor: {r: 0.01690993, g: 0.7169812, b: 0.45169094, a: 1}
     m_PressedColor: {r: 0, g: 1, b: 0.6210525, a: 1}
     m_SelectedColor: {r: 0.9607843, g: 0.9607843, b: 0.9607843, a: 1}
@@ -2105,7 +2105,7 @@ MonoBehaviour:
   m_Name: 
   m_EditorClassIdentifier: 
   m_Material: {fileID: 2083966037}
-  m_Color: {r: 0, g: 0.37254903, b: 0.23137255, a: 1}
+  m_Color: {r: 0, g: 0.20784314, b: 0.19607843, a: 1}
   m_RaycastTarget: 1
   m_RaycastPadding: {x: 0, y: 0, z: 0, w: 0}
   m_Maskable: 1
@@ -2606,7 +2606,7 @@ MonoBehaviour:
   m_OnCullStateChanged:
     m_PersistentCalls:
       m_Calls: []
-  m_text: '     !!Set mechanism to Neutral position then start the game'
+  m_text: '     !! Press Ctrl + R to open ASSESSMENT (7 days once)'
   m_isRightToLeft: 0
   m_fontAsset: {fileID: 11400000, guid: d80eac371b0d4004bbaad7ac6feb89df, type: 2}
   m_sharedMaterial: {fileID: -4265605587139576553, guid: d80eac371b0d4004bbaad7ac6feb89df, type: 2}
@@ -3018,7 +3018,6 @@ MonoBehaviour:
   playButton: {fileID: 735278275}
   changeMech: {fileID: 241951478}
   result: {fileID: 1559022499}
-  btnStartStop: {fileID: 0}
 --- !u!1 &1124636844
 GameObject:
   m_ObjectHideFlags: 0

@@ -30,7 +30,7 @@ public class HatGameController : MonoBehaviour
     private float successRate = 1f;
     public int score = 0;
     private float maxwidth;
-    private float trialTime = 90f;
+    private float trialTime = 60f;
     private float timeLeft;
     public bool balldestroyed = true;
     private bool isPressed = false;
@@ -110,9 +110,9 @@ public class HatGameController : MonoBehaviour
 
 
 
-        if (PlutoComm.CONTROLTYPE[PlutoComm.controlType] == "NONE") {
+        if (PlutoComm.CONTROLTYPE[PlutoComm.controlType] == "NONE" && !aromRangeSpawn) {
             PlutoComm.setControlType("POSITIONAAN");
-            Debug.Log("counted");
+            Debug.Log("AAN applied");
         }
         if (currentState == GameState.Playing)
         {
@@ -138,11 +138,13 @@ public class HatGameController : MonoBehaviour
                 isPressed = false;
             }
         }
+        if (aromRangeSpawn) return;
         RunTrialStateMachine();
         if (_trialState == DiscreteMovementTrialState.Moving)
         {
             trialDuration += Time.deltaTime;
         }
+       //  Debug.Log("im running");
         //Player = GameObject.FindGameObjectWithTag("Player").transform.position.x;
         //Debug.Log("controlType :" + PlutoComm.CONTROLTYPE[PlutoComm.controlType]);
     }
