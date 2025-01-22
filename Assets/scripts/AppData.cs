@@ -482,7 +482,7 @@ public static class gameData
     public static float gameSpeedTT;
     public static float gameSpeedPP;
     public static float gameSpeedHT;
-
+    public static bool setNeutral = false;
     private static DataLogger dataLog;
     private static string[] gameHeader = new string[] {
         "time","controltype","error","buttonState","angle","control",
@@ -603,6 +603,10 @@ public static class gameData
             string _dstring = String.Join(", ", _data);
             _dstring += "\n";
             dataLog.logData(_dstring);
+        }
+        else
+        {
+            UnityEngine.Debug.Log("PlutoComm:" + PlutoComm.OUTDATATYPE[PlutoComm.dataType]);
         }
     }
 }

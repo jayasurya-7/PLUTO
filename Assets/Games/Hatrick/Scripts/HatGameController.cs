@@ -244,7 +244,7 @@ private void SetTrialState(DiscreteMovementTrialState newState)
             lastTimestamp = Time.unscaledTime;
             gameMoveTime = 0f;
             aanCtrler = new PlutoAANController();
-            
+            PlutoComm.setControlType("POSITIONAAN");
             trialState = DiscreteMovementTrialState.Moving;
 
             StartNewGameSession();
@@ -430,7 +430,7 @@ private void UpdatePositionTargetSmoothly()
         {
             cam = Camera.main;
         }
-        PlutoComm.setControlType("POSITIONAAN");
+        
         lastTimestamp = Time.unscaledTime;
         maxwidth = Camera.main.ScreenToWorldPoint(new Vector3(Screen.width, Screen.height, 0)).x - 0.5f;
         PlutoComm.OnButtonReleased += onPlutoButtonReleased;

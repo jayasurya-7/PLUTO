@@ -151,6 +151,7 @@ public class MechanismSceneHandler : MonoBehaviour
     void LoadNextScene()
     {
         AppLogger.LogInfo($"Switching scene to '{nextScene}'.");
+        gameData.setNeutral = false;
         SceneManager.LoadScene(nextScene);
     }
 

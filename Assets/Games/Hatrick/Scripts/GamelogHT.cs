@@ -55,12 +55,14 @@ public class GamelogHT : MonoBehaviour
         {
             Player = GameObject.FindGameObjectWithTag("Player");
 
-            if (Player != null) { 
+            if (Player != null)
+            {
                 gameData.playerPos = Player.transform.position.x.ToString();
             }
             else
-                gameData.playerPos = "\"" + "XXX" + "," + "XXX" + "\"";
-
+            { int x = 0;
+                gameData.playerPos = x.ToString();
+            }
             gameData.LogDataHT();
         }
         time += Time.deltaTime;

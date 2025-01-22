@@ -57,8 +57,10 @@ public class ChooseGameSceneHandler : MonoBehaviour
         playButton.onClick.AddListener(OnPlayButtonClicked);
         changeMech.onClick.AddListener(OnMechButtonClicked);
         AppData.oldAROM=new AROM(AppData.selectedMechanism);
-        StartCoroutine(SetMechanismToTargetAfterDelay(1.0f));
-
+        if (!gameData.setNeutral)
+        {
+            StartCoroutine(SetMechanismToTargetAfterDelay(1.0f));
+        }
     }
     void Update()
     {   
@@ -95,7 +97,7 @@ public class ChooseGameSceneHandler : MonoBehaviour
         PlutoComm.setControlBound(0.2f);
         PlutoComm.setControlTarget(targetAngle);
         isRunning = true;
-
+        
         Debug.Log($"Started moving mechanism to {targetAngle} degrees.");
     }
 
@@ -157,8 +159,9 @@ public class ChooseGameSceneHandler : MonoBehaviour
         if (gameScenes.TryGetValue(game, out string sceneName))
         {
             Debug.Log("Scene name:"+ sceneName);
-            if (AppData.selectedMechanism != "HOC")
+            if (AppData.selectedMechanism != "HOC" && !gameData.setNeutral)
             {
+                gameData.setNeutral = true;
                 PlutoComm.calibrate(AppData.selectedMechanism); //its temp, needs to set 0 using control type 
             }
             SceneManager.LoadScene(sceneName);

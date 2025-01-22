@@ -26,6 +26,13 @@ public class OneTimeConfig : MonoBehaviour
 
     private void Start()
     {
+        // Automatically set startDateField and endDateField
+        DateTime startDate = DateTime.Now;
+        DateTime endDate = startDate.AddDays(30);
+
+        startDateField.text = startDate.ToString("dd-MM-yyyy");
+        endDateField.text = endDate.ToString("dd-MM-yyyy");
+
         wfeField.onValueChanged.AddListener(delegate { UpdateTotalDuration(); });
         wurdField.onValueChanged.AddListener(delegate { UpdateTotalDuration(); });
         fpsField.onValueChanged.AddListener(delegate { UpdateTotalDuration(); });
