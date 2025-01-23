@@ -107,9 +107,7 @@ public class HatGameController : MonoBehaviour
     void Update()
     {
         PlutoComm.sendHeartbeat();
-
-
-
+         
         if (PlutoComm.CONTROLTYPE[PlutoComm.controlType] == "NONE" && !aromRangeSpawn) {
             PlutoComm.setControlType("POSITIONAAN");
             Debug.Log("AAN applied");
@@ -202,7 +200,7 @@ private void SetTrialState(DiscreteMovementTrialState newState)
             _finalTarget = targetAngle;
             PlutoComm.setControlDir((sbyte)(targetPosition > playerPosition ? 1 : -1));
 
-            aanCtrler.setNewTrialDetails(_initialTarget, _finalTarget);
+            //aanCtrler.setNewTrialDetails(_initialTarget, _finalTarget);
             break;
     }
 }
