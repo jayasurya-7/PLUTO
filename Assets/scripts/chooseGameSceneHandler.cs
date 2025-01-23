@@ -72,8 +72,8 @@ public class ChooseGameSceneHandler : MonoBehaviour
         }
         if (Input.GetKey(KeyCode.LeftControl) && Input.GetKeyDown(KeyCode.R))
         {
-            assessment();
-            //SceneManager.LoadScene("Assessment");
+           // assessment();
+           SceneManager.LoadScene("Assessment");
         }
 
         if (isRunning && !targetReached)

@@ -50,6 +50,8 @@ public class summarySceneHandler : MonoBehaviour
     {
         _actionQueue.Enqueue(() =>
         {
+            PlutoComm.stopSensorStream();
+
             ConnectToRobot.disconnect();
             Application.Quit();
         #if UNITY_EDITOR

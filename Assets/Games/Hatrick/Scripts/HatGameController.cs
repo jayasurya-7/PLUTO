@@ -26,8 +26,8 @@ public class HatGameController : MonoBehaviour
     private float gameMoveTime = 0f;
     private float lastTimestamp = 0f;
     private float playSize;
-    private float gameSpeed = 1f;
-    private float successRate = 1f;
+   // private float gameSpeed = 1f;
+    //private float successRate = 1f;
     public int score = 0;
     private float maxwidth;
     private float trialTime = 60f;
@@ -144,9 +144,9 @@ public class HatGameController : MonoBehaviour
         {
             trialDuration += Time.deltaTime;
         }
-       //  Debug.Log("im running");
+        //  Debug.Log("im running");
         //Player = GameObject.FindGameObjectWithTag("Player").transform.position.x;
-        //Debug.Log("controlType :" + PlutoComm.CONTROLTYPE[PlutoComm.controlType]);
+       // Debug.Log(PlutoComm.OUTDATATYPE[PlutoComm.dataType] + " + "+ PlutoComm.SENSORNUMBER[PlutoComm.dataType]+ " + "+ PlutoComm.dataType+ " + "+ PlutoComm.angle);
     }
 
 
@@ -171,7 +171,9 @@ public class HatGameController : MonoBehaviour
 
                     if (trialDuration >= 4.5f)
                     {
+                        if(_finalTarget - _initialTarget < 10f) { 
                         Debug.Log("Target reached. Returning to Rest state.");
+                        }
                         SetTrialState(DiscreteMovementTrialState.Rest);
                     }
                 }
@@ -228,7 +230,7 @@ private void SetTrialState(DiscreteMovementTrialState newState)
         float normalizedAROM = (angle - promMin) / promRange;
 
         
-        float scalingFactor = 0.5f; 
+        float scalingFactor = 0.8f; 
         float adjustedRange = scalingFactor * 2 * playSize;
 
         return Mathf.Lerp(-adjustedRange / 2, adjustedRange / 2, normalizedAROM);
@@ -319,13 +321,14 @@ private void SetTrialState(DiscreteMovementTrialState newState)
         UpdateText();
         gameData.moveTime = gameMoveTime;
     }
-
+     
     private void GameOver()
     {
         currentState = GameState.GameOver;
+
         isPlaying = false;
         gameData.isGameLogging = false;
-
+        PlutoComm.setControlType("NONE");
         EndCurrentGameSession();
         SceneManager.LoadScene(SceneManager.GetActiveScene().name);
 
@@ -352,7 +355,7 @@ private void SetTrialState(DiscreteMovementTrialState newState)
             {
                 if (outsideAromRangeCount < 2 && totalTargetsSpawned % 10 <= 1)
                 {
-                    targetPosition = UnityEngine.Random.Range(-playSize * 1.5f, playSize * 1.5f); 
+                    targetPosition = UnityEngine.Random.Range(-playSize + 0.5f, playSize - 0.5f); 
 
                     Debug.Log(targetPosition);
                     outsideAromRangeCount++;
@@ -400,7 +403,7 @@ private void SetTrialState(DiscreteMovementTrialState newState)
 {
     if (!targetSpwan) return;
     float t = trialDuration / 4.5f; 
-    float smoothedControlBound = Mathf.Lerp(0f, 0.6f, t);
+    float smoothedControlBound = Mathf.Lerp(0f, 0.7f, t);
     PlutoComm.setControlBound(smoothedControlBound);
 }
 private void UpdatePositionTargetSmoothly()

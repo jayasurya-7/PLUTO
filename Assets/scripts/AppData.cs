@@ -68,7 +68,7 @@ public static class AppData
         DataManager.createFileStructure();
         ConnectToRobot.Connect(AppData.COMPort);
         UserData.readAllUserData();
-    
+    PlutoComm.startSensorStream();
     }
 
     // UserData Class
