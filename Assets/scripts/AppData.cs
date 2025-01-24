@@ -607,6 +607,7 @@ public static class gameData
         else
         {
             UnityEngine.Debug.Log("PlutoComm:" + PlutoComm.OUTDATATYPE[PlutoComm.dataType]);
+            UnityEngine.Debug.Log("PlutoComm:" + PlutoComm.dataType);
         }
     }
 }

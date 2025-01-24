@@ -432,6 +432,7 @@ public static class PlutoComm
     public static void sendHeartbeat()
     {
         JediComm.SendMessage(new byte[] { (byte)INDATATYPECODES[Array.IndexOf(INDATATYPE, "HEARTBEAT")] });
+        Debug.Log("Hearbeat Sent");
     }
 
 }

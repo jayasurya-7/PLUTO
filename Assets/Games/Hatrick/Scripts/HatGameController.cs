@@ -104,14 +104,14 @@ public class HatGameController : MonoBehaviour
         InitializeGame();
     }
 
-    void Update()
+    void FixedUpdate()
     {
         PlutoComm.sendHeartbeat();
-         
-        if (PlutoComm.CONTROLTYPE[PlutoComm.controlType] == "NONE" && !aromRangeSpawn) {
-            PlutoComm.setControlType("POSITIONAAN");
-            Debug.Log("AAN applied");
-        }
+        Debug.Log(PlutoComm.CONTROLTYPE[PlutoComm.controlType]);
+        //if (PlutoComm.CONTROLTYPE[PlutoComm.controlType] == "NONE" && !aromRangeSpawn) {
+        //    PlutoComm.setControlType("POSITIONAAN");
+        //    Debug.Log("AAN applied");
+        //}
         if (currentState == GameState.Playing)
         {
             HandleGameUpdate();
@@ -155,7 +155,7 @@ public class HatGameController : MonoBehaviour
     switch (_trialState)
     {
         case DiscreteMovementTrialState.Rest:
-            if (targetSpwan && trialDuration >= 0.25f)
+            if (targetSpwan && trialDuration >= 0.15f)
             {
                 SetTrialState(DiscreteMovementTrialState.Moving);
             }
@@ -169,7 +169,7 @@ public class HatGameController : MonoBehaviour
 
                     if (trialDuration >= 4.5f)
                     {
-                        if(_finalTarget - _initialTarget < 10f) { 
+                        if(_finalTarget ==_initialTarget ) { 
                         Debug.Log("Target reached. Returning to Rest state.");
                         }
                         SetTrialState(DiscreteMovementTrialState.Rest);
@@ -400,8 +400,8 @@ private void SetTrialState(DiscreteMovementTrialState newState)
     private void UpdateControlBoundSmoothly()
 {
     if (!targetSpwan) return;
-    float t = trialDuration / 4.5f; 
-    float smoothedControlBound = Mathf.Lerp(0f, 0.7f, t);
+    float t = trialDuration / 3.7f; 
+    float smoothedControlBound = Mathf.Lerp(0f, 0.5f, t);
     PlutoComm.setControlBound(smoothedControlBound);
 }
 private void UpdatePositionTargetSmoothly()
