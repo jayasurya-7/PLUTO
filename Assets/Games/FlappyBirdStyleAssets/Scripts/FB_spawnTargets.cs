@@ -8,6 +8,7 @@ using System;
 using Random = UnityEngine.Random;
 using UnityEngine.SceneManagement;
 using System.IO;
+using TMPro;
 
 public class FB_spawnTargets : MonoBehaviour
 {
@@ -45,7 +46,9 @@ public class FB_spawnTargets : MonoBehaviour
     int index = 0;
     public float reduceOppositeTimer = 0;
     public float initialTorque;
-    public float prevTorq;
+    public float trialDuration = 0f;
+    public float _initialTarget = 0f;
+    public float _finalTarget = 0f;
     float prevSpawnTime = 0;
     int val;
     bool setZeroTorque;
@@ -57,7 +60,13 @@ public class FB_spawnTargets : MonoBehaviour
     public bool isFlaccidControlOn;
 
     int targetcount = 0;
-    bool paramSet = false;
+    bool targetSpwan = false;
+    private enum DiscreteMovementTrialState { Rest, Moving }
+    private DiscreteMovementTrialState trialState = DiscreteMovementTrialState.Rest;
+    private DiscreteMovementTrialState _trialState;
+
+    private float targetPosition;
+    private float playerPosition;
     private void Awake()
     {
         Resources.UnloadUnusedAssets();
@@ -77,14 +86,7 @@ public class FB_spawnTargets : MonoBehaviour
     // Start is called before the first frame update
     void Start()
     {
-        paramSet = false;
-        System.Random rnd = new System.Random();
-        First4Targets = First4Targets.OrderBy(x => rnd.Next()).ToArray();
-        val = UnityEngine.Random.Range(50, 100);
-        targetcount = -1;
-
-
-
+        PlutoComm.setControlType("POSITIONAAN");
         //setPrameters();
         playSize = 2.3f + 5.5f;
         player = GameObject.FindGameObjectWithTag("Player");
@@ -93,90 +95,115 @@ public class FB_spawnTargets : MonoBehaviour
     void Update()
     {
 
-
+        PlutoComm.sendHeartbeat();
         prevSpawnTime += Time.deltaTime;
 
         stopClock -= Time.deltaTime;
 
+        RunTrialStateMachine();
 
 
 
-        if (Time.timeScale == 0 || FlappyGameControl.instance.gameOver || Mathf.Abs(PlutoComm.angle) > 130 || targetcount < 0)
-        {
-            prevTorq = 0;
-            stopClock = trailDuration;
-        }
-
-
-
-
-        //   Debug.Log(onceReached.ToString() + "," + targetAngle +","+ AppData.plutoData.angle);
-
+        playerPosition = GameObject.FindGameObjectWithTag("Player").transform.position.y;
 
     }
+    private void UpdateControlBoundSmoothly()
+    {
+        if (!targetSpwan) return;
+        float t = trialDuration / 3.7f;
+        float smoothedControlBound = Mathf.Lerp(0f, 0.5f, t);
+        PlutoComm.setControlBound(smoothedControlBound);
+    }
+    private void UpdatePositionTargetSmoothly()
+    {
+        float t = trialDuration / 4.5f;
+        float smoothedTargetPosition = Mathf.Lerp(_initialTarget, _finalTarget, t);
+        PlutoComm.setControlTarget(smoothedTargetPosition);
+    }
+    private void RunTrialStateMachine()
+    {
+        trialDuration += Time.deltaTime;
 
+        switch (_trialState)
+        {
+            case DiscreteMovementTrialState.Rest:
+                if (targetSpwan && trialDuration >= 0.15f)
+                {
+                    SetTrialState(DiscreteMovementTrialState.Moving);
+                }
+                break;
+
+            case DiscreteMovementTrialState.Moving:
+                if (targetSpwan)
+                {
+                    UpdateControlBoundSmoothly();
+                    UpdatePositionTargetSmoothly();
+
+                    if (trialDuration >= 4.5f)
+                    {
+                        if (_finalTarget == _initialTarget)
+                        {
+                            Debug.Log("Target reached. Returning to Rest state.");
+                        }
+                        SetTrialState(DiscreteMovementTrialState.Rest);
+                    }
+                }
+                else
+                {
+                    Debug.Log("Not executed");
+                }
+
+                break;
+        }
+    }
+    private void SetTrialState(DiscreteMovementTrialState newState)
+    {
+        _trialState = newState;
+
+        switch (newState)
+        {
+            case DiscreteMovementTrialState.Rest:
+                trialDuration = 0f;
+                targetSpwan = false;
+                break;
+
+            case DiscreteMovementTrialState.Moving:
+                trialDuration = 0f;
+                _initialTarget = PlutoComm.angle;
+                _finalTarget = targetAngle;
+                PlutoComm.setControlDir((sbyte)(targetPosition > playerPosition ? 1 : -1));
+
+                //aanCtrler.setNewTrialDetails(_initialTarget, _finalTarget);
+                break;
+        }
+    }
     public Vector2 TargetSpawn()
     {
-        setZeroTorque = false;
         playSize = BirdControl.playSize;
-        onceReached = false;
-        reached = false;
-        reduceOppositeTimer = 0;
-
+        targetSpwan = true;
 
         targetPos = new Vector2(0, 0);
-        targetcount++;
-        if (targetcount > 3)
-        {
-            targetAngle = RandomAngle();
-        }
-        else
-        {
-
-            targetAngle = First4Targets[targetcount];
-
-        }
-
-        dontAssistTrial = false;
-        if (isInPROM(targetAngle) && avgSuccessRate >= 0.8)
-        {
-            dontAssistTrial = true;
-        }
-        //Debug.Log( "Target Angle:" + targetAngle);
+        targetAngle = RandomAngle();
+      
         targetPos.y = Angle2Screen(targetAngle);
-
-
+        Debug.Log("y :"+ targetPos.y);
+        targetPosition=ScreenPositionToAngle(targetAngle);
+        //targetPosition= Angle2Screen(targetAngle);
         initialDirection = getDirection();
 
-
-        prevAng = initialDirection;
-        initialTorque = prevTorq;
-        onceReached = false;
         target = GameObject.FindGameObjectWithTag("Target");
         return targetPos;
 
     }
-    public void UpdateSuccessRate()
+    private float ScreenPositionToAngle(float screenPosition)
     {
-        if (isInPROM(targetAngle))
-        {
-
-            int val = onceReached || reached ? 1 : 0;
-            Debug.Log(val);
-            for (int i = 0; i < successRate.Length; i++)
-            {
-                if (i <= successRate.Length - 2)
-                {
-                    successRate[i] = successRate[i + 1];
-                }
-                else
-                    successRate[i] = val;
-
-            }
-
-        }
-        avgSuccessRate = (float)successRate.Sum() / (float)successRate.Length;
-        Debug.Log(avgSuccessRate);
+        float calibAngleRange = PlutoComm.CALIBANGLE[PlutoComm.mechanism];
+        float angle = Mathf.Lerp(
+            -calibAngleRange / 2,
+            calibAngleRange / 2,
+            (screenPosition + playSize) / (2 * playSize)
+        );
+        return angle;
     }
     public bool isInPROM(float angle)
     {
@@ -222,83 +249,6 @@ public class FB_spawnTargets : MonoBehaviour
 
     }
 
-    //public void setPrameters()
-    //{
-
-    //    mech = AppData.plutoData.mechs[AppData.plutoData.mechIndex];
-    //    aRom = AppData.aROM();
-    //    pRom = AppData.pROM();
-
-    //    isFlaccidControlOn = false;
-
-    //    checkIfFlaccid();
-
-
-    //    PlutoDataStructures.AAN aanprofile = new PlutoDataStructures.AAN(AppData.subjHospNum, AppData.plutoData.mechs[AppData.plutoData.mechIndex]);
-
-
-
-    //    assistanceTorque = aanprofile.profile;
-    //    isFlaccidControlOn = aanprofile.isFlaccid == 1 ? true : false;
-    //    isFlaccidToggle.isOn = isFlaccidControlOn;
-    //    initialTorque = prevTorq;
-    //    stopClock = trailDuration;
-    //    onceReached = false;
-
-
-    //    stepSize = (pRom[1] - pRom[0]) / (steps - 1);
-
-    //    for (int i = 0; i < assistanceAngle.Length; i++)
-    //    {
-    //        assistanceAngle[i] = pRom[0] + stepSize * i;
-    //        if (i == assistanceAngle.Length)
-    //        {
-    //            assistanceAngle[i] = pRom[1];
-    //        }
-
-    //    }
-
-
-    //    paramSet = true;
-    //}
-
-    //void checkIfFlaccid()
-    //{
-    //    float[] maxROM = { 100, 50, 120, 75, 100, 100 };
-
-    //    if (pRom[0] - pRom[1] < 10)
-    //    {
-    //        isFlaccidControlOn = true;
-    //    }
-    //    else
-    //        isFlaccidControlOn = false;
-    //}
-
-    //public float getTorque(float targetAngle)
-    //{
-
-    //    float torque;
-    //    targetAngle = 1;/*Mathf.Clamp(targetAngle, AppData.pROM()[0], AppData.pROM()[1]);*/
-    //    int i = Array.FindIndex(assistanceAngle, k => targetAngle <= k);
-    //    i = i == -1 ? assistanceAngle.Length - 1 : i;
-
-    //    if (i > 0)
-    //    {
-    //        torque = assistanceTorque[i - 1] + (targetAngle - assistanceAngle[i - 1]) * (assistanceTorque[i] - assistanceTorque[i - 1]) / (assistanceAngle[i] - assistanceAngle[i - 1]);
-
-    //    }
-    //    else
-    //    {
-    //        torque = assistanceTorque[i];
-    //    }
-    //    Debug.Log(String.Join(",", assistanceAngle));
-    //    Debug.Log(String.Join(",", assistanceTorque));
-    //    Debug.Log("Index:" + i + "Target:" + targetAngle);
-    //    Debug.Log("Index:" + i + "Target:" + torque);
-
-    //    torque = Mathf.Clamp(torque, assistanceTorque.Min(), assistanceTorque.Max());
-    //    return (torque);
-    //}
 
     private void OnApplicationQuit()
     {
@@ -308,138 +258,6 @@ public class FB_spawnTargets : MonoBehaviour
         return Mathf.Sign(targetAngle - PlutoComm.angle);
     }
 
-    //public float TorqueProfile(float amp)
-    //{
-    //    if (!isFlaccidControlOn)
-    //    {
-    //        return (normalController(amp));
-    //    }
-    //    else
-    //    {
-    //        float assistanceTorque = Mathf.Abs(amp) < 0.2 ? 0.2f : Mathf.Abs(amp);
-    //        Debug.Log("flaccid" + assistanceTorque);
-    //        return (flaccidController(assistanceTorque));
-    //    }
-
-    //}
-
-    //float flaccidController(float amp)
-    //{
-    //    float time = trailDuration - stopClock;
-    //    time = (time / trailDuration);
-
-    //    //Debug.Log(amp);
-    //    if (dontAssistTrial)
-    //    {
-    //        prevTorq = 0;
-    //    }
-    //    else
-    //    {
-    //        if (Mathf.Abs(targetAngle - PlutoComm.angle) > 5 && initialDirection == getDirection() && !onceReached)
-    //        {
-    //            reduceOppositeTimer = 0;
-    //            prevTorq = Mathf.SmoothStep(initialTorque, getDirection() * amp, Mathf.Clamp(time, 0, trailDuration));
-
-    //        }
-    //        else
-    //        {
-    //            onceReached = true;
-
-    //            if (Mathf.Abs(targetAngle - PlutoComm.angle) > 3)
-    //            {
-    //                reduceOppositeTimer += Time.deltaTime;
-    //                reduceOppositeTimer = Mathf.Min(reduceOppositeTimer, 3);
-    //                if (Mathf.Abs(prevTorq) > 0.05)
-    //                    prevTorq = prevTorq + getDirection() * reduceOppositeTimer * 0.01f;
-    //            }
-
-
-    //        }
-    //    }
-    //    prevTorq = Mathf.Clamp(prevTorq, assistanceTorque.Min(), assistanceTorque.Max());
-
-
-    //    Debug.Log(prevTorq);
-    //}
-
-    //float normalController(float amp)
-    //{
-    //    float time = trailDuration - stopClock;
-    //    time = (time / trailDuration);
-
-    //    Debug.Log(amp);
-    //    if (dontAssistTrial)
-    //    {
-    //        prevTorq = 0;
-    //    }
-    //    else
-    //    {
-    //        if (Mathf.Abs(targetAngle - PlutoComm.angle) > 5 && initialDirection == getDirection() && !onceReached)
-    //        {
-    //            reduceOppositeTimer = 0;
-    //            prevTorq = Mathf.SmoothStep(initialTorque, amp, Mathf.Clamp(time, 0, trailDuration));
-
-    //        }
-    //        else
-    //        {
-    //            onceReached = true;
-
-    //            if (Mathf.Abs(targetAngle - PlutoComm.angle) > 3)
-    //            {
-    //                reduceOppositeTimer += Time.deltaTime;
-    //                reduceOppositeTimer = Mathf.Min(reduceOppositeTimer, 3);
-    //                if (Mathf.Abs(prevTorq) > 0.05)
-    //                    prevTorq = prevTorq + getDirection() * reduceOppositeTimer * 0.01f;
-    //            }
-
-
-    //        }
-    //    }
-    //    prevTorq = Mathf.Clamp(prevTorq, assistanceTorque.Min(), assistanceTorque.Max());
-
-    //    return prevTorq;
-    //}
-
-    //public class AAN
-    //{
-
-
-    //    public bool isInAROM(float angle)
-    //    {
-    //        if (aRom[0] <= angle && angle <= aRom[1])
-    //        {
-    //            return true;
-    //        }
-
-    //        else
-    //        {
-    //            return false;
-    //        }
-
-    //    }
-
-
-
-    //    public float Getindex(float angle)
-    //    {
-    //        float temp = -999;
-    //        temp = (angle - pRom[0]) / stepSize;
-
-    //        return temp;
-    //    }
-
-    //    public int GetindexCorrected(float angle)
-    //    {
-    //        int i = Array.FindIndex(assistanceAngle, k => angle <= k);
-
-    //        return i;
-
-    //    }
-
-
-
-
-    //}
 }
 
 

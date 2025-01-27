@@ -113,7 +113,7 @@ public class FlappyColumnPool : MonoBehaviour
 
             //   Debug.Log(CurrentColumn);
             float x = Random.Range(1, 7);
-            columns[CurrentColumn].transform.position = new Vector2(BirdControl.rb2d.transform.position.x+ spawnXposition, /*FB_spawnTargets.instance.TargetSpawn().y*/ x);
+            columns[CurrentColumn].transform.position = new Vector2(BirdControl.rb2d.transform.position.x+ spawnXposition, FB_spawnTargets.instance.TargetSpawn().y);
             columns[CurrentColumn].tag = "Target";
             if(CurrentColumn == 0)
             {

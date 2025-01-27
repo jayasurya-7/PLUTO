@@ -82,7 +82,6 @@ public class AROMsceneHandler : MonoBehaviour
 
     private int _linx, _rinx;
 
-    // Use this for initialization
     void Start()
     {
 
@@ -164,7 +163,6 @@ public class AROMsceneHandler : MonoBehaviour
         rText.text = DirectionText[PlutoComm.GetPlutoCodeFromLabel(PlutoComm.MECHANISMS, AppData.selectedMechanism)][_rinx];
         lText.text = DirectionText[PlutoComm.GetPlutoCodeFromLabel(PlutoComm.MECHANISMS, AppData.selectedMechanism)][_linx];
 
-        // Initialize ROM assessment variable.s
         _stpCount = 0;
         _tmin = 180f;
         _tmax = -180f;
@@ -172,10 +170,8 @@ public class AROMsceneHandler : MonoBehaviour
         _tmax1 = -180f;
 
 
-        // Start time.
         _strttime = AppData.CurrentTime;
 
-        // Start state in ASSESS
         _state = AssessStates.INIT;
 
         UpdateGUI();
@@ -184,15 +180,13 @@ public class AROMsceneHandler : MonoBehaviour
 
     public void OnStartButtonClick()
     {
-        startAssessment(); // Starts the assessment
+        startAssessment(); 
         startButton.SetActive(false);
         nextButton.SetActive(true);
-        //restartButton.SetActive(true);
     }
 
     private void RestartAssessment()
     {
-        //Start();
         InitializeAssessment();
     }
     public void OnPlutoButtonReleased()
@@ -201,11 +195,8 @@ public class AROMsceneHandler : MonoBehaviour
         isButtonPressed = true;
 
     }
-    // Update is called once per frame
     void Update()
     {
-
-        //Debug.Log(PlutoComm.angle);
 
         if (isSelected)
         {
@@ -214,16 +205,13 @@ public class AROMsceneHandler : MonoBehaviour
             switch (_state)
             {
                 case AssessStates.INIT:
-                    //redoButton.SetActive(false);
                     if (!isInteractable)
                     {
 
                         AppData.oldAROM = new AROM(AppData.selectedMechanism);
                         PlutoComm.OnButtonReleased += OnPlutoButtonReleased;
                         InitializeAssessment();
-
                         isInteractable = true;
-                        Debug.Log("isin");
                     }
                     startButton.SetActive(true);
 
@@ -232,8 +220,6 @@ public class AROMsceneHandler : MonoBehaviour
 
                     float newPROM_tmin = AppData.newPROM.tmin;
                     float newPROM_tmax = AppData.newPROM.tmax;
-
-                    Debug.Log(newPROM_tmin + "eee" + newPROM_tmax + "maxx");
 
 
                     prommin = AppData.newPROM.tmin;
@@ -246,7 +232,6 @@ public class AROMsceneHandler : MonoBehaviour
                         startAssessment();
                         isButtonPressed = false;
                     }
-                    //aromgreater();
                     if (isRestarting)
                     {
                         relaxText.color = Color.red;
@@ -264,14 +249,12 @@ public class AROMsceneHandler : MonoBehaviour
                     }
                     else
                     {
-                        //relaxText.color = Color.black;
                         relaxText.text = "Prev AROM: " + (int)AppData.oldAROM.tmin + " : " + (int)AppData.oldAROM.tmax + " (" + (int)(AppData.oldAROM.tmax - AppData.oldAROM.tmin) + "°)";
-                        //"Press ENTER to start assessment \n"+
+                       
                     }
                     break;
                 case AssessStates.ASSESS:
 
-                    //aromgreater();
                     startButton.SetActive(false);
                     nextButton.SetActive(true);
 
@@ -366,14 +349,6 @@ public class AROMsceneHandler : MonoBehaviour
         }
         else
         {
-            try
-            {
-
-            }
-            catch (Exception)
-            {
-
-            }
         }
     }
 
@@ -486,29 +461,10 @@ public class AROMsceneHandler : MonoBehaviour
     }
 
 
-    //private float window(float currt, float tT, float rT)
-    //{
-    //    if (currt < 0)
-    //    {
-    //        return 0.0f;
-    //    }
-    //    else if (currt >= 0 && currt < (tT + rT))
-    //    {
-    //        return Mathf.Min(1.0f, currt / rT);
-    //    }
-    //    else if (currt >= (tT + rT) && currt < (tT + 2 * rT))
-    //    {
-    //        return 1.0f + (tT + rT - currt) / rT;
-    //    }
-    //    else
-    //    {
-    //        return 0.0f;
-    //    }
-    //}
+ 
 
     void OnApplicationQuit()
     {
-        //AppData.WriteSessionInfo("Quiting Application from PROM Assessment scene.");
     }
 
     public void On_Back_Click()

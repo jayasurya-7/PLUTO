@@ -11299,6 +11299,64 @@ MonoBehaviour:
   - {fileID: 21300000, guid: d5022ddb5cff7514da9018b27aa7e70d, type: 3}
   - {fileID: 21300000, guid: 8e30bcc121cdf054d8a7bf9c60769b27, type: 3}
   index: 1
+--- !u!1 &1619558757
+GameObject:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  serializedVersion: 6
+  m_Component:
+  - component: {fileID: 1619558759}
+  - component: {fileID: 1619558758}
+  m_Layer: 0
+  m_Name: AAN
+  m_TagString: Untagged
+  m_Icon: {fileID: 0}
+  m_NavMeshLayer: 0
+  m_StaticEditorFlags: 0
+  m_IsActive: 1
+--- !u!114 &1619558758
+MonoBehaviour:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 1619558757}
+  m_Enabled: 1
+  m_EditorHideFlags: 0
+  m_Script: {fileID: 11500000, guid: 561622618092dd44c8e7f352efd13542, type: 3}
+  m_Name: 
+  m_EditorClassIdentifier: 
+  trailDuration: 3
+  stopClock: 0
+  reached: 0
+  onceReached: 0
+  playSize: 0
+  initialDirection: 0
+  win: 0
+  reduceOppositeTimer: 0
+  initialTorque: 0
+  trialDuration: 0
+  _initialTarget: 0
+  _finalTarget: 0
+  isFlaccidToggle: {fileID: 0}
+  isFlaccidControlOn: 0
+--- !u!4 &1619558759
+Transform:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 1619558757}
+  serializedVersion: 2
+  m_LocalRotation: {x: 0, y: 0, z: 0, w: 1}
+  m_LocalPosition: {x: 865.4899, y: 471.83163, z: -5.5249376}
+  m_LocalScale: {x: 1, y: 1, z: 1}
+  m_ConstrainProportionsScale: 0
+  m_Children: []
+  m_Father: {fileID: 0}
+  m_LocalEulerAnglesHint: {x: 0, y: 0, z: 0}
 --- !u!1 &1712904477
 GameObject:
   m_ObjectHideFlags: 0
@@ -12249,3 +12307,4 @@ SceneRoots:
   - {fileID: 104492517}
   - {fileID: 1205603303}
   - {fileID: 1075937469}
+  - {fileID: 1619558759}
