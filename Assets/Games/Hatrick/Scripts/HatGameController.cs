@@ -207,9 +207,9 @@ private void SetTrialState(DiscreteMovementTrialState newState)
 
     private float SpawnTargetArea()
     {
-        AppData.newAROM = new AROM(AppData.selectedMechanism);
-        float aromMin = AppData.newAROM.tmin; 
-        float aromMax = AppData.newAROM.tmax; 
+        AppData.newAROM = new ROM(AppData.selectedMechanism);
+        float aromMin = AppData.newAROM.aromTmin; 
+        float aromMax = AppData.newAROM.aromTmax; 
 
         float xMin = MapAROMToPROMPlaySize(aromMin);
         float xMax = MapAROMToPROMPlaySize(aromMax);
@@ -221,9 +221,9 @@ private void SetTrialState(DiscreteMovementTrialState newState)
     }
     private float MapAROMToPROMPlaySize(float angle)
     {
-        AppData.newPROM = new MechanismData(AppData.selectedMechanism);
-        float promMin = AppData.newPROM.tmin; 
-        float promMax = AppData.newPROM.tmax; 
+        AppData.newPROM = new ROM(AppData.selectedMechanism);
+        float promMin = AppData.newPROM.promTmin; 
+        float promMax = AppData.newPROM.promTmax; 
         float promRange = promMax - promMin;
         float normalizedAROM = (angle - promMin) / promRange;
 

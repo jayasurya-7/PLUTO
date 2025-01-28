@@ -172,10 +172,10 @@ public class HT_spawnTargets1 : MonoBehaviour
 
     public bool isInPROM(float angle)
     {
-        AppData.oldAROM = new AROM(AppData.selectedMechanism);
+        AppData.oldAROM = new ROM(AppData.selectedMechanism);
 
-        float tmin = AppData.oldAROM.tmin;
-        float tmax = AppData.oldAROM.tmax;
+        float tmin = AppData.oldAROM.aromTmin;
+        float tmax = AppData.oldAROM.aromTmax;
         if (angle < tmin || angle > tmax)
         {
             Debug.Log("prom target");
@@ -218,11 +218,11 @@ public class HT_spawnTargets1 : MonoBehaviour
     public float RandomAngle()
     {
         float prevtargetAngle = targetAngle;
-        AppData.newPROM = new MechanismData(AppData.selectedMechanism);
+        AppData.newPROM = new ROM(AppData.selectedMechanism);
 
 
-        float newPROM_tmin = AppData.newPROM.tmin;
-        float newPROM_tmax = AppData.newPROM.tmax;
+        float newPROM_tmin = AppData.newPROM.promTmin;
+        float newPROM_tmax = AppData.newPROM.promTmax;
         float tempAngle = Random.Range(newPROM_tmin, newPROM_tmax);
 
 
@@ -237,11 +237,11 @@ public class HT_spawnTargets1 : MonoBehaviour
     }
     public float Angle2Screen(float angle)
     {
-        AppData.newPROM = new MechanismData(AppData.selectedMechanism);
+        AppData.newPROM = new ROM(AppData.selectedMechanism);
 
 
-        float newPROM_tmin = AppData.newPROM.tmin;
-        float newPROM_tmax = AppData.newPROM.tmax;
+        float newPROM_tmin = AppData.newPROM.promTmin;
+        float newPROM_tmax = AppData.newPROM.promTmax;
         //Debug.Log(newPROM_tmin + "+" + newPROM_tmax);
 
 

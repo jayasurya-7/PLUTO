@@ -128,8 +128,7 @@ public class MechanismSceneHandler : MonoBehaviour
                 toggleSelected = true;
                 AppData.selectedMechanism = child.name;
                 AppLogger.SetCurrentMechanism(AppData.selectedMechanism);
-                Debug.Log(AppData.selectedMechanism);
-               AppLogger.LogInfo($"Selected '{AppData.selectedMechanism}'.");
+                AppLogger.LogInfo($"Selected '{AppData.selectedMechanism}'.");
                 break;
             }
         }

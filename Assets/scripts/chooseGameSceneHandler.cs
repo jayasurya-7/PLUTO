@@ -44,7 +44,7 @@ public class ChooseGameSceneHandler : MonoBehaviour
             AppData.selectedMechanism = "FPS";
             AppLogger.SetCurrentMechanism(AppData.selectedMechanism);
         }
-        AppData.oldPROM = new MechanismData(AppData.selectedMechanism);
+        AppData.oldPROM = new ROM(AppData.selectedMechanism);
         //targetAngle = (AppData.oldPROM.tmax + AppData.oldPROM.tmin)/2;
         targetAngle= AppData.offsetAtNeutral[PlutoComm.GetPlutoCodeFromLabel(PlutoComm.MECHANISMS,AppData.selectedMechanism)];
         AppLogger.SetCurrentScene(SceneManager.GetActiveScene().name);
@@ -56,7 +56,7 @@ public class ChooseGameSceneHandler : MonoBehaviour
         PlutoComm.setControlType("NONE");
         playButton.onClick.AddListener(OnPlayButtonClicked);
         changeMech.onClick.AddListener(OnMechButtonClicked);
-        AppData.oldAROM=new AROM(AppData.selectedMechanism);
+        AppData.oldAROM=new ROM(AppData.selectedMechanism);
         if (!gameData.setNeutral)
         {
             StartCoroutine(SetMechanismToTargetAfterDelay(1.0f));

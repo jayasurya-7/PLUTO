@@ -31,9 +31,9 @@ public static class DataManager
     static string directoryPathConfig;
     public static string directoryPathSession;
     static string directoryPathRawData;
-    public static string directoryMechData;
+    //public static string directoryMechData;
     public static string directoryAROMData;
-    public static string directoryPROMData;
+    public static string directoryAPROMData;
     public static string filePathConfigData = directoryPath + "/configdata.csv";
     public static string filePathSessionData { get; private set; }
 
@@ -42,22 +42,25 @@ public static class DataManager
         directoryPathConfig = directoryPath + "/configuration";
         directoryPathSession = directoryPath + "/sessions";
         directoryPathRawData = directoryPath + "/rawdata";
-        directoryMechData = directoryPath + "/mech";
-        directoryAROMData = directoryMechData + "/AROM";
-        directoryPROMData = directoryMechData + "/PROM";
+        directoryAPROMData = directoryPath + "/ROM";
+        //directoryAROMData = directoryMechData + "/AROM";
+       // directoryAPROMData = directoryMechData + "/APROM";
         filePathConfigData = directoryPath + "/configdata.csv";
         filePathSessionData = directoryPathSession + "/sessions.csv";
         // Check if the directory exists
-        if (!Directory.Exists(directoryPath))
+        if (Directory.Exists(directoryPath) && (!Directory.Exists(directoryPathSession) ) && (!Directory.Exists(directoryPathRawData)))
         {
-            // If not, create the directory
-            Directory.CreateDirectory(directoryPath);
-            Directory.CreateDirectory(directoryPathConfig);
             Directory.CreateDirectory(directoryPathSession);
             Directory.CreateDirectory(directoryPathRawData);
             //File.Create(filePathConfigData).Dispose();
             Debug.Log("Directory created at: " + directoryPath);
-        };
+        }
+        else if (!Directory.Exists(directoryPath))
+        {
+            Directory.CreateDirectory(directoryPath);
+            Directory.CreateDirectory(directoryPathSession);
+            Directory.CreateDirectory(directoryPathRawData);
+        }
     }
     public static DataTable loadCSV(string filePath)
     {

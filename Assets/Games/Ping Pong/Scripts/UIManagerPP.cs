@@ -43,7 +43,7 @@ public class UIManagerPP : MonoBehaviour
     }
     void Update()
     {
-        PlutoComm.sendHeartbeat();
+        //PlutoComm.sendHeartbeat();
         if (Time.timeScale > 0 && !isFinished)
         {
             float currentTime = Time.unscaledTime;
@@ -70,13 +70,14 @@ public class UIManagerPP : MonoBehaviour
 
         if ((Input.GetKeyDown(KeyCode.P) && !isFinished) || (isPressed && !isFinished))
         {
-            PlutoComm.setControlType("POSITIONAAN");
+            
             if (!isPaused)
             { 
                 pauseGame();
             }
             else
             {
+                PlutoComm.setControlType("POSITIONAAN");
                 resumeGame();
             }
             isPressed = false;  

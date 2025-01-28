@@ -20,6 +20,7 @@ public class OneTimeConfig : MonoBehaviour
     public TMP_InputField hocField;
     public TMP_InputField fme1Field;
     public TMP_InputField fme2Field;
+    public TMP_Dropdown affectedSideDropdown;
 
     public TextMeshProUGUI totalDurationText;
 
@@ -92,8 +93,10 @@ public class OneTimeConfig : MonoBehaviour
 
         string totalDuration = totalDurationText.text;
 
-        string headers = "Date,name,hospno,Startdate,end ,age,time,WFE,WURD,FPS,HOC,FME1,FME2";
-        string data = $"{date},{name},{hospitalId},{startDate},{endDate},{age},{totalDuration},{wfe},{wurd},{fps},{hoc},{fme1},{fme2}";
+        string trainingSide = affectedSideDropdown.options[affectedSideDropdown.value].text;
+
+        string headers = "Date,name,hospno,Startdate,end ,age,time,WFE,WURD,FPS,HOC,FME1,FME2,TrainingSide";
+        string data = $"{date},{name},{hospitalId},{startDate},{endDate},{age},{totalDuration},{wfe},{wurd},{fps},{hoc},{fme1},{fme2},{trainingSide}";
 
 
         string directoryPath = Application.dataPath + "/data";

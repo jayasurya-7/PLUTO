@@ -13,7 +13,6 @@ using System.IO;
 
 public class AROMsceneHandler : MonoBehaviour
 {
-
     enum AssessStates
     {
         INIT = 0,
@@ -96,27 +95,27 @@ public class AROMsceneHandler : MonoBehaviour
         nextButton.SetActive(false);
         Debug.Log("Initializing AROM assessment");
 
-        string dir = Path.Combine(DataManager.directoryAROMData, AppData.selectedMechanism + ".csv");
-        if (!Directory.Exists(DataManager.directoryAROMData))
+        string dir = Path.Combine(DataManager.directoryAPROMData, AppData.selectedMechanism + ".csv");
+        if (!Directory.Exists(DataManager.directoryAPROMData))
         {
-            Directory.CreateDirectory(DataManager.directoryAROMData);
+            Directory.CreateDirectory(DataManager.directoryAPROMData);
         }
         if (!File.Exists(dir))
         {
             using (var writer = new StreamWriter(dir, false, Encoding.UTF8))
             {
-                writer.WriteLine("datetime,side,tmin,tmax");
+                writer.WriteLine("datetime,promTmin,promTmax,aromTmin,aromTmax");
             }
         }
         if (Array.IndexOf(PlutoComm.MECHANISMS, AppData.selectedMechanism) != 4)
         {
             angLimit = AppData.offsetAtNeutral[PlutoComm.GetPlutoCodeFromLabel(PlutoComm.MECHANISMS, AppData.selectedMechanism)];
 
-            aromSlider.Setup(-angLimit, angLimit, AppData.oldAROM.tmin, AppData.oldAROM.tmax);
+            aromSlider.Setup(-angLimit, angLimit, AppData.oldAROM.aromTmin, AppData.oldAROM.aromTmax);
             aromSlider.maxAng = 0;
             aromSlider.minAng = 0;
             aromSlider.UpdateMinMaxvalues = false;
-            Debug.Log($"Slider Min: {aromSlider.minAng}, Max: {aromSlider.maxAng}, arom:{AppData.oldAROM.tmin},{AppData.oldAROM.tmax}");
+            Debug.Log($"Slider Min: {aromSlider.minAng}, Max: {aromSlider.maxAng}, arom:{AppData.oldAROM.aromTmin},{AppData.oldAROM.aromTmax}");
 
         }
         else
@@ -126,7 +125,7 @@ public class AROMsceneHandler : MonoBehaviour
 
             angLimit = 140.42f;
 
-            aromSlider.Setup(-angLimit, angLimit, AppData.oldAROM.tmin, AppData.oldAROM.tmax);
+            aromSlider.Setup(-angLimit, angLimit, AppData.oldAROM.aromTmin, AppData.oldAROM.aromTmax);
 
 
             aromSlider.minAng = 0;  // Set slider minimum to old AROM minimum
@@ -148,7 +147,7 @@ public class AROMsceneHandler : MonoBehaviour
         {
             cText.gameObject.SetActive(false);
         }
-        if (AppData.side == "right")
+        if (AppData.trainingSide == "right")
         {
             _rinx = 1;
             _linx = 0;
@@ -208,23 +207,23 @@ public class AROMsceneHandler : MonoBehaviour
                     if (!isInteractable)
                     {
 
-                        AppData.oldAROM = new AROM(AppData.selectedMechanism);
+                        AppData.oldAROM = new ROM(AppData.selectedMechanism);
                         PlutoComm.OnButtonReleased += OnPlutoButtonReleased;
                         InitializeAssessment();
                         isInteractable = true;
                     }
                     startButton.SetActive(true);
 
-                    AppData.newPROM = new MechanismData(AppData.selectedMechanism);
+                    //AppData.newPROM = new MechanismData(AppData.selectedMechanism);
 
 
-                    float newPROM_tmin = AppData.newPROM.tmin;
-                    float newPROM_tmax = AppData.newPROM.tmax;
+                    float newPROM_tmin = AppData.promTmin;
+                    float newPROM_tmax = AppData.promTmax;
 
 
-                    prommin = AppData.newPROM.tmin;
+                    prommin = AppData.promTmin;
 
-                    prommax = AppData.newPROM.tmax;
+                    prommax = AppData.promTmax;
 
                     if (isButtonPressed || Input.GetKeyDown(KeyCode.Return))
                     {
@@ -241,15 +240,15 @@ public class AROMsceneHandler : MonoBehaviour
                     else
                         if (Array.IndexOf(PlutoComm.MECHANISMS, AppData.selectedMechanism) == 4)
                     {
-                        float apertureMinCM = Mathf.Abs(Mathf.Deg2Rad * AppData.oldAROM.tmin * 6f);
-                        float apertureMaxCM = Mathf.Abs(Mathf.Deg2Rad * AppData.oldAROM.tmax * 6f);
+                        float apertureMinCM = Mathf.Abs(Mathf.Deg2Rad * AppData.oldAROM.aromTmin * 6f);
+                        float apertureMaxCM = Mathf.Abs(Mathf.Deg2Rad * AppData.oldAROM.aromTmax * 6f);
                         //relaxText.color = Color.black;
                         relaxText.text = "Prev Arom: " + apertureMinCM.ToString("0.0") + "cm : " + apertureMaxCM.ToString("0.0") + "cm (Aperture: " + Mathf.Abs(apertureMaxCM - apertureMinCM).ToString("0.0") + "cm)";
 
                     }
                     else
                     {
-                        relaxText.text = "Prev AROM: " + (int)AppData.oldAROM.tmin + " : " + (int)AppData.oldAROM.tmax + " (" + (int)(AppData.oldAROM.tmax - AppData.oldAROM.tmin) + "°)";
+                        relaxText.text = "Prev AROM: " + (int)AppData.oldAROM.aromTmin + " : " + (int)AppData.oldAROM.aromTmax + " (" + (int)(AppData.oldAROM.aromTmax - AppData.oldAROM.aromTmin) + "°)";
                        
                     }
                     break;
@@ -262,6 +261,7 @@ public class AROMsceneHandler : MonoBehaviour
                     if ( isButtonPressed || Input.GetKeyDown(KeyCode.Return))
                     {
                         _state = AssessStates.RELAX;
+                        gameData.isPROMcompleted = true;
                         onSavePressed();
                         nextButton.SetActive(false);
                         isButtonPressed = false;
@@ -281,8 +281,8 @@ public class AROMsceneHandler : MonoBehaviour
                             if (Array.IndexOf(PlutoComm.MECHANISMS, AppData.selectedMechanism) == 4)
                             {
 
-                                float apertureMinCM = Mathf.Abs(Mathf.Deg2Rad * AppData.oldAROM.tmin * 6f);
-                                float apertureMaxCM = Mathf.Abs(Mathf.Deg2Rad * AppData.oldAROM.tmax * 6f);
+                                float apertureMinCM = Mathf.Abs(Mathf.Deg2Rad * AppData.oldAROM.aromTmin * 6f);
+                                float apertureMaxCM = Mathf.Abs(Mathf.Deg2Rad * AppData.oldAROM.aromTmax * 6f);
                                 float currentMinCM = Mathf.Abs(Mathf.Deg2Rad * aromSlider.minAng * 6f);
                                 float currentMaxCM = Mathf.Abs(Mathf.Deg2Rad * aromSlider.maxAng * 6f);
                                 relaxText.color = Color.white;
@@ -292,13 +292,17 @@ public class AROMsceneHandler : MonoBehaviour
                             else
                             {
                                 relaxText.color = Color.white;
-                                relaxText.text = "Assessment Completed \n " + "Prev AROM: " + (int)AppData.oldAROM.tmin + " : " + (int)AppData.oldAROM.tmax + " (" + (int)(AppData.oldAROM.tmax - AppData.oldAROM.tmin) + "°)\n" +
+                                relaxText.text = "Assessment Completed \n " + "Prev AROM: " + (int)AppData.oldAROM.aromTmin + " : " + (int)AppData.oldAROM.aromTmax + " (" + (int)(AppData.oldAROM.promTmax - AppData.oldAROM.promTmin) + "°)\n" +
                                     "Current AROM: " + (int)aromSlider.minAng + " : " + (int)aromSlider.maxAng + " (" + (int)(aromSlider.maxAng - aromSlider.minAng) + "°)\n";
                             }
 
                             if (isButtonPressed)
                             {
-                                SceneManager.LoadScene("choosegame");
+                                if(gameData.isPROMcompleted && gameData.isAROMcompleted)
+                                {
+                                    gameData.setNeutral = true;
+                                    SceneManager.LoadScene("choosegame");
+                                }
                                 isButtonPressed = false;
                             }
                         }
@@ -309,8 +313,8 @@ public class AROMsceneHandler : MonoBehaviour
 
                             if (Array.IndexOf(PlutoComm.MECHANISMS, AppData.selectedMechanism) == 4)
                             {
-                                float apertureMinCM = Mathf.Abs(Mathf.Deg2Rad * AppData.oldAROM.tmin * 6f);
-                                float apertureMaxCM = Mathf.Abs(Mathf.Deg2Rad * AppData.oldAROM.tmax * 6f);
+                                float apertureMinCM = Mathf.Abs(Mathf.Deg2Rad * AppData.oldAROM.aromTmin * 6f);
+                                float apertureMaxCM = Mathf.Abs(Mathf.Deg2Rad * AppData.oldAROM.aromTmax * 6f);
                                 float currentMinCM = Mathf.Abs(Mathf.Deg2Rad * _tmin * 6f);
                                 float currentMaxCM = Mathf.Abs(Mathf.Deg2Rad * -_tmax * 6f);
                                 relaxText.text = "Assessment Completed \n" + "Prev AROM: " + apertureMinCM.ToString("0.0") + "cm : " + apertureMaxCM.ToString("0.0") + "cm (Aperture: " + Mathf.Abs(apertureMaxCM - apertureMinCM).ToString("0.0") + "cm)\n" +
@@ -319,7 +323,7 @@ public class AROMsceneHandler : MonoBehaviour
                             }
                             else
                             {
-                                relaxText.text = relaxText.text = "Assessment Completed \n " + "Prev AROM: " + (int)AppData.oldAROM.tmin + " : " + (int)AppData.oldAROM.tmax + " (" + (int)(AppData.oldAROM.tmax - AppData.oldAROM.tmin) + "°)\n" +
+                                relaxText.text = relaxText.text = "Assessment Completed \n " + "Prev AROM: " + (int)AppData.oldAROM.aromTmin + " : " + (int)AppData.oldAROM.aromTmax + " (" + (int)(AppData.oldAROM.promTmax - AppData.oldAROM.promTmin) + "°)\n" +
                                     "Current AROM: " + (int)_tmin + " : " + (int)_tmax + " (" + (int)(_tmax - _tmin) + "°)\n";
 
                                 SceneManager.LoadScene("choosegame");
@@ -422,8 +426,8 @@ public class AROMsceneHandler : MonoBehaviour
 
     bool validAssessment()
     {
-        AppData.oldAROM = new AROM(AppData.selectedMechanism);
-        if (_tmin <= AppData.oldAROM.tmin && _tmax >= AppData.oldAROM.tmax)
+        AppData.oldAROM = new ROM(AppData.selectedMechanism);
+        if (_tmin <= AppData.oldAROM.aromTmin && _tmax >= AppData.oldAROM.aromTmax)
         {
             return true;
         }
@@ -436,13 +440,13 @@ public class AROMsceneHandler : MonoBehaviour
         _tmin = aromSlider.minAng;
         _tmax = aromSlider.maxAng;
         assessmentSaved = true;
-        AppData.newAROM = new AROM( AppData.side, _tmin, _tmax,
+        AppData.newAROM = new ROM(AppData.promTmin,AppData.promTmax,_tmin, _tmax,
          AppData.selectedMechanism, true);
 
         if (Array.IndexOf(PlutoComm.MECHANISMS, AppData.selectedMechanism) == 4)
         {
-            float apertureMinCM = Mathf.Abs(Mathf.Deg2Rad * AppData.oldAROM.tmin * 6f);
-            float apertureMaxCM = Mathf.Abs(Mathf.Deg2Rad * AppData.oldAROM.tmax * 6f);
+            float apertureMinCM = Mathf.Abs(Mathf.Deg2Rad * AppData.oldAROM.aromTmin * 6f);
+            float apertureMaxCM = Mathf.Abs(Mathf.Deg2Rad * AppData.oldAROM.aromTmax * 6f);
             float currentMinCM = Mathf.Abs(Mathf.Deg2Rad * _tmin * 6f);
             float currentMaxCM = Mathf.Abs(Mathf.Deg2Rad * -_tmax * 6f);
             relaxText.color = Color.white;
@@ -452,7 +456,7 @@ public class AROMsceneHandler : MonoBehaviour
         else
         {
             relaxText.color = Color.white;
-            relaxText.text = "Assessment Completed \n " + "Prev AROM: " + (int)AppData.oldAROM.tmin + " : " + (int)AppData.oldAROM.tmax + " (" + (int)(AppData.oldAROM.tmax - AppData.oldAROM.tmin) + "°)\n" +
+            relaxText.text = "Assessment Completed \n " + "Prev AROM: " + (int)AppData.oldAROM.aromTmin + " : " + (int)AppData.oldAROM.aromTmax + " (" + (int)(AppData.oldAROM.promTmax - AppData.oldAROM.promTmin) + "°)\n" +
 
             "Currentt AROM: " + (int)_tmin + " : " + (int)_tmax + " (" + (int)(_tmax - _tmin) + "°)\n";
         }

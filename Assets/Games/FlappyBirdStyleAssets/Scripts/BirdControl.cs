@@ -186,9 +186,9 @@ public class BirdControl : MonoBehaviour
     }
     public static float Angle2Screen(float angle)
     {
-        MechanismData mechanismData = new MechanismData(AppData.selectedMechanism);
-        float tmin = mechanismData.tmin;
-        float tmax = mechanismData.tmax;
+        ROM promAng = new ROM(AppData.selectedMechanism);
+        float tmin = promAng.promTmin;
+        float tmax = promAng.promTmax;
         Debug.Log(tmin + "+" + tmax);
 
         //return (-2.3f + (angle - tmin) * (playSize) / (tmax - tmin));

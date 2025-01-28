@@ -34,11 +34,15 @@ public static class AppData
     static public float[] offsetAtNeutral = new float[] { 70, 70, 90, 0, 90 , 90  };
 
     // Old and new PROM
-    public static MechanismData oldPROM;
-    public static MechanismData newPROM;
+    public static ROM oldPROM;
+    public static ROM newPROM;
 
-    public static AROM oldAROM;
-    public static AROM newAROM;
+    public static ROM oldAROM;
+    public static ROM newAROM;
+    //temp storage for PROM min and max
+
+    public static float promTmin=0f;
+    public static float promTmax=0f;
 
     // Counts to keep track of time for different GUI updatess
     public static int[] count = new int[] { 0, 0 };
@@ -55,7 +59,7 @@ public static class AppData
         get { return stp_watch.ElapsedTicks * nanosecPerTick; }
     }
     //Options to drive 
-    public static string side = "right";
+    public static string trainingSide = null;
     public static string selectedMechanism;
     public static string selectedGame = null;
     public static int currentSessionNumber;
@@ -301,7 +305,8 @@ public static class AppData
         {
             DataRow lastRow = dTableConfig.Rows[dTableConfig.Rows.Count - 1];
             hospNumber = lastRow.Field<string>("hospno");
-            startDate = DateTime.ParseExact(lastRow.Field<string>("startdate"), "dd-MM-yyyy", CultureInfo.InvariantCulture);
+            AppData.trainingSide = lastRow.Field<string>("TrainingSide");
+           startDate = DateTime.ParseExact(lastRow.Field<string>("startdate"), "dd-MM-yyyy", CultureInfo.InvariantCulture);
             mechMoveTimePrsc = createMoveTimeDictionary();//prescribed time
             for (int i = 0; i < PlutoDefs.Mechanisms.Length; i++)
             {
@@ -362,18 +367,20 @@ public static class Miscellaneous
     }
 }
 
-public class MechanismData
+public class ROM
 {
     // Class attributes to store data read from the file
     public string datetime;
     public string side;
-    public float tmin;
-    public float tmax;
+    public float promTmin;
+    public float promTmax;
+    public float aromTmin;
+    public float aromTmax;
     public string mech;
-    public string filePath = DataManager.directoryPROMData;
+    public string filePath = DataManager.directoryAPROMData;
 
     // Constructor that reads the file and initializes values based on the mechanism
-    public MechanismData(string mechanismName)
+    public ROM(string mechanismName)
     {
         string lastLine = "";
         string[] values;
@@ -393,19 +400,19 @@ public class MechanismData
             {
                 // Assign values if mechanism matches
                 datetime = values[0].Trim();
-                side = values[1].Trim();
-                tmin = float.Parse(values[2].Trim());
-                tmax = float.Parse(values[3].Trim());
-                mech = mechanismName;
+                promTmin = float.Parse(values[1].Trim());
+                promTmax = float.Parse(values[2].Trim());
+                aromTmin=float.Parse(values[3].Trim());
+                aromTmax = float.Parse(values[4].Trim());
             }
             else
             {
                 // Handle case when no matching mechanism is found
                 datetime = null;
-                side = null;
-                tmin = 0;
-                tmax = 0;
-                mech = null;
+                promTmin = 0;
+                promTmax = 0;
+                aromTmin = 0;
+                aromTmax = 0;
             }
         }
         catch (Exception ex)
@@ -415,13 +422,12 @@ public class MechanismData
     }
 
 
-    public MechanismData( string affside, float angmin, float angmax, string mch, bool tofile)
+    public ROM( float angmin, float angmax, float aromAngMin, float aromAngMax, string mch, bool tofile)
     {
-        // Create AROM and write to AROM assessment file.
-     
-        side = affside;
-        tmin = angmin;
-        tmax = angmax;
+        promTmin = angmin;
+        promTmax = angmax;
+        aromTmin = aromAngMin;
+        aromTmax=aromAngMax;
         mech = mch;
         datetime = DateTime.Now.ToString();
 
@@ -438,7 +444,7 @@ public class MechanismData
         //UnityEngine.Debug.Log(_fname);
         using (StreamWriter file = new StreamWriter(_fname, true))
         {
-            file.WriteLine(datetime + ", " + side + ", " + tmin.ToString() + ", " + tmax.ToString() + ", " + "");
+            file.WriteLine(datetime + ", " + promTmin.ToString() + ", " + promTmax.ToString() + ", " +  aromTmin.ToString() + ", " + aromTmax.ToString()+"");
         }
 
        
@@ -447,7 +453,7 @@ public class MechanismData
 
     public (float tmin, float tmax) GetTminTmax()
     {
-        return (tmin, tmax);
+        return (promTmin, promTmax);
     }
 }
 
@@ -455,6 +461,9 @@ public class MechanismData
 
 public static class gameData
 {
+    //Assessment check
+    public static bool isPROMcompleted=false;
+    public static bool isAROMcompleted = false;
 
     //game
     public static bool isGameLogging;
@@ -644,92 +653,6 @@ public class DataLogger
         {
             fileData.Append(data);
         }
-    }
-}
-
-public class AROM
-{
-    // Class attributes to store data read from the file
-    public string datetime;
-    public string side;
-    public float tmin;
-    public float tmax;
-    public string mech;
-    public string filePath = DataManager.directoryAROMData;
-
-    // Constructor that reads the file and initializes values based on the mechanism
-    public AROM(string mechanismName)
-    {
-        string lastLine = "";
-        string[] values;
-        string fileName = $"{filePath}/{mechanismName}.csv";
-
-        try
-        {
-            using (StreamReader file = new StreamReader(fileName))
-            {
-                while (!file.EndOfStream)
-                {
-                    lastLine = file.ReadLine();
-                }
-            }
-            values = lastLine.Split(',');
-            if (values[0].Trim() != null)
-            {
-                // Assign values if mechanism matches
-                datetime = values[0].Trim();
-                side = values[1].Trim();
-                tmin = float.Parse(values[2].Trim());
-                tmax = float.Parse(values[3].Trim());
-                mech = mechanismName;
-            }
-            else
-            {
-                // Handle case when no matching mechanism is found
-                datetime = null;
-                side = null;
-                tmin = 0;
-                tmax = 0;
-                mech = null;
-            }
-        }
-        catch (Exception ex)
-        {
-            Console.WriteLine("Error reading the file: " + ex.Message);
-        }
-    }
-    public AROM(string affside, float angmin, float angmax, string mch, bool tofile)
-    {
-        // Create AROM and write to AROM assessment file.
-
-        side = affside;
-        tmin = angmin;
-        tmax = angmax;
-        mech = mch;
-        datetime = DateTime.Now.ToString();
-
-        if (tofile)
-        {
-            // Write data to assessment file.
-            WriteToAssessmentFile();
-        }
-    }
-
-    public void WriteToAssessmentFile()
-    {
-        string _fname = Path.Combine(filePath, mech + ".csv");
-        UnityEngine.Debug.Log(_fname);
-        using (StreamWriter file = new StreamWriter(_fname, true))
-        {
-            file.WriteLine(datetime + ", " + side + ", " + tmin.ToString() + ", " + tmax.ToString() + ", " + "");
-        }
-
-
-    }
-
-    public (float tmin, float tmax) GetTminTmax()
-    {
-        return (tmin, tmax);
     }
 }
 

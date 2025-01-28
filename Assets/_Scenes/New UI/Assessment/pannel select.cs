@@ -55,8 +55,16 @@ public class assessmentSceneHandler : MonoBehaviour
 
     public void writeAssesmentFileAndExit()
     {
-        SceneManager.LoadScene("choosegame");
-        Debug.Log("Wrote successfully");
+        gameData.setNeutral = true;
+        if (gameData.isPROMcompleted && gameData.isAROMcompleted)
+        {
+            SceneManager.LoadScene("choosegame");
+            Debug.Log("Wrote successfully");
+        }
+        else
+        {
+            Debug.Log("APROM not completed");
+        }
     }
     public void SelectpROM()
     {
@@ -88,10 +96,10 @@ public class assessmentSceneHandler : MonoBehaviour
         SetActiveStatus(aromSelected, true);
         SetActiveStatus(promSelected, true);
 
-        AppData.newPROM = new MechanismData(AppData.selectedMechanism);
+        AppData.newPROM = new ROM(AppData.selectedMechanism);
 
-        float newPROM_tmin = AppData.newPROM.tmin;
-        float newPROM_tmax = AppData.newPROM.tmax;
+        float newPROM_tmin = AppData.promTmin;
+        float newPROM_tmax = AppData.promTmax;
         updateAROM();
 
     }
@@ -100,10 +108,10 @@ public class assessmentSceneHandler : MonoBehaviour
     {
         if (aromHandler.isSelected == true)
         {
-            AppData.newPROM = new MechanismData(AppData.selectedMechanism);
+            AppData.newPROM = new ROM(AppData.selectedMechanism);
 
-            float newPROM_tmin = AppData.newPROM.tmin;
-            float newPROM_tmax = AppData.newPROM.tmax;
+            float newPROM_tmin = AppData.promTmin;
+            float newPROM_tmax = AppData.promTmax;
         }
     }
     private void SetActiveStatus(GameObject[] objects, bool status)

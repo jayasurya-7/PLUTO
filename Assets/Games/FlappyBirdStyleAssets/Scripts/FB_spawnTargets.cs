@@ -208,11 +208,11 @@ public class FB_spawnTargets : MonoBehaviour
     public bool isInPROM(float angle)
     {
 
-        AppData.newPROM = new MechanismData(AppData.selectedMechanism);
+        AppData.newPROM = new ROM(AppData.selectedMechanism);
 
 
-        float newPROM_tmin = AppData.newPROM.tmin;
-        float newPROM_tmax = AppData.newPROM.tmax;
+        float newPROM_tmin = AppData.newPROM.promTmin;
+        float newPROM_tmax = AppData.newPROM.promTmax;
         if (angle < newPROM_tmin || angle > newPROM_tmax)
         {
             Debug.Log("prom target");
@@ -224,9 +224,9 @@ public class FB_spawnTargets : MonoBehaviour
     }
     public float RandomAngle()
     {
-        MechanismData mechanismData = new MechanismData(AppData.selectedMechanism);
-        float tmin = mechanismData.tmin;
-        float tmax = mechanismData.tmax;
+        ROM promAng = new ROM(AppData.selectedMechanism);
+        float tmin = promAng.promTmin;
+        float tmax = promAng.promTmax;
         float prevtargetAngle = targetAngle;
         float tempAngle = Random.Range(tmin,tmax);
         while (Mathf.Abs(tempAngle - prevtargetAngle) < Mathf.Abs(tmax - tmin) / 2.5f)
@@ -240,9 +240,9 @@ public class FB_spawnTargets : MonoBehaviour
     }
     public float Angle2Screen(float angle)
     {
-        MechanismData mechanismData = new MechanismData(AppData.selectedMechanism);
-        float tmin = mechanismData.tmin;
-        float tmax = mechanismData.tmax;
+        ROM promAng = new ROM(AppData.selectedMechanism);
+        float tmin = promAng.promTmin;
+        float tmax = promAng.promTmax;
 
         return (-2f + (angle - tmin) * (playSize) / (tmax - tmin));
 

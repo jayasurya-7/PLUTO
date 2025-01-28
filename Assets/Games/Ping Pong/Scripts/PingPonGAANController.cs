@@ -57,23 +57,24 @@ public class PingPonGAANController : MonoBehaviour
 
     }
 
-    // Start is called before the first frame update
     void Start()
     {
+        PlutoComm.setControlType("POSITIONAAN");
         playSize = Camera.main.orthographicSize;
         Application.targetFrameRate = 300;
 
     }
 
 
-
-    // Update is called once per frame
     void Update()
     {
         playerPosition = GameObject.FindGameObjectWithTag("Player").transform.position.y;
 
         PlutoComm.sendHeartbeat();
-
+        //if (PlutoComm.CONTROLTYPE[PlutoComm.controlType] == "NONE")
+        //{
+        //    PlutoComm.setControlType("POSITIONAAN");
+        //}
         RunTrialStateMachine();
         if (GameObject.FindGameObjectsWithTag("Target").Length > 0)
         {
@@ -82,14 +83,14 @@ public class PingPonGAANController : MonoBehaviour
             Debug.Log(btp.ballDistance);
             // Debug.Log(btp.ballVelocity.magnitude);
             Debug.Log(PlutoComm.CONTROLTYPE[PlutoComm.controlType]);
-            if(btp.transform.position.x < 7.5)
+            if(btp.transform.position.x <= 10.5)
             {
                 targetSpwan = true;
             }
 
             if ((Mathf.Abs(btp.ballDistance) / Mathf.Abs(btp.ballVelocity.magnitude)) < 4 && btp.ballVelocity.x > 0 && (Mathf.Abs(btp.ballDistance) / Mathf.Abs(btp.ballVelocity.magnitude)) > 1)
             {
-                if (btp.transform.position.x < 5.5)
+                if (btp.transform.position.x < 10.5)
                 {
                     targetAngle = ScreentoAngle(ballTrajetoryPrediction);
                     targetPosition = ScreentoAngle(ballTrajetoryPrediction);
@@ -126,7 +127,7 @@ public class PingPonGAANController : MonoBehaviour
         switch (_trialState)
         {
             case DiscreteMovementTrialState.Rest:
-                if (targetSpwan && trialDuration >= 0.15f)
+                if (targetSpwan && trialDuration >= 0.05f)
                 {
                     SetTrialState(DiscreteMovementTrialState.Moving);
                 }
@@ -138,7 +139,7 @@ public class PingPonGAANController : MonoBehaviour
                     UpdateControlBoundSmoothly();
                     UpdatePositionTargetSmoothly();
 
-                    if (trialDuration >= 4.5f)
+                    if (trialDuration >= 3.5f)
                     {
                         if (_finalTarget == _initialTarget)
                         {
@@ -200,9 +201,9 @@ public class PingPonGAANController : MonoBehaviour
     public static float Angle2Screen(float angle)
     {
         float playSize = 5;
-        MechanismData mechanismData = new MechanismData(AppData.selectedMechanism);
-        float tmin = mechanismData.tmin;
-        float tmax = mechanismData.tmax;
+        ROM promAng = new ROM(AppData.selectedMechanism);
+        float tmin = promAng.promTmin;
+        float tmax = promAng.promTmax;
         return Mathf.Clamp(-playSize + (angle - tmin) * (2 * playSize) / (tmax - tmin), -100, 100);
 
     }

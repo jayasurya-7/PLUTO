@@ -40,7 +40,13 @@ public class welcomSceneHandler : MonoBehaviour
         AppLogger.StartLogging(SceneManager.GetActiveScene().name);
         AppLogger.SetCurrentScene(SceneManager.GetActiveScene().name);
         AppLogger.LogInfo($"{SceneManager.GetActiveScene().name} scene started.");
-        if (!File.Exists(DataManager.filePathConfigData))
+        // Check if the directory exists
+        if (!Directory.Exists(DataManager.directoryPath))
+        {
+            // If not, create the directory
+            Directory.CreateDirectory(DataManager.directoryPath);
+        }
+            if (!File.Exists(DataManager.filePathConfigData))
         {
             SceneManager.LoadScene("configuration");
         }
