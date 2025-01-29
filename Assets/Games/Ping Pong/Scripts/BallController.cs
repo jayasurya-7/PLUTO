@@ -82,6 +82,8 @@ public class BallController : MonoBehaviour
             initVelocity(d * speed);
 
             gameData.events = Array.IndexOf(gameData.pongEvents, "enemyHit");
+            gameData.targetSpwan = true;
+            gameData.isBallReached = true;
         }
 
         if (col.gameObject.tag == "Player")
@@ -93,6 +95,8 @@ public class BallController : MonoBehaviour
             Vector2 d = new Vector2(-1, y).normalized;
             initVelocity(d * speed);
             gameData.events = Array.IndexOf(gameData.pongEvents, "playerHit");
+            gameData.targetSpwan = false;
+            gameData.isBallReached = false;
             
         }
         if (col.gameObject.name == "BottomBound")

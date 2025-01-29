@@ -167,7 +167,7 @@ public static class JediComm
 
         // Add the message bytes to the payload
         outPayload.AddRange(outBytes);
-
+         
         // Calculate checksum (sum of all bytes modulo 256)
         byte checksum = (byte)(outPayload.Sum(b => b) % 256);
 

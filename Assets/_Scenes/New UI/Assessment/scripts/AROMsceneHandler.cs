@@ -53,7 +53,6 @@ public class AROMsceneHandler : MonoBehaviour
     public GameObject startButton;
     public GameObject curreposition;
     public GameObject currepositionHoc;
-    //public GameObject AANScene;
     private AssessStates _state;
     private float angLimit;
     public DoubleSlider aromSlider;
@@ -61,9 +60,6 @@ public class AROMsceneHandler : MonoBehaviour
 
     public bool isSelected = false;
     public bool isInteractable = false;
-
-    //public  GameObject PromButton;
-
     public assessmentSceneHandler panelControl;
 
     private bool isRestarting = false;

@@ -74,6 +74,7 @@ public class PongPlayerController : MonoBehaviour
         if (collision.gameObject.tag == "Target")
         {
             gameData.reps += 1;
+            //gameData.isBallReached = true;
         }
     }
 }

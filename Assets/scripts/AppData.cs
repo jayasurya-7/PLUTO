@@ -28,7 +28,7 @@ public static class PlutoDefs
 public static class AppData
 {
     // COM Port for the device
-    public static readonly string COMPort = "COM5";
+    public static readonly string COMPort = "COM4";
     public static SubjectData subjd { get; private set; }
 
     static public float[] offsetAtNeutral = new float[] { 70, 70, 90, 0, 90 , 90  };
@@ -464,7 +464,9 @@ public static class gameData
     //Assessment check
     public static bool isPROMcompleted=false;
     public static bool isAROMcompleted = false;
-
+    //AAN controller check
+    public static bool isBallReached = false;
+    public static bool targetSpwan = false;
     //game
     public static bool isGameLogging;
     public static string game;

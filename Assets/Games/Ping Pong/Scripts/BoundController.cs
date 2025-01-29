@@ -24,6 +24,8 @@ public class BoundController : MonoBehaviour
                 playAudio(1);
                 enemyScore++;
                 gameData.enemyScore = enemyScore;
+                gameData.targetSpwan = false;
+                // gameData.isBallReached = true;
                 gameData.events = Array.IndexOf(gameData.pongEvents, "playerFail");
             }
             else

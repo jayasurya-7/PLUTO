@@ -466,7 +466,6 @@ public class PROMsceneHandler : MonoBehaviour {
    }
     public void OnrestartButtonClick()
    {
-    //startAssessment();
     Start();
    }
 
@@ -474,13 +473,10 @@ public class PROMsceneHandler : MonoBehaviour {
     public void OnSaveClick()
     {
         nextButton.SetActive(false);
-        //aromButton.SetActive(false);
         _tmin = promSlider.minAng;
         _tmax = promSlider.maxAng;
         assessmentSaved = true;
         Debug.Log("Onsave : " + _tmin+" , "+ _tmax);
-        //AppData.newPROM = new MechanismData(AppData.side, _tmin, _tmax,
-          //  AppData.selectedMechanism, true);
         gameData.isPROMcompleted= true;
         AppData.promTmin= _tmin;
         AppData.promTmax= _tmax;
@@ -519,7 +515,6 @@ public class PROMsceneHandler : MonoBehaviour {
         promSlider.maxAng = 0;
        
          promSlider.startAssessment(PlutoComm.angle);
-           // Debug.Log("AROM moved:"+PlutoComm.angle);
             promSlider.UpdateMinMaxvalues = true;
         
         
@@ -539,32 +534,14 @@ public class PROMsceneHandler : MonoBehaviour {
     
 
 
-    private float window(float currt, float tT, float rT)
-    {
-        if (currt < 0)
-        {
-            return 0.0f;
-        } else if (currt >= 0 && currt < (tT + rT))
-        {
-            return Mathf.Min(1.0f, currt / rT);
-        } else if (currt >= (tT + rT) && currt < (tT + 2 * rT))
-        {
-            return 1.0f + (tT + rT - currt) / rT;
-        } else
-        {
-            return 0.0f;
-        }
-    }
 
     void OnApplicationQuit()
     {
-        //AppData.WriteSessionInfo("Quiting Application from PROM Assessment scene.");
        JediComm.Disconnect();
     }
 
     public void On_Back_Click()
     {
-        //AppData.WriteSessionInfo("Back to Game menu.");
         SceneManager.LoadScene(2);
     }
     
@@ -584,18 +561,12 @@ public class PROMsceneHandler : MonoBehaviour {
         {
             JointAngle.text =  (PlutoComm.angle).ToString("0.0") ;
         }
-        else
-            JointAngle.text = "Aperture"   + Mathf.Abs((Mathf.Deg2Rad * PlutoComm.angle*6f)).ToString("0.0") + "cm";
+        else {
+            JointAngle.text = "Aperture" + Mathf.Abs((Mathf.Deg2Rad * PlutoComm.angle * 6f)).ToString("0.0") + "cm";
 
-            JointAngleHoc.text = "Aperture"   + Mathf.Abs((Mathf.Deg2Rad * PlutoComm.angle*6f)).ToString("0.0") + "cm";
+            JointAngleHoc.text = "Aperture" + Mathf.Abs((Mathf.Deg2Rad * PlutoComm.angle * 6f)).ToString("0.0") + "cm";
+        }
 
-        ////Debug.Log(AppData.plutoData.angle);
-        //if (AppData.count[1]++ > AppData.Th[1])
-        //{
-        //  //  statusText.text = "FR: " + ((int)MySerialThread.framerate).ToString();
-        //    AppData.count[1] = 0;
-
-        //}
     }
 
 

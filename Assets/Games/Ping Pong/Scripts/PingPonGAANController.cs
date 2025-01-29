@@ -62,7 +62,6 @@ public class PingPonGAANController : MonoBehaviour
         PlutoComm.setControlType("POSITIONAAN");
         playSize = Camera.main.orthographicSize;
         Application.targetFrameRate = 300;
-
     }
 
 
@@ -70,8 +69,8 @@ public class PingPonGAANController : MonoBehaviour
     {
         playerPosition = GameObject.FindGameObjectWithTag("Player").transform.position.y;
 
-        PlutoComm.sendHeartbeat();
-        //if (PlutoComm.CONTROLTYPE[PlutoComm.controlType] == "NONE")
+        //PlutoComm.sendHeartbeat();
+        //if (PlutoComm.CONTROLTYPE[PlutoComm.controlType] != "POSITIONAAN")
         //{
         //    PlutoComm.setControlType("POSITIONAAN");
         //}
@@ -83,39 +82,50 @@ public class PingPonGAANController : MonoBehaviour
             Debug.Log(btp.ballDistance);
             // Debug.Log(btp.ballVelocity.magnitude);
             Debug.Log(PlutoComm.CONTROLTYPE[PlutoComm.controlType]);
-            if(btp.transform.position.x <= 10.5)
+            Debug.Log("targetSp:" + gameData.targetSpwan);
+            //if(btp.transform.position.x <= 10.5)
+            //{
+            //    targetSpwan = true;
+            //}
+            if (gameData.targetSpwan)
             {
-                targetSpwan = true;
+              float  Duration = Mathf.Abs(btp.ballDistance) / Mathf.Abs(btp.ballVelocity.magnitude);
+                Debug.Log("Timeeee :"+Duration);    
             }
 
             if ((Mathf.Abs(btp.ballDistance) / Mathf.Abs(btp.ballVelocity.magnitude)) < 4 && btp.ballVelocity.x > 0 && (Mathf.Abs(btp.ballDistance) / Mathf.Abs(btp.ballVelocity.magnitude)) > 1)
             {
-                if (btp.transform.position.x < 10.5)
+                if (btp.transform.position.x < 6.5)
                 {
-                    targetAngle = ScreentoAngle(ballTrajetoryPrediction);
                     targetPosition = ScreentoAngle(ballTrajetoryPrediction);
+                    targetAngle = ScreenPositionToAngle(ballTrajetoryPrediction);
+
                     Debug.Log("tg :"+targetAngle);
                 }
             }
-
-         
         }
-
-
-
-
     }
     private void UpdateControlBoundSmoothly()
     {
-        if (!targetSpwan) return;
-        float t = trialDuration / 2.5f;
+        if (!gameData.targetSpwan) return;
+        float t = trialDuration / 2f;
         float smoothedControlBound = Mathf.Lerp(0f, 0.5f, t);
         PlutoComm.setControlBound(smoothedControlBound);
         Debug.Log("smoothedControlBound :" + smoothedControlBound);
     }
+    private float ScreenPositionToAngle(float screenPosition)
+    {
+        float calibAngleRange = PlutoComm.CALIBANGLE[PlutoComm.mechanism];
+        float angle = Mathf.Lerp(
+            -calibAngleRange / 2,
+            calibAngleRange / 2,
+            (screenPosition + playSize) / (2 * playSize)
+        );
+        return angle;
+    }
     private void UpdatePositionTargetSmoothly()
     {
-        float t = trialDuration / 3.5f;
+        float t = trialDuration / 2.5f;
         float smoothedTargetPosition = Mathf.Lerp(_initialTarget, _finalTarget, t);
         PlutoComm.setControlTarget(smoothedTargetPosition);
         Debug.Log("smoothedTarget :" + smoothedTargetPosition);
@@ -127,25 +137,27 @@ public class PingPonGAANController : MonoBehaviour
         switch (_trialState)
         {
             case DiscreteMovementTrialState.Rest:
-                if (targetSpwan && trialDuration >= 0.05f)
+                if (gameData.targetSpwan && trialDuration >= 0.05f)
                 {
                     SetTrialState(DiscreteMovementTrialState.Moving);
                 }
                 break;
 
             case DiscreteMovementTrialState.Moving:
-                if (targetSpwan)
+                if (gameData.targetSpwan)
                 {
                     UpdateControlBoundSmoothly();
                     UpdatePositionTargetSmoothly();
 
-                    if (trialDuration >= 3.5f)
+                    if (trialDuration >= 4f)
                     {
                         if (_finalTarget == _initialTarget)
                         {
                             Debug.Log("Target reached. Returning to Rest state.");
                         }
                         SetTrialState(DiscreteMovementTrialState.Rest);
+                        gameData.isBallReached = false;
+                        
                     }
                 }
                 else
@@ -164,7 +176,7 @@ public class PingPonGAANController : MonoBehaviour
         {
             case DiscreteMovementTrialState.Rest:
                 trialDuration = 0f;
-                targetSpwan = false;
+                gameData.targetSpwan = false;
                 break;
 
             case DiscreteMovementTrialState.Moving:
@@ -207,145 +219,4 @@ public class PingPonGAANController : MonoBehaviour
         return Mathf.Clamp(-playSize + (angle - tmin) * (2 * playSize) / (tmax - tmin), -100, 100);
 
     }
-
-
-    private void OnApplicationQuit()
-    {
-        // make 
-
-
-    }
-    //public float TorqueProfile(float amp)
-    //{
-
-
-    //    if (!isFlaccidControlOn)
-    //    {
-    //        return (normalController(amp));
-    //    }
-    //    else
-    //    {
-    //        float assistanceTorque = Mathf.Abs(amp) < 0.2 ? 0.2f : Mathf.Abs(amp);
-    //        Debug.Log("flaccid" + assistanceTorque);
-    //        return (flaccidController(assistanceTorque));
-    //    }
-
-
-
-
-    //}
-
-    //float flaccidController(float amp)
-    //{
-    //    float time;
-    //    Debug.Log("amp" + amp);
-    //    if (stopClock == trailDuration)
-    //    {
-    //        time = 0;
-    //    }
-    //    else
-    //    {
-    //        time = (trailDuration - stopClock);
-    //        time = (time / trailDuration);
-    //    }
-
-    //    if (amp != 0)
-    //    {
-    //        if (Mathf.Abs(targetAngle - AppData.plutoData.angle) > 2 && initialDirection == getDirection())
-    //        {
-
-    //            reduceOppositeTimer = 0;
-
-    //            prevTorq = Mathf.SmoothStep(initialTorque, amp, Mathf.Clamp(time, 0, trailDuration));
-    //            //Debug.Log("here" + prevTorq);
-
-    //        }
-    //        else
-    //        {
-    //            onceReached = true;
-    //            // Debug.Log("Decreasing");
-
-    //            if (Mathf.Abs(targetAngle - PlutoComm.angle) > 3 && initialDirection != getDirection())
-    //            {
-
-    //                reduceOppositeTimer += Time.deltaTime;
-    //                reduceOppositeTimer = Mathf.Min(reduceOppositeTimer, 3);
-    //                prevTorq = prevTorq - Mathf.Sign(prevTorq) * reduceOppositeTimer * 0.01f;
-    //            }
-
-
-    //        }
-    //    }
-    //    else
-    //    {
-    //        Debug.Log("zero");
-    //        prevTorq = Mathf.SmoothStep(initialTorque, 0, Mathf.Clamp(time, 0, trailDuration));
-
-    //    }
-    //    // Debug.Log("fromfunction" + prevTorq );
-    //    if (AppData.plutoData.mechIndex != 2)
-    //        return prevTorq;
-    //    else
-    //        return -prevTorq;
-
-    //    //float time = trailDuration - stopClock;
-    //    //time = (time / trailDuration);
-    //    //if (AppData.regime == "MINIMAL ASSIST" && amp != 0)
-    //    //{
-    //    //    if (Mathf.Abs(targetAngle - AppData.plutoData.angle) > 2)
-    //    //    {
-    //    //        if (getDirection() == initialDirection)
-    //    //        {
-    //    //            // reduceOppositeTimer = 0;
-    //    //            if (onceReached == false)
-    //    //            {
-    //    //                Debug.Log("starting");
-    //    //                prevTorq = Mathf.SmoothStep(initialTorque, getDirection() * Mathf.Abs(amp), Mathf.Clamp(time, 0, trailDuration));
-    //    //                if (AppData.plutoData.mechIndex != 2)
-    //    //                    return prevTorq;
-    //    //                else
-    //    //                    return -prevTorq;
-    //    //            }
-    //    //            else
-    //    //            {
-    //    //                reduceOppositeTimer += Time.deltaTime;
-    //    //                reduceOppositeTimer = Mathf.Min(reduceOppositeTimer, 3);
-    //    //                if (Mathf.Abs(prevTorq) > 0.05)
-    //    //                    prevTorq = prevTorq + Mathf.Sign(prevTorq) * reduceOppositeTimer * 0.01f;
-    //    //                if (AppData.plutoData.mechIndex != 2)
-    //    //                    return prevTorq;
-    //    //                else
-    //    //                    return -prevTorq;
-
-    //    //            }
-
-    //    //        }
-    //    //        else
-    //    //        {
-    //    //            reduceOppositeTimer += Time.deltaTime;
-    //    //            onceReached = true;
-    //    //            if (Mathf.Abs(prevTorq) > 0.05)
-    //    //                prevTorq = prevTorq - Mathf.Sign(prevTorq) * reduceOppositeTimer * 0.01f * Mathf.Abs(targetAngle - AppData.plutoData.angle);
-    //    //            if (AppData.plutoData.mechIndex != 2)
-    //    //                return prevTorq;
-    //    //            else
-    //    //                return -prevTorq;
-    //    //        }
-    //    //    }
-    //    //    else
-    //    //    {
-    //    //        if (AppData.plutoData.mechIndex != 2)
-    //    //            return prevTorq;
-    //    //        else
-    //    //            return -prevTorq;
-    //    //    }
-    //    //}
-
-    //    //else
-    //    //{
-    //    //    prevTorq = 0;
-    //    //    return prevTorq;
-    //    //}
-    //}
-  
 }
