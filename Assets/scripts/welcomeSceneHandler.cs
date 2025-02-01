@@ -74,6 +74,7 @@ public class welcomSceneHandler : MonoBehaviour
     // Update is called once per frame
     void Update()
     {
+       // PlutoComm.sendHeartbeat();
         // Attach PlutoButton release event after 2 seconds if it is not attached already.
         if (!attachPlutoButtonEvent && Time.timeSinceLevelLoad > 2)
         {

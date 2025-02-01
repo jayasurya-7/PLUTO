@@ -28,7 +28,7 @@ public static class PlutoDefs
 public static class AppData
 {
     // COM Port for the device
-    public static readonly string COMPort = "COM4";
+    public static readonly string COMPort = "COM5";
     public static SubjectData subjd { get; private set; }
 
     static public float[] offsetAtNeutral = new float[] { 70, 70, 90, 0, 90 , 90  };
@@ -482,7 +482,7 @@ public static class gameData
     public static string wallBounce = "0";
     public static string enemyFail = "0";
     public static string playerFail = "0";
-    public static int winningScore = 10;
+    public static int winningScore = 3;
     public static float moveTime;
     public static readonly string[] pongEvents = new string[] { "moving", "wallBounce", "playerHit", "enemyHit", "playerFail", "enemyFail" };
     public static readonly string[] hatEvents = new string[] { "moving", "BallCaught", "BombCaught", "BallMissed", "BombMissed" };
@@ -493,6 +493,7 @@ public static class gameData
     public static float gameSpeedTT;
     public static float gameSpeedPP;
     public static float gameSpeedHT;
+    public static float predictedHitY;
     public static bool setNeutral = false;
     private static DataLogger dataLog;
     private static string[] gameHeader = new string[] {

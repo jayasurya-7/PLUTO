@@ -43,7 +43,7 @@ public class UIManagerPP : MonoBehaviour
     }
     void Update()
     {
-        PlutoComm.sendHeartbeat();
+        
         if (Time.timeScale > 0 && !isFinished)
         {
             float currentTime = Time.unscaledTime;

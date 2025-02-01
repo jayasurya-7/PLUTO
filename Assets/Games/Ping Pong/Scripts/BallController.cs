@@ -25,6 +25,7 @@ public class BallController : MonoBehaviour
       
         rig2D = this.gameObject.GetComponent<Rigidbody2D>();
         int rand = UnityEngine.Random.Range(1, 5);
+        gameData.targetSpwan = false;
 
         if (rand == 1)
         {
@@ -73,17 +74,38 @@ public class BallController : MonoBehaviour
         playAudio(0);
         if (col.gameObject.tag == "Enemy")
         {
-
-            float y = launchAngle(transform.position,
-                                col.transform.position,
-                                col.collider.bounds.size.y);
-
+            // Compute the launch angle based on where the ball hit the paddle.
+            float y = launchAngle(transform.position, col.transform.position, col.collider.bounds.size.y);
+            // Create a new direction vector. (Here, x is positive because the ball heads toward the player.)
             Vector2 d = new Vector2(1, y).normalized;
-            initVelocity(d * speed);
+            Vector2 newVelocity = d * speed;
+            initVelocity(newVelocity);
 
             gameData.events = Array.IndexOf(gameData.pongEvents, "enemyHit");
             gameData.targetSpwan = true;
-            gameData.isBallReached = true;
+
+            // Now predict where the ball will hit on the player's bound.
+            // (Adjust these values as appropriate for your game.)
+            float playerBoundX = 6.0f;      // x coordinate of the player’s bound
+            float topBound = 5.5f;          // y coordinate of the top wall
+            float bottomBound = -5.5f;      // y coordinate of the bottom wall
+            float bounceMultiplier = 1.41f; // your bounce multiplier for top/bottom collisions
+
+            float predictedY = TrajectoryPredictor.PredictHitY(transform.position, newVelocity, playerBoundX, topBound, bottomBound, bounceMultiplier);
+
+            // You can now store this predictedY (for example in gameData or call a method on your player controller)
+            gameData.predictedHitY = predictedY;
+            Debug.Log("y pos:" + gameData.predictedHitY);
+
+            //float y = launchAngle(transform.position,
+            //                    col.transform.position,
+            //                    col.collider.bounds.size.y);
+
+            //Vector2 d = new Vector2(1, y).normalized;
+            //initVelocity(d * speed);
+
+            //gameData.events = Array.IndexOf(gameData.pongEvents, "enemyHit");
+            //gameData.targetSpwan = true;
         }
 
         if (col.gameObject.tag == "Player")
@@ -95,8 +117,6 @@ public class BallController : MonoBehaviour
             Vector2 d = new Vector2(-1, y).normalized;
             initVelocity(d * speed);
             gameData.events = Array.IndexOf(gameData.pongEvents, "playerHit");
-            gameData.targetSpwan = false;
-            gameData.isBallReached = false;
             
         }
         if (col.gameObject.name == "BottomBound")

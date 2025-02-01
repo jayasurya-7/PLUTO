@@ -59,6 +59,7 @@ public class MechanismSceneHandler : MonoBehaviour
 
     void Update()
     {
+        PlutoComm.sendHeartbeat();
         // Check if a scene change is needed.
         if (changeScene == true)
         {
