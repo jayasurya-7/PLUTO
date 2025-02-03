@@ -5,8 +5,6 @@ using UnityEngine.SceneManagement;
 
 public class TrjectoryPrection : MonoBehaviour
 {
-    // Start is called before the first frame update
-
     private Scene _simulationScene;
     private PhysicsScene2D _physicsScene;
     [SerializeField] private Transform[] _obstaclesParent;
@@ -16,7 +14,6 @@ public class TrjectoryPrection : MonoBehaviour
         createPhysicsScene();
     }
 
-    // Update is called once per frame
     void Update()
     {
 
@@ -29,19 +26,14 @@ public class TrjectoryPrection : MonoBehaviour
 
         foreach (Transform obj in _obstaclesParent)
         {
-            Debug.Log("hello");
             var ghostObj = Instantiate(obj.gameObject, obj.position, obj.rotation);
             if (ghostObj.GetComponent<Renderer>())
             {
                 ghostObj.GetComponent<Renderer>().enabled = false;
             }
-
-
             SceneManager.MoveGameObjectToScene(ghostObj, _simulationScene);
         }
     }
-
-
     [SerializeField] private LineRenderer _line;
     [SerializeField] private int _maxPhysicsFrameIterations;
     public void SimulateTrajectory(Vector2 pos, Vector2 velocity)
@@ -68,8 +60,6 @@ public class TrjectoryPrection : MonoBehaviour
             _line.SetPosition(i, ghostObj.transform.position);
         }
         Destroy(ghostObj);
-
-
     }
 
 

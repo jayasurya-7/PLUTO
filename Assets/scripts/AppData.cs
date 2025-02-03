@@ -467,6 +467,7 @@ public static class gameData
     //AAN controller check
     public static bool isBallReached = false;
     public static bool targetSpwan = false;
+    public static bool isAROMEnabled = false;
     //game
     public static bool isGameLogging;
     public static string game;

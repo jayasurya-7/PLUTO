@@ -26,7 +26,15 @@ public class PongPlayerController : MonoBehaviour
     void Update()
     {
         //checkPlayerMovement();
+        if (gameData.isAROMEnabled)
+        {
+            this.transform.position = new Vector2(this.transform.position.x, playerMovementAreaAROM(PlutoComm.angle));
+            Debug.Log("arom exe");
+
+        }
+        else { 
         this.transform.position = new Vector2(this.transform.position.x, playerMovementArea(PlutoComm.angle));
+        }
     }
 
     public static float playerMovementArea(float angle)
@@ -34,6 +42,14 @@ public class PongPlayerController : MonoBehaviour
         ROM promAng = new ROM(AppData.selectedMechanism);
         float tmin = promAng.promTmin;
         float tmax = promAng.promTmax;
+        return Mathf.Clamp(-playSize + (angle - tmin) * (2 * playSize) / (tmax - tmin), bottomBound, topBound);
+    }
+
+    public static float playerMovementAreaAROM(float angle)
+    {
+        ROM aromAng = new ROM(AppData.selectedMechanism);
+        float tmin = aromAng.aromTmin;
+        float tmax = aromAng.aromTmax;
         return Mathf.Clamp(-playSize + (angle - tmin) * (2 * playSize) / (tmax - tmin), bottomBound, topBound);
     }
 

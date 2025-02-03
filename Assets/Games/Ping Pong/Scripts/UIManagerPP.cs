@@ -5,6 +5,7 @@ using UnityEngine.SocialPlatforms;
 using UnityEditor.SceneManagement;
 using NeuroRehabLibrary;
 using UnityEngine.Analytics;
+using UnityEngine.UI;
 
 
 public class UIManagerPP : MonoBehaviour
@@ -19,8 +20,16 @@ public class UIManagerPP : MonoBehaviour
     public int win;
     private bool isPaused = true;
     private float gameMoveTime = 0f;
-    private float lastTimestamp = 0f;       // Last recorded time for time scale changes
-
+    private float lastTimestamp = 0f;       
+    public Toggle aromRange;
+    private bool imageOff = true;
+    private bool imageOffx = true;
+    public Image targetImage;
+    private int randomTargetIndex;
+    private int ps;
+    private int es;
+    private int spawnCounter = 0;
+    private System.Random random = new System.Random();
     private GameSession currentGameSession;
 
     void Start()
@@ -35,11 +44,11 @@ public class UIManagerPP : MonoBehaviour
         if (!AppData.runIndividualGame) {
             StartNewGameSession();
         }
-        //PlutoComm.calibrate(AppData.selectedMechanism);
-        //if(gameData.successRate != 0)
-        //{
-        //    gameData.successRate = 0;
-        //}
+        if (aromRange!= null)
+        {
+            aromRange.onValueChanged.AddListener(OnToggleSpawnArea);
+        }
+        randomTargetIndex = random.Next(1, gameData.winningScore);
     }
     void Update()
     {
@@ -82,14 +91,42 @@ public class UIManagerPP : MonoBehaviour
             }
             isPressed = false;  
         }
-        if (gameData.playerScore > 0 && gameData.playerScore < 11)
+        if (gameData.playerScore > 0 && gameData.playerScore < gameData.winningScore + 1)
         {
            // Debug.Log((float)gameData.playerScore / 10+ " scrorrr");
-            gameData.successRate = (float)gameData.playerScore / 10;
+            gameData.successRate = (float)gameData.playerScore / gameData.winningScore;
           //  Debug.Log((float)gameData.successRate+" scrorrr");
+        }
+        bool isPlayerAtTarget = (gameData.playerScore == randomTargetIndex);
+        bool isEnemyAtTarget = (gameData.enemyScore == randomTargetIndex);
+
+        if ((isPlayerAtTarget || isEnemyAtTarget) && imageOffx)
+        { 
+            ps=gameData.playerScore;
+            es=gameData.enemyScore;
+            imageOffx = false;        
+        }
+
+            if ((isPlayerAtTarget || isEnemyAtTarget) && imageOff)
+        {
+            if ((ps !=gameData.playerScore)||(es!=gameData.enemyScore))
+            { 
+                imageOff = false;
+            }
+            
+            targetImage.gameObject.SetActive(true);
+        }
+        else
+        {
+            targetImage.gameObject.SetActive(false);
         }
     }
 
+    private void OnToggleSpawnArea(bool isEnabled)
+    {
+        gameData.isAROMEnabled = isEnabled;
+        PlutoComm.setControlType("NONE");
+    }
 
     private void CheckGameEndConditions()
     {
@@ -250,5 +287,6 @@ public class UIManagerPP : MonoBehaviour
             SessionManager.Instance.moveTime(movetime, currentGameSession);
             SessionManager.Instance.EndGameSession(currentGameSession);
         }
+        gameData.isAROMEnabled = false; 
     }
 }

@@ -1,7 +1,7 @@
 ﻿using System.Collections;
 using System.Collections.Generic;
 using UnityEngine;
-
+using UnityEngine.UI;
 public class FlappyColumnPool : MonoBehaviour
 {
     enum AssessStates
@@ -26,7 +26,10 @@ public class FlappyColumnPool : MonoBehaviour
     private int CurrentColumn = 0;
     private GameObject[] top;
     private GameObject[] bottom;
-
+    public Image targetImage;
+    private int randomTargetIndex;
+    private int spawnCounter = 0;
+    private System.Random random = new System.Random();
 
     public  int difficultyLevel =10;
     bool setup;
@@ -50,7 +53,7 @@ public class FlappyColumnPool : MonoBehaviour
        // _state = 0;
 
         setup = false;
-        
+        randomTargetIndex= random.Next(1,11);
 
 
     }
@@ -93,6 +96,14 @@ public class FlappyColumnPool : MonoBehaviour
         // FB_spawnTargets.instance.trailDuration = 10f / -FlappyGameControl.instance.scrollSpeed;
 
         FlappyGameControl.instance.scrollSpeed = -2 - 2 * (.1f + gameData.gameSpeedTT);
+        if(spawnCounter == randomTargetIndex) {
+            targetImage.gameObject.SetActive(true);
+            Debug.Log("Displaying the target image!");
+        }
+        else
+        {
+            targetImage.gameObject.SetActive(false);
+        }
     }
 
     public void chooseBackground()
@@ -108,6 +119,7 @@ public class FlappyColumnPool : MonoBehaviour
         if (!FlappyGameControl.instance.gameOver && prevSpawnTime > 2)
         {
             prevSpawnTime = 0;
+            spawnCounter++;
             // timeSinceLastSpawn = 0;
             //  float spawnYposition = Random.Range(columnMin, ColumnMax);
 

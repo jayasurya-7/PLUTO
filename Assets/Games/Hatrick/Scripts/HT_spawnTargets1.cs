@@ -190,7 +190,6 @@ public class HT_spawnTargets1 : MonoBehaviour
     {
         if (isInPROM(targetAngle))
         {
-
             int val = onceReached || reached ? 1 : 0;
             Debug.Log(val);
             for (int i = 0; i < successRate.Length; i++)

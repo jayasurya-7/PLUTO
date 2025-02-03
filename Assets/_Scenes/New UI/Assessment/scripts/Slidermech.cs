@@ -8,7 +8,6 @@ public class Slidermech : MonoBehaviour
 {
 
     public GameObject SingleSlider;
-    // Start is called before the first frame update
     void Start()
     {
         if(Array.IndexOf(PlutoComm.MECHANISMS, AppData.selectedMechanism) !=3)
@@ -20,7 +19,6 @@ public class Slidermech : MonoBehaviour
         }
     }
 
-    // Update is called once per frame
     void Update()
     {
         

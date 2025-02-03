@@ -79,7 +79,12 @@ public class BirdControl : MonoBehaviour
                 anime.SetTrigger("Idle");
                 columnHit = false;
             }
+            if (gameData.isAROMEnabled) { 
+            targetAngle = approxRollingAverage(targetAngle, playerMovementAreaAROM(PlutoComm.angle));
+            }
+            else { 
             targetAngle = approxRollingAverage(targetAngle, Angle2Screen(PlutoComm.angle));
+            }
             transform.position = new Vector2(Mathf.SmoothStep(-13, -7, startTime / 2), Mathf.Clamp(targetAngle, -2.5f, 7));
         }
         else if (FGC.gameOver)
@@ -175,7 +180,6 @@ public class BirdControl : MonoBehaviour
 
                 FlappyGameControl.instance.gameduration = -1;
                 FlappyGameControl.instance.gameOver = true;
-                //FlappyGameControl.instance.BirdDied();
                 anime.SetTrigger("Die");
                 isDead = true;
                 anime.SetTrigger("Die");
@@ -189,14 +193,21 @@ public class BirdControl : MonoBehaviour
         ROM promAng = new ROM(AppData.selectedMechanism);
         float tmin = promAng.promTmin;
         float tmax = promAng.promTmax;
-        Debug.Log(tmin + "+" + tmax);
 
-        //return (-2.3f + (angle - tmin) * (playSize) / (tmax - tmin));
         return (-playSize + (angle - tmin) * (2 * playSize) / (tmax - tmin));
 
 
 
 
+    }
+
+
+    public static float playerMovementAreaAROM(float angle)
+    {
+        ROM aromAng = new ROM(AppData.selectedMechanism);
+        float tmin = aromAng.aromTmin;
+        float tmax = aromAng.aromTmax;
+        return (-playSize + (angle - tmin) * (2 * playSize) / (tmax - tmin));
     }
 
 

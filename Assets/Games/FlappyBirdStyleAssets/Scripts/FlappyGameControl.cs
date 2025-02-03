@@ -28,6 +28,7 @@ public class FlappyGameControl : MonoBehaviour
     private GameSession currentGameSession;
     private float gameMoveTime = 0f;
     private float lastTimestamp = 0f;       // Last recorded time for time scale changes
+    public Toggle aromRange;
 
     public BirdControl bc;
     void Awake()
@@ -39,6 +40,10 @@ public class FlappyGameControl : MonoBehaviour
         else if (instance != null)
         {
             Destroy(gameObject);
+        }
+        if (aromRange != null)
+        {
+            aromRange.onValueChanged.AddListener(OnToggleSpawnArea);
         }
 
     }
@@ -108,6 +113,12 @@ public class FlappyGameControl : MonoBehaviour
         gameData.moveTime = gameMoveTime;
 
     }
+    private void OnToggleSpawnArea(bool isEnabled)
+    {
+        gameData.isAROMEnabled = isEnabled;
+        PlutoComm.setControlType("NONE");
+        Debug.Log("not done");
+    }
 
     public void showPaused()
     {
@@ -137,8 +148,6 @@ public class FlappyGameControl : MonoBehaviour
     }
     public void BirdScored()
     {
-
-
         if (gameduration < 0 && !endValSet)
         {
          
@@ -274,6 +283,7 @@ public class FlappyGameControl : MonoBehaviour
             SessionManager.Instance.moveTime(movetime, currentGameSession);
             SessionManager.Instance.EndGameSession(currentGameSession);
         }
+        gameData.isAROMEnabled = false; 
     }
 
 }
