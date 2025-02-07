@@ -12,9 +12,9 @@ public class BirdControl : MonoBehaviour
     // player controls
 
     public static float playSize;
-    public static int FlipAngle = 1;
-    public static float tempRobot, tempBird;
-    public bool set = false;
+    static int FlipAngle = 1;
+    static float tempRobot, tempBird;
+    bool set = false;
 
 
     int totalLife = 5;
@@ -22,10 +22,15 @@ public class BirdControl : MonoBehaviour
     bool columnHit;
     public Image life;
 
-    public float spriteBlinkingTimer = 0.0f;
-    public float spriteBlinkingMiniDuration = 0.1f;
-    public float spriteBlinkingTotalTimer = 0.0f;
-    public float spriteBlinkingTotalDuration = 2f;
+    
+    float spriteBlinkingTimer = 0.0f;
+    
+    float spriteBlinkingMiniDuration = 0.1f;
+    
+    float spriteBlinkingTotalTimer = 0.0f;
+    
+    float spriteBlinkingTotalDuration = 2f;
+    
     public bool startBlinking = false;
 
     float startTime;
@@ -34,9 +39,6 @@ public class BirdControl : MonoBehaviour
     float targetAngle;
     Rigidbody2D rig2D;
     public FlappyGameControl FGC;
-    //private Vector3 previousPlayerPosition;
-    //private float playerMovementTime = 0f;
-    //private Coroutine movementCoroutine;
     void Start()
     {
         rig2D = this.gameObject.GetComponent<Rigidbody2D>();
@@ -57,7 +59,6 @@ public class BirdControl : MonoBehaviour
     {
        
         gameData.events = Array.IndexOf(gameData.tukEvents, "moving");
-        //Debug.Log("ang1 :" + PlutoComm.angle);
         //checkPlayerMovement();
 
 
@@ -70,10 +71,8 @@ public class BirdControl : MonoBehaviour
             SpriteBlinkingEffect();
 
         }
-        //Debug.Log(AppData.plutoData.angle);
         if (!isDead && !FGC.gameOver)
-        {//
-         // 
+        {
             if (columnHit)
             {
                 anime.SetTrigger("Idle");
@@ -153,11 +152,11 @@ public class BirdControl : MonoBehaviour
             spriteBlinkingTimer = 0.0f;
             if (this.gameObject.GetComponent<SpriteRenderer>().enabled == true)
             {
-                this.gameObject.GetComponent<SpriteRenderer>().enabled = false;  //make changes
+                this.gameObject.GetComponent<SpriteRenderer>().enabled = false;  
             }
             else
             {
-                this.gameObject.GetComponent<SpriteRenderer>().enabled = true;   //make changes
+                this.gameObject.GetComponent<SpriteRenderer>().enabled = true;   
             }
         }
     }
@@ -194,8 +193,9 @@ public class BirdControl : MonoBehaviour
         float tmin = promAng.promTmin;
         float tmax = promAng.promTmax;
 
-        return (-playSize + (angle - tmin) * (2 * playSize) / (tmax - tmin));
+        //return (-playSize + (angle - tmin) * (2 * playSize) / (tmax - tmin));
 
+        return Mathf.Lerp(-playSize, playSize, (angle - tmin) / (tmax - tmin));
 
 
 
@@ -208,6 +208,7 @@ public class BirdControl : MonoBehaviour
         float tmin = aromAng.aromTmin;
         float tmax = aromAng.aromTmax;
         return (-playSize + (angle - tmin) * (2 * playSize) / (tmax - tmin));
+
     }
 
 

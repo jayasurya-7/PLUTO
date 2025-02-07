@@ -8,13 +8,12 @@ public class BallController : MonoBehaviour
 {
 
     //speed of the ball
-    public static float speed = 3.0F;
+    static float speed = 3.0F;
 
     //the initial direction of the ball
     private Vector2 spawnDir;
 
     Vector2 preVel;
-    //ball's components
     Rigidbody2D rig2D;
 
     public AudioClip[] audioClips;
@@ -76,7 +75,6 @@ public class BallController : MonoBehaviour
         {
             // Compute the launch angle based on where the ball hit the paddle.
             float y = launchAngle(transform.position, col.transform.position, col.collider.bounds.size.y);
-            // Create a new direction vector. (Here, x is positive because the ball heads toward the player.)
             Vector2 d = new Vector2(1, y).normalized;
             Vector2 newVelocity = d * speed;
             initVelocity(newVelocity);
@@ -84,8 +82,6 @@ public class BallController : MonoBehaviour
             gameData.events = Array.IndexOf(gameData.pongEvents, "enemyHit");
             gameData.targetSpwan = true;
 
-            // Now predict where the ball will hit on the player's bound.
-            // (Adjust these values as appropriate for your game.)
             float playerBoundX = 6.0f;      // x coordinate of the player’s bound
             float topBound = 5.5f;          // y coordinate of the top wall
             float bottomBound = -5.5f;      // y coordinate of the bottom wall
@@ -93,19 +89,8 @@ public class BallController : MonoBehaviour
 
             float predictedY = TrajectoryPredictor.PredictHitY(transform.position, newVelocity, playerBoundX, topBound, bottomBound, bounceMultiplier);
 
-            // You can now store this predictedY (for example in gameData or call a method on your player controller)
             gameData.predictedHitY = predictedY;
             Debug.Log("y pos:" + gameData.predictedHitY);
-
-            //float y = launchAngle(transform.position,
-            //                    col.transform.position,
-            //                    col.collider.bounds.size.y);
-
-            //Vector2 d = new Vector2(1, y).normalized;
-            //initVelocity(d * speed);
-
-            //gameData.events = Array.IndexOf(gameData.pongEvents, "enemyHit");
-            //gameData.targetSpwan = true;
         }
 
         if (col.gameObject.tag == "Player")

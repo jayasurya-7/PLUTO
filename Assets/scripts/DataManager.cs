@@ -29,12 +29,12 @@ public static class DataManager
 {
     public static readonly string directoryPath = Application.dataPath + "/data";
     static string directoryPathConfig;
-    public static string directoryPathSession;
+    public static string directoryPathSession { get; private set; }
     static string directoryPathRawData;
-    //public static string directoryMechData;
-    public static string directoryAROMData;
-    public static string directoryAPROMData;
-    public static string filePathConfigData = directoryPath + "/configdata.csv";
+    public static string directoryAROMData { get; private set; }
+    public static string directoryAPROMData { get; private set; }
+
+    public static readonly string filePathConfigData = directoryPath + "/configdata.csv";
     public static string filePathSessionData { get; private set; }
 
     public static void createFileStructure()
@@ -43,16 +43,12 @@ public static class DataManager
         directoryPathSession = directoryPath + "/sessions";
         directoryPathRawData = directoryPath + "/rawdata";
         directoryAPROMData = directoryPath + "/ROM";
-        //directoryAROMData = directoryMechData + "/AROM";
-       // directoryAPROMData = directoryMechData + "/APROM";
-        filePathConfigData = directoryPath + "/configdata.csv";
         filePathSessionData = directoryPathSession + "/sessions.csv";
         // Check if the directory exists
         if (Directory.Exists(directoryPath) && (!Directory.Exists(directoryPathSession) ) && (!Directory.Exists(directoryPathRawData)))
         {
             Directory.CreateDirectory(directoryPathSession);
             Directory.CreateDirectory(directoryPathRawData);
-            //File.Create(filePathConfigData).Dispose();
             Debug.Log("Directory created at: " + directoryPath);
         }
         else if (!Directory.Exists(directoryPath))
@@ -93,7 +89,6 @@ public static class DataManager
         return dTable;
     }
 }
-/* Application Level Logger Class */
 public enum LogMessageType
 {
     INFO,

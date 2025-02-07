@@ -27,11 +27,11 @@ public class welcomSceneHandler : MonoBehaviour
     public Image[] pies = new Image[7];
     public bool piChartUpdated = false; 
     private DaySummary[] daySummaries;
-    public static bool changeScene = false; 
     public readonly string nextScene = "chooseMechanism";
 
     // Private variables
     private bool attachPlutoButtonEvent = false;
+    bool changeScene = false;
 
     // Start is called before the first frame update
     void Start()
@@ -71,7 +71,6 @@ public class welcomSceneHandler : MonoBehaviour
         
     }
 
-    // Update is called once per frame
     void Update()
     {
        // PlutoComm.sendHeartbeat();
@@ -99,7 +98,8 @@ public class welcomSceneHandler : MonoBehaviour
     {
         AppLogger.LogInfo($"Switching to the next scene '{nextScene}'.");
         SceneManager.LoadScene(nextScene);
-    }
+    } 
+
 
     private void UpdateUserData()
     {

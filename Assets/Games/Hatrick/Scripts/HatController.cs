@@ -45,7 +45,6 @@ public class HatController : MonoBehaviour
 
         //checkPlayerMovement();
 
-        // used this to store events because ball and bomb is destroyed continuously so that its an easy way to solve the events problem
         if (gameData.moving) 
         { 
             gameData.events = Array.IndexOf(gameData.hatEvents, "moving");

@@ -37,7 +37,6 @@ public class BaallTrajectoryPlotter : MonoBehaviour
     private void FixedUpdate()
     {
         ballVelocity = GetComponent<Rigidbody2D>().velocity;
-        //Debug.Log(transform.position.x);
 
         if (transform.position.x < 5 && ballVelocity.x > 0 && transform.position.x > -5)
         {
@@ -75,11 +74,6 @@ public class BaallTrajectoryPlotter : MonoBehaviour
             lineRenderer.SetPosition(lineRenderer.positionCount - 1, hit.point);
 
 
-
-
-
-            // Debug.Log(hit.collider.tag);
-
             if (hit.collider.tag == "Player")
             {
                 ishittingplayer = true;
@@ -96,17 +90,12 @@ public class BaallTrajectoryPlotter : MonoBehaviour
                 ballDistance = maxLength - remainingLength;
 
 
-                ///Debug.Log(hit.point+ "," + remainingLength);
                 break;
             }
             else
             {
                 ishittingplayer = false;
-
-                // lineRenderer.positionCount += 1;
-                //lineRenderer.SetPosition(lineRenderer.positionCount - 1, hit.point);
                 Vector2 reflect = Vector2.Reflect(ray.direction, hit.normal);
-                //Debug.Log("newray" + hit.point + "," + reflect);
                 ray = new Ray2D(hit.point + reflect, reflect);
 
             }

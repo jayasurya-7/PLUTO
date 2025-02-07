@@ -368,7 +368,6 @@ public static class PlutoComm
 
     public static void setControlType(string controlType)
     {
-        //Debug.Log("ctype :"+ controlType);
         JediComm.SendMessage(
             new byte[] {
                 (byte)INDATATYPECODES[Array.IndexOf(INDATATYPE, "SET_CONTROL_TYPE")],
@@ -379,8 +378,6 @@ public static class PlutoComm
 
     public static void setControlTarget(float target)
     {
-       // Debug.Log("called"+ controlType);
-        //Debug.Log("called x" + target);
         byte[] targetBytes = BitConverter.GetBytes(target);
         JediComm.SendMessage(
             new byte[] {
@@ -395,8 +392,6 @@ public static class PlutoComm
 
     public static void setControlBound(float ctrlBound)
     {
-        //Debug.Log("DIR ctrl :" + ctrlBound);
-        // Limit the value to be between 0 and 1.
         ctrlBound = Math.Max(0, Math.Min(1, ctrlBound));
         byte _ctrlboundbyte = (byte)(ctrlBound * 255);
         JediComm.SendMessage(
@@ -410,8 +405,6 @@ public static class PlutoComm
 
     public static void setControlDir(sbyte ctrlDir)
     {
-        //Debug.Log("DIR :"+ ctrlDir);
-        // Limit the value to be between 0 and 1.
         if ((ctrlDir != 1) && (ctrlDir != -1))
         {
             ctrlDir = 0;

@@ -47,10 +47,9 @@ public class FlappyColumnPool : MonoBehaviour
             Destroy(gameObject);
         }
     }
-    // Start is called before the first frame update
+
     void Start()
     {
-       // _state = 0;
 
         setup = false;
         randomTargetIndex= random.Next(1,11);
@@ -58,15 +57,12 @@ public class FlappyColumnPool : MonoBehaviour
 
     }
 
-    // Update is called once per frame
     void Update()
     {
         prevSpawnTime += Time.deltaTime;
         if (!setup)
         {
-            // Debug.Log(AppData.startGameLevel);
             int y = Random.Range(0, 3);
-            Debug.Log("state:" + y);
             _state = y;
            
             FlappyColumnPool.instance.difficultyLevel = 6;
@@ -78,22 +74,9 @@ public class FlappyColumnPool : MonoBehaviour
             top = GameObject.FindGameObjectsWithTag("Top");
 
             chooseBackground();
-            //FlappyColumnPool.instance.difficultyLevel = 6;
-
-            //foreach (GameObject g in top)
-            //{
-            //    g.transform.localPosition = new Vector3(g.transform.localPosition.x, Mathf.Clamp((10 - difficultyLevel) * .25f, 0, 0), 0);
-            //}
-            //bottom = GameObject.FindGameObjectsWithTag("Bottom");
-
-            //foreach (GameObject g in bottom)
-            //{
-            //    g.transform.localPosition = new Vector3(g.transform.localPosition.x, -Mathf.Clamp((10 - difficultyLevel) * .25f, 0,0), 0);
-            //}
             FlappyGameControl.instance.scrollSpeed = -2 - 1 * .1f;
             setup = true;
         }
-        // FB_spawnTargets.instance.trailDuration = 10f / -FlappyGameControl.instance.scrollSpeed;
 
         FlappyGameControl.instance.scrollSpeed = -2 - 2 * (.1f + gameData.gameSpeedTT);
         if(spawnCounter == randomTargetIndex) {
@@ -120,10 +103,6 @@ public class FlappyColumnPool : MonoBehaviour
         {
             prevSpawnTime = 0;
             spawnCounter++;
-            // timeSinceLastSpawn = 0;
-            //  float spawnYposition = Random.Range(columnMin, ColumnMax);
-
-            //   Debug.Log(CurrentColumn);
             float x = Random.Range(1, 7);
             columns[CurrentColumn].transform.position = new Vector2(BirdControl.rb2d.transform.position.x+ spawnXposition, FB_spawnTargets.instance.TargetSpawn().y);
             columns[CurrentColumn].tag = "Target";

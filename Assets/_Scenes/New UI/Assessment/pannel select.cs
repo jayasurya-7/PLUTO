@@ -29,10 +29,8 @@ public class assessmentSceneHandler : MonoBehaviour
     static int steps = 10;
     public static float[] assistProfile = new float[steps];
 
-    //public ToggleGroup assistTG;
 
-
-    // Start is called before the first frame update
+  
     void Start()
     {
         //AppData.initializeStuff();
@@ -47,8 +45,6 @@ public class assessmentSceneHandler : MonoBehaviour
     void Update()
     {
         PlutoComm.sendHeartbeat();
-        //Debug.Log(assistTG.ActiveToggles().FirstOrDefault().gameObject.name);
-      //  Debug.Log("device ang2: " + PlutoComm.angle);
     }
 
     
@@ -123,35 +119,6 @@ public class assessmentSceneHandler : MonoBehaviour
             obj.SetActive(status);
         }
     }
-    //  public void UpdateAssistProfile()
-    //{
-    //    float assist = 0;
-
-    //    switch (assistTG.ActiveToggles().FirstOrDefault().gameObject.name)
-    //    {
-    //        case "LOW":
-    //            assist = 0.2f;
-    //            break;
-    //        case "MEDIUM":
-    //            assist = 0.6f;
-    //            break;
-    //        case "HIGH":
-    //            assist = 1f;
-    //            break;
-    //        default:
-    //            Debug.LogWarning("Unknown toggle selected");
-    //            break;
-    //    }
-
-    //    for (int i = 0; i < assistProfile.Length; i++)
-    //    {
-    //        assistProfile[i] = assist;
-    //    }
-
-    //    Debug.Log("Assist array updated");
-
-
-    //}
     public void chanceMech()
     {
         SceneManager.LoadScene("chooseMechanism");

@@ -144,7 +144,7 @@ public class FlappyGameControl : MonoBehaviour
             GameOverText.GetComponent<Text>().text = "Try Again";
         GameOverText.SetActive(true);
         gameOver = true;
-
+         EndCurrentGameSession();
     }
     public void BirdScored()
     {
@@ -164,8 +164,8 @@ public class FlappyGameControl : MonoBehaviour
             }
             gameOver = true;
             Debug.Log(win);
-         
-     ;
+
+           
             score = 0;
             BirdDied();
         }
@@ -228,7 +228,7 @@ public class FlappyGameControl : MonoBehaviour
         lastTimestamp = Time.unscaledTime;
         start.SetActive(false);
         Time.timeScale = 1;
-        EndCurrentGameSession();
+       
     }
 
     public void continueButton() {

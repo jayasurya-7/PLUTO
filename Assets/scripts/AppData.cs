@@ -44,13 +44,13 @@ public static class AppData
     public static float promTmin=0f;
     public static float promTmax=0f;
 
-    // Counts to keep track of time for different GUI updatess
-    public static int[] count = new int[] { 0, 0 };
-    private static int[] _Th;
-    public static int[] Th
-    {
-        get { return new int[] { 10, 50, }; }
-    }
+    //// Counts to keep track of time for different GUI updatess
+    //public static int[] count = new int[] { 0, 0 };
+    //private static int[] _Th;
+    //public static int[] Th
+    //{
+    //    get { return new int[] { 10, 50, }; }
+    //}
     // Keeping track of time.
     static private double nanosecPerTick = 1.0 / Stopwatch.Frequency;
     static private Stopwatch stp_watch = new Stopwatch();
@@ -60,8 +60,9 @@ public static class AppData
     }
     //Options to drive 
     public static string trainingSide = null;
-    public static string selectedMechanism;
+    public static string selectedMechanism=null;
     public static string selectedGame = null;
+    //handling the data
     public static int currentSessionNumber;
     public static string trialDataFileLocation;
 
@@ -72,7 +73,7 @@ public static class AppData
         DataManager.createFileStructure();
         ConnectToRobot.Connect(AppData.COMPort);
         UserData.readAllUserData();
-    PlutoComm.startSensorStream();
+        PlutoComm.startSensorStream();
     }
 
     // UserData Class
@@ -497,11 +498,11 @@ public static class gameData
     public static float predictedHitY;
     public static bool setNeutral = false;
     private static DataLogger dataLog;
-    private static string[] gameHeader = new string[] {
+    private static readonly string[] gameHeader = new string[] {
         "time","controltype","error","buttonState","angle","control",
         "target","playerPosY","enemyPosY","events","playerScore","enemyScore"
     };
-    private static string[] tukTukHeader = new string[] {
+    private static readonly string[] tukTukHeader = new string[] {
         "time","controltype","error","buttonState","angle","control",
         "target","playerPosx","events","playerScore"
     };
@@ -667,7 +668,7 @@ public class SubjectData
     public string age { get; private set; }
     public string sex { get; private set; }
     public string cond { get; private set; }
-    public String dur { get; private set; }
+    public String dur { get; private set; } 
     public string side = "right";
 
     public string remarks { get; private set; }

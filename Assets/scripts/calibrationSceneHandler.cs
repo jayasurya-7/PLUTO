@@ -54,7 +54,6 @@ public class calibrationSceneHandler : MonoBehaviour
             isCalibrating = false;
         }
         angText.text = PlutoComm.angle.ToString("F3");
-       // Debug.Log("angle :" + PlutoComm.angle);
     }
 
     private void PerformCalibration()
@@ -141,7 +140,7 @@ public class calibrationSceneHandler : MonoBehaviour
 
         if (!CheckPositionTogether(PlutoComm.angle, togetherAngle)) yield break;
         textMsg();
-        
+         
         Invoke("LoadNextScene", 0.4f);
     }
 

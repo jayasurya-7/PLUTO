@@ -83,11 +83,9 @@ public class FB_spawnTargets : MonoBehaviour
 
     }
 
-    // Start is called before the first frame update
     void Start()
     {
         PlutoComm.setControlType("POSITIONAAN");
-        //setPrameters();
         playSize = 2.3f + 5.5f;
         player = GameObject.FindGameObjectWithTag("Player");
     }
@@ -101,8 +99,6 @@ public class FB_spawnTargets : MonoBehaviour
         stopClock -= Time.deltaTime;
 
         RunTrialStateMachine();
-
-
 
         playerPosition = GameObject.FindGameObjectWithTag("Player").transform.position.y;
 
@@ -186,9 +182,7 @@ public class FB_spawnTargets : MonoBehaviour
         targetAngle = RandomAngle();
       
         targetPos.y = Angle2Screen(targetAngle);
-        Debug.Log("y :"+ targetPos.y);
         targetPosition=ScreenPositionToAngle(targetAngle);
-        //targetPosition= Angle2Screen(targetAngle);
         initialDirection = getDirection();
 
         target = GameObject.FindGameObjectWithTag("Target");
@@ -197,10 +191,14 @@ public class FB_spawnTargets : MonoBehaviour
     }
     private float ScreenPositionToAngle(float screenPosition)
     {
-        float calibAngleRange = PlutoComm.CALIBANGLE[PlutoComm.mechanism];
+        AppData.newPROM = new ROM(AppData.selectedMechanism);
+
+
+        float newPROM_tmin = AppData.newPROM.promTmin;
+        float newPROM_tmax = AppData.newPROM.promTmax;
         float angle = Mathf.Lerp(
-            -calibAngleRange / 2,
-            calibAngleRange / 2,
+            newPROM_tmin / 2,
+            newPROM_tmax/ 2,
             (screenPosition + playSize) / (2 * playSize)
         );
         return angle;

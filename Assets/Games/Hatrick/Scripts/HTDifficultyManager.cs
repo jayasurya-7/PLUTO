@@ -42,25 +42,7 @@ public class HTDifficultyManager : MonoBehaviour
     }
 
 
-    //void DifficultyManager(int win)
-    //{
-
-    //    if(Mathf.Sign(win) != Mathf.Sign(AppData.startGamePerformace))
-    //    {
-    //        AppData.endGamePerformace = 1;
-    //        AppData.endGameLevel = AppData.startGameLevel;
-    //    }
-    //    else
-    //    {
-    //        AppData.endGamePerformace = AppData.startGamePerformace + win;
-
-    //        if (Mathf.Abs(AppData.endGamePerformace) > 2 )
-    //        {
-    //            AppData.endGamePerformace = 0;
-    //            AppData.endGameLevel = AppData.startGameLevel + win;
-    //        }
-    //    }
-    //}
+ 
 
 
 }
