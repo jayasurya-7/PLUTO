@@ -26,7 +26,7 @@ public class ChooseGameSceneHandler : MonoBehaviour
     };
     private bool lisRunning = false;
     private bool targetReached = false; 
-    private const float targetTolerance = 10.0f; 
+    private const float targetTolerance = 3.0f; 
     private bool isRunning = false;
     
     private float targetAngle = 0;
@@ -79,7 +79,7 @@ public class ChooseGameSceneHandler : MonoBehaviour
         if (isRunning && !targetReached)
         {
             float currentAngle = PlutoComm.angle;
-            if (Mathf.Abs(currentAngle - targetAngle) <= targetTolerance)
+            if (Mathf.Abs(currentAngle - 0f) <= targetTolerance)
             {
                 targetReached = true;
                 isRunning = false;
@@ -87,15 +87,18 @@ public class ChooseGameSceneHandler : MonoBehaviour
                 Debug.Log($"Target reached: {currentAngle}. Control type set to NONE.");
             }
         }
+        //aromValue();
     }
+
 
     private IEnumerator SetMechanismToTargetAfterDelay(float delay)
     {
         yield return new WaitForSeconds(delay);
 
         PlutoComm.setControlType("POSITIONAAN");
-        PlutoComm.setControlBound(0.2f);
-        PlutoComm.setControlTarget(targetAngle);
+        PlutoComm.setControlBound(0.9f);
+        PlutoComm.setControlDir(1);
+        PlutoComm.setAANTarget(PlutoComm.angle, 0f, 0f, 2f);
         isRunning = true;
         
         Debug.Log($"Started moving mechanism to {targetAngle} degrees.");
@@ -136,6 +139,7 @@ public class ChooseGameSceneHandler : MonoBehaviour
         {
             LoadSelectedGameScene(selectedGame);
             toggleSelected = false;
+           
         }
         else
         {
@@ -162,7 +166,7 @@ public class ChooseGameSceneHandler : MonoBehaviour
             if (AppData.selectedMechanism != "HOC" && !gameData.setNeutral)
             {
                 gameData.setNeutral = true;
-                PlutoComm.calibrate(AppData.selectedMechanism); //its temp, needs to set 0 using control type 
+                //PlutoComm.calibrate(AppData.selectedMechanism); //its temp, needs to set 0 using control type 
             }
             SceneManager.LoadScene(sceneName);
         }

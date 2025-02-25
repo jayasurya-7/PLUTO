@@ -93,6 +93,7 @@ public class calibrationSceneHandler : MonoBehaviour
 
     IEnumerator autoCalibrateHOC()
     {
+
         textMessage.color = Color.black;
         textMessage.text = "Calibrating...";
 
@@ -123,22 +124,25 @@ public class calibrationSceneHandler : MonoBehaviour
         textMessage.text = "Calibrating...";
 
         float currentAngle = PlutoComm.angle;
-
-        ApplyTorque(currentAngle, togetherAngle);
+        float temp0 = -90f;
+        float temp1 = 90f;
+       // ApplyTorque(currentAngle, togetherAngle);
+        ApplyTorque(currentAngle, temp0);
         yield return new WaitForSeconds(1.5f);
 
         PlutoComm.calibrate(AppData.selectedMechanism);
 
-        ApplyTorqueToSep(PlutoComm.angle, separationAngle);
+        //ApplyTorqueToSep(PlutoComm.angle, separationAngle);
+        ApplyTorqueToSep(PlutoComm.angle, temp1);
 
         yield return new WaitForSeconds(1.5f); 
-        if (!CheckPositionSeparation(PlutoComm.angle, separationAngle)) yield break;
-        ApplyTorque(PlutoComm.angle, togetherAngle);
+        if (!CheckPositionSeparation(PlutoComm.angle, temp1)) yield break;
+        ApplyTorque(PlutoComm.angle, temp0);
 
 
         yield return new WaitForSeconds(1.5f);
 
-        if (!CheckPositionTogether(PlutoComm.angle, togetherAngle)) yield break;
+        if (!CheckPositionTogether(PlutoComm.angle, temp0)) yield break;
         textMsg();
          
         Invoke("LoadNextScene", 0.4f);

@@ -22,6 +22,9 @@ public class HatGameController : MonoBehaviour
     public Camera cam;
     public GameObject[] ball;
 
+    public GameObject aromLeft;
+    public GameObject aromRight;
+
     private Rigidbody2D rig2D;
     private float gameMoveTime = 0f;
     private float lastTimestamp = 0f;
@@ -47,6 +50,9 @@ public class HatGameController : MonoBehaviour
     private enum GameState { NotStarted, Playing, Paused, GameOver }
     private GameState currentState = GameState.NotStarted;
 
+    // Target Display Scaling
+    private const float xmax = 7f;
+    private float[] aRomValue;
     private enum DiscreteMovementTrialState { Rest,Moving }
     private DiscreteMovementTrialState trialState = DiscreteMovementTrialState.Rest;
 
@@ -102,11 +108,13 @@ public class HatGameController : MonoBehaviour
     void Start()
     {
         InitializeGame();
+       
     }
 
     void FixedUpdate()
     {
         PlutoComm.sendHeartbeat();
+        UI();
         Debug.Log(PlutoComm.CONTROLTYPE[PlutoComm.controlType]);
         //if (PlutoComm.CONTROLTYPE[PlutoComm.controlType] == "NONE" && !aromRangeSpawn) {
         //    PlutoComm.setControlType("POSITIONAAN");
@@ -148,7 +156,20 @@ public class HatGameController : MonoBehaviour
     }
 
 
-  private void RunTrialStateMachine()
+    private void UI()
+    {
+        aromLeft.transform.position = new Vector3(
+           (2 * aRomValue[0] / PlutoComm.CALIBANGLE[PlutoComm.mechanism]) * xmax,
+           aromLeft.transform.position.y,
+           aromLeft.transform.position.z
+       );
+        aromRight.transform.position = new Vector3(
+            (2 * aRomValue[1] / PlutoComm.CALIBANGLE[PlutoComm.mechanism]) * xmax,
+            aromRight.transform.position.y,
+            aromRight.transform.position.z
+        );
+    }
+    private void RunTrialStateMachine()
 {
     trialDuration += Time.deltaTime;
 
@@ -437,6 +458,7 @@ private void UpdatePositionTargetSmoothly()
         PlutoComm.OnButtonReleased += onPlutoButtonReleased;
         randomTargetIndex = random.Next(1, 11);
         Debug.Log("Random Target:" + randomTargetIndex);
+       
     }
     private float ScreenPositionToAngle(float screenPosition)
     {

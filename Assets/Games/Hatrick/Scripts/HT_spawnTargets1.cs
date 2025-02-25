@@ -276,43 +276,43 @@ public class HT_spawnTargets1 : MonoBehaviour
     }
    
 
-    float normalController(float amp)
-    {
-        float time = trailDuration - stopClock;
-        time = (time / trailDuration);
+    //float normalController(float amp)
+    //{
+    //    float time = trailDuration - stopClock;
+    //    time = (time / trailDuration);
 
-        //Debug.Log(amp);
-        if (dontAssistTrial)
-        {
-            prevTorq = 0;
-        }
-        else
-        {
-            if (Mathf.Abs(targetAngle - PlutoComm.angle) > 5 && initialDirection == getDirection() && !onceReached)
-            {
-                reduceOppositeTimer = 0;
-                prevTorq = Mathf.SmoothStep(initialTorque, amp, Mathf.Clamp(time, 0, trailDuration));
+    //    //Debug.Log(amp);
+    //    if (dontAssistTrial)
+    //    {
+    //        prevTorq = 0;
+    //    }
+    //    else
+    //    {
+    //        if (Mathf.Abs(targetAngle - PlutoComm.angle) > 5 && initialDirection == getDirection() && !onceReached)
+    //        {
+    //            reduceOppositeTimer = 0;
+    //            prevTorq = Mathf.SmoothStep(initialTorque, amp, Mathf.Clamp(time, 0, trailDuration));
 
-            }
-            else
-            {
-                onceReached = true;
+    //        }
+    //        else
+    //        {
+    //            onceReached = true;
 
-                if (Mathf.Abs(targetAngle - PlutoComm.angle) > 3)
-                {
-                    reduceOppositeTimer += Time.deltaTime;
-                    reduceOppositeTimer = Mathf.Min(reduceOppositeTimer, 3);
-                    if (Mathf.Abs(prevTorq) > 0.05)
-                        prevTorq = prevTorq + getDirection() * reduceOppositeTimer * 0.01f;
-                }
+    //            if (Mathf.Abs(targetAngle - PlutoComm.angle) > 3)
+    //            {
+    //                reduceOppositeTimer += Time.deltaTime;
+    //                reduceOppositeTimer = Mathf.Min(reduceOppositeTimer, 3);
+    //                if (Mathf.Abs(prevTorq) > 0.05)
+    //                    prevTorq = prevTorq + getDirection() * reduceOppositeTimer * 0.01f;
+    //            }
 
 
-            }
-        }
-        prevTorq = Mathf.Clamp(prevTorq, 0.03f, 0.04f);
+    //        }
+    //    }
+    //    prevTorq = Mathf.Clamp(prevTorq, 0.03f, 0.04f);
 
-        return prevTorq;
-    }
+    //    return prevTorq;
+    //}
    
 }
 

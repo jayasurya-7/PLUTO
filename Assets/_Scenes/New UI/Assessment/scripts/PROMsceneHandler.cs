@@ -130,7 +130,7 @@ public class PROMsceneHandler : MonoBehaviour {
 
             //Debug.Log("prom:" + AppData.oldPROM.tmin + "," + AppData.oldPROM.tmax);
             // angLimit = 95.42f;
-            angLimit = 140.42f;
+            angLimit = 120.42f;
             promSlider.Setup(-angLimit, angLimit, AppData.oldPROM.promTmin, AppData.oldPROM.promTmax);  // Centering the slider
    
 

@@ -28,10 +28,10 @@ public static class PlutoDefs
 public static class AppData
 {
     // COM Port for the device
-    public static readonly string COMPort = "COM5";
+    public static readonly string COMPort = "COM4";
     public static SubjectData subjd { get; private set; }
 
-    static public float[] offsetAtNeutral = new float[] { 70, 70, 90, 0, 90 , 90  };
+    static public float[] offsetAtNeutral = new float[] { 68, 68, 90, 0, 90 , 90  };
 
     // Old and new PROM
     public static ROM oldPROM;
@@ -39,6 +39,8 @@ public static class AppData
 
     public static ROM oldAROM;
     public static ROM newAROM;
+
+    public static float[] aRomValue;
     //temp storage for PROM min and max
 
     public static float promTmin=0f;

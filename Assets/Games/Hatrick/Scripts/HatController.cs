@@ -42,7 +42,7 @@ public class HatController : MonoBehaviour
 
         targetX = Angle2Screen(PlutoComm.angle);
         targetX = Mathf.Clamp(targetX, -maxwidth, maxwidth);
-
+                                      
         //checkPlayerMovement();
 
         if (gameData.moving) 

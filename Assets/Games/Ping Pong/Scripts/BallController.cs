@@ -117,9 +117,7 @@ public class BallController : MonoBehaviour
         {
             if (rig2D.velocity.y == 0)
             {
-                rig2D.velocity = new Vector2(rig2D.velocity.x, -Mathf.Abs(preVel.y));
-                
-
+                rig2D.velocity = new Vector2(rig2D.velocity.x, -Mathf.Abs(preVel.y));       
             }
             gameData.events = Array.IndexOf(gameData.pongEvents, "wallBounce");
         }

@@ -9,6 +9,7 @@ public class PongPlayerController : MonoBehaviour
     static float bottomBound = -4.5F;
     public float ballTrajetoryPrediction;
     public static float playSize;
+
     //private Vector3 previousPlayerPosition;
     //private float playerMovementTime = 0f;
     //private Coroutine movementCoroutine;
