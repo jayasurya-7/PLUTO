@@ -52,6 +52,30 @@ public class ChooseGameSceneHandler : MonoBehaviour
         AppLogger.SetCurrentGame("");
         AppData.UserData.CalculateGameSpeedForLastUsageDay();
         PlutoComm.OnButtonReleased += OnPlutoButtonReleased;
+
+        //tes
+        Debug.Log("AppData.selectedMechanism: " + AppData.selectedMechanism);
+        Debug.Log("AppData.aRomValue is " + (AppData.aRomValue == null ? "null" : "initialized"));
+
+        ROM vall = new ROM(AppData.selectedMechanism);
+        if (vall == null)
+        {
+            Debug.LogError("ROM instance failed to initialize!");
+        }
+        else
+        {
+            Debug.Log("ROM instance created successfully!");
+        }
+
+        if (AppData.aRomValue == null)
+            AppData.aRomValue = new float[2]; // Ensure array exists
+        AppData.pRomValue = new float[2];
+        AppData.aRomValue[0] = vall.aromTmin;
+        AppData.aRomValue[1] = vall.aromTmax;
+        AppData.pRomValue[0] = vall.promTmin;
+        AppData.pRomValue[1] = vall.promTmax;
+
+
         AttachToggleListeners();
         PlutoComm.setControlType("NONE");
         playButton.onClick.AddListener(OnPlayButtonClicked);
@@ -72,8 +96,8 @@ public class ChooseGameSceneHandler : MonoBehaviour
         }
         if (Input.GetKey(KeyCode.LeftControl) && Input.GetKeyDown(KeyCode.R))
         {
-            assessment();
-           //SceneManager.LoadScene("Assessment");
+            //assessment();
+           SceneManager.LoadScene("Assessment");
         }
 
         if (isRunning && !targetReached)

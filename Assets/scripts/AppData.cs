@@ -40,7 +40,8 @@ public static class AppData
     public static ROM oldAROM;
     public static ROM newAROM;
 
-    public static float[] aRomValue;
+    public static float[] aRomValue=new float[2];
+    public static float[] pRomValue =new float[2];
     //temp storage for PROM min and max
 
     public static float promTmin=0f;
