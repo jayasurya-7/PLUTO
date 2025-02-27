@@ -46,6 +46,7 @@ public class GamelogHT : MonoBehaviour
 
         fileName = Path.Combine(dir, $"{AppData.selectedMechanism}_{AppData.selectedGame}_{dateTime}.csv");
         AppData.trialDataFileLocation = fileName;
+        AppData.trialDataFileLocation1= Path.Combine(dir, $"{AppData.selectedMechanism}_{AppData.selectedGame}_{dateTime}");
         Debug.Log(fileName);
         File.Create(fileName).Dispose();
     }
@@ -58,10 +59,12 @@ public class GamelogHT : MonoBehaviour
             if (Player != null)
             {
                 gameData.playerPos = Player.transform.position.x.ToString();
+                //Debug.Log("gameData:" + gameData.playerPos);
             }
             else
             { int x = 0;
                 gameData.playerPos = x.ToString();
+               // Debug.Log("gameData:"+ gameData.playerPos); 
             }
             gameData.LogDataHT();
         }

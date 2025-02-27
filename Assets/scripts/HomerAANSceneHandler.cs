@@ -134,7 +134,9 @@ public class Homer_AAN_SceneHandler : MonoBehaviour
         // Attach callbacks
         AttachControlCallbacks();
         // Connect to the robot.
-        ConnectToRobot.Connect(AppData.COMPort);
+        if (JediComm.serPort.IsOpen == false) { 
+            ConnectToRobot.Connect(AppData.COMPort);
+        }
         // Get device version.
         PlutoComm.getVersion();
         // First make sure the robot is not in any control mode
@@ -150,6 +152,7 @@ public class Homer_AAN_SceneHandler : MonoBehaviour
     // Update is called once per frame
     void Update()
     {
+        Debug.Log($"{aRomValue[0]}, {aRomValue[1]}");
         // PLUTO heartbeat.
         PlutoComm.sendHeartbeat();
 
@@ -191,7 +194,6 @@ public class Homer_AAN_SceneHandler : MonoBehaviour
         bool _statetimeout = _deltime >= stateDurations[(int)_trialState];
         // Time when target is reached.
         bool _intgt = Math.Abs(_trialTarget - PlutoComm.angle) <= 5.0f;
-        Debug.Log(_statetimeout);
         switch (_trialState)
         {
             case DiscreteMovementTrialState.Rest:
@@ -297,7 +299,7 @@ public class Homer_AAN_SceneHandler : MonoBehaviour
         btnStartStop.onClick.AddListener(delegate { OnStartStopDemo(); });
 
         // PLUTO Diagnostics Button click.
-        btnDiagnsotics.onClick.AddListener(() => SceneManager.LoadScene(6));
+        btnDiagnsotics.onClick.AddListener(() => SceneManager.LoadScene("plutoDiagnostics"));
 
         // Listen to PLUTO's event
         PlutoComm.OnButtonReleased += onPlutoButtonReleased;
@@ -566,7 +568,6 @@ public class Homer_AAN_SceneHandler : MonoBehaviour
             
         // Enable/Disable control panel.
         string _mech = PlutoComm.MECHANISMS[PlutoComm.mechanism];
-        Debug.Log(_mech);
         string _ctrlType = PlutoComm.CONTROLTYPE[PlutoComm.controlType];
 
         // Display AROM/PROM markers.

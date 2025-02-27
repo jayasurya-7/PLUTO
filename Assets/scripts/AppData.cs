@@ -29,7 +29,6 @@ public static class AppData
 {
     // COM Port for the device
     public static readonly string COMPort = "COM4";
-    public static SubjectData subjd { get; private set; }
 
     static public float[] offsetAtNeutral = new float[] { 68, 68, 90, 0, 90 , 90  };
 
@@ -68,6 +67,8 @@ public static class AppData
     //handling the data
     public static int currentSessionNumber;
     public static string trialDataFileLocation;
+    public static string trialDataFileLocation1;
+
 
     //change true to run game from choosegamescene
     public static bool runIndividualGame = false;
@@ -580,7 +581,7 @@ public static class gameData
     static public void LogData()
     {
         // Log only if the current data is SENSORSTREAM
-        if (PlutoComm.SENSORNUMBER[PlutoComm.dataType] == 4)
+        if (PlutoComm.SENSORNUMBER[PlutoComm.dataType] == 5)
         {
             string[] _data = new string[] {
                PlutoComm.currentTime.ToString(),
@@ -603,7 +604,7 @@ public static class gameData
     }
     static public void LogDataHT()
     {
-        if (PlutoComm.SENSORNUMBER[PlutoComm.dataType] == 4)
+        if (PlutoComm.SENSORNUMBER[PlutoComm.dataType] == 5)
         {
             string[] _data = new string[] {
                PlutoComm.currentTime.ToString(),
@@ -649,6 +650,14 @@ public class DataLogger
         if (log)
         {
             UnityEngine.Debug.Log("Stored");
+            if(fileData != null)
+            {
+                UnityEngine.Debug.Log("Data available");
+            }
+            else
+            {
+                UnityEngine.Debug.Log("Data not available");
+            }
             File.AppendAllText(currFileName, fileData.ToString());
         }
         currFileName = "";
@@ -665,21 +674,164 @@ public class DataLogger
 }
 
 
-public class SubjectData
+public class AANDataLogger
 {
-    public string hospnum { get; private set; }
-    public string age { get; private set; }
-    public string sex { get; private set; }
-    public string cond { get; private set; }
-    public String dur { get; private set; } 
-    public string side = "right";
+    // AAN class
+    private HOMERPlutoAANController aanCtrler;
 
-    public string remarks { get; private set; }
-    public SubjectData()
+    // Target Display Scaling
+    private const float xmax = 12f;
+
+    // Logging related variables
+    private string fileNamePrefix = null;
+    private string logRawFileName = null;
+    private StreamWriter logRawFile = null;
+    private string logAdaptFileName = null;
+    private StreamWriter logAdaptFile = null;
+    private string logAanFileName = null;
+    private StreamWriter logAanFile = null;
+    private string _dataLogDir = AppData.trialDataFileLocation1;
+
+    private uint trialNo;
+
+    public AANDataLogger(HOMERPlutoAANController controller, uint trialNumber)
     {
+        aanCtrler = controller;
+        trialNo = trialNumber;
     }
 
+    public void OnNewPlutoData()
+    {
+        if (logRawFile == null) return;
 
+        string[] rowcomps = new string[]
+        {
+            $"{PlutoComm.runTime}",
+            $"{PlutoComm.packetNumber}",
+            $"{PlutoComm.status}",
+            $"{PlutoComm.dataType}",
+            $"{PlutoComm.errorStatus}",
+            $"{PlutoComm.controlType}",
+            $"{PlutoComm.calibration}",
+            $"{PlutoComm.mechanism}",
+            $"{PlutoComm.button}",
+            $"{PlutoComm.angle}",
+            $"{PlutoComm.torque}",
+            $"{PlutoComm.control}",
+            $"{PlutoComm.controlBound}",
+            $"{PlutoComm.controlDir}",
+            $"{PlutoComm.target}",
+            $"{PlutoComm.desired}",
+            $"{PlutoComm.err}",
+            $"{PlutoComm.errDiff}",
+            $"{PlutoComm.errSum}"
+        };
+        logRawFile.WriteLine(string.Join(", ", rowcomps));
+    }
 
+    public void WriteAanStateInfoRow()
+    {
+        if (logAanFile == null) return;
 
+        float[] _aantgtvals = aanCtrler.GetNewAanTarget();
+        string _aantgtdetails = _aantgtvals == null ? "" : string.Join("|", _aantgtvals);
+        int _stchng = aanCtrler.stateChange ? 1 : 0;
+
+        string[] rowcomps = new string[]
+        {
+            $"{PlutoComm.runTime}",
+            $"{aanCtrler.state}",
+            $"{_stchng}",
+            $"{_aantgtdetails}"
+        };
+        logAanFile.WriteLine(string.Join(", ", rowcomps));
+    }
+
+    public void OnDataLogChange()
+    {
+        CloseRawLogFile();
+        CloseAdaptLogFile();
+        logRawFile = null;
+        logAdaptFile = null;
+        fileNamePrefix = null;
+    }
+
+    public void UpdateLogFiles()
+    {
+        if (fileNamePrefix == null)
+        {
+            fileNamePrefix = $"{DateTime.Now:yyyy-MM-dd_HH-mm-ss}";
+        }
+        if (!Directory.Exists(_dataLogDir))
+        {
+            Directory.CreateDirectory(_dataLogDir + "/");
+        }
+        CloseRawAndAanLogFile();
+        CreateRawAndAanLogFile();
+    }
+
+    private void CreateRawAndAanLogFile()
+    {
+        string timestamp = DateTime.Now.ToString("yyyy/MM/dd HH-mm-ss.ffffff");
+
+        logRawFileName = $"rawlogfile_{trialNo:D3}.csv";
+        logRawFile = new StreamWriter(_dataLogDir + "/" + logRawFileName, false);
+        WriteHeader(logRawFile, timestamp);
+
+        logAanFileName = $"aanlogfile_{trialNo:D3}.csv";
+        logAanFile = new StreamWriter(_dataLogDir + "/" + logAanFileName, false);
+        WriteHeader(logAanFile, timestamp, new string[] { "time", "aanstate", "aanstatechange", "aantargetdetails" });
+    }
+
+    private void WriteHeader(StreamWriter file, string timestamp, string[] headers = null)
+    {
+        file.WriteLine($"DeviceID = {PlutoComm.deviceId}");
+        file.WriteLine($"FirmwareVersion = {PlutoComm.version}");
+        file.WriteLine($"CompileDate = {PlutoComm.compileDate}");
+        file.WriteLine($"Actuated = {PlutoComm.actuated}");
+        file.WriteLine($"Start Datetime = {timestamp}");
+
+        if (headers == null)
+        {
+            headers = new string[] { "time", "packetno", "status", "datatype", "errorstatus", "controltype", "calibration", "mechanism", "button", "angle", "torque", "control", "controlbound", "controldir", "target", "desired", "error", "errordiff", "errorsum" };
+        }
+        file.WriteLine(string.Join(", ", headers));
+    }
+
+    public void CloseRawLogFile()
+    {
+        logRawFile?.Close();
+        logRawFile = null;
+        logRawFileName = null;
+    }
+
+    public void CloseRawAndAanLogFile()
+    {
+        if (logRawFile != null)
+        {
+            logRawFile.Flush();
+            logRawFile.Close();
+            logRawFile.Dispose(); // Ensure resources are released
+            logRawFile = null;
+            logRawFileName = null;
+        }
+
+        if (logAanFile != null)
+        {
+            logAanFile.Flush();
+            logAanFile.Close();
+            logAanFile.Dispose(); // Ensure resources are released
+            logAanFile = null;
+            logAanFileName = null;
+        }
+    }
+
+    public void CloseAdaptLogFile()
+    {
+        logAdaptFile?.Close();
+        CloseRawLogFile();
+        fileNamePrefix = null;
+        logAdaptFile = null;
+        logAdaptFileName = null;
+    }
 }

@@ -19,6 +19,7 @@ public class HatGameController : MonoBehaviour
     public GameObject StartButton;
     public GameObject PauseButton;
     public GameObject ResumeButton;
+    public GameObject PlayerObj;
     public Camera cam;
     public GameObject[] ball;
 
@@ -109,9 +110,7 @@ public class HatGameController : MonoBehaviour
 
     // AAN class
     private HOMERPlutoAANController aanCtrler;
-
-
-
+    private AANDataLogger dlogger;
 
 
 
@@ -119,7 +118,7 @@ public class HatGameController : MonoBehaviour
     private float targetPosition;
     private float playerPosition;
     public bool targetSpwan= false;
-
+    private float ballFallingTime = 0f;
     private int outsideAromRangeCount = 0; 
     private int totalTargetsSpawned = 0;
 
@@ -210,14 +209,12 @@ public class HatGameController : MonoBehaviour
 
     private void UI()
     {
-        float x = Angle2Screen(AppData.aRomValue[0]);
-        float x1 = Angle2Screen(AppData.aRomValue[1]);
-        aromLeft.transform.position = new Vector3(x,
+        aromLeft.transform.position = new Vector3(Angle2Screen(AppData.aRomValue[0]),
            aromLeft.transform.position.y,
            aromLeft.transform.position.z
        );
         aromRight.transform.position = new Vector3(
-            x1,
+            Angle2Screen(AppData.aRomValue[1]),
             aromRight.transform.position.y,
             aromRight.transform.position.z
         );
@@ -235,12 +232,11 @@ public class HatGameController : MonoBehaviour
         switch (_trialState)
         {
             case DiscreteMovementTrialState.Rest:
-                Debug.Log("REST STATE");
+                
                 if (_statetimeout == false) return;
                 SetTrialState(DiscreteMovementTrialState.SetTarget);
                 break;
             case DiscreteMovementTrialState.SetTarget:
-                Debug.Log("Target STATE");
                 if (_statetimeout == false) return;
                 SetTrialState(DiscreteMovementTrialState.Moving);
                 break;
@@ -256,6 +252,9 @@ public class HatGameController : MonoBehaviour
                 // Change state if needed.
                 if (_tgtreached || targetSpwan) SetTrialState(DiscreteMovementTrialState.Success);
                 if (_statetimeout) SetTrialState(DiscreteMovementTrialState.Failure);
+                if (targetSpwan) { dlogger.WriteAanStateInfoRow();
+                    targetSpwan = false;
+                }
                 break;
             case DiscreteMovementTrialState.Success:
             case DiscreteMovementTrialState.Failure:
@@ -288,25 +287,41 @@ public class HatGameController : MonoBehaviour
             case DiscreteMovementTrialState.Rest:
                 // Reset trial in the AANController.
                 aanCtrler.ResetTrial();
+                dlogger = new AANDataLogger(aanCtrler, trialNo);
+                
+                if (targetSpwan)
+                {
+
+                    dlogger.UpdateLogFiles();
+                    trialNo += 1;
+                    Debug.Log("trial Number :" + trialNo);
+                    
+                    
+
+                    dlogger.WriteAanStateInfoRow();
+                }
+              
                 // Reset stuff.
                 trialDuration = 0f;
                 prevControlBound = PlutoComm.controlBound;
                 currControlBound = 1.0f;
-                trialNo += 1;
                 _tempIntraStateTimer = 0f;
-                targetSpwan = false;
+                //targetSpwan = false;
                 break;
             case DiscreteMovementTrialState.SetTarget:
                 // Random select target from the appropriate range.
                 //float _tgtscale = targetAngle;
                 //_trialTarget = _tgtscale * (AppData.pRomValue[1] - AppData.pRomValue[0]) + AppData.pRomValue[0];
-                _trialTarget = targetAngle;
-                PlutoComm.setControlBound(.8f);
+                _trialTarget = -targetAngle;
+                PlutoComm.setControlBound(1f);
+                if (targetSpwan) { dlogger.WriteAanStateInfoRow(); }
                 break;
             case DiscreteMovementTrialState.Moving:
                 // Reset the intrastate timer.
                 _tempIntraStateTimer = 0f;
-                aanCtrler.SetNewTrialDetails(PlutoComm.angle, _trialTarget, stateDurations[(int)DiscreteMovementTrialState.Moving]);
+               // aanCtrler.SetNewTrialDetails(PlutoComm.angle, _trialTarget, stateDurations[(int)DiscreteMovementTrialState.Moving]);
+                aanCtrler.SetNewTrialDetails(PlutoComm.angle, _trialTarget, ballFallingTime);
+               
                 break;
             case DiscreteMovementTrialState.Success:
             case DiscreteMovementTrialState.Failure:
@@ -384,6 +399,7 @@ public class HatGameController : MonoBehaviour
             ResumeButton.SetActive(false);
 
             AppLogger.LogInfo("Game Started.");
+            gameData.isGameLogging = true;
             SpawnTarget();
         }
     }
@@ -468,12 +484,70 @@ public class HatGameController : MonoBehaviour
         PlutoComm.setControlType("NONE");
         Debug.Log("Spawn Area Enabled: " + isEnabled);
     }
+    //public void SpawnTarget()
+    //{
+    //    if (timeLeft > 0 && balldestroyed)
+    //    {
+    //        balldestroyed = false;
+    //        float ballSpeed = 1f + 0.1f * (1 + gameData.gameSpeedHT);
+    //        float trailDuration = (8.0f / ballSpeed) * 0.8f;
+    //        HT_spawnTargets1.instance.trailDuration = trailDuration;
+    //        totalTargetsSpawned++;
+
+    //        if (aromRangeSpawn)
+    //        {
+    //            if (outsideAromRangeCount < 2 && totalTargetsSpawned % 10 <= 1)
+    //            {
+    //                targetPosition = UnityEngine.Random.Range(-playSize + 0.5f, playSize - 0.5f); 
+
+    //                Debug.Log(targetPosition);
+    //                outsideAromRangeCount++;
+    //            }
+    //            else
+    //            {
+    //                targetPosition = SpawnTargetArea();
+    //            }
+    //        }
+    //        else
+    //        {
+
+    //            targetPosition = UnityEngine.Random.Range(-playSize + 0.5f, playSize - 0.5f);
+
+    //        }
+    //        Vector3 spawnPosition = new Vector3(targetPosition, 6f, 0);
+    //        Quaternion spawnRotation = Quaternion.identity;
+
+    //        int ballIndex = UnityEngine.Random.Range(0, ball.Length);
+    //        GameObject target = Instantiate(
+    //            ball[ballIndex],
+    //            spawnPosition,
+    //            spawnRotation
+    //        );
+    //        targetSpwan = ((ballIndex == 0)|| (ballIndex == 2)|| (ballIndex == 3));
+
+    //        target.GetComponent<Rigidbody2D>().velocity = new Vector2(0, -ballSpeed);
+    //        target.transform.localScale = HTDifficultyManager.Scale;
+
+    //        HT_spawnTargets1.instance.stopClock = trailDuration;
+    //        targetAngle = ScreenPositionToAngle(targetPosition); 
+    //        if (totalTargetsSpawned == randomTargetIndex)
+    //        {
+    //            targetImage.gameObject.SetActive(true); 
+    //            Debug.Log("Displaying the target image!");
+    //        }
+    //        else
+    //        {
+    //            targetImage.gameObject.SetActive(false); 
+    //        }
+    //    }
+    //}
+
     public void SpawnTarget()
     {
         if (timeLeft > 0 && balldestroyed)
         {
             balldestroyed = false;
-            float ballSpeed = 1f + 0.1f * (1 + gameData.gameSpeedHT);
+            float ballSpeed = 1f + 0.1f * (1 + gameData.gameSpeedHT); // Falling speed
             float trailDuration = (8.0f / ballSpeed) * 0.8f;
             HT_spawnTargets1.instance.trailDuration = trailDuration;
             totalTargetsSpawned++;
@@ -482,8 +556,7 @@ public class HatGameController : MonoBehaviour
             {
                 if (outsideAromRangeCount < 2 && totalTargetsSpawned % 10 <= 1)
                 {
-                    targetPosition = UnityEngine.Random.Range(-playSize + 0.5f, playSize - 0.5f); 
-
+                    targetPosition = UnityEngine.Random.Range(-playSize + 0.5f, playSize - 0.5f);
                     Debug.Log(targetPosition);
                     outsideAromRangeCount++;
                 }
@@ -494,51 +567,52 @@ public class HatGameController : MonoBehaviour
             }
             else
             {
-                
                 targetPosition = UnityEngine.Random.Range(-playSize + 0.5f, playSize - 0.5f);
-
             }
-            Vector3 spawnPosition = new Vector3(targetPosition, 6f, 0);
+
+            // Ball's starting position
+            Vector3 ballPosition = new Vector3(targetPosition, 6f, 0);
+
+            // Hat's position (assuming hat's x position is -1 and at ground level y = 0)
+            PlayerObj= GameObject.FindGameObjectWithTag("Player");
+
+            // Calculate the total distance using Pythagorean theorem
+            float xDistance = ballPosition.x - PlayerObj.transform.position.x;
+            float yDistance = ballPosition.y - PlayerObj.transform.position.y;
+            float totalDistance = Mathf.Sqrt(xDistance * xDistance + yDistance * yDistance);
+
+            // Calculate the time for the ball to reach the hat
+            float fallTime = totalDistance / ballSpeed;
+            ballFallingTime = fallTime - (fallTime * 0.25f);
+            Debug.Log($"Ball and Hat fall time: {fallTime} seconds");
+
             Quaternion spawnRotation = Quaternion.identity;
 
             int ballIndex = UnityEngine.Random.Range(0, ball.Length);
             GameObject target = Instantiate(
                 ball[ballIndex],
-                spawnPosition,
+                ballPosition,
                 spawnRotation
             );
-            targetSpwan = ((ballIndex == 0)|| (ballIndex == 2)|| (ballIndex == 3));
+            targetSpwan = ((ballIndex == 0) || (ballIndex == 2) || (ballIndex == 3));
 
             target.GetComponent<Rigidbody2D>().velocity = new Vector2(0, -ballSpeed);
             target.transform.localScale = HTDifficultyManager.Scale;
 
             HT_spawnTargets1.instance.stopClock = trailDuration;
-            targetAngle = ScreenPositionToAngle(targetPosition); 
+            targetAngle = ScreenPositionToAngle(targetPosition);
+
             if (totalTargetsSpawned == randomTargetIndex)
             {
-                targetImage.gameObject.SetActive(true); 
+                targetImage.gameObject.SetActive(true);
                 Debug.Log("Displaying the target image!");
             }
             else
             {
-                targetImage.gameObject.SetActive(false); 
+                targetImage.gameObject.SetActive(false);
             }
         }
     }
-
-    private void UpdateControlBoundSmoothly()
-{
-    if (!targetSpwan) return;
-    float t = trialDuration / 3.7f; 
-    float smoothedControlBound = Mathf.Lerp(0f, 0.5f, t);
-    PlutoComm.setControlBound(smoothedControlBound);
-}
-private void UpdatePositionTargetSmoothly()
-{
-    float t = trialDuration / 4.5f;
-    float smoothedTargetPosition = Mathf.Lerp(_initialTarget, _finalTarget, t);
-    PlutoComm.setControlTarget(smoothedTargetPosition);
-}
 
 
     private void InitializeGame()

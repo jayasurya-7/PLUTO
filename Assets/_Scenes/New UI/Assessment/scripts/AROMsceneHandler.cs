@@ -305,7 +305,7 @@ public class AROMsceneHandler : MonoBehaviour
                         else
                         {
                             aromSlider.UpdateMinMaxvalues = false;
-                            Debug.Log("Hello3");
+                            //Debug.Log("Hello3");
 
                             if (Array.IndexOf(PlutoComm.MECHANISMS, AppData.selectedMechanism) == 4)
                             {
@@ -417,7 +417,7 @@ public class AROMsceneHandler : MonoBehaviour
         _state = AssessStates.ASSESS;
         aromSlider.startAssessment(PlutoComm.angle);
         aromSlider.UpdateMinMaxvalues = true;
-        Debug.Log("Why Not");
+       // Debug.Log("Why Not");
     }
 
     bool validAssessment()

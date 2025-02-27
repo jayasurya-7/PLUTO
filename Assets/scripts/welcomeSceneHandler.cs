@@ -111,7 +111,7 @@ public class welcomSceneHandler : MonoBehaviour
 
     private void UpdatePieChart()
     {
-        int N = daySummaries.Length;
+        int N = daySummaries.Length;  
         for (int i = 0; i < N; i++)
         {
             Debug.Log($"{i} | {daySummaries[i].Day} | {daySummaries[i].Date} | {daySummaries[i].MoveTime}");

@@ -1887,7 +1887,7 @@ MonoBehaviour:
   targetCircle: {fileID: 2054356820}
   actualCircle: {fileID: 130641455}
   aromLeft: {fileID: 278098162}
-  aromRight: {fileID: 1883165959}
+  aromRight: {fileID: 894053211}
   promLeft: {fileID: 1974999059}
   promRight: {fileID: 1883165959}
   btnStartStop: {fileID: 940106398}
@@ -2176,7 +2176,7 @@ GameObject:
   - component: {fileID: 1883165961}
   - component: {fileID: 1883165960}
   m_Layer: 0
-  m_Name: aromRightMarker
+  m_Name: promRightMarker
   m_TagString: Untagged
   m_Icon: {fileID: 0}
   m_NavMeshLayer: 0
