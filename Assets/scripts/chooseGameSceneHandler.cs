@@ -26,7 +26,7 @@ public class ChooseGameSceneHandler : MonoBehaviour
     };
     private bool lisRunning = false;
     private bool targetReached = false; 
-    private const float targetTolerance = 3.0f; 
+    private const float targetTolerance = 5.0f; 
     private bool isRunning = false;
     
     private float targetAngle = 0;
@@ -103,7 +103,7 @@ public class ChooseGameSceneHandler : MonoBehaviour
         if (isRunning && !targetReached)
         {
             float currentAngle = PlutoComm.angle;
-            if (Mathf.Abs(currentAngle - 0f) <= targetTolerance)
+            if (Mathf.Abs(currentAngle - 0f) <= targetTolerance) //for now,its 0 in future we need to change according to mech.
             {
                 targetReached = true;
                 isRunning = false;

@@ -246,7 +246,7 @@ public class HT_spawnTargets1 : MonoBehaviour
 
 
         // return (-playSize + (angle - newPROM_tmin) * (2 * playSize) / (newPROM_tmax - newPROM_tmin));
-        return Mathf.Lerp(playSize, -playSize, (angle - newPROM_tmin) / (newPROM_tmax - newPROM_tmin));
+        return Mathf.Lerp(-playSize, playSize, (angle - newPROM_tmin) / (newPROM_tmax - newPROM_tmin));
     }
     public void setPrameters()
     {
