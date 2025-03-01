@@ -1,194 +1,3 @@
-////using PlutoDataStructures;
-//using System;
-//using System.Collections;
-//using System.Collections.Generic;
-//using System.IO;
-//using System.Linq;
-//using UnityEngine;
-//using UnityEngine.UI;
-//using Random = UnityEngine.Random;
-
-//public class PingPonGAANController : MonoBehaviour
-//{
-
-//    public static PingPonGAANController instance;
-
-
-//    // static int trailNumber;
-//    //public Text trailNUmber;
-
-
-//    public float trailDuration = 0f;
-//    public float playSize = 0;
-//    public float targetAngle;
-//    GameObject target;
-//    GameObject player;
-
-//    private float ballTrajetoryPrediction;
-
-//    bool wasNonZero;
-//    BaallTrajectoryPlotter btp;
-
-//    public Toggle isFlaccidToggle;
-//    public bool isFlaccidControlOn;
-//    bool targetSpwan = false;
-//    private enum DiscreteMovementTrialState { Rest, Moving }
-//    private DiscreteMovementTrialState trialState = DiscreteMovementTrialState.Rest;
-//    private DiscreteMovementTrialState _trialState;
-
-//    private float targetPosition;
-//    private float playerPosition;
-
-//    public float trialDuration = 0f;
-//    public float _initialTarget = 0f;
-//    public float _finalTarget = 0f;
-//    private void Awake()
-//    {
-//        if (instance == null)
-//        {
-//            instance = this;
-//        }
-//        else
-//            Destroy(gameObject);
-
-//        Application.targetFrameRate = 300;
-//        QualitySettings.vSyncCount = 0;
-
-//    }
-
-//    void Start()
-//    {
-//        PlutoComm.setControlType("POSITIONAAN");
-//        playSize = Camera.main.orthographicSize;
-//        Application.targetFrameRate = 300;
-//    }
-
-
-//    void Update()
-//    {
-//        playerPosition = GameObject.FindGameObjectWithTag("Player").transform.position.y;
-
-//        RunTrialStateMachine();
-//        if (GameObject.FindGameObjectsWithTag("Target").Length > 0)
-//        {
-//            btp = GameObject.FindGameObjectWithTag("Target").GetComponent<BaallTrajectoryPlotter>();
-//            ballTrajetoryPrediction = btp.targetPosition;
-
-//            if ((Mathf.Abs(btp.ballDistance) / Mathf.Abs(btp.ballVelocity.magnitude)) < 4 && btp.ballVelocity.x > 0 && (Mathf.Abs(btp.ballDistance) / Mathf.Abs(btp.ballVelocity.magnitude)) > 1)
-//            {
-//                if (btp.transform.position.x < 3.5)
-//                {
-//                    targetPosition = ScreentoAngle(ballTrajetoryPrediction);
-//                    targetAngle = ScreenPositionToAngle(ballTrajetoryPrediction);
-//                    targetSpwan = true;
-
-//                }
-//            }
-//        }
-//       }
-
-//    private void UpdateControlBoundSmoothly()
-//    {
-//        if (!gameData.targetSpwan) return;
-//        float t = trialDuration / 2f;
-//        float smoothedControlBound = Mathf.Lerp(0f, 0.5f, t);
-//        PlutoComm.setControlBound(smoothedControlBound);
-//    }
-//    private float ScreenPositionToAngle(float screenPosition)
-//    {
-//        float calibAngleRange = PlutoComm.CALIBANGLE[PlutoComm.mechanism];
-//        float angle = Mathf.Lerp(
-//            -calibAngleRange / 2,
-//            calibAngleRange / 2,
-//            (screenPosition + playSize) / (2 * playSize)
-//        );
-//        return angle;
-//    }
-//    private void UpdatePositionTargetSmoothly()
-//    {
-//        float t = trialDuration / 2.5f;
-//        float smoothedTargetPosition = Mathf.Lerp(_initialTarget, _finalTarget, t);
-//        PlutoComm.setControlTarget(smoothedTargetPosition);
-//    }
-//    private void RunTrialStateMachine()
-//    {
-//        trialDuration += Time.deltaTime;
-
-//        switch (_trialState)
-//        {
-//            case DiscreteMovementTrialState.Rest:
-//                if ( trialDuration >= 1f && gameData.targetSpwan==true && targetSpwan==true)
-//                {
-//                    SetTrialState(DiscreteMovementTrialState.Moving);
-
-//                    Debug.Log("smoothedTarget :");
-//                }
-//                break;
-
-//            case DiscreteMovementTrialState.Moving:
-
-//                    UpdateControlBoundSmoothly();
-//                    UpdatePositionTargetSmoothly();
-
-//                    if (trialDuration >= 2.8f)
-//                    {
-//                        SetTrialState(DiscreteMovementTrialState.Rest);
-//                    Debug.Log("I'm Off");
-//                    }
-//                break;
-//        }
-
-//    }
-//    private void SetTrialState(DiscreteMovementTrialState newState)
-//    {
-//        _trialState = newState;
-
-//        switch (newState)
-//        {
-//            case DiscreteMovementTrialState.Rest:
-//                trialDuration = 0f;
-//                gameData.targetSpwan = false;
-//                targetSpwan = false;
-//                _finalTarget = 0f;
-//                break;
-
-//            case DiscreteMovementTrialState.Moving:
-//                trialDuration = 0f;
-//                _initialTarget = PlutoComm.angle;
-//                _finalTarget = targetAngle;
-//                Debug.Log(" _initialTarget "+_initialTarget+"               _finalTarget :"+ _finalTarget);
-//                PlutoComm.setControlDir((sbyte)(targetPosition > playerPosition ? 1 : -1));
-
-//                break;
-//        }
-//    }
-//    public float ScreentoAngle(float y_pos)
-//    {
-//        float calibAngleRange = PlutoComm.CALIBANGLE[PlutoComm.mechanism];
-//        float angle = Mathf.Lerp(
-//            -calibAngleRange / 2,
-//            calibAngleRange / 2,
-//            (y_pos + playSize) / (2 * playSize)
-//        );
-//        return angle;
-//    }
-//    float getDirection()
-//    {
-//        return Mathf.Sign(targetAngle - PlutoComm.angle);
-//    }
-
-//    public static float Angle2Screen(float angle)
-//    {
-//        float playSize = 5;
-//        ROM promAng = new ROM(AppData.selectedMechanism);
-//        float tmin = promAng.promTmin;
-//        float tmax = promAng.promTmax;
-//        return Mathf.Clamp(-playSize + (angle - tmin) * (2 * playSize) / (tmax - tmin), -100, 100);
-
-//    }
-//}
-
-
 using System;
 using System.Collections;
 using System.Collections.Generic;
@@ -210,26 +19,15 @@ public class PingPonGAANController : MonoBehaviour
     // This value will hold the predicted y position of the ball at the player bound.
     private float ballTrajectoryPrediction;
 
-    // Instead of relying solely on the BaallTrajectoryPlotter,
-    // we will use our simulation (TrajectoryPredictor) to get the predicted y.
-    // Remove btp if you don't need it:
-    // BaallTrajectoryPlotter btp;  
+   
 
     public Toggle isFlaccidToggle;
     public bool isFlaccidControlOn;
     bool targetSpwan = false; // Signals when a target is available.
 
-    // A simple state machine to control the discrete movement trial.
-    private enum DiscreteMovementTrialState { Rest, Moving }
-    private DiscreteMovementTrialState trialState = DiscreteMovementTrialState.Rest;
-    private DiscreteMovementTrialState _trialState;
 
     private float targetPosition; // This is the target “position” in angle-space.
     private float playerPosition; // Player paddle’s current y position.
-
-    public float trialDuration = 0f;
-    public float _initialTarget = 0f;
-    public float _finalTarget = 0f;
 
     // --- Predictor parameters ---
     // x coordinate of the player's bound (where the ball will hit).
@@ -240,6 +38,57 @@ public class PingPonGAANController : MonoBehaviour
     // Bounce multiplier applied when the ball bounces off top/bottom.
     public float bounceMultiplier = 1.41f;
 
+    //AAN parameters
+    // Control variables
+    private bool isRunning = false;
+    private const float tgtDuration = 3.0f;
+    private float _currentTime = 0;
+    private float _initialTarget = 0;
+    private float _finalTarget = 0;
+    //private bool _changingTarget = false; 
+
+    // Discrete movements related variables
+    private uint trialNo = 0;
+    // Define variables for a discrete movement state machine
+    // Enumerated variable for states
+    private enum DiscreteMovementTrialState
+    {
+        Rest,           // Resting state
+        SetTarget,      // Set the target
+        Moving,         // Moving to target.
+        Success,        // Successfull reach
+        Failure,        // Failed reach
+    }
+    private DiscreteMovementTrialState _trialState;
+    private static readonly IReadOnlyList<float> stateDurations = Array.AsReadOnly(new float[] {
+        3.00f,          // Rest duration
+        0.25f,          // Target set duration
+        20.00f,          // Moving duration
+        0.25f,          // Successful reach
+        0.25f,          // Failed reach
+    });
+    private const float tgtHoldDuration = 1f;
+    private float _trialTarget = 0f;
+    private float _currTgtForDisplay;
+    private float trialDuration = 0f;
+    private float stateStartTime = 0f;
+    private float _tempIntraStateTimer = 0f;
+
+    // AAN Trajectory parameters. Set each trial.
+    private float _assistPosition;
+    private float _assistVelocity;
+    private float _tgtInitial;
+    private float _tgtFinal;
+    private float _timeInitial;
+    private float _timeDuration;
+
+    // Control bound adaptation variables
+    private float prevControlBound = 0.16f;
+    // Magical minimum value where the mechanisms mostly move without too much instability.
+    private float currControlBound = 0.16f;
+    private const float cbChangeDuration = 2.0f;
+    private HOMERPlutoAANController aanCtrler;
+    private AANDataLogger dlogger;
     private void Awake()
     {
         if (instance == null)
@@ -303,20 +152,120 @@ public class PingPonGAANController : MonoBehaviour
                 }
             }
         }
+        // Check if the demo is running.
+        if (isRunning == false) return;
 
-        // Run the trial state machine to update the control target.
+        // Update trial time
+        trialDuration += Time.deltaTime;
+
+        // Run trial state machine
         RunTrialStateMachine();
     }
 
-    // Smoothly update the control bound (if needed).
-    private void UpdateControlBoundSmoothly()
+
+
+    private void RunTrialStateMachine()
     {
-        if (!gameData.targetSpwan)
-            return;
-        float t = trialDuration / 2.8f;
-        float smoothedControlBound = Mathf.Lerp(0f, 0.5f, t);
-        PlutoComm.setControlBound(smoothedControlBound);
+        float _deltime = trialDuration - stateStartTime;
+        bool _statetimeout = _deltime >= stateDurations[(int)_trialState];
+        // Time when target is reached.
+        bool _intgt = Math.Abs(_trialTarget - PlutoComm.angle) <= 5.0f;
+        //Debug.Log(_statetimeout);
+        switch (_trialState)
+        {
+            case DiscreteMovementTrialState.Rest:
+                if ((_statetimeout == false) && !targetSpwan) return;
+                SetTrialState(DiscreteMovementTrialState.SetTarget);
+                dlogger.WriteAanStateInforRow();
+                break;
+            case DiscreteMovementTrialState.SetTarget:
+                if (_statetimeout == false) return;
+                SetTrialState(DiscreteMovementTrialState.Moving);
+                dlogger.WriteAanStateInforRow();
+                break;
+            case DiscreteMovementTrialState.Moving:
+                // Check of the target has been reached.
+                _tempIntraStateTimer += _intgt ? Time.deltaTime : -_tempIntraStateTimer;
+                // Target reached successfull.
+                bool _tgtreached = _tempIntraStateTimer >= tgtHoldDuration;
+                // Update AANController.
+                aanCtrler.Update(PlutoComm.angle, Time.deltaTime, _statetimeout || _tgtreached);
+                // Set AAN target if needed.
+                if (aanCtrler.stateChange) UpdatePlutoAANTarget();
+                // Change state if needed.
+                if (_tgtreached || targetSpwan) SetTrialState(DiscreteMovementTrialState.Success);
+                if (_statetimeout) SetTrialState(DiscreteMovementTrialState.Failure);
+                dlogger.WriteAanStateInforRow();
+                break;
+            case DiscreteMovementTrialState.Success:
+            case DiscreteMovementTrialState.Failure:
+                if (_statetimeout) SetTrialState(DiscreteMovementTrialState.Rest);
+                break;
+        }
     }
+
+    private void UpdatePlutoAANTarget()
+    {
+        switch (aanCtrler.state)
+        {
+            case HOMERPlutoAANController.HOMERPlutoAANState.AromMoving:
+                // Reset AAN Target
+                PlutoComm.ResetAANTarget();
+                break;
+            case HOMERPlutoAANController.HOMERPlutoAANState.RelaxToArom:
+            case HOMERPlutoAANController.HOMERPlutoAANState.AssistToTarget:
+                // Set AAN Target to the nearest AROM edge.
+                float[] _newAanTarget = aanCtrler.GetNewAanTarget();
+                PlutoComm.setAANTarget(_newAanTarget[0], _newAanTarget[1], _newAanTarget[2], _newAanTarget[3]);
+                break;
+        }
+    }
+
+    private void SetTrialState(DiscreteMovementTrialState newState)
+    {
+        switch (newState)
+        {
+            case DiscreteMovementTrialState.Rest:
+                // Reset trial in the AANController.
+                aanCtrler.ResetTrial();
+                dlogger.UpdateLogFiles(trialNo);
+                // Reset stuff.
+                trialDuration = 0f;
+                prevControlBound = PlutoComm.controlBound;
+                currControlBound = 1.0f;
+                if (targetSpwan )
+                {
+                    trialNo += 1;
+                    //tempSpawn = false;
+
+                }
+                _tempIntraStateTimer = 0f;
+                targetSpwan = false;
+                break;
+            case DiscreteMovementTrialState.SetTarget:
+                // Random select target from the appropriate range.
+
+                _trialTarget = targetAngle;
+                PlutoComm.setControlBound(1f);
+                break;
+            case DiscreteMovementTrialState.Moving:
+                // Reset the intrastate timer.
+                _tempIntraStateTimer = 0f;
+                aanCtrler.SetNewTrialDetails(PlutoComm.angle, _trialTarget, stateDurations[(int)DiscreteMovementTrialState.Moving]);
+                //aanCtrler.SetNewTrialDetails(PlutoComm.angle, _trialTarget, ballFallingTime);
+
+                break;
+            case DiscreteMovementTrialState.Success:
+            case DiscreteMovementTrialState.Failure:
+                // Update adaptation row.
+                byte _successbyte = newState == DiscreteMovementTrialState.Success ? (byte)1 : (byte)0;
+                dlogger.WriteTrialRowInfo(_successbyte);
+                break;
+        }
+        _trialState = newState;
+        stateStartTime = trialDuration;
+    }
+
 
     // Convert a screen y position (world y) to an angle based on calibration.
     private float ScreenPositionToAngle(float screenPosition)
@@ -330,66 +279,9 @@ public class PingPonGAANController : MonoBehaviour
         return angle;
     }
 
-    // Smoothly update the mechanism's target position (angle) over time.
-    private void UpdatePositionTargetSmoothly()
-    {
-        float t = trialDuration / 3.3f;
-        float smoothedTargetPosition = Mathf.Lerp(_initialTarget, _finalTarget, t);
-        PlutoComm.setControlTarget(smoothedTargetPosition);
-    }
 
-    // A simple state machine to drive the control target update.
-    private void RunTrialStateMachine()
-    {
-        trialDuration += Time.deltaTime;
 
-        switch (_trialState)
-        {
-            case DiscreteMovementTrialState.Rest:
-                if (trialDuration >= 0.6f &&  targetSpwan == true)
-                {
-                    SetTrialState(DiscreteMovementTrialState.Moving);
-                    Debug.Log("Starting movement toward predicted target");
-                }
-                break;
 
-            case DiscreteMovementTrialState.Moving:
-                UpdateControlBoundSmoothly();
-                UpdatePositionTargetSmoothly();
-
-                if (trialDuration >= 3.9f)
-                {
-                    SetTrialState(DiscreteMovementTrialState.Rest);
-                    Debug.Log("Movement trial complete");
-                }
-                break;
-        }
-    }
-
-    // Sets a new state for the trial state machine.
-    private void SetTrialState(DiscreteMovementTrialState newState)
-    {
-        _trialState = newState;
-
-        switch (newState)
-        {
-            case DiscreteMovementTrialState.Rest:
-                trialDuration = 0f;
-                gameData.targetSpwan = false;
-                targetSpwan = false;
-                _finalTarget = 0f;
-                break;
-
-            case DiscreteMovementTrialState.Moving:
-                trialDuration = 0f;
-                _initialTarget = PlutoComm.angle; // current mechanism angle
-                _finalTarget = targetAngle;         // target angle derived from prediction
-                Debug.Log("Initial Angle: " + _initialTarget + "  Final Angle: " + _finalTarget);
-                // Set control direction based on whether the target is above or below the current player position.
-                PlutoComm.setControlDir((sbyte)(targetPosition > playerPosition ? 1 : -1));
-                break;
-        }
-    }
 
     // Converts a y position to an angle value (using calibration settings).
     public float ScreentoAngle(float y_pos)
@@ -404,12 +296,5 @@ public class PingPonGAANController : MonoBehaviour
     }
 
 
-    public static float Angle2Screen(float angle)
-    {
-        float playSize = 5f;
-        ROM promAng = new ROM(AppData.selectedMechanism);
-        float tmin = promAng.promTmin;
-        float tmax = promAng.promTmax;
-        return Mathf.Clamp(-playSize + (angle - tmin) * (2 * playSize) / (tmax - tmin), -100, 100);
-    }
+
 }

@@ -44,6 +44,15 @@ public class HatGameController : MonoBehaviour
     private float targetAngle;
 
     private GameSession currentGameSession;
+    //gamedataLog
+    GameObject Player1, Target, Enemy;
+    public static string dateTime1;
+    public static string date1;
+    public static string sessionNum1;
+
+    string fileName;
+    float time;
+
 
     private bool isPlaying = false;
     private float Player;

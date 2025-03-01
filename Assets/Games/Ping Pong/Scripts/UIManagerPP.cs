@@ -13,6 +13,7 @@ public class UIManagerPP : MonoBehaviour
     GameObject[] pauseObjects, finishObjects;
     public BoundController rightBound;
     public BoundController leftBound;
+
     public bool isFinished;
     public bool isPressed=false;
     public bool playerWon, enemyWon;

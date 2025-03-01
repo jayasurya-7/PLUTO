@@ -40,17 +40,17 @@ public class PongPlayerController : MonoBehaviour
 
     public static float playerMovementArea(float angle)
     {
-        ROM promAng = new ROM(AppData.selectedMechanism);
-        float tmin = promAng.promTmin;
-        float tmax = promAng.promTmax;
+        //ROM promAng = new ROM(AppData.selectedMechanism);
+        float tmin = AppData.pRomValue[0];
+        float tmax = AppData.pRomValue[1];
         return Mathf.Clamp(-playSize + (angle - tmin) * (2 * playSize) / (tmax - tmin), bottomBound, topBound);
     }
 
     public static float playerMovementAreaAROM(float angle)
     {
-        ROM aromAng = new ROM(AppData.selectedMechanism);
-        float tmin = aromAng.aromTmin;
-        float tmax = aromAng.aromTmax;
+        //ROM aromAng = new ROM(AppData.selectedMechanism);
+        float tmin = AppData.aRomValue[0];
+        float tmax = AppData.aRomValue[1];
         return Mathf.Clamp(-playSize + (angle - tmin) * (2 * playSize) / (tmax - tmin), bottomBound, topBound);
     }
 
