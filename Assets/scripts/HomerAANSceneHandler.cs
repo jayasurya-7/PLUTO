@@ -198,7 +198,7 @@ public class Homer_AAN_SceneHandler : MonoBehaviour
         {
             case DiscreteMovementTrialState.Rest:
                 if (_statetimeout == false) return;
-                SetTrialState(DiscreteMovementTrialState.SetTarget);
+                SetTrialState(DiscreteMovementTrialState.SetTarget); 
                 WriteAanStateInforRow();
                 break;
             case DiscreteMovementTrialState.SetTarget:

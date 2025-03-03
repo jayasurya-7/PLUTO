@@ -92,6 +92,7 @@ public class OneTimeConfig : MonoBehaviour
         string fme2 = string.IsNullOrWhiteSpace(fme2Field.text) ? "0" : fme2Field.text;
 
 
+
         string totalDuration = totalDurationText.text;
 
         string trainingSide = affectedSideDropdown.options[affectedSideDropdown.value].text;
@@ -118,6 +119,6 @@ public class OneTimeConfig : MonoBehaviour
             SceneManager.LoadScene("welcome");
 
         }
-        
+      
     }
 }
