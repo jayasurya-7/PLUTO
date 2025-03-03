@@ -61,9 +61,9 @@ public class PingPonGAANController : MonoBehaviour
     }
     private DiscreteMovementTrialState _trialState;
     private static readonly IReadOnlyList<float> stateDurations = Array.AsReadOnly(new float[] {
-        3.00f,          // Rest duration
+        8.00f,          // Rest duration
         0.25f,          // Target set duration
-        20.00f,          // Moving duration
+        5.00f,          // Moving duration
         0.25f,          // Successful reach
         0.25f,          // Failed reach
     });
@@ -87,8 +87,8 @@ public class PingPonGAANController : MonoBehaviour
     // Magical minimum value where the mechanisms mostly move without too much instability.
     private float currControlBound = 0.16f;
     private const float cbChangeDuration = 2.0f;
-    private HOMERPlutoAANController aanCtrler;
-    private AANDataLogger dlogger;
+    private HOMERPlutoAANController aan;
+    private AANDataLogger dlog;
     private void Awake()
     {
         if (instance == null)
@@ -106,9 +106,27 @@ public class PingPonGAANController : MonoBehaviour
 
     void Start()
     {
+        string date = DateTime.Now.ToString("yyyy-MM-dd");
+        string dateTime = DateTime.Now.ToString("Dyyyy-MM-ddTHH-mm-ss");
+        string sessionNum = "Session" + AppData.currentSessionNumber;
+
+        AppData._dataLogDir = Path.Combine(DataManager.directoryPathSession, date, sessionNum, $"{AppData.selectedMechanism}_{AppData.selectedGame}_{dateTime}");
+
         PlutoComm.setControlType("POSITIONAAN");
         playSize = Camera.main.orthographicSize;
         Application.targetFrameRate = 300;
+        isRunning = true;
+        aan = new HOMERPlutoAANController(AppData.aRomValue, AppData.pRomValue, 0.85f);
+        isRunning = true;
+        dlog = new AANDataLogger(aan);
+        // Set Control mode.
+        PlutoComm.setControlType("POSITIONAAN");
+        PlutoComm.setControlBound(currControlBound);
+        PlutoComm.setControlDir(0);
+        trialNo = 0;
+        //successRate = 0;
+        // Start the state machine.
+        SetTrialState(DiscreteMovementTrialState.Rest);
     }
 
     void Update()
@@ -142,7 +160,7 @@ public class PingPonGAANController : MonoBehaviour
                 float timeToArrival = Mathf.Abs((playerBoundX - ball.transform.position.x) / ballRB.velocity.x);
 
                 // You may choose to only update your control target if timeToArrival is within a window.
-                if (timeToArrival < 4f && timeToArrival > 1f)
+                if (timeToArrival < 5f && timeToArrival > 1f)
                 {
                     // Convert the predicted screen y (world y) to an angle for the mechanism.
                     targetPosition = ScreentoAngle(ballTrajectoryPrediction);
@@ -176,12 +194,12 @@ public class PingPonGAANController : MonoBehaviour
             case DiscreteMovementTrialState.Rest:
                 if ((_statetimeout == false) && !targetSpwan) return;
                 SetTrialState(DiscreteMovementTrialState.SetTarget);
-                dlogger.WriteAanStateInforRow();
+                //dlog.WriteAanStateInforRow();
                 break;
             case DiscreteMovementTrialState.SetTarget:
                 if (_statetimeout == false) return;
                 SetTrialState(DiscreteMovementTrialState.Moving);
-                dlogger.WriteAanStateInforRow();
+                //dlog.WriteAanStateInforRow();
                 break;
             case DiscreteMovementTrialState.Moving:
                 // Check of the target has been reached.
@@ -189,13 +207,13 @@ public class PingPonGAANController : MonoBehaviour
                 // Target reached successfull.
                 bool _tgtreached = _tempIntraStateTimer >= tgtHoldDuration;
                 // Update AANController.
-                aanCtrler.Update(PlutoComm.angle, Time.deltaTime, _statetimeout || _tgtreached);
+                aan.Update(PlutoComm.angle, Time.deltaTime, _statetimeout || _tgtreached);
                 // Set AAN target if needed.
-                if (aanCtrler.stateChange) UpdatePlutoAANTarget();
+                if (aan.stateChange) UpdatePlutoAANTarget();
                 // Change state if needed.
-                if (_tgtreached || targetSpwan) SetTrialState(DiscreteMovementTrialState.Success);
+                if (_tgtreached || gameData.ballSpawn || gameData.ballHitt) SetTrialState(DiscreteMovementTrialState.Success);
                 if (_statetimeout) SetTrialState(DiscreteMovementTrialState.Failure);
-                dlogger.WriteAanStateInforRow();
+               // dlog.WriteAanStateInforRow();
                 break;
             case DiscreteMovementTrialState.Success:
             case DiscreteMovementTrialState.Failure:
@@ -206,7 +224,7 @@ public class PingPonGAANController : MonoBehaviour
 
     private void UpdatePlutoAANTarget()
     {
-        switch (aanCtrler.state)
+        switch (aan.state)
         {
             case HOMERPlutoAANController.HOMERPlutoAANState.AromMoving:
                 // Reset AAN Target
@@ -215,7 +233,7 @@ public class PingPonGAANController : MonoBehaviour
             case HOMERPlutoAANController.HOMERPlutoAANState.RelaxToArom:
             case HOMERPlutoAANController.HOMERPlutoAANState.AssistToTarget:
                 // Set AAN Target to the nearest AROM edge.
-                float[] _newAanTarget = aanCtrler.GetNewAanTarget();
+                float[] _newAanTarget = aan.GetNewAanTarget();
                 PlutoComm.setAANTarget(_newAanTarget[0], _newAanTarget[1], _newAanTarget[2], _newAanTarget[3]);
                 break;
         }
@@ -227,20 +245,22 @@ public class PingPonGAANController : MonoBehaviour
         {
             case DiscreteMovementTrialState.Rest:
                 // Reset trial in the AANController.
-                aanCtrler.ResetTrial();
-                dlogger.UpdateLogFiles(trialNo);
+                aan.ResetTrial();
+                dlog.UpdateLogFiles(trialNo);
                 // Reset stuff.
                 trialDuration = 0f;
+                gameData.ballHitt = false;
                 prevControlBound = PlutoComm.controlBound;
                 currControlBound = 1.0f;
-                if (targetSpwan )
+                if (gameData.ballSpawn )
                 {
                     trialNo += 1;
+                    gameData.ballSpawn = false;
                     //tempSpawn = false;
 
                 }
                 _tempIntraStateTimer = 0f;
-                targetSpwan = false;
+                //targetSpwan = false;
                 break;
             case DiscreteMovementTrialState.SetTarget:
                 // Random select target from the appropriate range.
@@ -251,15 +271,15 @@ public class PingPonGAANController : MonoBehaviour
             case DiscreteMovementTrialState.Moving:
                 // Reset the intrastate timer.
                 _tempIntraStateTimer = 0f;
-                aanCtrler.SetNewTrialDetails(PlutoComm.angle, _trialTarget, stateDurations[(int)DiscreteMovementTrialState.Moving]);
+                aan.SetNewTrialDetails(PlutoComm.angle, _trialTarget, stateDurations[(int)DiscreteMovementTrialState.Moving]);
                 //aanCtrler.SetNewTrialDetails(PlutoComm.angle, _trialTarget, ballFallingTime);
-
+                targetSpwan = false;
                 break;
             case DiscreteMovementTrialState.Success:
             case DiscreteMovementTrialState.Failure:
                 // Update adaptation row.
                 byte _successbyte = newState == DiscreteMovementTrialState.Success ? (byte)1 : (byte)0;
-                dlogger.WriteTrialRowInfo(_successbyte);
+                //dlog.WriteTrialRowInfo(_successbyte);
                 break;
         }
         _trialState = newState;
@@ -292,6 +312,14 @@ public class PingPonGAANController : MonoBehaviour
             calibAngleRange / 2,
             (y_pos + playSize) / (2 * playSize)
         );
+        //float promMin = AppData.pRomValue[0];
+        //float promMax = AppData.pRomValue[1];
+
+        //float angle = Mathf.Lerp(
+        //    -promMin / 2,
+        //    promMax / 2,
+        //    (y_pos + playSize) / (2 * playSize)
+        //);
         return angle;
     }
 

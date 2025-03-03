@@ -31,7 +31,7 @@ public class FB_spawnTargets : MonoBehaviour
     private string hospitalnum;
     public static float[] aRom = { 0, 0 };
     public static float[] pRom = { 0, 0 };
-
+    public AANDataLogger dlog;
     public static float targetAngle;
     //GameObject target;
 

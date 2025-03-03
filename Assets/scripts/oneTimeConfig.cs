@@ -84,12 +84,13 @@ public class OneTimeConfig : MonoBehaviour
         string startDate = startDateField.text;
         string endDate = endDateField.text;
 
-        string wfe = wfeField.text;
-        string wurd = wurdField.text;
-        string fps = fpsField.text;
-        string hoc = hocField.text;
-        string fme1 = fme1Field.text;
-        string fme2 = fme2Field.text;
+        string wfe = string.IsNullOrWhiteSpace(wfeField.text) ? "0" : wfeField.text;
+        string wurd = string.IsNullOrWhiteSpace(wurdField.text) ? "0" : wurdField.text;
+        string fps = string.IsNullOrWhiteSpace(fpsField.text) ? "0" : fpsField.text;
+        string hoc = string.IsNullOrWhiteSpace(hocField.text) ? "0" : hocField.text;
+        string fme1 = string.IsNullOrWhiteSpace(fme1Field.text) ? "0" : fme1Field.text;
+        string fme2 = string.IsNullOrWhiteSpace(fme2Field.text) ? "0" : fme2Field.text;
+
 
         string totalDuration = totalDurationText.text;
 

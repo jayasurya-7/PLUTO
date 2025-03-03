@@ -475,6 +475,8 @@ public static class gameData
     public static bool isBallReached = false;
     public static bool targetSpwan = false;
     public static bool isAROMEnabled = false;
+    public static bool ballSpawn = false;
+    public static bool ballHitt = false;
     //game
     public static bool isGameLogging;
     public static string game;

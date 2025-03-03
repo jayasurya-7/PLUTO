@@ -274,10 +274,12 @@ public class HOMERPlutoAANController
         positionQ.Clear();
         timeQ.Clear();
         trialTime = 0;
+        Debug.Log("im running");
     }
 
     public void SetNewTrialDetails(float actual, float target, float maxDur)
     {
+        Debug.Log("im running");
         // Set the initial and target position for the trial.
         initialPosition = actual;
         targetPosition = target;
