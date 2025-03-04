@@ -7,8 +7,6 @@ using System.Data;
 using UnityEditor.PackageManager;
 using UnityEngine;
 using System.Globalization;
-using System.Data;
-using System.Linq;
 using UnityEditor.VersionControl;
 using UnityEngine.SceneManagement;
 using Newtonsoft.Json.Bson;

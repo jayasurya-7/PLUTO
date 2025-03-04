@@ -8,7 +8,6 @@ using System;
 using Random = UnityEngine.Random;
 using UnityEngine.SceneManagement;
 using System.IO;
-using TMPro;
 
 public class FB_spawnTargets : MonoBehaviour
 {
@@ -46,9 +45,7 @@ public class FB_spawnTargets : MonoBehaviour
     int index = 0;
     public float reduceOppositeTimer = 0;
     public float initialTorque;
-    public float trialDuration = 0f;
-    public float _initialTarget = 0f;
-    public float _finalTarget = 0f;
+    public float prevTorq;
     float prevSpawnTime = 0;
     int val;
     bool setZeroTorque;
@@ -60,13 +57,7 @@ public class FB_spawnTargets : MonoBehaviour
     public bool isFlaccidControlOn;
 
     int targetcount = 0;
-    bool targetSpwan = false;
-    private enum DiscreteMovementTrialState { Rest, Moving }
-    private DiscreteMovementTrialState trialState = DiscreteMovementTrialState.Rest;
-    private DiscreteMovementTrialState _trialState;
-
-    private float targetPosition;
-    private float playerPosition;
+    bool paramSet = false;
     private void Awake()
     {
         Resources.UnloadUnusedAssets();
@@ -83,9 +74,18 @@ public class FB_spawnTargets : MonoBehaviour
 
     }
 
+    // Start is called before the first frame update
     void Start()
     {
-        PlutoComm.setControlType("POSITIONAAN");
+        paramSet = false;
+        System.Random rnd = new System.Random();
+        First4Targets = First4Targets.OrderBy(x => rnd.Next()).ToArray();
+        val = UnityEngine.Random.Range(50, 100);
+        targetcount = -1;
+
+
+
+        //setPrameters();
         playSize = 2.3f + 5.5f;
         player = GameObject.FindGameObjectWithTag("Player");
     }
@@ -93,124 +93,74 @@ public class FB_spawnTargets : MonoBehaviour
     void Update()
     {
 
-        PlutoComm.sendHeartbeat();
+
         prevSpawnTime += Time.deltaTime;
 
         stopClock -= Time.deltaTime;
 
-        RunTrialStateMachine();
 
-        playerPosition = GameObject.FindGameObjectWithTag("Player").transform.position.y;
 
-    }
-    private void UpdateControlBoundSmoothly()
-    {
-        if (!targetSpwan) return;
-        float t = trialDuration / 3.7f;
-        float smoothedControlBound = Mathf.Lerp(0f, 0.5f, t);
-        PlutoComm.setControlBound(smoothedControlBound);
-    }
-    private void UpdatePositionTargetSmoothly()
-    {
-        float t = trialDuration / 4.5f;
-        float smoothedTargetPosition = Mathf.Lerp(_initialTarget, _finalTarget, t);
-        PlutoComm.setControlTarget(smoothedTargetPosition);
-    }
-    private void RunTrialStateMachine()
-    {
-        trialDuration += Time.deltaTime;
 
-        switch (_trialState)
+        if (Time.timeScale == 0 || FlappyGameControl.instance.gameOver || Mathf.Abs(PlutoComm.angle) > 130 || targetcount < 0)
         {
-            case DiscreteMovementTrialState.Rest:
-                if (targetSpwan && trialDuration >= 0.15f)
-                {
-                    SetTrialState(DiscreteMovementTrialState.Moving);
-                }
-                break;
-
-            case DiscreteMovementTrialState.Moving:
-                if (targetSpwan)
-                {
-                    UpdateControlBoundSmoothly();
-                    UpdatePositionTargetSmoothly();
-
-                    if (trialDuration >= 4.5f)
-                    {
-                        if (_finalTarget == _initialTarget)
-                        {
-                            Debug.Log("Target reached. Returning to Rest state.");
-                        }
-                        SetTrialState(DiscreteMovementTrialState.Rest);
-                    }
-                }
-                else
-                {
-                    Debug.Log("Not executed");
-                }
-
-                break;
+            prevTorq = 0;
+            stopClock = trailDuration;
         }
+
+
+
+
     }
-    private void SetTrialState(DiscreteMovementTrialState newState)
-    {
-        _trialState = newState;
 
-        switch (newState)
-        {
-            case DiscreteMovementTrialState.Rest:
-                trialDuration = 0f;
-                targetSpwan = false;
-                break;
-
-            case DiscreteMovementTrialState.Moving:
-                trialDuration = 0f;
-                _initialTarget = PlutoComm.angle;
-                _finalTarget = targetAngle;
-                PlutoComm.setControlDir((sbyte)(targetPosition > playerPosition ? 1 : -1));
-
-                //aanCtrler.setNewTrialDetails(_initialTarget, _finalTarget);
-                break;
-        }
-    }
     public Vector2 TargetSpawn()
     {
+        setZeroTorque = false;
         playSize = BirdControl.playSize;
-        targetSpwan = true;
+        onceReached = false;
+        reached = false;
+        reduceOppositeTimer = 0;
+
 
         targetPos = new Vector2(0, 0);
-        targetAngle = RandomAngle();
-      
-        targetPos.y = Angle2Screen(targetAngle);
-        targetPosition=ScreenPositionToAngle(targetAngle);
-        initialDirection = getDirection();
+        targetcount++;
 
-        target = GameObject.FindGameObjectWithTag("Target");
+
+        
+        //Debug.Log( "Target Angle:" + targetAngle);
+        targetPos.y = Angle2Screen(targetAngle);
+
+
         return targetPos;
 
     }
-    private float ScreenPositionToAngle(float screenPosition)
+    public void UpdateSuccessRate()
     {
-        AppData.newPROM = new ROM(AppData.selectedMechanism);
+        if (isInPROM(targetAngle))
+        {
 
+            int val = onceReached || reached ? 1 : 0;
+            Debug.Log(val);
+            for (int i = 0; i < successRate.Length; i++)
+            {
+                if (i <= successRate.Length - 2)
+                {
+                    successRate[i] = successRate[i + 1];
+                }
+                else
+                    successRate[i] = val;
 
-        float newPROM_tmin = AppData.newPROM.promTmin;
-        float newPROM_tmax = AppData.newPROM.promTmax;
-        float angle = Mathf.Lerp(
-            newPROM_tmin / 2,
-            newPROM_tmax/ 2,
-            (screenPosition + playSize) / (2 * playSize)
-        );
-        return angle;
+            }
+
+        }
+        avgSuccessRate = (float)successRate.Sum() / (float)successRate.Length;
+        Debug.Log(avgSuccessRate);
     }
     public bool isInPROM(float angle)
     {
 
-        AppData.newPROM = new ROM(AppData.selectedMechanism);
 
-
-        float newPROM_tmin = AppData.newPROM.promTmin;
-        float newPROM_tmax = AppData.newPROM.promTmax;
+        float newPROM_tmin = -60f;
+        float newPROM_tmax = 60f;
         if (angle < newPROM_tmin || angle > newPROM_tmax)
         {
             Debug.Log("prom target");
@@ -222,11 +172,10 @@ public class FB_spawnTargets : MonoBehaviour
     }
     public float RandomAngle()
     {
-        ROM promAng = new ROM(AppData.selectedMechanism);
-        float tmin = promAng.promTmin;
-        float tmax = promAng.promTmax;
+        float tmin = -60f;
+        float tmax = 60f;
         float prevtargetAngle = targetAngle;
-        float tempAngle = Random.Range(tmin,tmax);
+        float tempAngle = Random.Range(tmin, tmax);
         while (Mathf.Abs(tempAngle - prevtargetAngle) < Mathf.Abs(tmax - tmin) / 2.5f)
         {
             tempAngle = Random.Range(tmin, tmax);
@@ -238,9 +187,8 @@ public class FB_spawnTargets : MonoBehaviour
     }
     public float Angle2Screen(float angle)
     {
-        ROM promAng = new ROM(AppData.selectedMechanism);
-        float tmin = promAng.promTmin;
-        float tmax = promAng.promTmax;
+        float tmin = -60f;
+        float tmax = 60f;
 
         return (-2f + (angle - tmin) * (playSize) / (tmax - tmin));
 
@@ -255,9 +203,4 @@ public class FB_spawnTargets : MonoBehaviour
     {
         return Mathf.Sign(targetAngle - PlutoComm.angle);
     }
-
 }
-
-
-
-

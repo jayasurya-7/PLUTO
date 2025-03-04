@@ -21,14 +21,13 @@ public class FlappyGameControl : MonoBehaviour
     public float scrollSpeed = -3f;
     private int score;
     public GameObject[] pauseObjects;
-    public float gameduration = 90;
+    public float gameduration = 60;
     public GameObject start;
     int win = 0;
     bool endValSet = false;
     private GameSession currentGameSession;
     private float gameMoveTime = 0f;
     private float lastTimestamp = 0f;       // Last recorded time for time scale changes
-    public Toggle aromRange;
 
     public BirdControl bc;
     void Awake()
@@ -41,10 +40,6 @@ public class FlappyGameControl : MonoBehaviour
         {
             Destroy(gameObject);
         }
-        if (aromRange != null)
-        {
-            aromRange.onValueChanged.AddListener(OnToggleSpawnArea);
-        }
 
     }
     void Start()
@@ -55,7 +50,7 @@ public class FlappyGameControl : MonoBehaviour
         timerObject.isOn = true;
         timerObject.enabled = true;
         gameData.reps = 0;
-        gameData.isGameLogging=true;
+        gameData.isGameLogging = true;
         //PlutoComm.calibrate(AppData.selectedMechanism);
         StartNewGameSession();
     }
@@ -74,7 +69,7 @@ public class FlappyGameControl : MonoBehaviour
         }
         UpdateGameDurationUI();
 
-        if ((Input.GetKeyDown(KeyCode.P) ))
+        if ((Input.GetKeyDown(KeyCode.P)))
         {
             if (!gameOver)
             {
@@ -113,12 +108,6 @@ public class FlappyGameControl : MonoBehaviour
         gameData.moveTime = gameMoveTime;
 
     }
-    private void OnToggleSpawnArea(bool isEnabled)
-    {
-        gameData.isAROMEnabled = isEnabled;
-        PlutoComm.setControlType("NONE");
-        Debug.Log("not done");
-    }
 
     public void showPaused()
     {
@@ -137,20 +126,22 @@ public class FlappyGameControl : MonoBehaviour
     }
     public void BirdDied()
     {
-        
+
         endValSet = true;
         gameData.moveTime = gameMoveTime;
         if (win == -1)
             GameOverText.GetComponent<Text>().text = "Try Again";
         GameOverText.SetActive(true);
         gameOver = true;
-         EndCurrentGameSession();
+
     }
     public void BirdScored()
     {
+
+
         if (gameduration < 0 && !endValSet)
         {
-         
+
             gameduration = 0;
 
 
@@ -165,13 +156,13 @@ public class FlappyGameControl : MonoBehaviour
             gameOver = true;
             Debug.Log(win);
 
-           
+            ;
             score = 0;
             BirdDied();
         }
         else
         {
-            if (!bc.startBlinking )
+            if (!bc.startBlinking)
             {
                 int index = UnityEngine.Random.Range(0, winClip.Length);
                 GetComponent<AudioSource>().clip = winClip[index];
@@ -182,7 +173,7 @@ public class FlappyGameControl : MonoBehaviour
                 score += 1;
                 gameData.gameScore++;
 
-             
+
             }
             else
             {
@@ -228,11 +219,12 @@ public class FlappyGameControl : MonoBehaviour
         lastTimestamp = Time.unscaledTime;
         start.SetActive(false);
         Time.timeScale = 1;
-       
+        EndCurrentGameSession();
     }
 
-    public void continueButton() {
-          if (Time.timeScale == 0)
+    public void continueButton()
+    {
+        if (Time.timeScale == 0)
         {
             Time.timeScale = 1;
             hidePaused();
@@ -283,7 +275,6 @@ public class FlappyGameControl : MonoBehaviour
             SessionManager.Instance.moveTime(movetime, currentGameSession);
             SessionManager.Instance.EndGameSession(currentGameSession);
         }
-        gameData.isAROMEnabled = false; 
     }
 
 }
