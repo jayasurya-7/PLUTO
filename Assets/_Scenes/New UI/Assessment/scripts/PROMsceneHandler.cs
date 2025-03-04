@@ -139,7 +139,7 @@ public class PROMsceneHandler : MonoBehaviour {
 	
     public void OnStartButtonClick()
 {
-    startAssessment(); // Starts the assessment
+    startAssessment(); 
     startButton.SetActive(false);
     nextButton.SetActive(true);
 }
@@ -184,10 +184,12 @@ public class PROMsceneHandler : MonoBehaviour {
                         // Convert tmin and tmax from degrees to centimeters
                         float apertureMinCM = Mathf.Abs(Mathf.Deg2Rad * AppData.oldPROM.promTmin * 6f);
                         float apertureMaxCM = Mathf.Abs(Mathf.Deg2Rad * AppData.oldPROM.promTmax * 6f);
-                        relaxText.text = "Prev Prom: " + apertureMinCM.ToString("0.0") + "cm : " + apertureMaxCM.ToString("0.0") + "cm (Aperture: " + Mathf.Abs(apertureMaxCM - apertureMinCM).ToString("0.0") + "cm)";
+                        relaxText.text = "Prev Prom: " + apertureMinCM.ToString("0.0") + "cm : " + apertureMaxCM.ToString("0.0")
+                            + "cm (Aperture: " + Mathf.Abs(apertureMaxCM - apertureMinCM).ToString("0.0") + "cm)";
                     }
                     else{
-                    relaxText.text = "Prev PROM: " + (int)AppData.oldPROM.promTmin + " : " + (int)AppData.oldPROM.promTmax + " (" + (int)(AppData.oldPROM.promTmax - AppData.oldPROM.promTmin) + "°)";
+                    relaxText.text = "Prev PROM: " + (int)AppData.oldPROM.promTmin + " : " + 
+                            (int)AppData.oldPROM.promTmax + " (" + (int)(AppData.oldPROM.promTmax - AppData.oldPROM.promTmin) + "°)";
                     }
                     break;
                 case AssessStates.ASSESS:
@@ -195,14 +197,14 @@ public class PROMsceneHandler : MonoBehaviour {
                     startButton.SetActive(false);
                     _tmin = promSlider.minAng;
                     _tmax = promSlider.maxAng;
-                    AssessmentValid = validAssessment();
-                    string message = "- PROM should be equal or higher than prev PROM.";
-                    string goodMessage = " - improved than last time.";
-                    if (!AssessmentValid) {
+                    
+
+                     
                         if (Array.IndexOf(PlutoComm.MECHANISMS, AppData.selectedMechanism) != 4)
                         {
 
-                            relaxText.text = "Prev PROM: " + (int)AppData.oldPROM.promTmin + " : " + (int)AppData.oldPROM.promTmax + " (" + (int)(AppData.oldPROM.promTmax - AppData.oldPROM.promTmin) + "°)" + message;
+                            relaxText.text = "Prev PROM: " + (int)AppData.oldPROM.promTmin + " : " + (int)AppData.oldPROM.promTmax 
+                                + " (" + (int)(AppData.oldPROM.promTmax - AppData.oldPROM.promTmin) + "°)" ;
                         }
                         else
                         {
@@ -210,24 +212,8 @@ public class PROMsceneHandler : MonoBehaviour {
                             float max = AppData.oldPROM.promTmax / 2;
                             float apertureMinCM = Mathf.Abs(Mathf.Deg2Rad * AppData.oldPROM.promTmin * 6f);
                             float apertureMaxCM = Mathf.Abs(Mathf.Deg2Rad * AppData.oldPROM.promTmax * 6f);
-                            relaxText.text = "Prev Prom: " + apertureMinCM.ToString("0.0") + "cm : " + apertureMaxCM.ToString("0.0") + "cm (Aperture: " + Mathf.Abs(apertureMaxCM - apertureMinCM).ToString("0.0") + "cm)" + message;
-
-                        }
-                    }
-                    else
-                    {
-                        if (Array.IndexOf(PlutoComm.MECHANISMS, AppData.selectedMechanism) != 4)
-                        {
-
-                            relaxText.text = "Prev PROM: " + (int)AppData.oldPROM.promTmin + " : " + (int)AppData.oldPROM.promTmax + " (" + (int)(AppData.oldPROM.promTmax - AppData.oldPROM.promTmin) + "°)" + goodMessage;
-                        }
-                        else
-                        {
-                            // Convert tmin and tmax from degrees to centimeters
-                            float max = AppData.oldPROM.promTmax / 2;
-                            float apertureMinCM = Mathf.Abs(Mathf.Deg2Rad * AppData.oldPROM.promTmin * 6f);
-                            float apertureMaxCM = Mathf.Abs(Mathf.Deg2Rad * AppData.oldPROM.promTmax * 6f);
-                            relaxText.text = "Prev Prom: " + apertureMinCM.ToString("0.0") + "cm : " + apertureMaxCM.ToString("0.0") + "cm (Aperture: " + Mathf.Abs(apertureMaxCM - apertureMinCM).ToString("0.0") + "cm)" + goodMessage;
+                            relaxText.text = "Prev Prom: " + apertureMinCM.ToString("0.0") + "cm : " + apertureMaxCM.ToString("0.0")
+                                + "cm (Aperture: " + Mathf.Abs(apertureMaxCM - apertureMinCM).ToString("0.0") + "cm)";
 
                         }
                         nextButton.SetActive(true);
@@ -240,7 +226,7 @@ public class PROMsceneHandler : MonoBehaviour {
                             isButtonPressed = false;
                         }
 
-                    }
+                    
 
                     break;
               
@@ -255,12 +241,15 @@ public class PROMsceneHandler : MonoBehaviour {
             float apertureMaxCM = Mathf.Abs(Mathf.Deg2Rad * AppData.oldPROM.promTmax * 6f);
             float currentMinCM = Mathf.Abs(Mathf.Deg2Rad * promSlider.minAng * 6f);
             float currentMaxCM = Mathf.Abs(Mathf.Deg2Rad * promSlider.maxAng * 6f);
-            relaxText.text = "Assessment Completed \n " + "Prev PROM: " + apertureMinCM.ToString("0.0") + "cm : " + apertureMaxCM.ToString("0.0") + "cm (Aperture: " + Mathf.Abs(apertureMaxCM - apertureMinCM).ToString("0.0") + "cm)\n"+
-                                "Current PROM: " + currentMinCM.ToString("0.0") + "cm : " + currentMaxCM.ToString("0.0") + "cm (Aperture: " + Mathf.Abs(currentMaxCM - currentMinCM).ToString("0.0") + "cm)\n";
+            relaxText.text = "Assessment Completed \n " + "Prev PROM: " + apertureMinCM.ToString("0.0") + "cm : " +
+                    apertureMaxCM.ToString("0.0") + "cm (Aperture: " + Mathf.Abs(apertureMaxCM - apertureMinCM).ToString("0.0") + "cm)\n"+
+                                "Current PROM: " + currentMinCM.ToString("0.0") + "cm : " + currentMaxCM.ToString("0.0") + "cm (Aperture: " 
+                                + Mathf.Abs(currentMaxCM - currentMinCM).ToString("0.0") + "cm)\n";
             }
             else{
-            relaxText.text = "Assessment Completed \n "+"Prev PROM: " + (int)AppData.oldPROM.promTmin + " : " + (int)AppData.oldPROM.promTmax + " (" + (int)(AppData.oldPROM.promTmax - AppData.oldPROM.promTmin) + "°) ||" +
-                              "Current PROM: " + (int)promSlider.minAng + " : " + (int)promSlider.maxAng + " (" + (int)(promSlider.maxAng - promSlider.minAng) + "°)\n";
+            relaxText.text = "Assessment Completed \n "+"Prev PROM: " + (int)AppData.oldPROM.promTmin + " : " + (int)AppData.oldPROM.promTmax + 
+                    " (" + (int)(AppData.oldPROM.promTmax - AppData.oldPROM.promTmin) + "°) ||" + "Current PROM: " + (int)promSlider.minAng + " : "
+                    + (int)promSlider.maxAng + " (" + (int)(promSlider.maxAng - promSlider.minAng) + "°)\n";
             }
         
         }
@@ -269,10 +258,7 @@ public class PROMsceneHandler : MonoBehaviour {
 
     public void OnRedoPromClick()
     {
-        // Reset the state to INIT
         _state = AssessStates.INIT;
-       
-      
         AssessmentValid = false;
         isButtonPressed = false;
 
@@ -330,7 +316,8 @@ public class PROMsceneHandler : MonoBehaviour {
                 float currentMaxCM = Mathf.Abs(Mathf.Deg2Rad * -_tmax * 6f);
 
                 relaxText.text = "Assessment Completed \n" +
-                                "Current PROM: " + currentMinCM.ToString("0.0") + "cm : " + currentMaxCM.ToString("0.0") + "cm (Aperture: " + Mathf.Abs(currentMaxCM - currentMinCM).ToString("0.0") + "cm)\n";
+                                "Current PROM: " + currentMinCM.ToString("0.0") + "cm : " + currentMaxCM.ToString("0.0")
+                                + "cm (Aperture: " + Mathf.Abs(currentMaxCM - currentMinCM).ToString("0.0") + "cm)\n";
             }
         else
         {
@@ -351,33 +338,13 @@ public class PROMsceneHandler : MonoBehaviour {
          promSlider.startAssessment(PlutoComm.angle);
             promSlider.UpdateMinMaxvalues = true;
         
-        
-
     }
-
-    bool validAssessment()
-    {
-        AppData.oldAROM = new ROM(AppData.selectedMechanism);
-        if (_tmin <= AppData.oldAROM.promTmin && _tmax >= AppData.oldAROM.promTmax)
-        {
-            return true;
-        }
-        else
-            return false;
-    }
-    
-
-
 
     void OnApplicationQuit()
     {
        JediComm.Disconnect();
     }
 
-    public void On_Back_Click()
-    {
-        SceneManager.LoadScene(2);
-    }
     
     private void UpdateGUI()
     {
