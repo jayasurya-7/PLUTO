@@ -12,6 +12,9 @@ public class calibrationSceneHandler : MonoBehaviour
     private bool isCalibrating = false;
     private float togetherPosition = 0.0f;
     private float togetherAngle = 0f;
+    private float wfeFlexionAngle = -68f;
+    private float wfeExtensionAngle = 68f;
+
     private float separationPosition = 11.0f;
     private float separationAngle = 180.0f;
     private float separationAngleWFE = 140.0f;
@@ -72,7 +75,7 @@ public class calibrationSceneHandler : MonoBehaviour
 
             case "WFE":
             case "WURD":
-                StartCoroutine(autoCalibrate(togetherAngle, separationAngleWFE));
+                StartCoroutine(autoCalibrate(wfeFlexionAngle, wfeExtensionAngle));
                 break;
 
             case "FPS":
@@ -124,25 +127,25 @@ public class calibrationSceneHandler : MonoBehaviour
         textMessage.text = "Calibrating...";
 
         float currentAngle = PlutoComm.angle;
-        float temp0 = -90f;
-        float temp1 = 90f;
-       // ApplyTorque(currentAngle, togetherAngle);
-        ApplyTorque(currentAngle, temp0);
+        //float temp0 = -90f;
+        //float temp1 = 90f;
+        // ApplyTorque(currentAngle, togetherAngle);
+        ApplyTorque(currentAngle, togetherAngle);//temp0);
         yield return new WaitForSeconds(1.5f);
 
         PlutoComm.calibrate(AppData.selectedMechanism);
 
         //ApplyTorqueToSep(PlutoComm.angle, separationAngle);
-        ApplyTorqueToSep(PlutoComm.angle, temp1);
+        ApplyTorqueToSep(PlutoComm.angle, separationAngle);
 
         yield return new WaitForSeconds(1.5f); 
-        if (!CheckPositionSeparation(PlutoComm.angle, temp1)) yield break;
-        ApplyTorque(PlutoComm.angle, temp0);
+        if (!CheckPositionSeparation(PlutoComm.angle, separationAngle)) yield break;
+        ApplyTorque(PlutoComm.angle, togetherAngle);
 
 
         yield return new WaitForSeconds(1.5f);
 
-        if (!CheckPositionTogether(PlutoComm.angle, temp0)) yield break;
+        if (!CheckPositionTogether(PlutoComm.angle, togetherAngle)) yield break;
         textMsg();
          
         Invoke("LoadNextScene", 0.4f);

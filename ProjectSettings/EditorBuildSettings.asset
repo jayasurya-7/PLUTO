@@ -21,7 +21,7 @@ EditorBuildSettings:
     path: Assets/Scenes/chooseMechanism.unity
     guid: 066c3fcbb81e1cc4f804ee26f774bb16
   - enabled: 1
-    path: Assets/Scenes/calibration.unity
+    path: Assets/Games/calibration.unity
     guid: fa25faef0f7f123479be76a94361a6fd
   - enabled: 1
     path: Assets/Scenes/choosegame.unity

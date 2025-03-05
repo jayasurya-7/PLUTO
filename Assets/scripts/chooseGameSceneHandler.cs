@@ -30,7 +30,7 @@ public class ChooseGameSceneHandler : MonoBehaviour
     private bool isRunning = false;
     
     private float targetAngle = 0;
-
+    private string assessmentScene = "assessment";
 
     void Start()
     {
@@ -81,6 +81,14 @@ public class ChooseGameSceneHandler : MonoBehaviour
         playButton.onClick.AddListener(OnPlayButtonClicked);
         changeMech.onClick.AddListener(OnMechButtonClicked);
         AppData.oldAROM=new ROM(AppData.selectedMechanism);
+        if(AppData.oldAROM.datetime == null)
+        {
+            SceneManager.LoadScene(assessmentScene);
+        }
+        else
+        {
+            Debug.Log("tp" +(AppData.oldAROM.datetime));
+        }
         if (!gameData.setNeutral)
         {
             StartCoroutine(SetMechanismToTargetAfterDelay(1.0f));
@@ -99,6 +107,7 @@ public class ChooseGameSceneHandler : MonoBehaviour
             //assessment();
            SceneManager.LoadScene("Assessment");
         }
+        //assessment(); //automatic assessment scene load when 7 days done.
 
         if (isRunning && !targetReached)
         {
@@ -210,7 +219,7 @@ public class ChooseGameSceneHandler : MonoBehaviour
     private void assessment()
     {
         string date = AppData.oldAROM.datetime; 
-        Debug.Log($"AppData.oldAROM.datetime: {date}");
+       // Debug.Log($"AppData.oldAROM.datetime: {date}");
 
         if (!string.IsNullOrEmpty(date))
         {
@@ -220,7 +229,7 @@ public class ChooseGameSceneHandler : MonoBehaviour
                 DateTime currentDate = DateTime.Now;
                 TimeSpan timeDifference = currentDate - oldDate;
 
-                result.text = $"Current Date: {currentDate}, Old Date: {oldDate}, Days Passed: {timeDifference.TotalDays:F2}";
+                result.text = $"Current Date: {currentDate}, Old Date: {oldDate}, Days Passed: {timeDifference.TotalDays:F1}";
 
                 if (timeDifference.TotalDays >= 7)
                 {
@@ -228,7 +237,7 @@ public class ChooseGameSceneHandler : MonoBehaviour
                 }
                 else
                 {
-                    Debug.Log($"Only {timeDifference.TotalDays} days have passed. 7 days required.");
+                   // Debug.Log($"Only {timeDifference.TotalDays:F1} days have passed. 7 days required.");
                 }
             }
             else

@@ -22,22 +22,19 @@ public class assessmentSceneHandler : MonoBehaviour
     public AROMsceneHandler aromHandler;
     public Image promImage;
     public Image aromImage;
+    public Image PromImagedisabled, aromImageDisabled;
     public TMP_Text Ins;
     public GameObject[] aromSelected; 
     public GameObject[] promSelected;
+
     private string mech;
-    static int steps = 10;
-    public static float[] assistProfile = new float[steps];
 
 
   
     void Start()
     {
-        //AppData.initializeStuff();
-
         SelectpROM();
         mech = AppData.selectedMechanism;
-        //UpdateAssistProfile();
         mechName.text = PlutoComm.MECHANISMSTEXT[PlutoComm.GetPlutoCodeFromLabel(PlutoComm.MECHANISMS, mech)];
       
 
@@ -67,7 +64,7 @@ public class assessmentSceneHandler : MonoBehaviour
         promButton.Select();
         if(AppData.selectedMechanism != "HOC")
         {
-            Ins.text = "set mechanism to zero position and press  'K'  to set zero";
+           // Ins.text = "set mechanism to zero position and press  'K'  to set zero";
 
         }
         promImage.color = new Color(0f / 255f, 55f / 255f, 52f / 255f);
@@ -77,7 +74,8 @@ public class assessmentSceneHandler : MonoBehaviour
         SetActiveStatus(aromSelected, false);
         SetActiveStatus(promSelected, true);
 
-
+        aromImageDisabled.gameObject.SetActive(true);
+        PromImagedisabled.gameObject.SetActive(false);   
     }
 
     public void SelectAROM()
@@ -91,25 +89,11 @@ public class assessmentSceneHandler : MonoBehaviour
 
         SetActiveStatus(aromSelected, true);
         SetActiveStatus(promSelected, true);
-
-        AppData.newPROM = new ROM(AppData.selectedMechanism);
-
-        float newPROM_tmin = AppData.promTmin;
-        float newPROM_tmax = AppData.promTmax;
-        updateAROM();
+        aromImageDisabled.gameObject.SetActive(false);
+        PromImagedisabled.gameObject.SetActive(true);
 
     }
 
-    public void updateAROM()
-    {
-        if (aromHandler.isSelected == true)
-        {
-            AppData.newPROM = new ROM(AppData.selectedMechanism);
-
-            float newPROM_tmin = AppData.promTmin;
-            float newPROM_tmax = AppData.promTmax;
-        }
-    }
     private void SetActiveStatus(GameObject[] objects, bool status)
     {
        
