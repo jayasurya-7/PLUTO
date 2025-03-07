@@ -88,7 +88,7 @@ public class HatGameController : MonoBehaviour
     }
     private DiscreteMovementTrialState _trialState;
     private static readonly IReadOnlyList<float> stateDurations = Array.AsReadOnly(new float[] {
-        0.30f,          // Rest duration
+        1.30f,          // Rest duration
         0.10f,          // Target set duration
         3.50f,          // Moving duration
         0.10f,          // Successful reach
