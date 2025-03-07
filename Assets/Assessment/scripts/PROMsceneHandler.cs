@@ -261,7 +261,7 @@ public class PROMsceneHandler : MonoBehaviour {
         _state = AssessStates.INIT;
         AssessmentValid = false;
         isButtonPressed = false;
-
+        gameData.isAROMcompleted = false;
         // Reinitialize the assessment process
         InitializeAssessment();
 

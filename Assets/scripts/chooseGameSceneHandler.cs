@@ -41,7 +41,9 @@ public class ChooseGameSceneHandler : MonoBehaviour
             // Inialize the logger
             AppLogger.StartLogging(SceneManager.GetActiveScene().name);
             AppData.initializeStuff();
-            AppData.selectedMechanism = "FPS";
+            AppData.selectedMechanism = "WFE";
+            AppData.currentSessionNumber = 1111;
+            AppData.runIndividualGame = true;   
             AppLogger.SetCurrentMechanism(AppData.selectedMechanism);
         }
         AppData.oldPROM = new ROM(AppData.selectedMechanism);
@@ -172,7 +174,6 @@ public class ChooseGameSceneHandler : MonoBehaviour
         {
             LoadSelectedGameScene(selectedGame);
             toggleSelected = false;
-           
         }
         else
         {

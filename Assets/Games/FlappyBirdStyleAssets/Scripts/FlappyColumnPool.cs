@@ -79,7 +79,7 @@ public class FlappyColumnPool : MonoBehaviour
             setup = true;
         }
 
-        FlappyGameControl.instance.scrollSpeed = -2 - 2 * (.1f + gameData.gameSpeedTT);
+        FlappyGameControl.instance.scrollSpeed = -2 - 2 * (.1f +gameData.gameSpeedTT);
     }
 
     public void chooseBackground()

@@ -14,7 +14,8 @@ public class calibrationSceneHandler : MonoBehaviour
     private float togetherAngle = 0f;
     private float wfeFlexionAngle = -68f;
     private float wfeExtensionAngle = 68f;
-
+    private float pronationAngle = -90f;
+    private float supinationAngle = 90f;
     private float separationPosition = 11.0f;
     private float separationAngle = 180.0f;
     private float separationAngleWFE = 140.0f;
@@ -79,7 +80,7 @@ public class calibrationSceneHandler : MonoBehaviour
                 break;
 
             case "FPS":
-                StartCoroutine(autoCalibrate(togetherAngle, separationAngle));
+                StartCoroutine(autoCalibrate(pronationAngle, supinationAngle));
                 break;
 
             case "FME1":

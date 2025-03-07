@@ -28,7 +28,8 @@ public class assessmentSceneHandler : MonoBehaviour
     public GameObject[] promSelected;
 
     private string mech;
-
+    private string mechScene = "chooseMechanism";
+    private string chooseGameScene = "choosegame";
 
   
     void Start()
@@ -51,7 +52,7 @@ public class assessmentSceneHandler : MonoBehaviour
         gameData.setNeutral = true;
         if (gameData.isPROMcompleted && gameData.isAROMcompleted)
         {
-            SceneManager.LoadScene("choosegame");
+            SceneManager.LoadScene(chooseGameScene);
             Debug.Log("Wrote successfully");
         }
         else
@@ -105,11 +106,11 @@ public class assessmentSceneHandler : MonoBehaviour
     }
     public void chanceMech()
     {
-        SceneManager.LoadScene("chooseMechanism");
+        SceneManager.LoadScene(mechScene);
     }
     public void gameScene()
     {
-        SceneManager.LoadScene("choosegame");
+        SceneManager.LoadScene(chooseGameScene);
     }
 
 }

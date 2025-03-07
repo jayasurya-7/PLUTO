@@ -418,8 +418,8 @@ public static class PlutoComm
     }
 
     public static void setAANTarget(float tgt0, float t0, float tgt1, float dur)
-    {// Debug.Log("AAN running");
-        Debug.Log($"tgt0: {tgt0:F2} | t0: {t0:F2} | tgt1: {tgt1:F2} | dur: {dur:F2}");
+    {
+       // Debug.Log($"tgt0: {tgt0:F2} | t0: {t0:F2} | tgt1: {tgt1:F2} | dur: {dur:F2}");
         byte[] tgt0Bytes = BitConverter.GetBytes(tgt0);
         byte[] t0Bytes = BitConverter.GetBytes(t0);
         byte[] tgt1Bytes = BitConverter.GetBytes(tgt1);
@@ -447,7 +447,6 @@ public static class PlutoComm
     public static void setControlBound(float ctrlBound)
     {
         // Limit the value to be between 0 and 1.
-        //Debug.Log("CB running "+ ctrlBound);
         ctrlBound = Math.Max(0, Math.Min(1, ctrlBound));
         byte _ctrlboundbyte = (byte)(ctrlBound * 255);
         JediComm.SendMessage(
@@ -460,7 +459,7 @@ public static class PlutoComm
 
     public static void setControlDir(sbyte ctrlDir)
     {
-        Debug.Log("CD running");
+        
         // Limit the value to be between 0 and 1.
         if ((ctrlDir != 1) && (ctrlDir != -1))
         {

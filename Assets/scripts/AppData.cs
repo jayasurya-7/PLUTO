@@ -474,7 +474,13 @@ public static class gameData
     public static bool isBallReached = false;
     public static bool targetSpwan = false;
     public static bool isAROMEnabled = false;
+
+    public static bool playerHitt = false;
+    public static bool enemyHitt = false;
     //game
+    public static float positionY1 = 0f;
+    public static float positionY2 = 0f;
+
     public static bool isGameLogging;
     public static string game;
     public static int gameScore;
@@ -503,6 +509,11 @@ public static class gameData
     public static float predictedHitY;
     public static bool setNeutral = false;
     private static DataLogger dataLog;
+
+    //flappy game
+    public static bool birdCollided = false;
+    public static bool birdPassed = false;
+
     private static readonly string[] gameHeader = new string[] {
         "time","controltype","error","buttonState","angle","control",
         "target","playerPosY","enemyPosY","events","playerScore","enemyScore"
@@ -650,7 +661,7 @@ public class DataLogger
     {
         if (log)
         {
-            UnityEngine.Debug.Log("Stored");
+            //UnityEngine.Debug.Log("Stored");
             if(fileData != null)
             {
                 UnityEngine.Debug.Log("Data available");
@@ -753,7 +764,7 @@ public class AANDataLogger
         {
             logAanFile.WriteLine(String.Join(", ", rowcomps));
         }
-        UnityEngine.Debug.Log("Writing ");
+      //  UnityEngine.Debug.Log("Writing ");
     }
 
     private void OnDataLogChange()
@@ -911,11 +922,11 @@ public class AANDataLogger
         if (!Directory.Exists(directoryPath))
         {
             Directory.CreateDirectory(directoryPath);
-            UnityEngine.Debug.Log("Directory created");
+            //UnityEngine.Debug.Log("Directory created");
         }
         else
         {
-            UnityEngine.Debug.Log("already exist");
+          //  UnityEngine.Debug.Log("already exist");
         }
     }
 

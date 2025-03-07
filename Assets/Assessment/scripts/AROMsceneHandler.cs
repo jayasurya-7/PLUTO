@@ -70,7 +70,7 @@ public class AROMsceneHandler : MonoBehaviour
     private void InitializeAssessment()
     {
         aromSlider.UpdateMinMaxvalues = false;
-
+        gameData.isAROMcompleted = false;
         nextButton.SetActive(false);
         Debug.Log("Initializing AROM assessment");
 
