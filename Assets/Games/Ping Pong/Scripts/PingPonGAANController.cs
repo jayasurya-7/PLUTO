@@ -68,7 +68,7 @@ public class PingPonGAANController : MonoBehaviour
         0.05f,          // Successful reach
         0.05f,          // Failed reach
     });
-    private const float tgtHoldDuration = 1f;
+    private const float tgtHoldDuration = 0.5f;
     private float _trialTarget = 0f;
     private float _currTgtForDisplay;
     private float trialDuration = 0f;
@@ -165,8 +165,12 @@ public class PingPonGAANController : MonoBehaviour
                     // Convert the predicted screen y (world y) to an angle for the mechanism.
                     targetPosition = ScreentoAngle(ballTrajectoryPrediction);
                     targetAngle = ScreenPositionToAngle(ballTrajectoryPrediction);
-                    if (timeToArrival < 4.7f) targetSpwan = true;
 
+                    if (timeToArrival < 4.7f)
+                    {
+                        Debug.Log($"target Angle :{targetAngle}");
+                        targetSpwan = true;
+                    }
                     //Debug.Log(PlutoComm.CONTROLTYPE[PlutoComm.controlType]);
                 }
             }
@@ -190,11 +194,11 @@ public class PingPonGAANController : MonoBehaviour
         bool _statetimeout = _deltime >= stateDurations[(int)_trialState];
         // Time when target is reached.
         bool _intgt = Math.Abs(_trialTarget - PlutoComm.angle) <= 5.0f;
+        Debug.Log($"trialTarget-{_trialTarget},diff - {Math.Abs(_trialTarget - PlutoComm.angle)} ,bool - {_intgt}, angle-{PlutoComm.angle}");
         switch (_trialState)
         {
             case DiscreteMovementTrialState.Rest:
 
-                //Debug.Log("In rest st");
                 if ((_statetimeout == false) && (gameData.events!=3)) return;
                 SetTrialState(DiscreteMovementTrialState.SetTarget);
                 dlogger.WriteAanStateInforRow();
@@ -211,8 +215,10 @@ public class PingPonGAANController : MonoBehaviour
 
                 //Debug.Log("In moving st");
                 _tempIntraStateTimer += _intgt ? Time.deltaTime : -_tempIntraStateTimer;
+                Debug.Log($"temp:{_tempIntraStateTimer}");
                 // Target reached successfull.
                 bool _tgtreached = _tempIntraStateTimer >= tgtHoldDuration;
+                Debug.Log($" Target Reached : {_tgtreached}");
                 // Update AANController.
                 aanCtrler.Update(PlutoComm.angle, Time.deltaTime, _statetimeout || _tgtreached);
                 // Set AAN target if needed.
@@ -255,16 +261,18 @@ public class PingPonGAANController : MonoBehaviour
             case DiscreteMovementTrialState.Rest:
                 // Reset trial in the AANController.
                 aanCtrler.ResetTrial();
-                dlogger.UpdateLogFiles(trialNo);
+                
                 // Reset stuff.
                 trialDuration = 0f;
                 prevControlBound = PlutoComm.controlBound;
                 currControlBound = 1.0f;
-                if (gameData.targetSpwan)
+                if (gameData.targetSpwan && gameData.enemyHitt)
                 {
+                    dlogger.UpdateLogFiles(trialNo);
                     trialNo += 1;
                     //tempSpawn = false
                     gameData.targetSpwan = false;
+                    gameData.enemyHitt = false; 
 
                 }
                 _tempIntraStateTimer = 0f;
@@ -305,6 +313,7 @@ public class PingPonGAANController : MonoBehaviour
             calibAngleRange / 2,
             (screenPosition + playSize) / (2 * playSize)
         );
+        Debug.Log($"demo ang :{angle},{PlutoComm.CALIBANGLE[PlutoComm.mechanism]}");
         return angle;
     }
 
