@@ -10,15 +10,23 @@ public class calibrationSceneHandler : MonoBehaviour
 {
     private string selectedMechanism;
     private bool isCalibrating = false;
+
+    //HOC
     private float togetherPosition = 0.0f;
+    private float separationPosition = 11.0f;
+
+    //FME1,FME2
     private float togetherAngle = 0f;
+    private float separationAngle = 180.0f;
+
+    //WFE, WURD
     private float wfeFlexionAngle = -68f;
     private float wfeExtensionAngle = 68f;
+
+    //FPS
     private float pronationAngle = -90f;
     private float supinationAngle = 90f;
-    private float separationPosition = 11.0f;
-    private float separationAngle = 180.0f;
-    private float separationAngleWFE = 140.0f;
+
     public TextMeshProUGUI textMessage;
     public TextMeshProUGUI mechText;
     public TextMeshProUGUI angText;
@@ -58,6 +66,7 @@ public class calibrationSceneHandler : MonoBehaviour
             isCalibrating = false;
         }
         angText.text = PlutoComm.angle.ToString("F3");
+        Debug.Log($"controlType{PlutoComm.CONTROLTYPETEXT[PlutoComm.controlType]}");
     }
 
     private void PerformCalibration()
@@ -102,19 +111,19 @@ public class calibrationSceneHandler : MonoBehaviour
         textMessage.text = "Calibrating...";
 
         float currentDistance = PlutoComm.getHOCDisplay(PlutoComm.angle);
-        ApplyTorqueToSep(currentDistance, togetherPosition);
+        ApplyTorqueToSep();
         yield return new WaitForSeconds(1.5f);
 
-
+        Debug.Log($"controlType before reset :{PlutoComm.CONTROLTYPETEXT[PlutoComm.controlType]}");
         PlutoComm.calibrate(selectedMechanism);
         
-        ApplyTorque(PlutoComm.getHOCDisplay(PlutoComm.angle), separationPosition);
-
+        ApplyTorque();
+        Debug.Log($"controlType before 1 reset :{PlutoComm.CONTROLTYPETEXT[PlutoComm.controlType]}");
         yield return new WaitForSeconds(1.5f);
 
         if (!CheckPositionSeparation(PlutoComm.getHOCDisplay(PlutoComm.angle), separationPosition)) yield break;
-
-        ApplyTorqueToSep(PlutoComm.getHOCDisplay(PlutoComm.angle), togetherPosition);
+        Debug.Log($"controlType before 2 reset :{PlutoComm.CONTROLTYPETEXT[PlutoComm.controlType]}");
+        ApplyTorqueToSep();
 
         yield return new WaitForSeconds(1.5f);
         if (!CheckPositionTogether(PlutoComm.getHOCDisplay(PlutoComm.angle), togetherPosition)) yield break;
@@ -128,22 +137,20 @@ public class calibrationSceneHandler : MonoBehaviour
         textMessage.text = "Calibrating...";
 
         float currentAngle = PlutoComm.angle;
-        //float temp0 = -90f;
-        //float temp1 = 90f;
-        // ApplyTorque(currentAngle, togetherAngle);
-        ApplyTorque(currentAngle, togetherAngle);//temp0);
+
+        ApplyTorque();
+        Debug.Log($"controlType before reset :{PlutoComm.CONTROLTYPETEXT[PlutoComm.controlType]}");
         yield return new WaitForSeconds(1.5f);
 
         PlutoComm.calibrate(AppData.selectedMechanism);
 
-        //ApplyTorqueToSep(PlutoComm.angle, separationAngle);
-        ApplyTorqueToSep(PlutoComm.angle, separationAngle);
-
+        ApplyTorqueToSep();
+        Debug.Log($"controlType before 1 reset :{PlutoComm.CONTROLTYPETEXT[PlutoComm.controlType]}");
         yield return new WaitForSeconds(1.5f); 
         if (!CheckPositionSeparation(PlutoComm.angle, separationAngle)) yield break;
-        ApplyTorque(PlutoComm.angle, togetherAngle);
+        ApplyTorque();
 
-
+        Debug.Log($"controlType before 2 reset :{PlutoComm.CONTROLTYPETEXT[PlutoComm.controlType]}");
         yield return new WaitForSeconds(1.5f);
 
         if (!CheckPositionTogether(PlutoComm.angle, togetherAngle)) yield break;
@@ -157,16 +164,17 @@ public class calibrationSceneHandler : MonoBehaviour
         AppLogger.LogInfo($"Switching scene to '{nextScene}'.");
         SceneManager.LoadScene(nextScene);
     }
-    private void ApplyTorque(float currentPos, float targetPos)
+    private void ApplyTorque()
     {
         float torqueValue = -0.1f;
-        PlutoComm.setControlType("TORQUE");
+        Debug.Log($" torque Value: {PlutoComm.torque}");
+        PlutoComm.setControlType(PlutoComm.CONTROLTYPE[3]);
         PlutoComm.setControlTarget(torqueValue);
     }
-    private void ApplyTorqueToSep(float currentPos, float targetPos)
+    private void ApplyTorqueToSep()
     {
         float torqueValue = 0.1f;
-        PlutoComm.setControlType("TORQUE");
+        PlutoComm.setControlType(PlutoComm.CONTROLTYPE[3]);
         PlutoComm.setControlTarget(torqueValue);
     }
 
