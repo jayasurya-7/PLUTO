@@ -165,13 +165,13 @@ public class calibrationSceneHandler : MonoBehaviour
     private void ApplyTorque()
     {
         float torqueValue = -0.1f;
-        PlutoComm.setControlType(PlutoComm.CONTROLTYPE[3]);
+        PlutoComm.setControlType("TORQUE");
         PlutoComm.setControlTarget(torqueValue);
     }
     private void ApplyTorqueToSep()
     {
         float torqueValue = 0.1f;
-        PlutoComm.setControlType(PlutoComm.CONTROLTYPE[3]);
+        PlutoComm.setControlType("TORQUE");
         PlutoComm.setControlTarget(torqueValue);
     }
 

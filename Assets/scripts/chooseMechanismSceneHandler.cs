@@ -38,17 +38,21 @@ public class MechanismSceneHandler : MonoBehaviour
             AppLogger.StartLogging(SceneManager.GetActiveScene().name);
             AppData.initializeStuff();
         }
+
         AppLogger.SetCurrentScene(SceneManager.GetActiveScene().name);
         AppLogger.LogInfo($"{SceneManager.GetActiveScene().name} scene started.");
         AppLogger.SetCurrentMechanism("");
+
         // Attach PLUTO button event
         PlutoComm.OnButtonReleased += OnPlutoButtonReleased;
         PlutoComm.calibrate("NOMECH");
+
         //checking time scale 
         if (Time.timeScale == 0)
         {
             Time.timeScale = 1;
         }
+
         exit.onClick.AddListener(OnExitButtonClicked);
         nextButton.onClick.AddListener(OnNextButtonClicked);
         UpdateMechanismToggleButtons();
@@ -60,12 +64,14 @@ public class MechanismSceneHandler : MonoBehaviour
     void Update()
     {
         PlutoComm.sendHeartbeat();
-        // Check if a scene change is needed.
-        if (changeScene == true)
+
+
+        if (changeScene)
         {
             LoadNextScene();
             changeScene = false;
         }
+
     }
 
     private void UpdateMechanismToggleButtons()
@@ -74,17 +80,22 @@ public class MechanismSceneHandler : MonoBehaviour
         {
             Toggle toggleComponent = child.GetComponent<Toggle>();
             bool isPrescribed = AppData.UserData.mechMoveTimePrsc[toggleComponent.name] > 0;
+
             // Hide the component if it has no prescribed time.
             toggleComponent.interactable = isPrescribed;
             toggleComponent.gameObject.SetActive(isPrescribed);
+
             // Update the time trained in the timeLeft component of toggleCompoent.
             Transform timeLeftTransform = toggleComponent.transform.Find("timeLeft");
+
             if (timeLeftTransform != null)
             {
+
                 // Get the TextMeshPro component from the timeLeft GameObject
                 TextMeshProUGUI timeLeftText = timeLeftTransform.GetComponent<TextMeshProUGUI>();
                 if (timeLeftText != null)
                 {
+
                     // Set the text to your desired value
                     timeLeftText.text = $"{AppData.UserData.getTodayMoveTimeForMechanism(toggleComponent.name)} / {AppData.UserData.mechMoveTimePrsc[toggleComponent.name]} min";
                 }
@@ -113,7 +124,6 @@ public class MechanismSceneHandler : MonoBehaviour
             Toggle toggleComponent = child.GetComponent<Toggle>();
             if (toggleComponent != null)
             {
-                // Update toggleSelected whenever a toggle's value changes
                 toggleComponent.onValueChanged.AddListener(delegate { CheckToggleStates(); });
             }
         }

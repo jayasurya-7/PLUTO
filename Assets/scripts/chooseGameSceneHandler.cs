@@ -16,7 +16,6 @@ public class ChooseGameSceneHandler : MonoBehaviour
 
     private bool toggleSelected = false;  
     private string selectedGame;
-    private string changeScene = "chooseMechanism";
     private static bool isButtonPressed = false;
     private readonly Dictionary<string, string> gameScenes = new Dictionary<string, string>
     {
@@ -31,66 +30,37 @@ public class ChooseGameSceneHandler : MonoBehaviour
     
     private float targetAngle = 0;
     private string assessmentScene = "assessment";
+    private string changeScene = "chooseMechanism";
 
     void Start()
     {
+        PlutoComm.setControlType("NONE");
 
-        // Initialize if needed
-        if (AppData.UserData.dTableConfig == null)
-        {
-            // Inialize the logger
-            AppLogger.StartLogging(SceneManager.GetActiveScene().name);
-            AppData.initializeStuff();
-            AppData.selectedMechanism = "WFE";
-            AppData.currentSessionNumber = 1111;
-            AppData.runIndividualGame = true;   
-            AppLogger.SetCurrentMechanism(AppData.selectedMechanism);
-        }
-        AppData.oldPROM = new ROM(AppData.selectedMechanism);
-        //targetAngle = (AppData.oldPROM.tmax + AppData.oldPROM.tmin)/2;
-        targetAngle= AppData.offsetAtNeutral[PlutoComm.GetPlutoCodeFromLabel(PlutoComm.MECHANISMS,AppData.selectedMechanism)];
-        AppLogger.SetCurrentScene(SceneManager.GetActiveScene().name);
-        AppLogger.LogInfo($"{SceneManager.GetActiveScene().name} scene started.");
-        AppLogger.SetCurrentGame("");
+        initialize();
+
+        //applogger
+        applogging();
+
+        //calculate game speed
         AppData.UserData.CalculateGameSpeedForLastUsageDay();
+
         PlutoComm.OnButtonReleased += OnPlutoButtonReleased;
 
-        //tes
-        Debug.Log("AppData.selectedMechanism: " + AppData.selectedMechanism);
-        Debug.Log("AppData.aRomValue is " + (AppData.aRomValue == null ? "null" : "initialized"));
-
-        ROM vall = new ROM(AppData.selectedMechanism);
-        if (vall == null)
-        {
-            Debug.LogError("ROM instance failed to initialize!");
-        }
-        else
-        {
-            Debug.Log("ROM instance created successfully!");
-        }
-
-        if (AppData.aRomValue == null)
-            AppData.aRomValue = new float[2]; // Ensure array exists
-        AppData.pRomValue = new float[2];
-        AppData.aRomValue[0] = vall.aromTmin;
-        AppData.aRomValue[1] = vall.aromTmax;
-        AppData.pRomValue[0] = vall.promTmin;
-        AppData.pRomValue[1] = vall.promTmax;
-
+        ROM romValues = new ROM(AppData.selectedMechanism);
 
         AttachToggleListeners();
-        PlutoComm.setControlType("NONE");
+        
         playButton.onClick.AddListener(OnPlayButtonClicked);
         changeMech.onClick.AddListener(OnMechButtonClicked);
-        AppData.oldAROM=new ROM(AppData.selectedMechanism);
-        if(AppData.oldAROM.datetime == null)
-        {
-            SceneManager.LoadScene(assessmentScene);
-        }
-        else
-        {
-            Debug.Log("tp" +(AppData.oldAROM.datetime));
-        }
+
+        if(romValues.datetime == null) SceneManager.LoadScene(assessmentScene);
+
+        AppData.aRomValue[0] = romValues.aromTmin;
+        AppData.aRomValue[1] = romValues.aromTmax;
+        AppData.pRomValue[0] = romValues.promTmin;
+        AppData.pRomValue[1] = romValues.promTmax;
+
+        //set mechanism to neutral position
         if (!gameData.setNeutral)
         {
             StartCoroutine(SetMechanismToTargetAfterDelay(1.0f));
@@ -107,7 +77,7 @@ public class ChooseGameSceneHandler : MonoBehaviour
         if (Input.GetKey(KeyCode.LeftControl) && Input.GetKeyDown(KeyCode.R))
         {
             //assessment();
-           SceneManager.LoadScene("Assessment");
+           SceneManager.LoadScene(assessmentScene);
         }
         //assessment(); //automatic assessment scene load when 7 days done.
 
@@ -118,11 +88,11 @@ public class ChooseGameSceneHandler : MonoBehaviour
             {
                 targetReached = true;
                 isRunning = false;
+                gameData.setNeutral = true;
                 PlutoComm.setControlType("NONE");
                 Debug.Log($"Target reached: {currentAngle}. Control type set to NONE.");
             }
         }
-        //aromValue();
     }
 
 
@@ -182,8 +152,28 @@ public class ChooseGameSceneHandler : MonoBehaviour
     }
 
 
+    private void initialize()
+    {
+        // Initialize if needed
+        if (AppData.UserData.dTableConfig == null)
+        {
+            // Inialize the logger
+            AppLogger.StartLogging(SceneManager.GetActiveScene().name);
+            AppData.initializeStuff();
+            AppData.selectedMechanism = "WFE";
+            AppData.currentSessionNumber = 1111;
+            AppData.runIndividualGame = true;
+            AppLogger.SetCurrentMechanism(AppData.selectedMechanism);
+        }
+    }
 
+    private void applogging()
+    {
 
+        AppLogger.SetCurrentScene(SceneManager.GetActiveScene().name);
+        AppLogger.LogInfo($"{SceneManager.GetActiveScene().name} scene started.");
+        AppLogger.SetCurrentGame("");
+    }
 
    
     private void OnMechButtonClicked()
@@ -196,12 +186,6 @@ public class ChooseGameSceneHandler : MonoBehaviour
     {
         if (gameScenes.TryGetValue(game, out string sceneName))
         {
-            Debug.Log("Scene name:"+ sceneName);
-            if (AppData.selectedMechanism != "HOC" && !gameData.setNeutral)
-            {
-                gameData.setNeutral = true;
-                //PlutoComm.calibrate(AppData.selectedMechanism); //its temp, needs to set 0 using control type 
-            }
             SceneManager.LoadScene(sceneName);
         }
     }

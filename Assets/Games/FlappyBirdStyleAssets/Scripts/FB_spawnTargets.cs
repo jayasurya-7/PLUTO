@@ -198,8 +198,6 @@ public class FB_spawnTargets : MonoBehaviour
                 break;
             case DiscreteMovementTrialState.Moving:
                 // Check of the target has been reached.
-                Debug.Log(PlutoComm.CONTROLTYPETEXT[PlutoComm.controlType]);
-              //  Debug.Log("Im moving right now");
                 _tempIntraStateTimer += _intgt ? Time.deltaTime : -_tempIntraStateTimer;
                 // Target reached successfull.
                 bool _tgtreached = _tempIntraStateTimer >= tgtHoldDuration;

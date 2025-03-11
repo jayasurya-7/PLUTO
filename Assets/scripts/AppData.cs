@@ -581,7 +581,7 @@ public static class gameData
     {
         if (dataLog != null)
         {
-            UnityEngine.Debug.Log("Null log not");
+            UnityEngine.Debug.Log("Not null");
             dataLog.stopDataLog(true);
             dataLog = null;
             isLogging = false;
@@ -661,16 +661,15 @@ public class DataLogger
     {
         if (log)
         {
-            //UnityEngine.Debug.Log("Stored");
             if(fileData != null)
             {
-                UnityEngine.Debug.Log("Data available");
+                File.AppendAllText(currFileName, fileData.ToString());
             }
             else
             {
                 UnityEngine.Debug.Log("Data not available");
             }
-            File.AppendAllText(currFileName, fileData.ToString());
+           
         }
         currFileName = "";
         fileData = null;

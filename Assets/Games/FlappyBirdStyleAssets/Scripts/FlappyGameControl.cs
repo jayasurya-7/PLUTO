@@ -112,7 +112,8 @@ public class FlappyGameControl : MonoBehaviour
     {
         timerObject.specifiedValue = Mathf.Clamp(100 * (90 - gameduration) / 90f, 0, 100);
         gameData.moveTime = gameMoveTime;
-        Debug.Log($"{gameduration},____,  {gameMoveTime}");
+
+
         aromLeft.transform.position = new Vector3(aromRight.transform.position.x,
            Angle2Screen(AppData.aRomValue[0]),
            aromLeft.transform.position.z
