@@ -60,11 +60,7 @@ public class ChooseGameSceneHandler : MonoBehaviour
         AppData.pRomValue[0] = romValues.promTmin;
         AppData.pRomValue[1] = romValues.promTmax;
 
-        //set mechanism to neutral position
-        if (!gameData.setNeutral)
-        {
-            StartCoroutine(SetMechanismToTargetAfterDelay(1.0f));
-        }
+       
     }
     void Update()
     {   
@@ -81,33 +77,9 @@ public class ChooseGameSceneHandler : MonoBehaviour
         }
         //assessment(); //automatic assessment scene load when 7 days done.
 
-        if (isRunning && !targetReached)
-        {
-            float currentAngle = PlutoComm.angle;
-            if (Mathf.Abs(currentAngle - 0f) <= targetTolerance) //for now,its 0 in future we need to change according to mech.
-            {
-                targetReached = true;
-                isRunning = false;
-                gameData.setNeutral = true;
-                PlutoComm.setControlType("NONE");
-                Debug.Log($"Target reached: {currentAngle}. Control type set to NONE.");
-            }
-        }
+      
     }
 
-
-    private IEnumerator SetMechanismToTargetAfterDelay(float delay)
-    {
-        yield return new WaitForSeconds(delay);
-
-        PlutoComm.setControlType("POSITIONAAN");
-        PlutoComm.setControlBound(0.9f);
-        PlutoComm.setControlDir(1);
-        PlutoComm.setAANTarget(PlutoComm.angle, 0f, 0f, 2f);
-        isRunning = true;
-        
-        Debug.Log($"Started moving mechanism to {targetAngle} degrees.");
-    }
 
     void AttachToggleListeners()
     {

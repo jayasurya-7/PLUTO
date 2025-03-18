@@ -45,10 +45,13 @@ public class calibrationSceneHandler : MonoBehaviour
         selectedMechanism = AppData.selectedMechanism;
         mechText.text = PlutoComm.MECHANISMSTEXT[PlutoComm.GetPlutoCodeFromLabel(PlutoComm.MECHANISMS, selectedMechanism)];
         exit.onClick.AddListener(OnExitButtonClicked);
+        Debug.Log($"start: : {PlutoComm.CONTROLTYPETEXT[PlutoComm.controlType]}");
+
     }
 
     void Update()
     {
+        Debug.Log($"update : {PlutoComm.CONTROLTYPETEXT[PlutoComm.controlType]}");
         PlutoComm.sendHeartbeat();
         if (Input.GetKeyDown(KeyCode.C) && !isCalibrating)
         {
@@ -66,7 +69,6 @@ public class calibrationSceneHandler : MonoBehaviour
             isCalibrating = false;
         }
         angText.text = PlutoComm.angle.ToString("F3");
-        Debug.Log($"controlType{PlutoComm.CONTROLTYPETEXT[PlutoComm.controlType]}");
     }
 
     private void PerformCalibration()
@@ -133,6 +135,7 @@ public class calibrationSceneHandler : MonoBehaviour
     {
         textMessage.color = Color.black;
         textMessage.text = "Calibrating...";
+        Debug.Log($"when cxalled : {PlutoComm.CONTROLTYPETEXT[PlutoComm.controlType]}");
 
         float currentAngle = PlutoComm.angle;
 
@@ -153,7 +156,8 @@ public class calibrationSceneHandler : MonoBehaviour
 
         if (!CheckPositionTogether(PlutoComm.angle, togetherAngle)) yield break;
         textMsg();
-         
+        Debug.Log($"after called : {PlutoComm.CONTROLTYPETEXT[PlutoComm.controlType]}");
+
         Invoke("LoadNextScene", 0.4f);
     }
 
@@ -232,6 +236,8 @@ public class calibrationSceneHandler : MonoBehaviour
         isCalibrating = false;
         PlutoComm.calibrate(AppData.selectedMechanism);
         PlutoComm.setControlType(PlutoComm.CONTROLTYPE[0]);
+        Debug.Log($"in end : {PlutoComm.CONTROLTYPETEXT[PlutoComm.controlType]}");
+
     }
 
     private void textMsg()
@@ -240,6 +246,8 @@ public class calibrationSceneHandler : MonoBehaviour
         textMessage.text = "Calibration Done";
         textMessage.color = new Color32(62, 214, 111, 255);
         PlutoComm.setControlType(PlutoComm.CONTROLTYPE[0]);
+        Debug.Log($"in end : {PlutoComm.CONTROLTYPETEXT[PlutoComm.controlType]}");
+
     }
     private void OnExitButtonClicked()
     {

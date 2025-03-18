@@ -7997,9 +7997,9 @@ MonoBehaviour:
   currepositionHoc: {fileID: 1200861006}
   aromSlider: {fileID: 528539155}
   promSlider: {fileID: 0}
+  panelControl: {fileID: 1932140814}
   isSelected: 0
   isInteractable: 0
-  panelControl: {fileID: 1932140814}
 --- !u!114 &413374365
 MonoBehaviour:
   m_ObjectHideFlags: 0
@@ -24754,18 +24754,6 @@ MonoBehaviour:
   m_OnClick:
     m_PersistentCalls:
       m_Calls:
-      - m_Target: {fileID: 8209750394461808011}
-        m_TargetAssemblyTypeName: PromWF_Scn_Hndlr_newUI, Assembly-CSharp
-        m_MethodName: startAssessment
-        m_Mode: 1
-        m_Arguments:
-          m_ObjectArgument: {fileID: 0}
-          m_ObjectArgumentAssemblyTypeName: UnityEngine.Object, UnityEngine
-          m_IntArgument: 0
-          m_FloatArgument: 0
-          m_StringArgument: 
-          m_BoolArgument: 0
-        m_CallState: 2
       - m_Target: {fileID: 8209750394461808011}
         m_TargetAssemblyTypeName: PromWF_Scn_Hndlr_newUI, Assembly-CSharp
         m_MethodName: OnStartButtonClick
@@ -44239,6 +44227,7 @@ MonoBehaviour:
   m_Script: {fileID: 11500000, guid: 447638ce8b953ac4ebb3c7a78e086d7c, type: 3}
   m_Name: 
   m_EditorClassIdentifier: 
+  isSelected: 1
   lText: {fileID: 1948570589}
   rText: {fileID: 538157347}
   insText: {fileID: 2003915166}
@@ -44251,9 +44240,6 @@ MonoBehaviour:
   CurrPositioncursor: {fileID: 2756669748342342149}
   CurrPositioncursorHoc: {fileID: 1207974071}
   promSlider: {fileID: 2870106807345754064}
-  promSliderHOC: {fileID: 0}
-  isSelected: 1
-  inst: 0
   panelControl: {fileID: 1932140814}
 --- !u!114 &8209750394461808014
 MonoBehaviour:
