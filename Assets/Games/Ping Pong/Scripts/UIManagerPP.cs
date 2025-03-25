@@ -308,7 +308,7 @@ public class UIManagerPP : MonoBehaviour
             SessionManager.Instance.successRate(gameData.successRate, currentGameSession);
             Debug.Log("speed and sr :"+ gameData.gameSpeedPP+"+"+ gameData.successRate);
             SessionManager.Instance.SetTrialDataFileLocation(trialdata, currentGameSession);
-            SessionManager.Instance.moveTime(movetime, currentGameSession);
+                
             SessionManager.Instance.EndGameSession(currentGameSession);
         }
         gameData.isAROMEnabled = false; 
