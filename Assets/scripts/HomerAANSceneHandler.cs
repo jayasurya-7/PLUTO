@@ -590,6 +590,22 @@ public class Homer_AAN_SceneHandler : MonoBehaviour
             
         // Enable/Disable control panel.
         string _mech = PlutoComm.MECHANISMS[PlutoComm.mechanism];
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
         string _ctrlType = PlutoComm.CONTROLTYPE[PlutoComm.controlType];
 
         if (_mech == "HOC")

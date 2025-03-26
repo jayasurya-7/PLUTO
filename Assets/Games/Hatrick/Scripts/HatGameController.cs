@@ -175,7 +175,8 @@ public class HatGameController : MonoBehaviour
     {
         PlutoComm.sendHeartbeat();
         UI();
-        Debug.Log(PlutoComm.CONTROLTYPE[PlutoComm.controlType]);
+        Debug.Log($"targetposition:{targetPosition}+ targetAngle :{targetAngle}");
+        //Debug.Log(PlutoComm.CONTROLTYPE[PlutoComm.controlType]);
         //if (PlutoComm.CONTROLTYPE[PlutoComm.controlType] == "NONE" && !aromRangeSpawn) {
         //    PlutoComm.setControlType("POSITIONAAN");
         //    Debug.Log("AAN applied");
@@ -522,6 +523,7 @@ public class HatGameController : MonoBehaviour
             {
 
                 targetPosition = UnityEngine.Random.Range(-playSize + 0.5f, playSize - 0.5f);
+                //targetPosition = UnityEngine.Random.Range(0,2);
 
             }
 
@@ -602,12 +604,26 @@ public class HatGameController : MonoBehaviour
     private float ScreenPositionToAngle(float screenPosition)
     {
         float calibAngleRange = PlutoComm.CALIBANGLE[PlutoComm.mechanism];
-        float angle = Mathf.Lerp(
-            -calibAngleRange / 2,
-            calibAngleRange / 2,
-            (screenPosition + playSize) / (2 * playSize)
-        );
-        return angle;
+        if (AppData.selectedMechanism == "HOC") {
+           // float angle = Mathf.Lerp(AppData.pRomValue[1], AppData.pRomValue[0], (screenPosition + playSize) / (2 * playSize));
+
+            float angle = Mathf.Lerp(-calibAngleRange, 0f, (screenPosition + playSize) / (2 * playSize));
+           // Debug.Log($"ang : {angle}");
+            return angle ;
+            
+           
+        }
+        else {
+            float angle = Mathf.Lerp(
+               -calibAngleRange / 2,
+               calibAngleRange / 2,
+               (screenPosition + playSize) / (2 * playSize)
+           );
+            return angle;
+
+        }
+
+
     }
     private void UpdateText()
     {

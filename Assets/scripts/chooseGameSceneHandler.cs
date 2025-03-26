@@ -132,7 +132,7 @@ public class ChooseGameSceneHandler : MonoBehaviour
             // Inialize the logger
             AppLogger.StartLogging(SceneManager.GetActiveScene().name);
             AppData.initializeStuff();
-            AppData.selectedMechanism = "WFE";
+            AppData.selectedMechanism = "HOC";
             AppData.currentSessionNumber = 1111;
             AppData.runIndividualGame = true;
             AppLogger.SetCurrentMechanism(AppData.selectedMechanism);
