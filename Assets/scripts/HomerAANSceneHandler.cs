@@ -51,6 +51,12 @@ public class Homer_AAN_SceneHandler : MonoBehaviour
     // PROM parameters
     private float[] pRomValue = new float[2] { -60.0f, 60.0f };
 
+    // AROM parameters
+    private float[] aRomValueHOC = new float[2] { 35f, 55f };
+
+    // PROM parameters
+    private float[] pRomValueHOC = new float[2] { 10.0f, 80.0f };
+
     // Control variables
     private bool isRunning = false;
     private const float tgtDuration = 3.0f;
@@ -102,12 +108,12 @@ public class Homer_AAN_SceneHandler : MonoBehaviour
     private sbyte currControlDir = 0;
     private float _currCBforDisplay;
     //private int successRate;
-
+    private float max = 0f;
     // AAN class
     private HOMERPlutoAANController aanCtrler;
 
     // Target Display Scaling
-    private const float xmax = 12f;
+    private const float xmax = 12f, xmaxHOC = 6f;
 
     // Logging related variables
     // Variable to indicate if logging is to be started from the start of the next trial,
@@ -152,7 +158,7 @@ public class Homer_AAN_SceneHandler : MonoBehaviour
     // Update is called once per frame
     void Update()
     {
-        Debug.Log($"{aRomValue[0]}, {aRomValue[1]}");
+        //Debug.Log($"{aRomValue[0]}, {aRomValue[1]}");
         // PLUTO heartbeat.
         PlutoComm.sendHeartbeat();
 
@@ -177,14 +183,15 @@ public class Homer_AAN_SceneHandler : MonoBehaviour
 
     void FixedUpdate()
     {
+        
         if (PlutoComm.CALIBANGLE[PlutoComm.mechanism] != 0)
         {
-            // Update actual position
-            actualCircle.transform.position = new Vector3(
-                (2 * PlutoComm.angle / PlutoComm.CALIBANGLE[PlutoComm.mechanism]) * xmax,
-                actualCircle.transform.position.y,
-                actualCircle.transform.position.z
-            );
+                // Update actual position
+                actualCircle.transform.position = new Vector3(
+                    (2 * PlutoComm.angle / PlutoComm.CALIBANGLE[PlutoComm.mechanism]) * (max = (PlutoComm.MECHANISMS[PlutoComm.mechanism] == "HOC") ? xmaxHOC : xmax),
+                    actualCircle.transform.position.y,
+                    actualCircle.transform.position.z
+                );
         }
     }
 
@@ -265,13 +272,26 @@ public class Homer_AAN_SceneHandler : MonoBehaviour
             case DiscreteMovementTrialState.SetTarget:
                 // Random select target from the appropriate range.
                 float _tgtscale = UnityEngine.Random.Range(0.0f, 1.0f);
-                _trialTarget = _tgtscale * (pRomValue[1] - pRomValue[0]) + pRomValue[0];
+                
                 // Change target location.
-                targetCircle.transform.position = new Vector3(
-                    (2 * _trialTarget / PlutoComm.CALIBANGLE[PlutoComm.mechanism]) * xmax,
-                    targetCircle.transform.position.y,
-                    targetCircle.transform.position.z
-                );
+                if (PlutoComm.MECHANISMS[PlutoComm.mechanism] == "HOC"){
+                    _trialTarget = _tgtscale * (pRomValueHOC[1] - pRomValueHOC[0]) + pRomValueHOC[0];
+                   // Debug.Log($"_trialTarget :{_trialTarget}---{_tgtscale * (80f - 10f) + 10f}");
+                    targetCircle.transform.position = new Vector3(
+                   (2 * _trialTarget / PlutoComm.CALIBANGLE[PlutoComm.mechanism]) * xmaxHOC,
+                   targetCircle.transform.position.y,
+                   targetCircle.transform.position.z
+               );
+                }
+                else
+                {
+                    _trialTarget = _tgtscale * (pRomValue[1] - pRomValue[0]) + pRomValue[0];
+                    targetCircle.transform.position = new Vector3(
+                   (2 * _trialTarget / PlutoComm.CALIBANGLE[PlutoComm.mechanism]) * xmax,
+                   targetCircle.transform.position.y,
+                   targetCircle.transform.position.z
+               );
+                }
                 PlutoComm.setControlBound(1.0f);
                 break;
             case DiscreteMovementTrialState.Moving:
@@ -375,7 +395,8 @@ public class Homer_AAN_SceneHandler : MonoBehaviour
         else
         {
             // Pluto AAN controller
-            aanCtrler = new HOMERPlutoAANController(aRomValue, pRomValue, 0.85f);
+            if (PlutoComm.MECHANISMS[PlutoComm.mechanism] == "HOC") aanCtrler = new HOMERPlutoAANController(aRomValueHOC, pRomValueHOC, 0.85f);
+            else aanCtrler = new HOMERPlutoAANController(aRomValue, pRomValue, 0.85f);
             // Change button text
             btnStartStop.GetComponentInChildren<TMP_Text>().text = "Stop Demo";
             isRunning = true;
@@ -571,27 +592,54 @@ public class Homer_AAN_SceneHandler : MonoBehaviour
         string _mech = PlutoComm.MECHANISMS[PlutoComm.mechanism];
         string _ctrlType = PlutoComm.CONTROLTYPE[PlutoComm.controlType];
 
-        // Display AROM/PROM markers.
-        aromLeft.transform.position = new Vector3(
-            (2 * aRomValue[0] / PlutoComm.CALIBANGLE[PlutoComm.mechanism]) * xmax,
-            aromLeft.transform.position.y,
-            aromLeft.transform.position.z
-        );
-        aromRight.transform.position = new Vector3(
-            (2 * aRomValue[1] / PlutoComm.CALIBANGLE[PlutoComm.mechanism]) * xmax,
-            aromRight.transform.position.y,
-            aromRight.transform.position.z
-        );
-        promLeft.transform.position = new Vector3(
-            (2 * pRomValue[0] / PlutoComm.CALIBANGLE[PlutoComm.mechanism]) * xmax,
-            promLeft.transform.position.y,
-            promLeft.transform.position.z
-        );
-        promRight.transform.position = new Vector3(
-            (2 * pRomValue[1] / PlutoComm.CALIBANGLE[PlutoComm.mechanism]) * xmax,
-            promRight.transform.position.y,
-            promRight.transform.position.z
-        );
+        if (_mech == "HOC")
+        {
+            // Display AROM/PROM markers.
+            aromLeft.transform.position = new Vector3(
+                (2 * aRomValueHOC[0] / PlutoComm.CALIBANGLE[PlutoComm.mechanism]) * xmaxHOC,
+                aromLeft.transform.position.y,
+                aromLeft.transform.position.z
+            );
+           aromRight.transform.position = new Vector3(
+                (2 * aRomValueHOC[1] / PlutoComm.CALIBANGLE[PlutoComm.mechanism]) * xmaxHOC,
+                aromRight.transform.position.y,
+                aromRight.transform.position.z
+            );
+            promLeft.transform.position = new Vector3(
+                (2 * pRomValueHOC[0] / PlutoComm.CALIBANGLE[PlutoComm.mechanism]) * xmaxHOC,
+                promLeft.transform.position.y,
+                promLeft.transform.position.z
+            );
+            promRight.transform.position = new Vector3(
+                (2 * pRomValueHOC[1] / PlutoComm.CALIBANGLE[PlutoComm.mechanism]) * xmaxHOC,
+                promRight.transform.position.y,
+                promRight.transform.position.z
+            );
+        }
+        else {
+            // Display AROM/PROM markers.
+            aromLeft.transform.position = new Vector3(
+                (2 * aRomValue[0] / PlutoComm.CALIBANGLE[PlutoComm.mechanism]) * xmax,
+                aromLeft.transform.position.y,
+                aromLeft.transform.position.z
+            );
+            aromRight.transform.position = new Vector3(
+                (2 * aRomValue[1] / PlutoComm.CALIBANGLE[PlutoComm.mechanism]) * xmax,
+                aromRight.transform.position.y,
+                aromRight.transform.position.z
+            );
+            promLeft.transform.position = new Vector3(
+                (2 * pRomValue[0] / PlutoComm.CALIBANGLE[PlutoComm.mechanism]) * xmax,
+                promLeft.transform.position.y,
+                promLeft.transform.position.z
+            );
+            promRight.transform.position = new Vector3(
+                (2 * pRomValue[1] / PlutoComm.CALIBANGLE[PlutoComm.mechanism]) * xmax,
+                promRight.transform.position.y,
+                promRight.transform.position.z
+            );
+        }
+        
     }
 
     private void UpdateDataDispay()
