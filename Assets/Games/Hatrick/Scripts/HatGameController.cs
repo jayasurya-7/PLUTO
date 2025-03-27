@@ -143,6 +143,7 @@ public class HatGameController : MonoBehaviour
     private int spawnCounter = 0;
     private System.Random random = new System.Random();
     private string prevScene = "choosegame";
+    private float anglex = 0f;
     public bool IsPlaying
     {
         get { return isPlaying; }
@@ -175,7 +176,7 @@ public class HatGameController : MonoBehaviour
     {
         PlutoComm.sendHeartbeat();
         UI();
-        Debug.Log($"targetposition:{targetPosition}+ targetAngle :{targetAngle}");
+        Debug.Log($"targetposition:{targetPosition}+ targetAngle :{targetAngle}+ angle :{PlutoComm.angle}");
         //Debug.Log(PlutoComm.CONTROLTYPE[PlutoComm.controlType]);
         //if (PlutoComm.CONTROLTYPE[PlutoComm.controlType] == "NONE" && !aromRangeSpawn) {
         //    PlutoComm.setControlType("POSITIONAAN");
@@ -554,6 +555,7 @@ public class HatGameController : MonoBehaviour
 
             HT_spawnTargets1.instance.stopClock = trailDuration;
             targetAngle = ScreenPositionToAngle(targetPosition);
+
             if (totalTargetsSpawned == randomTargetIndex)
             {
                 targetImage.gameObject.SetActive(true);
@@ -603,26 +605,13 @@ public class HatGameController : MonoBehaviour
     }
     private float ScreenPositionToAngle(float screenPosition)
     {
-        float calibAngleRange = PlutoComm.CALIBANGLE[PlutoComm.mechanism];
-        if (AppData.selectedMechanism == "HOC") {
-           // float angle = Mathf.Lerp(AppData.pRomValue[1], AppData.pRomValue[0], (screenPosition + playSize) / (2 * playSize));
-
-            float angle = Mathf.Lerp(-calibAngleRange, 0f, (screenPosition + playSize) / (2 * playSize));
-           // Debug.Log($"ang : {angle}");
-            return angle ;
-            
-           
-        }
-        else {
-            float angle = Mathf.Lerp(
-               -calibAngleRange / 2,
-               calibAngleRange / 2,
-               (screenPosition + playSize) / (2 * playSize)
-           );
-            return angle;
-
-        }
-
+        
+        float angle = Mathf.Lerp(
+            AppData.pRomValue[0],
+            AppData.pRomValue[1],
+            (screenPosition + playSize) / (2 * playSize)
+            );
+        return angle;
 
     }
     private void UpdateText()
