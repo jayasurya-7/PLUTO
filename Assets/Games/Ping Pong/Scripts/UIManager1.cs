@@ -3,7 +3,7 @@ using System.Collections;
 using UnityEngine.SceneManagement;
 using static AppData;
 using UnityEngine.UI;
-using UnityEditor.SearchService;
+//using UnityEditor.SearchService;000
 
 public class UIManager1 : MonoBehaviour
 {

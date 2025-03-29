@@ -5,7 +5,7 @@ using UnityEngine.UI;
 using System.Collections.Generic; 
 using System.Collections;
 using TMPro;
-using UnityEditor.U2D.Aseprite;
+//using UnityEditor.U2D.Aseprite;
 
 public class ChooseGameSceneHandler : MonoBehaviour
 {
@@ -19,7 +19,7 @@ public class ChooseGameSceneHandler : MonoBehaviour
     private static bool isButtonPressed = false;
     private readonly Dictionary<string, string> gameScenes = new Dictionary<string, string>
     {
-        { "pingPong", "pong_menu" },
+        { "pingPong", "pong_game" },
         { "tukTuk", "FlappyGame" },
         { "hatTrick", "HatrickGame" }
     };

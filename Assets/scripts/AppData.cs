@@ -4,7 +4,7 @@ using System.IO;
 using System.Collections;
 using System.Collections.Generic;
 using System.Data;
-using UnityEditor.PackageManager;
+//using UnityEditor.PackageManager;
 
 using System.Globalization;
 using System.Linq;
@@ -496,7 +496,7 @@ public static class gameData
     public static string enemyFail = "0";
     public static string playerFail = "0";
     public static int winningScore = 3;
-    public static float moveTime;
+    public static float moveTime=0f;
     public static readonly string[] pongEvents = new string[] { "moving", "wallBounce", "playerHit", "enemyHit", "playerFail", "enemyFail" };
     public static readonly string[] hatEvents = new string[] { "moving", "BallCaught", "BombCaught", "BallMissed", "BombMissed" };
     public static readonly string[] tukEvents = new string[] { "moving", "collided", "passed" };

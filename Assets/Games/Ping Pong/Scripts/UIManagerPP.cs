@@ -1,8 +1,8 @@
 ﻿using UnityEngine;
 using System.Collections;
 using UnityEngine.SceneManagement;
-using UnityEngine.SocialPlatforms;
-using UnityEditor.SceneManagement;
+//using UnityEngine.SocialPlatforms;
+//using UnityEditor.SceneManagement;
 using NeuroRehabLibrary;
 using UnityEngine.Analytics;
 using UnityEngine.UI;
@@ -64,18 +64,28 @@ public class UIManagerPP : MonoBehaviour
     }
     void Update()
     {
-        
+        PlutoComm.sendHeartbeat();
+        //if (PlutoComm.CONTROLTYPETEXT[PlutoComm.controlType] == "NONE")
+        //{
+        //    PlutoComm.setControlType("POSITIONAAN");
+        //}
+
+       // PlutoComm.setControlType("TORQUE");
+
         if (Time.timeScale > 0 && !isFinished)
         {
             float currentTime = Time.unscaledTime;
             gameMoveTime += currentTime - lastTimestamp;
             lastTimestamp = currentTime;
+            gameData.moveTime = gameMoveTime;
         }
         else 
         {
             lastTimestamp = Time.unscaledTime; // Update timestamp even if paused or finished
         }
+
         CheckGameEndConditions();
+
         if (isFinished)
         {
             showFinished();
@@ -134,6 +144,8 @@ public class UIManagerPP : MonoBehaviour
         }
         aromLeft.transform.position = new Vector2(aromLeft.transform.position.x, playerMovementAreaAROM(AppData.aRomValue[0]));
         aromRight.transform.position = new Vector2(aromLeft.transform.position.x, playerMovementAreaAROM(AppData.aRomValue[1]));
+
+        Debug.Log(PlutoComm.CONTROLTYPETEXT[PlutoComm.controlType]);
         //Debug.Log($"ypos--{playerMovementAreaAROM(PlutoComm.angle)}+ angle-{PlutoComm.angle},{playerMovementAreaAROM(AppData.aRomValue[1])}");
         //if (PlutoComm.angle < AppData.pRomValue[1] && PlutoComm.angle > AppData.pRomValue[0]) Debug.Log($"position {PlutoComm.angle},{playerMovementAreaAROM(PlutoComm.angle)}");
     }
@@ -141,7 +153,7 @@ public class UIManagerPP : MonoBehaviour
     private void OnToggleSpawnArea(bool isEnabled)
     {
         gameData.isAROMEnabled = isEnabled;
-        PlutoComm.setControlType("NONE");
+       // PlutoComm.setControlType("NONE");
     }
 
     private void CheckGameEndConditions()
@@ -303,8 +315,9 @@ public class UIManagerPP : MonoBehaviour
         if (currentGameSession != null)
         {
             string trialdata = AppData.trialDataFileLocation;
-            string movetime = gameData.moveTime.ToString("F0");
+           // string movetime = ((gameData.moveTime > 0)? gameData.moveTime: 0).ToString("F0");
             SessionManager.Instance.gameSpeed(gameData.gameSpeedPP, currentGameSession);
+            SessionManager.Instance.moveTime(gameData.moveTime.ToString("F0"), currentGameSession);
             SessionManager.Instance.successRate(gameData.successRate, currentGameSession);
             Debug.Log("speed and sr :"+ gameData.gameSpeedPP+"+"+ gameData.successRate);
             SessionManager.Instance.SetTrialDataFileLocation(trialdata, currentGameSession);

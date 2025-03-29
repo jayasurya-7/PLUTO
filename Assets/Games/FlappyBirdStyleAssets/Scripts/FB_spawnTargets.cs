@@ -153,10 +153,10 @@ public class FB_spawnTargets : MonoBehaviour
         PlutoComm.sendHeartbeat();
         prevSpawnTime += Time.deltaTime;
 
-        if (PlutoComm.CONTROLTYPETEXT[PlutoComm.controlType] == "NONE")
-        {
-            PlutoComm.setControlType("POSITIONAAN");
-        }
+        //if (PlutoComm.CONTROLTYPETEXT[PlutoComm.controlType] == "NONE")
+        //{
+        //    PlutoComm.setControlType("POSITIONAAN");
+        //}
         stopClock -= Time.deltaTime;
         playerPosition = GameObject.FindGameObjectWithTag("Player").transform.position.y;
        // Debug.Log($" scroll speed time :{FlappyGameControl.instance.scrollSpeed}");
