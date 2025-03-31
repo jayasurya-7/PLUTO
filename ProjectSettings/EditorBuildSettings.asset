@@ -39,6 +39,9 @@ EditorBuildSettings:
     path: Assets/Scenes/pong_game.unity
     guid: 843303f4dc513b749a4a0dd9991dbe92
   - enabled: 1
+    path: Assets/Games/Hatrick/_Scenes/HatGameMenu.unity
+    guid: 93b4211c9c4680f47a62c57403e3d695
+  - enabled: 1
     path: Assets/Games/Hatrick/_Scenes/HatrickGame.unity
     guid: 74449f2fed57eb24dbd6d02c5ed4b309
   - enabled: 1

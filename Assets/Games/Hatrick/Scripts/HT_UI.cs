@@ -57,7 +57,7 @@ public class HT_UI : MonoBehaviour
             }
             else if (HatGameController.instance != null && !HatGameController.instance.IsPlaying)
             {
-                HatGameController.instance.RestartGame();
+               // HatGameController.instance.RestartGame();
                 Debug.Log("Game restarted via P key.");
             }
         }

@@ -77,7 +77,7 @@ public class HT_spawnTargets1 : MonoBehaviour
     {
         paramSet = false;
         successRate = new int[5] { 0, 0, 0, 0, 0 };
-        
+
 
         System.Random rnd = new System.Random();
         //First4Targets = First4Targets.OrderBy(x => rnd.Next()).ToArray();
@@ -113,7 +113,7 @@ public class HT_spawnTargets1 : MonoBehaviour
 
 
 
-       // Debug.Log(PlutoComm.CONTROLTYPE[PlutoComm.controlType]);
+        // Debug.Log(PlutoComm.CONTROLTYPE[PlutoComm.controlType]);
 
 
 
@@ -123,7 +123,7 @@ public class HT_spawnTargets1 : MonoBehaviour
     {
 
         Debug.Log(isInPROM(targetAngle) + "," + avgSuccessRate + "," + dontAssistTrial);
-      
+
         count++;
         player = GameObject.FindGameObjectWithTag("Player");
         target = GameObject.FindGameObjectWithTag("Target");
@@ -163,7 +163,7 @@ public class HT_spawnTargets1 : MonoBehaviour
         prevAng = PlutoComm.angle;
         initialDirection = getDirection();
         initialTorque = prevTorq;
-        
+
 
 
         return targetPos;
@@ -217,7 +217,7 @@ public class HT_spawnTargets1 : MonoBehaviour
     public float RandomAngle()
     {
         float prevtargetAngle = targetAngle;
-       // AppData.newPROM = new ROM(AppData.selectedMechanism);
+        // AppData.newPROM = new ROM(AppData.selectedMechanism);
 
 
         float newPROM_tmin = AppData.pRomValue[0];
@@ -236,16 +236,9 @@ public class HT_spawnTargets1 : MonoBehaviour
     }
     public float Angle2Screen(float angle)
     {
-        //AppData.newPROM = new ROM(AppData.selectedMechanism);
-
-
         float newPROM_tmin = AppData.pRomValue[0];
         float newPROM_tmax = AppData.pRomValue[1];
-        //Debug.Log(newPROM_tmin + "+" + newPROM_tmax);
 
-
-
-        // return (-playSize + (angle - newPROM_tmin) * (2 * playSize) / (newPROM_tmax - newPROM_tmin));
         return Mathf.Lerp(-playSize, playSize, (angle - newPROM_tmin) / (newPROM_tmax - newPROM_tmin));
     }
     public void setPrameters()
@@ -257,12 +250,12 @@ public class HT_spawnTargets1 : MonoBehaviour
         stopClock = trailDuration;
         onceReached = false;
         //Debug.Log(targetAngle + "," + index);
-       
+
         paramSet = true;
     }
 
 
-   
+
 
     private void OnApplicationQuit()
     {
@@ -270,9 +263,9 @@ public class HT_spawnTargets1 : MonoBehaviour
 
 
     }
-   
 
-   
+
+
 }
 
 

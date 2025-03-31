@@ -94,7 +94,7 @@ public class HatController : MonoBehaviour
             gameData.moving = false;
             gameData.events = Array.IndexOf(gameData.hatEvents, "BallCaught");
             gameData.gameScore++;
-            HT_spawnTargets1.instance.reached = true;
+           // HT_spawnTargets1.instance.reached = true;
             HatGameController.instance.balldestroyed = true;
             HatGameController.instance.targetSpwan = false;
             HatGameController.instance.SpawnTarget();
@@ -108,7 +108,7 @@ public class HatController : MonoBehaviour
             gameData.moving = false;
             gameData.events = Array.IndexOf(gameData.hatEvents, "BombCaught");
             gameData.gameScore--;
-            HT_spawnTargets1.instance.reached = true;
+          //  HT_spawnTargets1.instance.reached = true;
             HatGameController.instance.balldestroyed = true;
             HatGameController.instance.targetSpwan = false;
             HatGameController.instance.SpawnTarget();
@@ -122,8 +122,12 @@ public class HatController : MonoBehaviour
         Debug.Log("Collided");
     }
 
-    public float Angle2Screen(float angle)
+    private float Angle2Screen(float angle)
     {
-        return HT_spawnTargets1.instance.Angle2Screen(angle);
+
+        float newPROM_tmin = AppData.pRomValue[0];
+        float newPROM_tmax = AppData.pRomValue[1];
+
+        return Mathf.Lerp(-playSize, playSize, (angle - newPROM_tmin) / (newPROM_tmax - newPROM_tmin));
     }
 }

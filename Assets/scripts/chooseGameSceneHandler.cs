@@ -21,7 +21,7 @@ public class ChooseGameSceneHandler : MonoBehaviour
     {
         { "pingPong", "pong_game" },
         { "tukTuk", "FlappyGame" },
-        { "hatTrick", "HatrickGame" }
+        { "hatTrick", "HatGameMenu" }
     };
     private bool lisRunning = false;
     private bool targetReached = false; 

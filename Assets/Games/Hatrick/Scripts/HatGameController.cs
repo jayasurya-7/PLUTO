@@ -340,7 +340,11 @@ public class HatGameController : MonoBehaviour
 
     public float Angle2Screen(float angle)
     {
-        return HT_spawnTargets1.instance.Angle2Screen(angle);
+        
+        float newPROM_tmin = AppData.pRomValue[0];
+        float newPROM_tmax = AppData.pRomValue[1];
+
+        return Mathf.Lerp(-playSize, playSize, (angle - newPROM_tmin) / (newPROM_tmax - newPROM_tmin));
     }
 
     private float SpawnTargetArea()
@@ -485,7 +489,7 @@ public class HatGameController : MonoBehaviour
         {
             EndCurrentGameSession();
         }
-        SceneManager.LoadScene(SceneManager.GetActiveScene().name);
+        SceneManager.LoadScene("HatGameMenu");
 
         AppLogger.LogInfo("Game Over.");
     }
@@ -669,7 +673,7 @@ public class HatGameController : MonoBehaviour
             EndCurrentGameSession();
 
         }
-        SceneManager.LoadScene(prevScene);
+        SceneManager.LoadScene("HatGameMenu");
     }
     private void onPlutoButtonReleased()
     {
