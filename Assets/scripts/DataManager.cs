@@ -4,12 +4,14 @@ using System.IO;
 using System.Collections;
 using System.Collections.Generic;
 using System.Data;
-//using UnityEditor.PackageManager;
+using UnityEditor.PackageManager;
 using UnityEngine;
 using System.Globalization;
-//using UnityEditor.VersionControl;
-//using UnityEngine.SceneManagement;
-//using Newtonsoft.Json.Bson;
+using System.Data;
+using System.Linq;
+using UnityEditor.VersionControl;
+using UnityEngine.SceneManagement;
+using Newtonsoft.Json.Bson;
 
 
 /*
@@ -103,6 +105,8 @@ public static class AppLogger
     public static string currentMechanism { get; private set; } = "";
     public static string currentGame { get; private set; } = "";
 
+    public static bool DEBUG = true;
+
     public static bool isLogging
     {
         get
@@ -141,14 +145,17 @@ public static class AppLogger
         if (isLogging)
         {
             currentScene = scene;
+            LogInfo($"Scene set to '{currentScene}'.");
         }
     }
 
     public static void SetCurrentMechanism(string mechanism)
     {
+        Debug.Log(mechanism);
         if (isLogging)
         {
             currentMechanism = mechanism;
+            LogInfo($"PLUTO mechanism set to '{currentMechanism}'.");
         }
     }
 
@@ -157,6 +164,7 @@ public static class AppLogger
         if (isLogging)
         {
             currentGame = game;
+            LogInfo($"PLUTO game set to '{currentGame}'.");
         }
     }
 
@@ -178,8 +186,11 @@ public static class AppLogger
         {
             if (logWriter != null)
             {
-                logWriter.WriteLine($"{DateTime.Now:dd-MM-yyyy HH:mm:ss} {logMsgType,-7} [{currentScene}] [{currentMechanism}] [{currentGame}] {message}");
+                string _user = AppData.userData != null ? AppData.userData.hospNumber : "";
+                string _msg = $"{DateTime.Now:dd-MM-yyyy HH:mm:ss} {logMsgType,-7} [{_user}] [{currentScene}] [{currentMechanism}] [{currentGame}] {message}";
+                logWriter.WriteLine(_msg);
                 logWriter.Flush();
+                if (DEBUG) Debug.Log(_msg);
             }
         }
     }

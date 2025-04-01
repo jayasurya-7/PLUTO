@@ -93,8 +93,8 @@ public class PingPonGAANController : MonoBehaviour
             Destroy(gameObject);
         }
 
-       // Application.targetFrameRate = 300;
-        //QualitySettings.vSyncCount = 0;
+        Application.targetFrameRate = 300;
+        QualitySettings.vSyncCount = 0;
     }
 
     void Start()
@@ -111,22 +111,27 @@ public class PingPonGAANController : MonoBehaviour
 
         topBound = playSize - this.transform.localScale.y / 4;
         bottomBound = -topBound;
+        Application.targetFrameRate = 300;
+
 
         // Pluto AAN controller
         aanCtrler = new HOMERPlutoAANController(AppData.aRomValue, AppData.pRomValue, 0.85f);
         isRunning = true;
         dlogger = new AANDataLogger(aanCtrler);
-
+        // Set Control mode.
+        PlutoComm.setControlType("POSITIONAAN");
         PlutoComm.setControlBound(currControlBound);
         PlutoComm.setControlDir(0);
         trialNo = 0;
+        //successRate = 0;
+        // Start the state machine.
         SetTrialState(DiscreteMovementTrialState.Rest);
 
     }
 
     void Update()
     {
-       // PlutoComm.sendHeartbeat();
+        PlutoComm.sendHeartbeat();
         // Get the current y position of the player object.
         playerPosition = GameObject.FindGameObjectWithTag("Player").transform.position.y;
 
@@ -189,7 +194,7 @@ public class PingPonGAANController : MonoBehaviour
         bool _statetimeout = _deltime >= stateDurations[(int)_trialState];
         // Time when target is reached.
         bool _intgt = Math.Abs(_trialTarget - PlutoComm.angle) <= 5.0f;
-       // Debug.Log($"trialTarget-{_trialTarget},diff - {Math.Abs(_trialTarget - PlutoComm.angle)} ,bool - {_intgt}, angle-{PlutoComm.angle}");
+        Debug.Log($"trialTarget-{_trialTarget},diff - {Math.Abs(_trialTarget - PlutoComm.angle)} ,bool - {_intgt}, angle-{PlutoComm.angle}");
         switch (_trialState)
         {
             case DiscreteMovementTrialState.Rest:
@@ -210,10 +215,10 @@ public class PingPonGAANController : MonoBehaviour
 
                 //Debug.Log("In moving st");
                 _tempIntraStateTimer += _intgt ? Time.deltaTime : -_tempIntraStateTimer;
-                //Debug.Log($"temp:{_tempIntraStateTimer}");
+                Debug.Log($"temp:{_tempIntraStateTimer}");
                 // Target reached successfull.
                 bool _tgtreached = _tempIntraStateTimer >= tgtHoldDuration;
-              //  Debug.Log($" Target Reached : {_tgtreached}");
+                Debug.Log($" Target Reached : {_tgtreached}");
                 // Update AANController.
                 aanCtrler.Update(PlutoComm.angle, Time.deltaTime, _statetimeout || _tgtreached);
                 // Set AAN target if needed.
@@ -261,13 +266,13 @@ public class PingPonGAANController : MonoBehaviour
                 trialDuration = 0f;
                 prevControlBound = PlutoComm.controlBound;
                 currControlBound = 1.0f;
-                if (gameData.targetSpwan && gameData.enemyHitt)
+                if (gameData.targetSpwan )//&& gameData.enemyHitt)
                 {
                     dlogger.UpdateLogFiles(trialNo);
                     trialNo += 1;
                     //tempSpawn = false
                     gameData.targetSpwan = false;
-                    gameData.enemyHitt = false; 
+                    //gameData.enemyHitt = false; 
 
                 }
                 _tempIntraStateTimer = 0f;
@@ -290,7 +295,7 @@ public class PingPonGAANController : MonoBehaviour
             case DiscreteMovementTrialState.Failure:
                 // Update adaptation row.
                 byte _successbyte = newState == DiscreteMovementTrialState.Success ? (byte)1 : (byte)0;
-                gameData.playerHitt = false;
+               // gameData.playerHitt = false;
                 dlogger.WriteTrialRowInfo(_successbyte);
                 break;
         }
@@ -317,8 +322,8 @@ public class PingPonGAANController : MonoBehaviour
     {
         float calibAngleRange = PlutoComm.CALIBANGLE[PlutoComm.mechanism];
         float angle = Mathf.Lerp(
-            AppData.pRomValue[1],
-            AppData.pRomValue[0],
+            -calibAngleRange / 2,
+            calibAngleRange / 2,
             (y_pos + playSize) / (2 * playSize)
         );
         return angle;

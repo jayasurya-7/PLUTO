@@ -83,13 +83,14 @@ public class OneTimeConfig : MonoBehaviour
         string hospitalId = hospitalIdField.text;
         string startDate = startDateField.text;
         string endDate = endDateField.text;
-
-        string wfe = string.IsNullOrWhiteSpace(wfeField.text)?"0":wfeField.text;
-        string wurd = string.IsNullOrWhiteSpace(wurdField.text) ? "0" : wurdField.text;
-        string fps = string.IsNullOrWhiteSpace(fpsField.text) ? "0" : fpsField.text;
-        string hoc = string.IsNullOrWhiteSpace(hocField.text) ? "0" : hocField.text;
-        string fme1 = string.IsNullOrWhiteSpace(fme1Field.text) ? "0" : fme1Field.text;
-        string fme2 = string.IsNullOrWhiteSpace(fme2Field.text) ? "0" : fme2Field.text;
+        
+        // Set null to "0".
+        string wfe = string.IsNullOrEmpty(wfeField.text) ? "0" : wfeField.text;
+        string wurd = string.IsNullOrEmpty(wurdField.text) ? "0" : wurdField.text;
+        string fps = string.IsNullOrEmpty(fpsField.text) ? "0" : fpsField.text;
+        string hoc = string.IsNullOrEmpty(hocField.text) ? "0" : hocField.text;
+        string fme1 = string.IsNullOrEmpty(fme1Field.text) ? "0" : fme1Field.text;
+        string fme2 = string.IsNullOrEmpty(fme2Field.text) ? "0" : fme2Field.text;
 
         string totalDuration = totalDurationText.text;
 
@@ -107,7 +108,6 @@ public class OneTimeConfig : MonoBehaviour
             Debug.Log("Configuration File Already Exists. you can't update Here");
         }
         else {
-
             if (!File.Exists(datapath))
             {
                 File.WriteAllText(datapath, headers + Environment.NewLine);

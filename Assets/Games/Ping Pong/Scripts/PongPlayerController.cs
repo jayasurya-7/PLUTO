@@ -21,9 +21,9 @@ public class PongPlayerController : MonoBehaviour
         Time.timeScale = 0;
         topBound = playSize - this.transform.localScale.y / 4;
         bottomBound = -topBound;
-        gameData.positionY1 = playerMovementArea(AppData.aRomValue[0]);
-        gameData.positionY2 = playerMovementArea(AppData.aRomValue[1]);
-        Debug.Log($"y1_{gameData.positionY1},y2_{gameData.positionY2}");
+       // gameData.positionY1 = playerMovementArea(AppData.aRomValue[0]);
+       // gameData.positionY2 = playerMovementArea(AppData.aRomValue[1]);
+       // Debug.Log($"y1_{gameData.positionY1},y2_{gameData.positionY2}");
        // previousPlayerPosition = transform.position;
     }
     void Update()

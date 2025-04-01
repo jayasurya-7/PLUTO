@@ -143,7 +143,6 @@ public class HatGameController : MonoBehaviour
     private int spawnCounter = 0;
     private System.Random random = new System.Random();
     private string prevScene = "choosegame";
-    private float anglex = 0f;
     public bool IsPlaying
     {
         get { return isPlaying; }
@@ -176,8 +175,7 @@ public class HatGameController : MonoBehaviour
     {
         PlutoComm.sendHeartbeat();
         UI();
-        Debug.Log($"targetposition:{targetPosition}+ targetAngle :{targetAngle}+ angle :{PlutoComm.angle}");
-        //Debug.Log(PlutoComm.CONTROLTYPE[PlutoComm.controlType]);
+        Debug.Log(PlutoComm.CONTROLTYPE[PlutoComm.controlType]);
         //if (PlutoComm.CONTROLTYPE[PlutoComm.controlType] == "NONE" && !aromRangeSpawn) {
         //    PlutoComm.setControlType("POSITIONAAN");
         //    Debug.Log("AAN applied");
@@ -238,7 +236,7 @@ public class HatGameController : MonoBehaviour
 
     private void RunTrialStateMachine()
     {
-        float _deltime = trialDuration - stateStartTime;
+        float _deltime = trialDuration - stateStartTime; 
         bool _statetimeout = _deltime >= stateDurations[(int)_trialState];
         // Time when target is reached.
         bool _intgt = Math.Abs(_trialTarget - PlutoComm.angle) <= 5.0f;
@@ -345,9 +343,9 @@ public class HatGameController : MonoBehaviour
 
     private float SpawnTargetArea()
     {
-        AppData.newAROM = new ROM(AppData.selectedMechanism);
-        float aromMin = AppData.newAROM.aromTmin;
-        float aromMax = AppData.newAROM.aromTmax;
+        AppData.newROM = new ROM(AppData.selectedMechanism);
+        float aromMin = AppData.newROM.promMax;
+        float aromMax = AppData.newROM.promMax;
 
         float xMin = MapAROMToPROMPlaySize(aromMin);
         float xMax = MapAROMToPROMPlaySize(aromMax);
@@ -359,9 +357,9 @@ public class HatGameController : MonoBehaviour
     }
     private float MapAROMToPROMPlaySize(float angle)
     {
-        AppData.newPROM = new ROM(AppData.selectedMechanism);
-        float promMin = AppData.newPROM.promTmin;
-        float promMax = AppData.newPROM.promTmax;
+        AppData.newROM = new ROM(AppData.selectedMechanism);
+        float promMin = AppData.newROM.promMax;
+        float promMax = AppData.newROM.promMax;
         float promRange = promMax - promMin;
         float normalizedAROM = (angle - promMin) / promRange;
 
@@ -524,7 +522,6 @@ public class HatGameController : MonoBehaviour
             {
 
                 targetPosition = UnityEngine.Random.Range(-playSize + 0.5f, playSize - 0.5f);
-                //targetPosition = UnityEngine.Random.Range(0,2);
 
             }
 
@@ -555,7 +552,6 @@ public class HatGameController : MonoBehaviour
 
             HT_spawnTargets1.instance.stopClock = trailDuration;
             targetAngle = ScreenPositionToAngle(targetPosition);
-
             if (totalTargetsSpawned == randomTargetIndex)
             {
                 targetImage.gameObject.SetActive(true);
@@ -605,14 +601,13 @@ public class HatGameController : MonoBehaviour
     }
     private float ScreenPositionToAngle(float screenPosition)
     {
-        
+        float calibAngleRange = PlutoComm.CALIBANGLE[PlutoComm.mechanism];
         float angle = Mathf.Lerp(
-            AppData.pRomValue[0],
-            AppData.pRomValue[1],
+            -calibAngleRange / 2,
+            calibAngleRange / 2,
             (screenPosition + playSize) / (2 * playSize)
-            );
+        );
         return angle;
-
     }
     private void UpdateText()
     {
@@ -664,7 +659,6 @@ public class HatGameController : MonoBehaviour
     }
     public void exitGame()
     {
-        PlutoComm.setControlType("NONE");
         if (!AppData.runIndividualGame)
         {
             EndCurrentGameSession();
@@ -676,10 +670,7 @@ public class HatGameController : MonoBehaviour
     {
         isPressed = true;
     }
-    private void OnDestroy()
-    {
-        PlutoComm.setControlType("NONE");
-    }
+
 
 
 }
