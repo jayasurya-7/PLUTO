@@ -664,6 +664,7 @@ public class HatGameController : MonoBehaviour
     }
     public void exitGame()
     {
+        PlutoComm.setControlType("NONE");
         if (!AppData.runIndividualGame)
         {
             EndCurrentGameSession();
@@ -675,7 +676,10 @@ public class HatGameController : MonoBehaviour
     {
         isPressed = true;
     }
-
+    private void OnDestroy()
+    {
+        PlutoComm.setControlType("NONE");
+    }
 
 
 }

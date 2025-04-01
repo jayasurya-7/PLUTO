@@ -273,6 +273,7 @@ public class FlappyGameControl : MonoBehaviour
     }
     public void exitButton()
     {
+        PlutoComm.setControlType("NONE");
         if (!AppData.runIndividualGame) {
         EndCurrentGameSession();
         }
@@ -319,4 +320,9 @@ public class FlappyGameControl : MonoBehaviour
         }
     }
 
+    private void OnDestroy()
+    {
+        PlutoComm.setControlType("NONE");
+        EndCurrentGameSession();
+    }
 }

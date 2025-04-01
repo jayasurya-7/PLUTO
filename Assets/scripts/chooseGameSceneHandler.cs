@@ -31,10 +31,11 @@ public class ChooseGameSceneHandler : MonoBehaviour
     private float targetAngle = 0;
     private string assessmentScene = "assessment";
     private string changeScene = "chooseMechanism";
+    private bool runOnce = false;
 
     void Start()
     {
-        PlutoComm.setControlType("NONE");
+        
 
         initialize();
 
@@ -60,11 +61,20 @@ public class ChooseGameSceneHandler : MonoBehaviour
         AppData.pRomValue[0] = romValues.promTmin;
         AppData.pRomValue[1] = romValues.promTmax;
 
-       
+
+        AppLogger.LogInfo($"controlType : { PlutoComm.controlType}");
+
+
     }
     void Update()
     {   
         PlutoComm.sendHeartbeat();
+
+        if (!runOnce)
+        {
+            PlutoComm.setControlType("NONE");
+            runOnce = true;
+        }
         if (isButtonPressed)
         {
             LoadSelectedGameScene(selectedGame);
@@ -210,6 +220,7 @@ public class ChooseGameSceneHandler : MonoBehaviour
 
     private void OnDestroy()
     {
+        AppLogger.LogInfo($"controlType : {PlutoComm.controlType} when destroyed");
         if (ConnectToRobot.isPLUTO)
         {
             PlutoComm.OnButtonReleased -= OnPlutoButtonReleased;

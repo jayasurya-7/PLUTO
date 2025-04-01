@@ -219,6 +219,7 @@ public class UIManagerPP : MonoBehaviour
     }
     public void LoadScene(string sceneName)
     {
+        PlutoComm.setControlType("NONE");
         if (!AppData.runIndividualGame)
         {
             EndCurrentGameSession();
@@ -274,6 +275,7 @@ public class UIManagerPP : MonoBehaviour
     }
     private void OnDestroy()
     {
+        PlutoComm.setControlType("NONE");
         if (ConnectToRobot.isPLUTO)
         {
             PlutoComm.OnButtonReleased -= onPlutoButtonReleased;

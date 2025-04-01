@@ -59,6 +59,7 @@ public class MechanismSceneHandler : MonoBehaviour
 
         // Attach listeners to the toggles to update the toggleSelected variable
         StartCoroutine(DelayedAttachListeners());
+        AppLogger.LogInfo($"controlType : {PlutoComm.controlType} + time :{Time.timeScale}");
     }
 
     void Update()
@@ -161,7 +162,8 @@ public class MechanismSceneHandler : MonoBehaviour
     void LoadNextScene()
     {
         AppLogger.LogInfo($"Switching scene to '{nextScene}'.");
-        gameData.setNeutral = false;
+        AppLogger.LogInfo($"controlType : {PlutoComm.controlType} + time :{Time.timeScale} when changing");
+       // gameData.setNeutral = false;
         SceneManager.LoadScene(nextScene);
     }
 
