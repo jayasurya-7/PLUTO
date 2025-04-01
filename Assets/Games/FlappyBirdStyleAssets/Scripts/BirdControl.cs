@@ -183,7 +183,7 @@ public class BirdControl : MonoBehaviour
                 isDead = true;
                 anime.SetTrigger("Die");
             }
-            gameData.birdCollided = true;
+            //gameData.birdCollided = true;
 
         }
 

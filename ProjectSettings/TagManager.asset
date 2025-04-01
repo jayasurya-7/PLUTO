@@ -9,12 +9,6 @@ TagManager:
   - Top
   - Bottom
   - Target
-  - hideOnFinish
-  - PlayerBound
-  - ShowOnPause
-  - ShowOnFinish
-  - Enemy
-  - frameRate
   layers:
   - Default
   - TransparentFX

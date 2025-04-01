@@ -3502,22 +3502,6 @@ PrefabInstance:
       propertyPath: m_Name
       value: conectStatusPluto
       objectReference: {fileID: 0}
-    - target: {fileID: 5234771995274175576, guid: 3f5b5b39d3788944d96dbeb999d2d057, type: 3}
-      propertyPath: m_fontColor.b
-      value: 0
-      objectReference: {fileID: 0}
-    - target: {fileID: 5234771995274175576, guid: 3f5b5b39d3788944d96dbeb999d2d057, type: 3}
-      propertyPath: m_fontColor.g
-      value: 0
-      objectReference: {fileID: 0}
-    - target: {fileID: 5234771995274175576, guid: 3f5b5b39d3788944d96dbeb999d2d057, type: 3}
-      propertyPath: m_fontColor.r
-      value: 0
-      objectReference: {fileID: 0}
-    - target: {fileID: 5234771995274175576, guid: 3f5b5b39d3788944d96dbeb999d2d057, type: 3}
-      propertyPath: m_fontColor32.rgba
-      value: 4278190080
-      objectReference: {fileID: 0}
     - target: {fileID: 6473857889621378673, guid: 3f5b5b39d3788944d96dbeb999d2d057, type: 3}
       propertyPath: m_Pivot.x
       value: 0.5
