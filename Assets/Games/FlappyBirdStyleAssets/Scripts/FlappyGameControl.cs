@@ -135,7 +135,6 @@ public class FlappyGameControl : MonoBehaviour
     }
     public void hidePaused()
     {
-
         foreach (GameObject g in pauseObjects)
         {
             g.SetActive(false);
@@ -189,8 +188,6 @@ public class FlappyGameControl : MonoBehaviour
                 }
                 score += 1;
                 gameData.gameScore++;
-
-
             }
             else
             {
@@ -232,23 +229,17 @@ public class FlappyGameControl : MonoBehaviour
     }
     public float Angle2Screen(float angle)
     {
-        ROM promAng = new ROM(AppData.selectedMechanism);
-        float tmin = promAng.promTmin;
-        float tmax = promAng.promTmax;
+        float tmin = AppData.pRomValue[0];
+        float tmax = AppData.pRomValue[1];
 
         return (-3.0f + (angle - tmin) * (playSize) / (tmax - tmin));
-
-
     }
     public float Angle2Screen2(float angle)
     {
-        ROM promAng = new ROM(AppData.selectedMechanism);
-        float tmin = promAng.promTmin;
-        float tmax = promAng.promTmax;
+       float tmin = AppData.pRomValue[0];
+        float tmax = AppData.pRomValue[1];
 
         return (-4.3f+(angle - tmin) * (playSize) / (tmax - tmin));
-
-
     }
     public void PlayStart()
     {

@@ -77,7 +77,7 @@ public class FB_spawnTargets : MonoBehaviour
     private float gameSpeed = 6f;
     private const float defaultScrollSpeed = -2.2f;
     private float targetReachingTime = 0f;
-   // public GameObject aromLeft, aromRight;
+
     private void Awake()
     {
         Resources.UnloadUnusedAssets();
@@ -87,10 +87,6 @@ public class FB_spawnTargets : MonoBehaviour
         }
         else
             Destroy(gameObject);
-
-        // Application.targetFrameRate = 300;
-        // QualitySettings.vSyncCount = 0;
-
 
     }
 
@@ -102,11 +98,7 @@ public class FB_spawnTargets : MonoBehaviour
         string date = DateTime.Now.ToString("yyyy-MM-dd");
         string dateTime = DateTime.Now.ToString("Dyyyy-MM-ddTHH-mm-ss");
         string sessionNum = "Session" + AppData.currentSessionNumber;
-
         AppData._dataLogDir = Path.Combine(DataManager.directoryPathSession, date, sessionNum, $"{AppData.selectedMechanism}_{AppData.selectedGame}_{dateTime}");
-
-
-
 
         // Pluto AAN controller
         aanCtrler = new HOMERPlutoAANController(AppData.aRomValue, AppData.pRomValue, 0.85f);
@@ -117,8 +109,6 @@ public class FB_spawnTargets : MonoBehaviour
         PlutoComm.setControlBound(currControlBound);
         PlutoComm.setControlDir(0);
         trialNo = 0;
-        //successRate = 0;
-        // Start the state machine.
 
         SetTrialState(DiscreteMovementTrialState.Rest);
     }
@@ -129,27 +119,16 @@ public class FB_spawnTargets : MonoBehaviour
         PlutoComm.sendHeartbeat();
         prevSpawnTime += Time.deltaTime;
 
-        //if (PlutoComm.CONTROLTYPETEXT[PlutoComm.controlType] == "NONE")
-        //{
-        //    PlutoComm.setControlType("POSITIONAAN");
-        //}
         stopClock -= Time.deltaTime;
         playerPosition = GameObject.FindGameObjectWithTag("Player").transform.position.y;
-       // Debug.Log($" scroll speed time :{FlappyGameControl.instance.scrollSpeed}");
         float diff = (FlappyGameControl.instance.scrollSpeed - defaultScrollSpeed);
-        //Debug.Log($"Difference : {diff}");
         float div = (diff / defaultScrollSpeed);
-        //Debug.Log($"Difference : {div}");
         targetReachingTime = gameSpeed - (gameSpeed* div);
-       // Debug.Log($"target reaching Time - {targetReachingTime}");
-        //UI();
-        if (isRunning == false) return;
 
+        if (isRunning == false) return;
         trialDuration += Time.deltaTime;
 
         RunTrialStateMachine();
-
-
     }
 
 
@@ -266,8 +245,6 @@ public class FB_spawnTargets : MonoBehaviour
         targetAngle = RandomAngle();
 
         targetPos.y = Angle2Screen(targetAngle);
-        targetPosition = ScreenPositionToAngle(targetAngle);
-        initialDirection = getDirection();
 
         target = GameObject.FindGameObjectWithTag("Target");
         return targetPos;
@@ -275,69 +252,33 @@ public class FB_spawnTargets : MonoBehaviour
     }
     private float ScreenPositionToAngle(float screenPosition)
     {
-        AppData.newPROM = new ROM(AppData.selectedMechanism);
-
-
-        float newPROM_tmin = AppData.newPROM.promTmin;
-        float newPROM_tmax = AppData.newPROM.promTmax;
         float angle = Mathf.Lerp(
-            newPROM_tmin / 2,
-            newPROM_tmax / 2,
+            AppData.pRomValue[0] / 2,
+            AppData.pRomValue[1] / 2,
             (screenPosition + playSize) / (2 * playSize)
         );
         return angle;
     }
-    public bool isInPROM(float angle)
-    {
-
-        AppData.newPROM = new ROM(AppData.selectedMechanism);
-
-
-        float newPROM_tmin = AppData.newPROM.promTmin;
-        float newPROM_tmax = AppData.newPROM.promTmax;
-        if (angle < newPROM_tmin || angle > newPROM_tmax)
-        {
-            Debug.Log("prom target");
-            return true;
-        }
-        else
-            return false;
-
-    }
     public float RandomAngle()
     {
-        ROM promAng = new ROM(AppData.selectedMechanism);
-        float tmin = promAng.promTmin;
-        float tmax = promAng.promTmax;
+        float tmin = AppData.pRomValue[0];
+        float tmax = AppData.pRomValue[1];
         float prevtargetAngle = targetAngle;
         float tempAngle = Random.Range(tmin, tmax);
+
         while (Mathf.Abs(tempAngle - prevtargetAngle) < Mathf.Abs(tmax - tmin) / 2.5f)
         {
             tempAngle = Random.Range(tmin, tmax);
         }
 
-
         return tempAngle;
-
     }
     public float Angle2Screen(float angle)
     {
-        ROM promAng = new ROM(AppData.selectedMechanism);
-        float tmin = promAng.promTmin;
-        float tmax = promAng.promTmax;
+        float tmin = AppData.pRomValue[0];
+        float tmax = AppData.pRomValue[1];
 
         return (-2f + (angle - tmin) * (playSize) / (tmax - tmin));
-
-
-    }
-
-
-    private void OnApplicationQuit()
-    {
-    }
-    float getDirection()
-    {
-        return Mathf.Sign(targetAngle - PlutoComm.angle);
     }
 
 }

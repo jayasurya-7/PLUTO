@@ -9,20 +9,11 @@ public class BirdControl : MonoBehaviour
     private bool isDead = false;
     public static Rigidbody2D rb2d;
     Animator anime;
-    // player controls
-
     public static float playSize;
-    static int FlipAngle = 1;
-    static float tempRobot, tempBird;
-    bool set = false;
-
-
     int totalLife = 5;
     int currentLife = 0;
     bool columnHit;
     public Image life;
-
-    
     float spriteBlinkingTimer = 0.0f;
     
     float spriteBlinkingMiniDuration = 0.1f;
@@ -48,11 +39,7 @@ public class BirdControl : MonoBehaviour
         currentLife = 0;
         anime = GetComponent<Animator>();
         rb2d = GetComponent<Rigidbody2D>();
-
         playSize = 2.3f + 5.5f;
-
-
-
 
     }
     void FixedUpdate()
@@ -60,7 +47,6 @@ public class BirdControl : MonoBehaviour
        
         gameData.events = Array.IndexOf(gameData.tukEvents, "moving");
         //checkPlayerMovement();
-
 
         if (startTime < 2)
         {
@@ -164,7 +150,6 @@ public class BirdControl : MonoBehaviour
     private void OnCollisionEnter2D(Collision2D collision)
     {
 
-        //Debug.Log("Collion " + collision.gameObject.tag);
         if (collision.gameObject.tag == "TopCollider" || collision.gameObject.tag == "BottomCollider")
         {
             gameData.events = Array.IndexOf(gameData.tukEvents, "collided");
@@ -176,7 +161,6 @@ public class BirdControl : MonoBehaviour
             columnHit = true;
             if (currentLife >= totalLife)
             {
-
                 FlappyGameControl.instance.gameduration = -1;
                 FlappyGameControl.instance.gameOver = true;
                 anime.SetTrigger("Die");
@@ -190,14 +174,8 @@ public class BirdControl : MonoBehaviour
     }
     public static float Angle2Screen(float angle)
     {
-        //ROM promAng = new ROM(AppData.selectedMechanism);
         float tmin = AppData.pRomValue[0];
         float tmax = AppData.pRomValue[1];
-
-        //return (-playSize + (angle - tmin) * (2 * playSize) / (tmax - tmin));
-
-        //return Mathf.Lerp(-playSize, playSize, (angle - tmin) / (tmax - tmin));
-
 
         return (-2.3f + (angle - tmin) * (playSize) / (tmax - tmin));
     }
@@ -205,7 +183,6 @@ public class BirdControl : MonoBehaviour
 
     public static float playerMovementAreaAROM(float angle)
     {
-        //ROM aromAng = new ROM(AppData.selectedMechanism);
         float tmin = AppData.aRomValue[0];
         float tmax = AppData.aRomValue[1];
         return (-2.3f + (angle - tmin) * (playSize) / (tmax - tmin));

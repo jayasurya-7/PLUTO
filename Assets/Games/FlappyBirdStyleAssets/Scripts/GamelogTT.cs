@@ -7,7 +7,6 @@ using UnityEngine;
 
 public class GamelogTT : MonoBehaviour
 {
-    public static GameLog instance;
     GameObject Player, Target;
     public static string dateTime;
     public static string date;
@@ -15,6 +14,7 @@ public class GamelogTT : MonoBehaviour
 
     string fileName;
     float time;
+    int playerPos =0;
 
     void Start()
     {
@@ -56,36 +56,18 @@ public class GamelogTT : MonoBehaviour
         {
             Player = GameObject.FindGameObjectWithTag("Player");
             Target = GameObject.FindGameObjectWithTag("Target");
-            //if (gameData.game == "COMPENSATION")
-            //{
-            //    gameData.playerPos = Player.transform.eulerAngles.z.ToString();
-            //}
-            //else
-            //{
-            //    if (Player != null)
-            //    {
-            //        gameData.playerPos = Player.transform.position.y.ToString();
-            //        Debug.Log("PlayerPos");
-            //    }
-            //    else
-            //        gameData.playerPos = "\"" + "XXX" + "," + "XXX" + "\"";
-
-            //}
             if (Player != null)
             {
                 gameData.playerPos = Player.transform.position.y.ToString();
             }
             else
-                gameData.playerPos = "\"" + "XXX" + "," + "XXX" + "\"";
+                gameData.playerPos = playerPos.ToString();
 
             gameData.LogDataHT();
         }
         time += Time.deltaTime;
     }
 
-    public void SaveData(){
-       // gameData.StopLogging();
-        }
     public void OnDestroy()
     {
         gameData.StopLogging();

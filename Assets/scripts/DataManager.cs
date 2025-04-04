@@ -46,7 +46,7 @@ public static class DataManager
         if (Directory.Exists(directoryPath) && (!Directory.Exists(directoryPathSession) ) && (!Directory.Exists(directoryPathRawData)))
         {
             Directory.CreateDirectory(directoryPathSession);
-            Directory.CreateDirectory(directoryPathRawData);
+            //Directory.CreateDirectory(directoryPathRawData);
             Debug.Log("Directory created at: " + directoryPath);
         }
         else if (!Directory.Exists(directoryPath))
