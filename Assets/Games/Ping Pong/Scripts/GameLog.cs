@@ -9,7 +9,7 @@ public class GameLog : MonoBehaviour
     public static string dateTime;
     public static string date;
     public static string sessionNum;
-
+    bool runOnce = false;
     string fileName;
     float time;
 
@@ -52,6 +52,12 @@ public class GameLog : MonoBehaviour
     {
         if (gameData.isGameLogging)
         {
+            if (!runOnce)
+            {
+                CreateLogFile();
+                gameData.StartDataLog(fileName);
+                runOnce = true;
+            }
             Player = GameObject.FindGameObjectWithTag("Player");
             Target = GameObject.FindGameObjectWithTag("Target");
             Enemy = GameObject.FindGameObjectWithTag("Enemy");

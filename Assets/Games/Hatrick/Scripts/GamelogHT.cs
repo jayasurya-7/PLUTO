@@ -11,7 +11,7 @@ public class GamelogHT : MonoBehaviour
    public static string dateTime;
    public static string date;
    public static string sessionNum;
-
+    bool runOnce = false;
    string fileName;
    float time;
 
@@ -19,8 +19,8 @@ public class GamelogHT : MonoBehaviour
    {
        ResetGameData();
        InitializeSessionDetails();
-       CreateLogFile();
-       gameData.StartDataLog(fileName);
+       //CreateLogFile();
+       //gameData.StartDataLog(fileName);
    }
 
    private void ResetGameData()
@@ -54,7 +54,13 @@ public class GamelogHT : MonoBehaviour
    {
        if (gameData.isGameLogging)
        {
-           Player = GameObject.FindGameObjectWithTag("Player");
+            if (!runOnce)
+            {
+                CreateLogFile();
+                gameData.StartDataLog(fileName);
+                runOnce = true;
+            }
+            Player = GameObject.FindGameObjectWithTag("Player");
 
            if (Player != null)
            {
