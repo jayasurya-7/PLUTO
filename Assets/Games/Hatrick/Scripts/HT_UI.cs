@@ -95,26 +95,26 @@ public class HT_UI : MonoBehaviour
 
     private void PauseGame()
     {
-        Time.timeScale = 0;
+       // Time.timeScale = 0;
         ShowPaused();
         isPaused = true;
 
-        if (HatGameController.instance != null)
-        {
-            HatGameController.instance.PauseGame();
-        }
+        //if (HatGameController.instance != null)
+        //{
+        //    HatGameController.instance.PauseGame();
+        //}
     }
 
     private void ResumeGame()
     {
         isPaused = false;
-        Time.timeScale = 1;
+      //  Time.timeScale = 1;
         HidePaused();
 
-        if (HatGameController.instance != null)
-        {
-            HatGameController.instance.ResumeGame();
-        }
+        //if (HatGameController.instance != null)
+        //{
+        //    HatGameController.instance.ResumeGame();
+        //}
     }
 
     public void ShowPaused()

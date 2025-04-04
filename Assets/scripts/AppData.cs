@@ -27,7 +27,7 @@ public static class PlutoDefs
 public static class AppData
 {
     // COM Port for the device
-    public static readonly string COMPort = "COM5";
+    public static readonly string COMPort = "COM3";
 
     static public float[] offsetAtNeutral = new float[] { 68, 68, 90, 0, 90 , 90  };
 
