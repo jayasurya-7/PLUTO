@@ -208,6 +208,7 @@ public class FlappyGameControl : MonoBehaviour
         if (gameOver == true)
         {
             gameData.isGameLogging = false;
+            EndCurrentGameSession();
             SceneManager.LoadScene(SceneManager.GetActiveScene().buildIndex);
 
         }
@@ -323,6 +324,5 @@ public class FlappyGameControl : MonoBehaviour
     private void OnDestroy()
     {
         PlutoComm.setControlType("NONE");
-        EndCurrentGameSession();
     }
 }

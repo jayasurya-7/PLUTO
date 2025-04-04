@@ -248,12 +248,12 @@ public class HatGameController : MonoBehaviour
             case DiscreteMovementTrialState.Rest:
                 if ((_statetimeout == false)&& !targetSpwan) return;
                 SetTrialState(DiscreteMovementTrialState.SetTarget);
-               // dlogger.WriteAanStateInforRow();
+                dlogger.WriteAanStateInforRow();
                 break;
             case DiscreteMovementTrialState.SetTarget:
                 if (_statetimeout == false) return;
                 SetTrialState(DiscreteMovementTrialState.Moving);
-              //  dlogger.WriteAanStateInforRow();
+                dlogger.WriteAanStateInforRow();
                 break;
             case DiscreteMovementTrialState.Moving:
                 // Check of the target has been reached.
@@ -267,7 +267,7 @@ public class HatGameController : MonoBehaviour
                 // Change state if needed.
                 if (_tgtreached || targetSpwan) SetTrialState(DiscreteMovementTrialState.Success);
                 if (_statetimeout) SetTrialState(DiscreteMovementTrialState.Failure);
-              //  dlogger.WriteAanStateInforRow();
+                dlogger.WriteAanStateInforRow();
                 break;
             case DiscreteMovementTrialState.Success:
             case DiscreteMovementTrialState.Failure:
@@ -300,7 +300,7 @@ public class HatGameController : MonoBehaviour
             case DiscreteMovementTrialState.Rest:
                 // Reset trial in the AANController.
                 aanCtrler.ResetTrial();
-               // dlogger.UpdateLogFiles(trialNo);
+                dlogger.UpdateLogFiles(trialNo);
                 // Reset stuff.
                 trialDuration = 0f;
                 prevControlBound = PlutoComm.controlBound;
@@ -398,7 +398,7 @@ public class HatGameController : MonoBehaviour
 
             if (!AppData.runIndividualGame)
             {
-               // StartNewGameSession();
+               StartNewGameSession();
             }
 
             //StartNewGameSession();
@@ -483,7 +483,7 @@ public class HatGameController : MonoBehaviour
         PlutoComm.setControlType("NONE");
         if (!AppData.runIndividualGame)
         {
-           // EndCurrentGameSession();
+           EndCurrentGameSession();
         }
         SceneManager.LoadScene(SceneManager.GetActiveScene().name);
 
@@ -667,7 +667,7 @@ public class HatGameController : MonoBehaviour
         PlutoComm.setControlType("NONE");
         if (!AppData.runIndividualGame)
         {
-            //EndCurrentGameSession();
+            EndCurrentGameSession();
 
         }
         SceneManager.LoadScene(prevScene);
