@@ -27,8 +27,8 @@ public class PingPonGAANController : MonoBehaviour
     bool targetSpwan = false; // Signals when a target is available.
 
 
-    private float targetPosition; // This is the target “position” in angle-space.
-    private float playerPosition; // Player paddle’s current y position.
+    private float targetPosition; // This is the target ï¿½positionï¿½ in angle-space.
+    private float playerPosition; // Player paddleï¿½s current y position.
 
     // --- Predictor parameters ---
     // x coordinate of the player's bound (where the ball will hit).
@@ -304,11 +304,10 @@ public class PingPonGAANController : MonoBehaviour
     {
         float calibAngleRange = PlutoComm.CALIBANGLE[PlutoComm.mechanism];
         float angle = Mathf.Lerp(
-            -calibAngleRange / 2,
-            calibAngleRange / 2,
+            AppData.pRomValue[0],
+            AppData.pRomValue[1],
             (screenPosition + playSize) / (2 * playSize)
         );
-        Debug.Log($"demo ang :{angle},{PlutoComm.CALIBANGLE[PlutoComm.mechanism]}");
         return angle;
     }
 

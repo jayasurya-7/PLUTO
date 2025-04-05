@@ -29,6 +29,7 @@ public class MechanismSceneHandler : MonoBehaviour
     private bool toggleSelected = false;
     private string nextScene = "calibration";
     private string exitScene = "Summary";
+    private string diagnosticScene = "plutoDiagnostics";
 
     void Start()
     {
@@ -71,6 +72,11 @@ public class MechanismSceneHandler : MonoBehaviour
         {
             LoadNextScene();
             changeScene = false;
+        }
+        if (Input.GetKey(KeyCode.LeftControl) && Input.GetKeyDown(KeyCode.R))
+        {
+            //assessment();
+           SceneManager.LoadScene(diagnosticScene);
         }
 
     }
