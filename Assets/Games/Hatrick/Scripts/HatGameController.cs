@@ -144,8 +144,8 @@ public class HatGameController : MonoBehaviour
         {
             SuccessRateBanner.SetActive(true);
             prevSR.text = $" previous Success Rate : {AppData.Instance.previousSuccessRates[0]}";
-            currSR.text = (AppData.Instance.previousSuccessRates[1]!=0) ? $"Not Yet started today:{AppData.Instance.previousSuccessRates[1]}" :"null bruhh";
-        }else{Debug.Log("null bro");}
+            currSR.text = $"Current Success Rate:{AppData.Instance.previousSuccessRates[1]}";
+        }
          Debug.Log($" pr: {AppData.Instance.previousSuccessRates[0]}, {AppData.Instance.previousSuccessRates[1]}.count :{AppData.Instance.previousSuccessRates.Count}");
 
         // Initialize the game objects.

@@ -455,11 +455,95 @@ public class PlutoUserData
 //     return lastTwoRates;
 // }
 
+// public List<float> GetLastTwoSuccessRates(string mechanism, string gameName)
+// {
+//     List<float> lastTwoRates = new List<float>();
+//     UnityEngine.Debug.Log("Called");
+//         dTableSession = DataManager.loadCSV(DataManager.sessionFile);
+
+//     if (dTableSession == null || dTableSession.Rows.Count == 0)
+//     {
+//         AppLogger.LogError("Session data is not available.");
+//         return new List<float> { 0f, 0f };
+//     }
+
+//     var today = DateTime.Now.ToString("yyyy-MM-dd");
+//     Debug.Log(today);
+
+//     // Filter all relevant rows for mechanism and game
+//     var filteredRows = dTableSession.AsEnumerable()
+//         .Where(row =>
+//             row.Field<string>("Mechanism") == mechanism &&
+//             row.Field<string>("GameName") == gameName)
+//         .OrderByDescending(row => DateTime.ParseExact(row.Field<string>("DateTime"), DataManager.DATEFORMAT, CultureInfo.InvariantCulture))
+//         .ToList();
+
+//     if (!filteredRows.Any())
+//     {
+//         AppLogger.LogWarning($"No success rate data found for game: {gameName} under mechanism: {mechanism}");
+//         return new List<float> { 0f, 0f };
+//     }
+    
+
+//     // Get all success rates from today (latest first)
+//     var todayRates = filteredRows
+//         .Where(row => DateTime.ParseExact(row.Field<string>("TrialStartTime"), DataManager.DATEFORMAT, CultureInfo.InvariantCulture).Date == today)
+//         .Select(row => Convert.ToSingle(row["SuccessRate"]))
+//         .ToList();
+
+// if (todayRates.Count > 0)
+// {
+//     Debug.Log($"All Success Rates for '{gameName}' on {today:dd-MM-yyyy} ({mechanism}):");
+//     int index = 1;
+//     foreach (var rate in todayRates)
+//     {
+//         Debug.Log($"    {index++}. {rate}%");
+//     }
+// }
+// else
+// {
+//     Debug.Log($"⚠️ No success rates recorded for today ({today:dd-MM-yyyy}) for {gameName} under {mechanism}.");
+// }
+//     if (todayRates.Count >= 2)
+//     {
+//         lastTwoRates.Add(todayRates[0]);
+//         lastTwoRates.Add(todayRates[1]);
+//     }
+//     else if (todayRates.Count == 1)
+//     {
+//         lastTwoRates.Add(todayRates[0]);
+
+//         var previousDayRate = filteredRows
+//             .Where(row => DateTime.ParseExact(row.Field<string>("DateTime"), DataManager.DATEFORMAT, CultureInfo.InvariantCulture).Date < today)
+//             .Select(row => Convert.ToSingle(row["SuccessRate"]))
+//             .FirstOrDefault();
+
+//         lastTwoRates.Add(previousDayRate);
+//     }
+//     else
+//     {
+//         var previousDayRate = filteredRows
+//             .Where(row => DateTime.ParseExact(row.Field<string>("DateTime"), DataManager.DATEFORMAT, CultureInfo.InvariantCulture).Date < today)
+//             .Select(row => Convert.ToSingle(row["SuccessRate"]))
+//             .FirstOrDefault();
+
+//         lastTwoRates.Add(previousDayRate);
+//         lastTwoRates.Add(0f);
+//     }
+
+//     // Ensure the list always has 2 values
+//     while (lastTwoRates.Count < 2)
+//         lastTwoRates.Add(0f);
+
+//     return lastTwoRates;
+// }
+
+
 public List<float> GetLastTwoSuccessRates(string mechanism, string gameName)
 {
     List<float> lastTwoRates = new List<float>();
     UnityEngine.Debug.Log("Called");
-        dTableSession = DataManager.loadCSV(DataManager.sessionFile);
+    dTableSession = DataManager.loadCSV(DataManager.sessionFile);
 
     if (dTableSession == null || dTableSession.Rows.Count == 0)
     {
@@ -467,14 +551,14 @@ public List<float> GetLastTwoSuccessRates(string mechanism, string gameName)
         return new List<float> { 0f, 0f };
     }
 
-    var today = DateTime.Now.Date;
+    var today = DateTime.Today;
+    Debug.Log(today.ToString("yyyy-MM-dd"));
 
-    // Filter all relevant rows for mechanism and game
     var filteredRows = dTableSession.AsEnumerable()
         .Where(row =>
             row.Field<string>("Mechanism") == mechanism &&
             row.Field<string>("GameName") == gameName)
-        .OrderByDescending(row => DateTime.ParseExact(row.Field<string>("DateTime"), DataManager.DATEFORMAT, CultureInfo.InvariantCulture))
+        .OrderByDescending(row => DateTime.ParseExact(row.Field<string>("TrialStartTime"), DataManager.DATEFORMAT, CultureInfo.InvariantCulture))
         .ToList();
 
     if (!filteredRows.Any())
@@ -483,41 +567,47 @@ public List<float> GetLastTwoSuccessRates(string mechanism, string gameName)
         return new List<float> { 0f, 0f };
     }
 
-    // Get all success rates from today (latest first)
+    // Get all success rates from today
     var todayRates = filteredRows
-        .Where(row => DateTime.ParseExact(row.Field<string>("DateTime"), DataManager.DATEFORMAT, CultureInfo.InvariantCulture).Date == today)
+        .Where(row => DateTime.ParseExact(row.Field<string>("TrialStartTime"), DataManager.DATEFORMAT, CultureInfo.InvariantCulture).Date == today)
         .Select(row => Convert.ToSingle(row["SuccessRate"]))
         .ToList();
 
     if (todayRates.Count > 0)
     {
-        Debug.Log($"All Success Rates for {gameName} on {today:dd-MM-yyyy}:");
+        Debug.Log($"All Success Rates for '{gameName}' on {today:dd-MM-yyyy} ({mechanism}):");
+        int index = 1;
         foreach (var rate in todayRates)
         {
-            Debug.Log($"- {rate}");
+            Debug.Log($"    {index++}. {rate}%");
         }
+    }
+    else
+    {
+        Debug.Log($"⚠️ No success rates recorded for today ({today:dd-MM-yyyy}) for {gameName} under {mechanism}.");
     }
 
     if (todayRates.Count >= 2)
     {
-        lastTwoRates.Add(todayRates[0]);
         lastTwoRates.Add(todayRates[1]);
+        lastTwoRates.Add(todayRates[0]);
     }
     else if (todayRates.Count == 1)
     {
-        lastTwoRates.Add(todayRates[0]);
 
         var previousDayRate = filteredRows
-            .Where(row => DateTime.ParseExact(row.Field<string>("DateTime"), DataManager.DATEFORMAT, CultureInfo.InvariantCulture).Date < today)
+            .Where(row => DateTime.ParseExact(row.Field<string>("TrialStartTime"), DataManager.DATEFORMAT, CultureInfo.InvariantCulture).Date < today)
             .Select(row => Convert.ToSingle(row["SuccessRate"]))
             .FirstOrDefault();
 
         lastTwoRates.Add(previousDayRate);
+        lastTwoRates.Add(todayRates[0]);
+
     }
     else
     {
         var previousDayRate = filteredRows
-            .Where(row => DateTime.ParseExact(row.Field<string>("DateTime"), DataManager.DATEFORMAT, CultureInfo.InvariantCulture).Date < today)
+            .Where(row => DateTime.ParseExact(row.Field<string>("TrialStartTime"), DataManager.DATEFORMAT, CultureInfo.InvariantCulture).Date < today)
             .Select(row => Convert.ToSingle(row["SuccessRate"]))
             .FirstOrDefault();
 
@@ -525,14 +615,11 @@ public List<float> GetLastTwoSuccessRates(string mechanism, string gameName)
         lastTwoRates.Add(0f);
     }
 
-    // Ensure the list always has 2 values
     while (lastTwoRates.Count < 2)
         lastTwoRates.Add(0f);
 
     return lastTwoRates;
 }
-
-
 
 
 
