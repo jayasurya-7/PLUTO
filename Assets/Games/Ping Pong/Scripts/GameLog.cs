@@ -12,11 +12,13 @@ public class GameLog : MonoBehaviour
 
     string fileName;
     float time;
-    bool runOnce = false;
+
     void Start()
     {
         ResetGameData();
         InitializeSessionDetails();
+        CreateLogFile();
+        gameData.StartDataLog(fileName);
     }
 
     private void ResetGameData()
@@ -33,16 +35,16 @@ public class GameLog : MonoBehaviour
     {
         dateTime = DateTime.Now.ToString("Dyyyy-MM-ddTHH-mm-ss");
         date = DateTime.Now.ToString("yyyy-MM-dd");
-        sessionNum = "Session" + AppData.currentSessionNumber;
+        sessionNum = "Session" + AppData.Instance.currentSessionNumber;
     }
 
     private void CreateLogFile()
     {
-        string dir = Path.Combine(DataManager.directoryPathSession, date, sessionNum);
+        string dir = Path.Combine(DataManager.sessionPath, date, sessionNum);
         Directory.CreateDirectory(dir);
 
-        fileName = Path.Combine(dir, $"{AppData.selectedMechanism}_{AppData.selectedGame}_{dateTime}.csv");
-        AppData.trialDataFileLocation = fileName;
+        fileName = Path.Combine(dir, $"{AppData.Instance.selectedMechanism.name}_{AppData.Instance.selectedGame}_{dateTime}.csv");
+        AppData.Instance.trialDataFileLocation = fileName;
 
         File.Create(fileName).Dispose();
     }
@@ -50,12 +52,6 @@ public class GameLog : MonoBehaviour
     {
         if (gameData.isGameLogging)
         {
-            if(!runOnce)
-        {
-            CreateLogFile();
-            gameData.StartDataLog(fileName);
-            runOnce = true;
-        }
             Player = GameObject.FindGameObjectWithTag("Player");
             Target = GameObject.FindGameObjectWithTag("Target");
             Enemy = GameObject.FindGameObjectWithTag("Enemy");

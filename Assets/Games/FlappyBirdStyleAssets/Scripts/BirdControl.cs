@@ -1,6 +1,4 @@
 ﻿using System;
-using System.Collections;
-using System.Collections.Generic;
 using UnityEngine;
 using UnityEngine.UI;
 
@@ -9,11 +7,15 @@ public class BirdControl : MonoBehaviour
     private bool isDead = false;
     public static Rigidbody2D rb2d;
     Animator anime;
+    // player controls
+
     public static float playSize;
     int totalLife = 5;
     int currentLife = 0;
     bool columnHit;
     public Image life;
+
+    
     float spriteBlinkingTimer = 0.0f;
     
     float spriteBlinkingMiniDuration = 0.1f;
@@ -39,7 +41,11 @@ public class BirdControl : MonoBehaviour
         currentLife = 0;
         anime = GetComponent<Animator>();
         rb2d = GetComponent<Rigidbody2D>();
+
         playSize = 2.3f + 5.5f;
+
+
+
 
     }
     void FixedUpdate()
@@ -47,6 +53,7 @@ public class BirdControl : MonoBehaviour
        
         gameData.events = Array.IndexOf(gameData.tukEvents, "moving");
         //checkPlayerMovement();
+
 
         if (startTime < 2)
         {
@@ -150,6 +157,7 @@ public class BirdControl : MonoBehaviour
     private void OnCollisionEnter2D(Collision2D collision)
     {
 
+        //Debug.Log("Collion " + collision.gameObject.tag);
         if (collision.gameObject.tag == "TopCollider" || collision.gameObject.tag == "BottomCollider")
         {
             gameData.events = Array.IndexOf(gameData.tukEvents, "collided");
@@ -161,34 +169,29 @@ public class BirdControl : MonoBehaviour
             columnHit = true;
             if (currentLife >= totalLife)
             {
+
                 FlappyGameControl.instance.gameduration = -1;
                 FlappyGameControl.instance.gameOver = true;
                 anime.SetTrigger("Die");
                 isDead = true;
                 anime.SetTrigger("Die");
             }
-            gameData.birdCollided = true;
-
+            //gameData.birdCollided = true;
         }
-
     }
+
     public static float Angle2Screen(float angle)
     {
-        float tmin = AppData.pRomValue[0];
-        float tmax = AppData.pRomValue[1];
-
+        float tmin = AppData.Instance.selectedMechanism.currRom.promMin;
+        float tmax = AppData.Instance.selectedMechanism.currRom.promMax;
         return (-2.3f + (angle - tmin) * (playSize) / (tmax - tmin));
     }
-
 
     public static float playerMovementAreaAROM(float angle)
     {
-        float tmin = AppData.aRomValue[0];
-        float tmax = AppData.aRomValue[1];
+        //ROM aromAng = new ROM(AppData.selectedMechanism);
+        float tmin = AppData.Instance.selectedMechanism.currRom.aromMin;
+        float tmax = AppData.Instance.selectedMechanism.currRom.aromMax;
         return (-2.3f + (angle - tmin) * (playSize) / (tmax - tmin));
-
-
     }
-
-
 }

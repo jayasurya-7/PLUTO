@@ -5,12 +5,29 @@ using System.Linq;
 using System.Text;
 using UnityEngine;
 
-namespace NeuroRehabLibrary
+namespace PlutoNeuroRehabLibrary
 {
     public class SessionManager
     {
         private static SessionManager _instance;
         public static SessionManager Instance { get; private set; }
+
+        //// User data
+        //public PlutoUserData userData;
+
+        //// Game data
+        //public HatTrickGame hatTrickGame;
+
+        //// Selected Mechanism
+        //public PlutoMechanism selectedMechanism = null;
+        //// Selected Game
+        //public string selectedGame = null;
+
+        // Training side.
+        //public string trainingSide
+        //{
+        //    get => userData?.rightHand == true ? "RIGHT" : "LEFT";
+        //}
 
         private int _currentSessionNumber;
         private bool _sessionStarted;
@@ -19,6 +36,12 @@ namespace NeuroRehabLibrary
         private readonly string _sessionFilePath;
         private bool _loginCalled; // Track if login has been called once
         private readonly string csvFilePath;
+        private readonly string[] sessionFileHeader = new string[] {
+            "SessionNumber", "DateTime", "Device", "Assessment", "StartTime", "StopTime",
+            "GameName", "TrialDataFileLocation", "DeviceSetupLocation", "AssistMode",
+            "AssistModeParameters", "GameParameter", "Mechanism", "MoveTime", "GameSpeed",
+            "SuccessRate", "DesiredSuccessRate", "TrialNumber", "TrialType"
+        };
 
         private SessionManager(string baseDirectory)
         {
@@ -33,18 +56,24 @@ namespace NeuroRehabLibrary
             {
                 using (var writer = new StreamWriter(csvFilePath, false, Encoding.UTF8))
                 {
-                    writer.WriteLine("SessionNumber,DateTime,Device,Assessment,StartTime,StopTime,GameName,TrialDataFileLocation," +
-                        "DeviceSetupLocation,AssistMode,AssistModeParameters,GameParameter,Mechanism,MoveTime,GameSpeed,SuccessRate");
+                    writer.WriteLine(String.Join(",", sessionFileHeader));
                 }
                 Debug.Log("Initialized SessionManager with session number: 0" );
             }
             else
             {
-                _currentSessionNumber = GetLastSessionNumber();
-                //Debug.Log($"Initialized SessionManager with session number: {_currentSessionNumber}");
+                //_currentSessionNumber = GetPreviousSessionNumber();
             }
+            _loginCalled = false;
 
-            _loginCalled = false; // Initialize login called flag
+            // Initialize user data.
+            //userData = new PlutoUserData(DataManager.configFile, DataManager.sessionFile);
+            //// Selected mechanism and game.
+            //selectedMechanism = null;
+            //selectedGame = null;
+            //// Initialize game classes to null.
+            //hatTrickGame = null;
+
         }
 
         public static void Initialize(string baseDirectory)
@@ -62,7 +91,7 @@ namespace NeuroRehabLibrary
             {
                 _currentSessionNumber = GetLastSessionNumber() + 1;
                 Debug.Log($"Session number incremented to: {_currentSessionNumber}");
-                AppData.currentSessionNumber = _currentSessionNumber;
+                AppData.Instance.currentSessionNumber = _currentSessionNumber;
                 _loginCalled = true;
             }
             _sessionStarted = false;
@@ -103,6 +132,7 @@ namespace NeuroRehabLibrary
                 session.Device = device;
             }
         }
+
         public void moveTime(string moveTime, GameSession session)
         {
             if (session != null)
@@ -110,7 +140,6 @@ namespace NeuroRehabLibrary
                 session.moveTime = moveTime;
             }
         }
-
 
         public void SetAssistMode(string assistMode, string assistModeParameters, GameSession session)
         {
@@ -252,4 +281,10 @@ namespace NeuroRehabLibrary
             StopTime = DateTime.Now;
         }
     }
+
+    /// <summary>
+    /// Virutal Therapist class to plan and execute high-level therapy details. This will include
+    /// game parameters, trial-to-trial assistance, and therapy plan logging.
+    /// </summary>
+    
 }

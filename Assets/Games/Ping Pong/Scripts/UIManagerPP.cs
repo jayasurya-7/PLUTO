@@ -1,10 +1,6 @@
 ﻿using UnityEngine;
-using System.Collections;
 using UnityEngine.SceneManagement;
-//using UnityEngine.SocialPlatforms;
-//using UnityEditor.SceneManagement;
-using NeuroRehabLibrary;
-using UnityEngine.Analytics;
+using PlutoNeuroRehabLibrary;
 using UnityEngine.UI;
 
 
@@ -29,7 +25,6 @@ public class UIManagerPP : MonoBehaviour
     private int randomTargetIndex;
     private int ps;
     private int es;
-    private int spawnCounter = 0;
     private System.Random random = new System.Random();
     private GameSession currentGameSession;
 
@@ -48,7 +43,7 @@ public class UIManagerPP : MonoBehaviour
         pauseObjects = GameObject.FindGameObjectsWithTag("ShowOnPause");
         finishObjects = GameObject.FindGameObjectsWithTag("ShowOnFinish");
         hideFinished();
-        if (!AppData.runIndividualGame) {
+        if (!AppData.Instance.runIndividualGame) {
             StartNewGameSession();
         }
         if (aromRange!= null)
@@ -64,28 +59,18 @@ public class UIManagerPP : MonoBehaviour
     }
     void Update()
     {
-        PlutoComm.sendHeartbeat();
-        //if (PlutoComm.CONTROLTYPETEXT[PlutoComm.controlType] == "NONE")
-        //{
-        //    PlutoComm.setControlType("POSITIONAAN");
-        //}
-
-       // PlutoComm.setControlType("TORQUE");
-
+        
         if (Time.timeScale > 0 && !isFinished)
         {
             float currentTime = Time.unscaledTime;
             gameMoveTime += currentTime - lastTimestamp;
             lastTimestamp = currentTime;
-            gameData.moveTime = gameMoveTime;
         }
         else 
         {
             lastTimestamp = Time.unscaledTime; // Update timestamp even if paused or finished
         }
-
         CheckGameEndConditions();
-
         if (isFinished)
         {
             showFinished();
@@ -142,10 +127,8 @@ public class UIManagerPP : MonoBehaviour
         {
             targetImage.gameObject.SetActive(false);
         }
-        aromLeft.transform.position = new Vector2(aromLeft.transform.position.x, playerMovementAreaAROM(AppData.aRomValue[0]));
-        aromRight.transform.position = new Vector2(aromLeft.transform.position.x, playerMovementAreaAROM(AppData.aRomValue[1]));
-
-        Debug.Log(PlutoComm.CONTROLTYPETEXT[PlutoComm.controlType]);
+        aromLeft.transform.position = new Vector2(aromLeft.transform.position.x, playerMovementAreaAROM(AppData.Instance.selectedMechanism.currRom.aromMin));
+        aromRight.transform.position = new Vector2(aromLeft.transform.position.x, playerMovementAreaAROM(AppData.Instance.selectedMechanism.currRom.aromMax));
         //Debug.Log($"ypos--{playerMovementAreaAROM(PlutoComm.angle)}+ angle-{PlutoComm.angle},{playerMovementAreaAROM(AppData.aRomValue[1])}");
         //if (PlutoComm.angle < AppData.pRomValue[1] && PlutoComm.angle > AppData.pRomValue[0]) Debug.Log($"position {PlutoComm.angle},{playerMovementAreaAROM(PlutoComm.angle)}");
     }
@@ -153,7 +136,7 @@ public class UIManagerPP : MonoBehaviour
     private void OnToggleSpawnArea(bool isEnabled)
     {
         gameData.isAROMEnabled = isEnabled;
-       // PlutoComm.setControlType("NONE");
+        PlutoComm.setControlType("NONE");
     }
 
     private void CheckGameEndConditions()
@@ -182,7 +165,7 @@ public class UIManagerPP : MonoBehaviour
         gameData.reps = 0;
         gameData.moveTime = gameMoveTime;
         showFinished();
-        if (!AppData.runIndividualGame)
+        if (!AppData.Instance.runIndividualGame)
         {
             EndCurrentGameSession();
         }
@@ -199,8 +182,8 @@ public class UIManagerPP : MonoBehaviour
     public static float playerMovementAreaAROM(float angle)
     {
         //ROM aromAng = new ROM(AppData.selectedMechanism);
-        float tmin = AppData.pRomValue[0];
-        float tmax = AppData.pRomValue[1];
+        float tmin = AppData.Instance.selectedMechanism.currRom.promMin;
+        float tmax = AppData.Instance.selectedMechanism.currRom.promMax;
         return Mathf.Clamp(-playSize + (angle - tmin) * (2 * playSize) / (tmax - tmin), bottomBound, topBound);
     }
 
@@ -219,8 +202,7 @@ public class UIManagerPP : MonoBehaviour
     }
     public void LoadScene(string sceneName)
     {
-        PlutoComm.setControlType("NONE");
-        if (!AppData.runIndividualGame)
+        if (!AppData.Instance.runIndividualGame)
         {
             EndCurrentGameSession();
         }
@@ -232,7 +214,7 @@ public class UIManagerPP : MonoBehaviour
     {
         gameMoveTime = 0f;
         lastTimestamp = Time.unscaledTime;
-        if (!AppData.runIndividualGame)
+        if (!AppData.Instance.runIndividualGame)
         {
             EndCurrentGameSession();
         }
@@ -275,12 +257,11 @@ public class UIManagerPP : MonoBehaviour
     }
     private void OnDestroy()
     {
-        PlutoComm.setControlType("NONE");
         if (ConnectToRobot.isPLUTO)
         {
             PlutoComm.OnButtonReleased -= onPlutoButtonReleased;
         }
-        if (AppData.runIndividualGame)
+        if (AppData.Instance.runIndividualGame)
         {
             EndCurrentGameSession();
         }
@@ -305,7 +286,7 @@ public class UIManagerPP : MonoBehaviour
         string assistModeParameters = "Null"; 
         string deviceSetupLocation = "CMC-Bioeng-dpt"; 
         string gameParameter = "YourGameParameter"; 
-        string mech = AppData.selectedMechanism;
+        string mech = AppData.Instance.selectedMechanism.name;
         SessionManager.Instance.SetDevice(device, currentGameSession);
         SessionManager.Instance.SetAssistMode(assistMode, assistModeParameters, currentGameSession);
         SessionManager.Instance.SetDeviceSetupLocation(deviceSetupLocation, currentGameSession);
@@ -316,14 +297,13 @@ public class UIManagerPP : MonoBehaviour
     {
         if (currentGameSession != null)
         {
-            string trialdata = AppData.trialDataFileLocation;
-           // string movetime = ((gameData.moveTime > 0)? gameData.moveTime: 0).ToString("F0");
+            string trialdata = AppData.Instance.trialDataFileLocation;
+            string movetime = gameData.moveTime.ToString("F0");
             SessionManager.Instance.gameSpeed(gameData.gameSpeedPP, currentGameSession);
-            SessionManager.Instance.moveTime(gameData.moveTime.ToString("F0"), currentGameSession);
             SessionManager.Instance.successRate(gameData.successRate, currentGameSession);
             Debug.Log("speed and sr :"+ gameData.gameSpeedPP+"+"+ gameData.successRate);
             SessionManager.Instance.SetTrialDataFileLocation(trialdata, currentGameSession);
-                
+            SessionManager.Instance.moveTime(movetime, currentGameSession);
             SessionManager.Instance.EndGameSession(currentGameSession);
         }
         gameData.isAROMEnabled = false; 

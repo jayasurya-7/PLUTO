@@ -1,5 +1,4 @@
 ﻿using UnityEngine;
-using System.Collections;
 using System;
 
 
@@ -17,8 +16,7 @@ public class BallController : MonoBehaviour
     Rigidbody2D rig2D;
 
     public AudioClip[] audioClips;
-    int rand = 1;
-    float threshold = 2;
+
     void Start()
     {
       
@@ -91,7 +89,9 @@ public class BallController : MonoBehaviour
 
             gameData.predictedHitY = predictedY;
             //   Debug.Log("y pos:" + gameData.predictedHitY);
-            gameData.enemyHitt = true;
+
+            //temp
+            //gameData.enemyHitt = true;
         }
 
         if (col.gameObject.tag == "Player")
@@ -103,7 +103,10 @@ public class BallController : MonoBehaviour
             Vector2 d = new Vector2(-1, y).normalized;
             initVelocity(d * speed);
             gameData.events = Array.IndexOf(gameData.pongEvents, "playerHit");
-            gameData.playerHitt = true;
+
+
+            //temp
+           // gameData.playerHitt = true;
         }
         if (col.gameObject.name == "BottomBound")
         {

@@ -1,12 +1,8 @@
 using System;
-using System.Collections;
 using System.Collections.Generic;
 using System.IO;
-using System.Linq;
-using Unity.VisualScripting;
 using UnityEngine;
 using UnityEngine.UI;
-using Random = UnityEngine.Random;
 
 public class PingPonGAANController : MonoBehaviour
 {
@@ -14,10 +10,9 @@ public class PingPonGAANController : MonoBehaviour
 
     public float playSize = 0f;
     public float targetAngle; // The target angle for the mechanism.
-    // (Optional: You can remove the target GameObject reference if not needed.)
-    GameObject player;
-   // public GameObject aromLeft, aromRight;
-    // This value will hold the predicted y position of the ball at the player bound.
+                              // public GameObject aromLeft, aromRight;
+                              // This value will hold the predicted y position of the ball at the player bound.
+
     private float ballTrajectoryPrediction;
 
 
@@ -27,8 +22,8 @@ public class PingPonGAANController : MonoBehaviour
     bool targetSpwan = false; // Signals when a target is available.
 
 
-    private float targetPosition; // This is the target “position” in angle-space.
-    private float playerPosition; // Player paddle’s current y position.
+    private float targetPosition; // This is the target ï¿½positionï¿½ in angle-space.
+    private float playerPosition; // Player paddleï¿½s current y position.
 
     // --- Predictor parameters ---
     // x coordinate of the player's bound (where the ball will hit).
@@ -42,10 +37,7 @@ public class PingPonGAANController : MonoBehaviour
     //AAN parameters
     // Control variables
     private bool isRunning = false;
-    private const float tgtDuration = 3.0f;
-    private float _currentTime = 0;
-    private float _initialTarget = 0;
-    private float _finalTarget = 0;
+
     //private bool _changingTarget = false; 
 
     // Discrete movements related variables
@@ -70,7 +62,6 @@ public class PingPonGAANController : MonoBehaviour
     });
     private const float tgtHoldDuration = 0.5f;
     private float _trialTarget = 0f;
-    private float _currTgtForDisplay;
     private float trialDuration = 0f;
     private float stateStartTime = 0f;
     private float _tempIntraStateTimer = 0f;
@@ -79,7 +70,6 @@ public class PingPonGAANController : MonoBehaviour
     private float prevControlBound = 0.16f;
     // Magical minimum value where the mechanisms mostly move without too much instability.
     private float currControlBound = 0.16f;
-    private const float cbChangeDuration = 2.0f;
     private HOMERPlutoAANController aanCtrler;
     private AANDataLogger dlogger;
     private void Awake()
@@ -93,17 +83,17 @@ public class PingPonGAANController : MonoBehaviour
             Destroy(gameObject);
         }
 
-       // Application.targetFrameRate = 300;
-        //QualitySettings.vSyncCount = 0;
+        Application.targetFrameRate = 300;
+        QualitySettings.vSyncCount = 0;
     }
 
     void Start()
     {
         string date = DateTime.Now.ToString("yyyy-MM-dd");
         string dateTime = DateTime.Now.ToString("Dyyyy-MM-ddTHH-mm-ss");
-        string sessionNum = "Session" + AppData.currentSessionNumber;
+        string sessionNum = "Session" + AppData.Instance.currentSessionNumber;
 
-        AppData._dataLogDir = Path.Combine(DataManager.directoryPathSession, date, sessionNum, $"{AppData.selectedMechanism}_{AppData.selectedGame}_{dateTime}");
+        AppData.Instance._dataLogDir = Path.Combine(DataManager.sessionPath, date, sessionNum, $"{AppData.Instance.selectedMechanism.name}_{AppData.Instance.selectedGame}_{dateTime}");
 
         ps = Camera.main.orthographicSize * Camera.main.aspect;
 
@@ -111,22 +101,30 @@ public class PingPonGAANController : MonoBehaviour
 
         topBound = playSize - this.transform.localScale.y / 4;
         bottomBound = -topBound;
+        Application.targetFrameRate = 300;
+
 
         // Pluto AAN controller
-        aanCtrler = new HOMERPlutoAANController(AppData.aRomValue, AppData.pRomValue, 0.85f);
+        aanCtrler = new HOMERPlutoAANController(
+            new float[] { AppData.Instance.selectedMechanism.currRom.aromMin, AppData.Instance.selectedMechanism.currRom.aromMax }, 
+            new float[] { AppData.Instance.selectedMechanism.currRom.promMin, AppData.Instance.selectedMechanism.currRom.promMax }, 
+            0.85f);
         isRunning = true;
         dlogger = new AANDataLogger(aanCtrler);
-
+        // Set Control mode.
+        PlutoComm.setControlType("POSITIONAAN");
         PlutoComm.setControlBound(currControlBound);
         PlutoComm.setControlDir(0);
         trialNo = 0;
+        //successRate = 0;
+        // Start the state machine.
         SetTrialState(DiscreteMovementTrialState.Rest);
 
     }
 
     void Update()
     {
-       // PlutoComm.sendHeartbeat();
+        PlutoComm.sendHeartbeat();
         // Get the current y position of the player object.
         playerPosition = GameObject.FindGameObjectWithTag("Player").transform.position.y;
 
@@ -189,7 +187,7 @@ public class PingPonGAANController : MonoBehaviour
         bool _statetimeout = _deltime >= stateDurations[(int)_trialState];
         // Time when target is reached.
         bool _intgt = Math.Abs(_trialTarget - PlutoComm.angle) <= 5.0f;
-       // Debug.Log($"trialTarget-{_trialTarget},diff - {Math.Abs(_trialTarget - PlutoComm.angle)} ,bool - {_intgt}, angle-{PlutoComm.angle}");
+        Debug.Log($"trialTarget-{_trialTarget},diff - {Math.Abs(_trialTarget - PlutoComm.angle)} ,bool - {_intgt}, angle-{PlutoComm.angle}");
         switch (_trialState)
         {
             case DiscreteMovementTrialState.Rest:
@@ -210,10 +208,10 @@ public class PingPonGAANController : MonoBehaviour
 
                 //Debug.Log("In moving st");
                 _tempIntraStateTimer += _intgt ? Time.deltaTime : -_tempIntraStateTimer;
-                //Debug.Log($"temp:{_tempIntraStateTimer}");
+                Debug.Log($"temp:{_tempIntraStateTimer}");
                 // Target reached successfull.
                 bool _tgtreached = _tempIntraStateTimer >= tgtHoldDuration;
-              //  Debug.Log($" Target Reached : {_tgtreached}");
+                Debug.Log($" Target Reached : {_tgtreached}");
                 // Update AANController.
                 aanCtrler.Update(PlutoComm.angle, Time.deltaTime, _statetimeout || _tgtreached);
                 // Set AAN target if needed.
@@ -261,13 +259,13 @@ public class PingPonGAANController : MonoBehaviour
                 trialDuration = 0f;
                 prevControlBound = PlutoComm.controlBound;
                 currControlBound = 1.0f;
-                if (gameData.targetSpwan && gameData.enemyHitt)
+                if (gameData.targetSpwan )//&& gameData.enemyHitt)
                 {
                     dlogger.UpdateLogFiles(trialNo);
                     trialNo += 1;
                     //tempSpawn = false
                     gameData.targetSpwan = false;
-                    gameData.enemyHitt = false; 
+                    //gameData.enemyHitt = false; 
 
                 }
                 _tempIntraStateTimer = 0f;
@@ -290,7 +288,7 @@ public class PingPonGAANController : MonoBehaviour
             case DiscreteMovementTrialState.Failure:
                 // Update adaptation row.
                 byte _successbyte = newState == DiscreteMovementTrialState.Success ? (byte)1 : (byte)0;
-                gameData.playerHitt = false;
+               // gameData.playerHitt = false;
                 dlogger.WriteTrialRowInfo(_successbyte);
                 break;
         }
@@ -317,8 +315,8 @@ public class PingPonGAANController : MonoBehaviour
     {
         float calibAngleRange = PlutoComm.CALIBANGLE[PlutoComm.mechanism];
         float angle = Mathf.Lerp(
-            AppData.pRomValue[1],
-            AppData.pRomValue[0],
+            -calibAngleRange / 2,
+            calibAngleRange / 2,
             (y_pos + playSize) / (2 * playSize)
         );
         return angle;
@@ -342,8 +340,8 @@ public class PingPonGAANController : MonoBehaviour
     public float Angle2Screen(float angle)
     {
         //ROM aromAng = new ROM(AppData.selectedMechanism);
-        float tmin = AppData.aRomValue[0];
-        float tmax = AppData.aRomValue[1];
+        float tmin = AppData.Instance.selectedMechanism.currRom.aromMin;
+        float tmax = AppData.Instance.selectedMechanism.currRom.aromMax;
         return Mathf.Clamp(-playSize + (angle - tmin) * (2 * playSize) / (tmax - tmin), bottomBound, topBound);
 
     }

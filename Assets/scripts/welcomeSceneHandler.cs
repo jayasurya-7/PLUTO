@@ -1,18 +1,9 @@
-using System; 
-using System.Collections;
-using System.Collections.Generic;
-using System.Data;
-using System.Runtime.InteropServices.ComTypes;
+using System;
 using System.IO;
 using TMPro;
 using UnityEngine;
 using UnityEngine.UI;
-using System.Linq;
-using System.Globalization;
-using Unity.VisualScripting;
 using UnityEngine.SceneManagement;
-//using System.Text.RegularExpressions;
-using NeuroRehabLibrary;
 
 public class welcomSceneHandler : MonoBehaviour
 {
@@ -27,7 +18,7 @@ public class welcomSceneHandler : MonoBehaviour
     public Image[] pies = new Image[7];
     public bool piChartUpdated = false; 
     private DaySummary[] daySummaries;
-    public readonly string nextScene = "chooseMechanism";
+    public readonly string nextScene = "CHMECH";
 
     // Private variables
     private bool attachPlutoButtonEvent = false;
@@ -36,51 +27,31 @@ public class welcomSceneHandler : MonoBehaviour
     // Start is called before the first frame update
     void Start()
     {
-        // Inialize the logger
-        AppLogger.StartLogging(SceneManager.GetActiveScene().name);
-        AppLogger.SetCurrentScene(SceneManager.GetActiveScene().name);
-        AppLogger.LogInfo($"{SceneManager.GetActiveScene().name} scene started.");
         // Check if the directory exists
-        if (!Directory.Exists(DataManager.directoryPath))
-        {
-            // If not, create the directory
-            Directory.CreateDirectory(DataManager.directoryPath);
-        }
-            if (!File.Exists(DataManager.filePathConfigData))
-        {
-            SceneManager.LoadScene("configuration");
-        }
-        else
-        {
-            // Initialize.
-            AppData.initializeStuff();
-            //Neuro Library
-            string baseDirectory = DataManager.directoryPathSession;
-            Debug.Log(baseDirectory);
-            SessionManager.Initialize(DataManager.directoryPathSession);
-            SessionManager.Instance.Login();
-            daySummaries = AppData.UserData.CalculateMoveTimePerDay();
-
-            // Update summary display
-            if (!piChartUpdated)
-            {
-                UpdateUserData();
-                UpdatePieChart();
-            }
-        }
+        if (!Directory.Exists(DataManager.basePath)) Directory.CreateDirectory(DataManager.basePath);
+        if (!File.Exists(DataManager.configFile)) SceneManager.LoadScene("CONFIG");
         
+        // Initialize.
+        AppData.Instance.Initialize(SceneManager.GetActiveScene().name);
+        AppLogger.SetCurrentScene(SceneManager.GetActiveScene().name);
+        AppLogger.LogInfo($"'{SceneManager.GetActiveScene().name}' scene started.");
+        daySummaries = AppData.Instance.userData.CalculateMoveTimePerDay();
+        
+        // Update summary display
+        if (!piChartUpdated)
+        {
+            UpdateUserData();
+            UpdatePieChart();
+        }
     }
 
     void Update()
     {
-       // PlutoComm.sendHeartbeat();
-        // Attach PlutoButton release event after 2 seconds if it is not attached already.
-        if (!attachPlutoButtonEvent && Time.timeSinceLevelLoad > 2)
+        if (!attachPlutoButtonEvent && Time.timeSinceLevelLoad > 1)
         {
             attachPlutoButtonEvent = true;
             PlutoComm.OnButtonReleased += onPlutoButtonReleased;
         }
-        
         // Check if it time to switch to the next scene
         if (changeScene == true ) {
             LoadTargetScene();
@@ -103,9 +74,9 @@ public class welcomSceneHandler : MonoBehaviour
 
     private void UpdateUserData()
     {
-        userName.text = AppData.UserData.hospNumber;
-        timeRemainingToday.text = $"{AppData.UserData.totalMoveTimeRemaining} min";
-        todaysDay.text = AppData.UserData.getCurrentDayOfTraining().ToString();
+        userName.text = AppData.Instance.userData.hospNumber;
+        timeRemainingToday.text = $"{AppData.Instance.userData.totalMoveTimeRemaining} min";
+        todaysDay.text = AppData.Instance.userData.getCurrentDayOfTraining().ToString();
         todaysDate.text = DateTime.Now.ToString("ddd, dd-MM-yyyy");
     }
 
@@ -117,10 +88,18 @@ public class welcomSceneHandler : MonoBehaviour
             Debug.Log($"{i} | {daySummaries[i].Day} | {daySummaries[i].Date} | {daySummaries[i].MoveTime}");
             prevDays[i].text = daySummaries[i].Day;
             prevDates[i].text = daySummaries[i].Date;
-            pies[i].fillAmount = daySummaries[i].MoveTime / AppData.UserData.totalMoveTimePrsc;
+            pies[i].fillAmount = daySummaries[i].MoveTime / AppData.Instance.userData.totalMoveTimePrsc;
             pies[i].color = new Color32(148,234,107,255);
         }
         piChartUpdated = true;
+    }
+
+    private void OnDestroy()
+    {
+        if (ConnectToRobot.isPLUTO)
+        {
+            PlutoComm.OnButtonReleased -= onPlutoButtonReleased;
+        }
     }
 
     private void OnApplicationQuit()

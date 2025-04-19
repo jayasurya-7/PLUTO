@@ -1,15 +1,9 @@
-﻿using System.Linq;
-using System.Collections;
-using System.Collections.Generic;
+﻿using System.Collections.Generic;
 
 using UnityEngine;
-using UnityEngine.UI;
 using System;
 using Random = UnityEngine.Random;
-using UnityEngine.SceneManagement;
 using System.IO;
-using TMPro;
-using Unity.VisualScripting;
 
 public class FB_spawnTargets : MonoBehaviour
 {
@@ -22,14 +16,14 @@ public class FB_spawnTargets : MonoBehaviour
     public bool onceReached;
 
     public float playSize = 0;
+    public static float[] aRom = { 0, 0 };
+    public static float[] pRom = { 0, 0 };
 
     public static float targetAngle;
     //GameObject target;
 
     GameObject target;
     GameObject player;
-
-    float gameduration = 0;
     public static bool stopAssistance = true;
     public float initialDirection = 0;
     Vector2 targetPos;
@@ -37,6 +31,8 @@ public class FB_spawnTargets : MonoBehaviour
     //AAN parameters
     // Control variables
     private bool isRunning = false;
+
+    //private bool _changingTarget = false; 
 
     // Discrete movements related variables
     private uint trialNo = 0;
@@ -68,7 +64,6 @@ public class FB_spawnTargets : MonoBehaviour
     private float prevControlBound = 0.16f;
     // Magical minimum value where the mechanisms mostly move without too much instability.
     private float currControlBound = 0.16f;
-    private const float cbChangeDuration = 2.0f;
     private HOMERPlutoAANController aanCtrler;
     private AANDataLogger dlogger;
     private float targetPosition;
@@ -77,7 +72,7 @@ public class FB_spawnTargets : MonoBehaviour
     private float gameSpeed = 6f;
     private const float defaultScrollSpeed = -2.2f;
     private float targetReachingTime = 0f;
-
+   // public GameObject aromLeft, aromRight;
     private void Awake()
     {
         Resources.UnloadUnusedAssets();
@@ -88,6 +83,10 @@ public class FB_spawnTargets : MonoBehaviour
         else
             Destroy(gameObject);
 
+        Application.targetFrameRate = 300;
+        QualitySettings.vSyncCount = 0;
+
+
     }
 
     void Start()
@@ -97,11 +96,15 @@ public class FB_spawnTargets : MonoBehaviour
         player = GameObject.FindGameObjectWithTag("Player");
         string date = DateTime.Now.ToString("yyyy-MM-dd");
         string dateTime = DateTime.Now.ToString("Dyyyy-MM-ddTHH-mm-ss");
-        string sessionNum = "Session" + AppData.currentSessionNumber;
-        AppData._dataLogDir = Path.Combine(DataManager.directoryPathSession, date, sessionNum, $"{AppData.selectedMechanism}_{AppData.selectedGame}_{dateTime}");
+        string sessionNum = "Session" + AppData.Instance.currentSessionNumber;
+
+        AppData.Instance._dataLogDir = Path.Combine(DataManager.sessionPath, date, sessionNum, $"{AppData.Instance.selectedMechanism}_{AppData.Instance.selectedGame}_{dateTime}");
 
         // Pluto AAN controller
-        aanCtrler = new HOMERPlutoAANController(AppData.aRomValue, AppData.pRomValue, 0.85f);
+        aanCtrler = new HOMERPlutoAANController(
+            new float[] { AppData.Instance.selectedMechanism.currRom.aromMin, AppData.Instance.selectedMechanism.currRom.aromMax },
+            new float[] { AppData.Instance.selectedMechanism.currRom.promMin, AppData.Instance.selectedMechanism.currRom.promMax },
+            0.85f);
         isRunning = true;
         dlogger = new AANDataLogger(aanCtrler);
         // Set Control mode.
@@ -109,6 +112,8 @@ public class FB_spawnTargets : MonoBehaviour
         PlutoComm.setControlBound(currControlBound);
         PlutoComm.setControlDir(0);
         trialNo = 0;
+        //successRate = 0;
+        // Start the state machine.
 
         SetTrialState(DiscreteMovementTrialState.Rest);
     }
@@ -119,16 +124,27 @@ public class FB_spawnTargets : MonoBehaviour
         PlutoComm.sendHeartbeat();
         prevSpawnTime += Time.deltaTime;
 
+        if (PlutoComm.CONTROLTYPETEXT[PlutoComm.controlType] == "NONE")
+        {
+            PlutoComm.setControlType("POSITIONAAN");
+        }
         stopClock -= Time.deltaTime;
         playerPosition = GameObject.FindGameObjectWithTag("Player").transform.position.y;
+       // Debug.Log($" scroll speed time :{FlappyGameControl.instance.scrollSpeed}");
         float diff = (FlappyGameControl.instance.scrollSpeed - defaultScrollSpeed);
+        //Debug.Log($"Difference : {diff}");
         float div = (diff / defaultScrollSpeed);
+        //Debug.Log($"Difference : {div}");
         targetReachingTime = gameSpeed - (gameSpeed* div);
-
+       // Debug.Log($"target reaching Time - {targetReachingTime}");
+        //UI();
         if (isRunning == false) return;
+
         trialDuration += Time.deltaTime;
 
         RunTrialStateMachine();
+
+
     }
 
 
@@ -161,8 +177,11 @@ public class FB_spawnTargets : MonoBehaviour
                 // Set AAN target if needed.
                 if (aanCtrler.stateChange) UpdatePlutoAANTarget();
                 // Change state if needed.
-                if (_tgtreached || gameData.birdPassed) SetTrialState(DiscreteMovementTrialState.Success);
-                if (_statetimeout || gameData.birdCollided) SetTrialState(DiscreteMovementTrialState.Failure);
+
+                //if (_tgtreached || gameData.birdPassed) SetTrialState(DiscreteMovementTrialState.Success);
+                //if (_statetimeout || gameData.birdCollided) SetTrialState(DiscreteMovementTrialState.Failure);
+                if (_tgtreached ) SetTrialState(DiscreteMovementTrialState.Success);
+                if (_statetimeout) SetTrialState(DiscreteMovementTrialState.Failure);
                 dlogger.WriteAanStateInforRow();
                 break;
             case DiscreteMovementTrialState.Success:
@@ -228,8 +247,8 @@ public class FB_spawnTargets : MonoBehaviour
                 // Update adaptation row.
                 byte _successbyte = newState == DiscreteMovementTrialState.Success ? (byte)1 : (byte)0;
                 dlogger.WriteTrialRowInfo(_successbyte);
-                gameData.birdCollided = false;
-                gameData.birdPassed = false;    
+                //gameData.birdCollided = false;
+               // gameData.birdPassed = false;    
                 break;
         }
         _trialState = newState;
@@ -245,40 +264,64 @@ public class FB_spawnTargets : MonoBehaviour
         targetAngle = RandomAngle();
 
         targetPos.y = Angle2Screen(targetAngle);
+        targetPosition = ScreenPositionToAngle(targetAngle);
+        initialDirection = getDirection();
 
         target = GameObject.FindGameObjectWithTag("Target");
         return targetPos;
 
     }
+
     private float ScreenPositionToAngle(float screenPosition)
     {
+        float newPROM_tmin = AppData.Instance.selectedMechanism.currRom.promMin;
+        float newPROM_tmax = AppData.Instance.selectedMechanism.currRom.promMax;
         float angle = Mathf.Lerp(
-            AppData.pRomValue[0] / 2,
-            AppData.pRomValue[1] / 2,
+            newPROM_tmin / 2,
+            newPROM_tmax / 2,
             (screenPosition + playSize) / (2 * playSize)
         );
         return angle;
     }
+
+    public bool isInPROM(float angle)
+    {
+        float newPROM_tmin = AppData.Instance.selectedMechanism.currRom.promMin;
+        float newPROM_tmax = AppData.Instance.selectedMechanism.currRom.promMax;
+        if (angle < newPROM_tmin || angle > newPROM_tmax)
+        {
+            Debug.Log("prom target");
+            return true;
+        }
+        else
+            return false;
+    }
+
     public float RandomAngle()
     {
-        float tmin = AppData.pRomValue[0];
-        float tmax = AppData.pRomValue[1];
+        float tmin = AppData.Instance.selectedMechanism.currRom.promMin;
+        float tmax = AppData.Instance.selectedMechanism.currRom.promMax;
         float prevtargetAngle = targetAngle;
         float tempAngle = Random.Range(tmin, tmax);
-
         while (Mathf.Abs(tempAngle - prevtargetAngle) < Mathf.Abs(tmax - tmin) / 2.5f)
         {
             tempAngle = Random.Range(tmin, tmax);
         }
-
         return tempAngle;
     }
     public float Angle2Screen(float angle)
     {
-        float tmin = AppData.pRomValue[0];
-        float tmax = AppData.pRomValue[1];
-
+        float tmin = AppData.Instance.selectedMechanism.currRom.promMin;
+        float tmax = AppData.Instance.selectedMechanism.currRom.promMax;
         return (-2f + (angle - tmin) * (playSize) / (tmax - tmin));
+    }
+
+    private void OnApplicationQuit()
+    {
+    }
+    float getDirection()
+    {
+        return Mathf.Sign(targetAngle - PlutoComm.angle);
     }
 
 }

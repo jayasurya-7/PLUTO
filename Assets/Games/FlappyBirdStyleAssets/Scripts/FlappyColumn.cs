@@ -1,11 +1,12 @@
 ﻿using System;
-using System.Collections;
-using System.Collections.Generic;
 using UnityEngine;
 
 public class FlappyColumn : MonoBehaviour
+
 {
-    public AudioClip saw;    float prevSpawnTime = 0;
+    public AudioClip saw;
+
+    float prevSpawnTime = 0;
     void Start()
     {
         GetComponent<AudioSource>().playOnAwake = false;
@@ -22,8 +23,9 @@ public class FlappyColumn : MonoBehaviour
         {
             prevSpawnTime = 0;
             gameData.events = Array.IndexOf(gameData.tukEvents, "passed");
+            Debug.Log("Passed");
             FlappyGameControl.instance.BirdScored();
-            gameData.birdPassed = true;
+          //  gameData.birdPassed = true;
         }
 
     }

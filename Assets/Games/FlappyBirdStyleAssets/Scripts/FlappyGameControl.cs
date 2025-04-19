@@ -1,13 +1,8 @@
-﻿
-using System;
-using System.Collections;
-using System.Collections.Generic;
-using System.IO;
-using UnityEngine;
+﻿using UnityEngine;
 using UnityEngine.SceneManagement;
 using UnityEngine.UI;
 using Michsky.UI.ModernUIPack;
-using NeuroRehabLibrary;
+using PlutoNeuroRehabLibrary;
 
 public class FlappyGameControl : MonoBehaviour
 {
@@ -27,7 +22,7 @@ public class FlappyGameControl : MonoBehaviour
     bool endValSet = false;
     private GameSession currentGameSession;
     private float gameMoveTime = 0f;
-    private float lastTimestamp = 0f;       // Last recorded time for time scale changes
+    private float lastTimestamp = 0f; // Last recorded time for time scale changes
     private string chooseGameScene = "choosegame";
     public BirdControl bc;
     float playSize = 0f;
@@ -43,6 +38,7 @@ public class FlappyGameControl : MonoBehaviour
         }
 
     }
+
     void Start()
     {
         playSize = Camera.main.orthographicSize * Camera.main.aspect;
@@ -54,7 +50,7 @@ public class FlappyGameControl : MonoBehaviour
         gameData.reps = 0;
         gameData.isGameLogging = true;
         //PlutoComm.calibrate(AppData.selectedMechanism);
-        if (!AppData.runIndividualGame)
+        if (!AppData.Instance.runIndividualGame)
         {
             StartNewGameSession();
         }
@@ -112,15 +108,13 @@ public class FlappyGameControl : MonoBehaviour
     {
         timerObject.specifiedValue = Mathf.Clamp(100 * (90 - gameduration) / 90f, 0, 100);
         gameData.moveTime = gameMoveTime;
-
-
         aromLeft.transform.position = new Vector3(aromRight.transform.position.x,
-           Angle2Screen(AppData.aRomValue[0]),
+           Angle2Screen(AppData.Instance.selectedMechanism.currRom.aromMin),
            aromLeft.transform.position.z
        );
         aromRight.transform.position = new Vector3(
           aromRight.transform.position.x,
-              Angle2Screen2(AppData.aRomValue[1]),
+              Angle2Screen2(AppData.Instance.selectedMechanism.currRom.aromMax),
             aromRight.transform.position.z
         );
 
@@ -135,6 +129,7 @@ public class FlappyGameControl : MonoBehaviour
     }
     public void hidePaused()
     {
+
         foreach (GameObject g in pauseObjects)
         {
             g.SetActive(false);
@@ -188,6 +183,8 @@ public class FlappyGameControl : MonoBehaviour
                 }
                 score += 1;
                 gameData.gameScore++;
+
+
             }
             else
             {
@@ -205,7 +202,6 @@ public class FlappyGameControl : MonoBehaviour
         if (gameOver == true)
         {
             gameData.isGameLogging = false;
-            EndCurrentGameSession();
             SceneManager.LoadScene(SceneManager.GetActiveScene().buildIndex);
 
         }
@@ -229,17 +225,23 @@ public class FlappyGameControl : MonoBehaviour
     }
     public float Angle2Screen(float angle)
     {
-        float tmin = AppData.pRomValue[0];
-        float tmax = AppData.pRomValue[1];
+        ROM promAng = new ROM(AppData.Instance.selectedMechanism.name);
+        float tmin = promAng.promMin;
+        float tmax = promAng.promMax;
 
         return (-3.0f + (angle - tmin) * (playSize) / (tmax - tmin));
+
+
     }
     public float Angle2Screen2(float angle)
     {
-       float tmin = AppData.pRomValue[0];
-        float tmax = AppData.pRomValue[1];
+        ROM promAng = new ROM(AppData.Instance.selectedMechanism.name);
+        float tmin = promAng.promMin;
+        float tmax = promAng.promMax;
 
         return (-4.3f+(angle - tmin) * (playSize) / (tmax - tmin));
+
+
     }
     public void PlayStart()
     {
@@ -248,7 +250,7 @@ public class FlappyGameControl : MonoBehaviour
         lastTimestamp = Time.unscaledTime;
         start.SetActive(false);
         Time.timeScale = 1;
-        if (!AppData.runIndividualGame)
+        if (!AppData.Instance.runIndividualGame)
         {
             EndCurrentGameSession();
         }
@@ -265,8 +267,7 @@ public class FlappyGameControl : MonoBehaviour
     }
     public void exitButton()
     {
-        PlutoComm.setControlType("NONE");
-        if (!AppData.runIndividualGame) {
+        if (!AppData.Instance.runIndividualGame) {
         EndCurrentGameSession();
         }
         SceneManager.LoadScene(chooseGameScene);
@@ -291,7 +292,7 @@ public class FlappyGameControl : MonoBehaviour
         string assistModeParameters = "Null";
         string deviceSetupLocation = "CMC-Bioeng-dpt";
         string gameParameter = "YourGameParameter";
-        string mech = AppData.selectedMechanism;
+        string mech = AppData.Instance.selectedMechanism.name;
         SessionManager.Instance.SetDevice(device, currentGameSession);
         SessionManager.Instance.SetAssistMode(assistMode, assistModeParameters, currentGameSession);
         SessionManager.Instance.SetDeviceSetupLocation(deviceSetupLocation, currentGameSession);
@@ -302,7 +303,7 @@ public class FlappyGameControl : MonoBehaviour
     {
         if (currentGameSession != null)
         {
-            string trialdata = AppData.trialDataFileLocation;
+            string trialdata = AppData.Instance.trialDataFileLocation;
             string movetime = gameData.moveTime.ToString("F0");
             SessionManager.Instance.gameSpeed(gameData.gameSpeedTT, currentGameSession);
             SessionManager.Instance.successRate(gameData.successRate, currentGameSession);
@@ -312,8 +313,4 @@ public class FlappyGameControl : MonoBehaviour
         }
     }
 
-    private void OnDestroy()
-    {
-        PlutoComm.setControlType("NONE");
-    }
 }
