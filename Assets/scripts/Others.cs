@@ -459,6 +459,7 @@ public List<float> GetLastTwoSuccessRates(string mechanism, string gameName)
 {
     List<float> lastTwoRates = new List<float>();
     UnityEngine.Debug.Log("Called");
+        dTableSession = DataManager.loadCSV(DataManager.sessionFile);
 
     if (dTableSession == null || dTableSession.Rows.Count == 0)
     {

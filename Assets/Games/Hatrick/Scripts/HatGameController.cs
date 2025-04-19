@@ -320,7 +320,7 @@ public class HatGameController : MonoBehaviour
                 AppData.Instance.aanController.Update(PlutoComm.angle, Time.deltaTime, true);
                 // Set AAN target if needed.
 
-            
+                AppData.Instance.previousSuccessRates =null;
 
                 if (AppData.Instance.aanController.stateChange) UpdatePlutoAANTarget();
                 // Change to done only when the AAN Controller is AromMoving or Idle state.
@@ -330,14 +330,14 @@ public class HatGameController : MonoBehaviour
 
                     AppData.Instance.StopTrial(nTargets, nSuccess, nFailure);
                     gameState = GameStates.DONE;
-                     AppData.Instance.previousSuccessRates =null;
-                   
+                   if(AppData.Instance.previousSuccessRates ==null)
+                   { 
                     AppData.Instance.previousSuccessRates = AppData.Instance.userData.GetLastTwoSuccessRates(AppData.Instance.selectedMechanism.name, AppData.Instance.selectedGame);
-                   // Debug.Log($" running bruhh: {AppData.Instance.previousSuccessRates[0]}, {AppData.Instance.previousSuccessRates[1]}.count :{AppData.Instance.previousSuccessRates.Count}");
+                    Debug.Log($" running bruhh: {AppData.Instance.previousSuccessRates[0]}, {AppData.Instance.previousSuccessRates[1]}.count :{AppData.Instance.previousSuccessRates.Count}");
 
                     SceneManager.LoadScene(SceneManager.GetActiveScene().name);
-                     Debug.Log("Running bruh 1");
-                    
+                    Debug.Log("Running bruh 1");
+                    }
                     Debug.Log("Running bruh 2:");
                 }
                 break;
