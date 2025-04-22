@@ -1,12 +1,7 @@
-
-using Newtonsoft.Json.Linq;
 using System;
-using System.Collections;
 using System.Collections.Concurrent;
-using System.Collections.Generic;
 using System.Linq;
 using UnityEngine;
-using UnityEngine.SceneManagement;
 using UnityEngine.UI;
 using XCharts.Runtime;
 
@@ -65,7 +60,7 @@ public class summarySceneHandler : MonoBehaviour
     {
         Debug.Log("Is bar chart active: " + barchart.gameObject.activeSelf);
 
-        sessionDataHandler = new SessionDataHandler(DataManager.filePathSessionData);
+        sessionDataHandler = new SessionDataHandler(DataManager.sessionFile);
 
         sessionDataHandler.summaryCalculateMovTimePerDayWithLinq();
 

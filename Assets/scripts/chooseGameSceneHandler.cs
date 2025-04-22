@@ -1,95 +1,98 @@
-using System;
 using UnityEngine;
-using UnityEngine.SceneManagement;  
-using UnityEngine.UI;  
-using System.Collections.Generic; 
-using System.Collections;
+using UnityEngine.SceneManagement;
+using UnityEngine.UI;
+using System.Collections.Generic;
 using TMPro;
-//using UnityEditor.U2D.Aseprite;
 
 public class ChooseGameSceneHandler : MonoBehaviour
 {
-    public GameObject toggleGroup;  
-    public Button playButton;   
+    public GameObject toggleGroup;
+    public Button playButton;
     public Button changeMech;
     public TMP_Text result;
 
-    private bool toggleSelected = false;  
-    private string selectedGame;
-    private static bool isButtonPressed = false;
+    private bool toggleSelected = false;
+    private string gameSelected;
+    private string changeScene = "CHMECH";
     private readonly Dictionary<string, string> gameScenes = new Dictionary<string, string>
     {
-        { "pingPong", "pong_game" },
-        { "tukTuk", "FlappyGame" },
-        { "hatTrick", "HatrickGame" }
+        { "PONG", "PONGMENU" },
+        { "TUK", "TUK" },
+        { "HAT", "HAT" }
     };
-    private bool lisRunning = false;
-    private bool targetReached = false; 
-    private const float targetTolerance = 5.0f; 
-    private bool isRunning = false;
-    
-    private float targetAngle = 0;
-    private string assessmentScene = "assessment";
-    private string changeScene = "chooseMechanism";
-    private bool runOnce = false;
+    private bool loadgame = false;
 
     void Start()
     {
+        // Initialize if needed
+        if (AppData.Instance.userData == null)
+        {
+            Debug.Log("User data is null");
+            // Inialize the logger
+            AppData.Instance.Initialize(SceneManager.GetActiveScene().name, doNotResetMech: false);
+        }
+// Create a new AAN controller.
+        AppData.Instance.aanController = new PlutoAANController(
+            mechanism: AppData.Instance.selectedMechanism,
+            sessionData: AppData.Instance.userData.dTableSession,
+            sessionNo: AppData.Instance.currentSessionNumber
+        );
+        // If no mechanism is selected, got to the scene to choose mechanism.
+        if (AppData.Instance.selectedMechanism == null)
+        {
+            // Check if mechnism is set in PLUTO?
+            if (PlutoComm.CALIBRATION[PlutoComm.calibration] == "YESCALIB")
+            {
+                AppData.Instance.SetMechanism(PlutoComm.MECHANISMS[PlutoComm.mechanism]);
+            } else
+            {
+                SceneManager.LoadScene("CHMECH");
+                return;
+            }
+        }
+
+        // Update App Logger
+        AppLogger.SetCurrentScene(SceneManager.GetActiveScene().name);
+        AppLogger.LogInfo($"'{SceneManager.GetActiveScene().name}' scene started.");
         
+        // Reset selected game.
+        AppData.Instance.SetGame(null);
+        AppData.Instance.previousSuccessRates =null;
+        // Attach callback.
+        AttachCallbacks();
 
-        initialize();
+        // Make sure No control is set
+        PlutoComm.setControlType("NONE");
 
-        //applogger
-        applogging();
-
-        //calculate game speed
-        AppData.UserData.CalculateGameSpeedForLastUsageDay();
-
-        PlutoComm.OnButtonReleased += OnPlutoButtonReleased;
-
-        ROM romValues = new ROM(AppData.selectedMechanism);
-
-        AttachToggleListeners();
-        
-        playButton.onClick.AddListener(OnPlayButtonClicked);
-        changeMech.onClick.AddListener(OnMechButtonClicked);
-
-        if(romValues.datetime == null) SceneManager.LoadScene(assessmentScene);
-
-        AppData.aRomValue[0] = romValues.aromTmin;
-        AppData.aRomValue[1] = romValues.aromTmax;
-        AppData.pRomValue[0] = romValues.promTmin;
-        AppData.pRomValue[1] = romValues.promTmax;
-
-
-        AppLogger.LogInfo($"controlType : { PlutoComm.controlType}");
-
-
+        Debug.Log($"Curr ROM: {AppData.Instance.selectedMechanism.currRom.promMin:F2}, {AppData.Instance.selectedMechanism.currRom.promMax:F2}, {AppData.Instance.selectedMechanism.currRom.aromMin:F2}, {AppData.Instance.selectedMechanism.currRom.aromMax:F2}");
     }
-    void Update()
-    {   
-        PlutoComm.sendHeartbeat();
 
-        if (!runOnce)
+    void Update()
+    {
+        PlutoComm.sendHeartbeat();
+        if (loadgame)
         {
-            PlutoComm.setControlType("NONE");
-            runOnce = true;
+            toggleSelected = false;
+            LoadSelectedGameScene(gameSelected);
+            loadgame = false;
         }
-        if (isButtonPressed)
-        {
-            LoadSelectedGameScene(selectedGame);
-            isButtonPressed = false;
-        }
+
+        // Magic key cobmination for doing the assessment.
         if (Input.GetKey(KeyCode.LeftControl) && Input.GetKeyDown(KeyCode.R))
         {
-            //assessment();
-           SceneManager.LoadScene(assessmentScene);
+            SceneManager.LoadScene("ASSESS");
         }
-        //assessment(); //automatic assessment scene load when 7 days done.
-
-      
     }
 
+    void AttachCallbacks()
+    {
+        // Scene controls callback
+        AttachToggleListeners();
+        playButton.onClick.AddListener(OnPlayButtonClicked);
+        changeMech.onClick.AddListener(OnMechButtonClicked);
+        // PLUTO Button
+        PlutoComm.OnButtonReleased += OnPlutoButtonReleased;
+    }
 
     void AttachToggleListeners()
     {
@@ -104,127 +107,69 @@ public class ChooseGameSceneHandler : MonoBehaviour
     }
 
     void CheckToggleStates()
-    { 
+    {
         foreach (Transform child in toggleGroup.transform)
         {
             Toggle toggleComponent = child.GetComponent<Toggle>();
             if (toggleComponent != null && toggleComponent.isOn)
             {
-                selectedGame = toggleComponent.name;  
-                AppData.selectedGame = selectedGame;
-                AppLogger.SetCurrentGame(AppData.selectedGame);
-                AppLogger.LogInfo($"Selected game '{AppData.selectedGame}'.");
-                toggleSelected = true; 
-                break; 
+                gameSelected = toggleComponent.name;
+                toggleSelected = true;
+                break;
             }
         }
     }
 
     private void OnPlayButtonClicked()
     {
-        if (toggleSelected)
+        if (toggleSelected && !loadgame)
         {
-            LoadSelectedGameScene(selectedGame);
-            toggleSelected = false;
-        }
-        else
-        {
-            Debug.Log("No game selected. Please select a game.");
+            loadgame = true;
         }
     }
 
-
-    private void initialize()
-    {
-        // Initialize if needed
-        if (AppData.UserData.dTableConfig == null)
-        {
-            // Inialize the logger
-            AppLogger.StartLogging(SceneManager.GetActiveScene().name);
-            AppData.initializeStuff();
-            AppData.selectedMechanism = "HOC";
-            AppData.currentSessionNumber = 1111;
-            AppData.runIndividualGame = true;
-            AppLogger.SetCurrentMechanism(AppData.selectedMechanism);
-        }
-    }
-
-    private void applogging()
-    {
-
-        AppLogger.SetCurrentScene(SceneManager.GetActiveScene().name);
-        AppLogger.LogInfo($"{SceneManager.GetActiveScene().name} scene started.");
-        AppLogger.SetCurrentGame("");
-    }
-
-   
     private void OnMechButtonClicked()
     {
+        AppData.Instance.aanController =null;
         SceneManager.LoadScene(changeScene);
-     
     }
 
     private void LoadSelectedGameScene(string game)
     {
         if (gameScenes.TryGetValue(game, out string sceneName))
         {
+            AppLogger.LogInfo($"'{game}' game selected.");
+            // Log the ROM information.
+            AppLogger.LogInfo(
+                $"Old  PROM: [{AppData.Instance.selectedMechanism.oldRom.promMin:F2}, {AppData.Instance.selectedMechanism.oldRom.promMax:F2}]" +
+                $" | AROM: [{AppData.Instance.selectedMechanism.oldRom.aromMin:F2}, {AppData.Instance.selectedMechanism.oldRom.aromMax:F2}]");
+            AppLogger.LogInfo(
+                $"New  PROM: [{AppData.Instance.selectedMechanism.newRom.promMin:F2}, {AppData.Instance.selectedMechanism.newRom.promMax:F2}]" +
+                $" | AROM: [{AppData.Instance.selectedMechanism.newRom.aromMin:F2}, {AppData.Instance.selectedMechanism.newRom.aromMax:F2}]");
+            AppLogger.LogInfo(
+                $"Curr PROM: [{AppData.Instance.selectedMechanism.currRom.promMin:F2}, {AppData.Instance.selectedMechanism.currRom.promMax:F2}]" +
+                $" | AROM: [{AppData.Instance.selectedMechanism.currRom.aromMin:F2}, {AppData.Instance.selectedMechanism.currRom.aromMax:F2}]");
+            // Instantitate the game object and load the appropriate scene.
+            AppData.Instance.SetGame(game);
+            
             SceneManager.LoadScene(sceneName);
         }
     }
+    
     public void OnPlutoButtonReleased()
     {
-        if (toggleSelected)
+        if (toggleSelected & !loadgame)
         {
-            isButtonPressed=true;
             toggleSelected = false;
-        }
-        else
-        {
-            Debug.Log("No game selected. Please select a game.");
-        }
-    }
-    private void assessment()
-    {
-        string date = AppData.oldAROM.datetime; 
-       // Debug.Log($"AppData.oldAROM.datetime: {date}");
-
-        if (!string.IsNullOrEmpty(date))
-        {
-            DateTime oldDate;
-            if (DateTime.TryParseExact(date, "dd-MM-yyyy HH:mm:ss", null, System.Globalization.DateTimeStyles.None, out oldDate))
-            {  
-                DateTime currentDate = DateTime.Now;
-                TimeSpan timeDifference = currentDate - oldDate;
-
-                result.text = $"Current Date: {currentDate}, Old Date: {oldDate}, Days Passed: {timeDifference.TotalDays:F1}";
-
-                if (timeDifference.TotalDays >= 7)
-                {
-                    SceneManager.LoadScene("Assessment"); 
-                }
-                else
-                {
-                   // Debug.Log($"Only {timeDifference.TotalDays:F1} days have passed. 7 days required.");
-                }
-            }
-            else
-            {
-                Debug.LogError($"Invalid date format: {date}. Expected format: 'dd-MM-yyyy HH:mm:ss'.");
-            }
-        }
-        else
-        {
-            Debug.LogError("Date is null or empty.");
+            loadgame = true;
         }
     }
 
     private void OnDestroy()
     {
-        AppLogger.LogInfo($"controlType : {PlutoComm.controlType} when destroyed");
         if (ConnectToRobot.isPLUTO)
         {
             PlutoComm.OnButtonReleased -= OnPlutoButtonReleased;
         }
     }
-
 }
