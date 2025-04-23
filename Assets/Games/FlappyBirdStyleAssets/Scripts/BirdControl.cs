@@ -23,8 +23,12 @@ public class BirdControl : MonoBehaviour
     public float spriteBlinkingTotalDuration = 2f;
     public bool startBlinking = false;
 float targetAngle;
-    float startTime;
+    float startTime, PLAYSIZE = 7.8f;
     float endTime;
+
+    private float[] arom;
+    private float[] prom;
+
 
     void Start()
     {
@@ -33,6 +37,9 @@ float targetAngle;
         currentLife = 0;
         rb2d = GetComponent<Rigidbody2D>();
         Time.timeScale=0f;
+         // Set current AROM and PROM.
+        arom = AppData.Instance.selectedMechanism.CurrentArom;
+        prom = AppData.Instance.selectedMechanism.CurrentProm;
     }
     void Update()
     {
@@ -50,7 +57,7 @@ float targetAngle;
 
         }
         if(FGC.isGameStarted){
-            targetAngle = approxRollingAverage(targetAngle, FGC.AngleToScreen(PlutoComm.angle));
+            targetAngle = approxRollingAverage(targetAngle, AngleToScreen(PlutoComm.angle));
         transform.position = new Vector2(Mathf.SmoothStep(-13, -7, startTime / 2), Mathf.Clamp(targetAngle, -2.5f, 7));
 
         }
@@ -105,5 +112,8 @@ float targetAngle;
             }
         }
     }
+    public float AngleToScreen(float angle) =>  (-2.3f + (angle - prom[0]) * (PLAYSIZE) / (prom[1] - prom[0]));
+
+
 
 }

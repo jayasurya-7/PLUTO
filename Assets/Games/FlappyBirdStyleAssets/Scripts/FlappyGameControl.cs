@@ -19,9 +19,6 @@ public class FlappyGameControl : MonoBehaviour
     public GameObject[] pauseObjects;
     public ProgressBar timerObject;
 
-    public float gameduration = 30;
-    public GameObject start;
-    int win = 0;
     bool birdDied = false;
     bool skipFirstPoint = false;
     public bool gameOver = false;
@@ -147,7 +144,7 @@ public class FlappyGameControl : MonoBehaviour
     
     }
     
-    public float AngleToScreen(float angle) =>  (-2f + (angle - prom[0]) * (PLAYSIZE) / (prom[1] - prom[0]));
+    public float AngleToScreen(float angle) =>  (-3f + (angle - prom[0]) * (PLAYSIZE) / (prom[1] - prom[0]));
 
     void Start()
     {
@@ -166,7 +163,6 @@ public class FlappyGameControl : MonoBehaviour
             aromRight.transform.position.z
         );
 
-       // Time.timeScale = 0f;
     }
 
     void Update()
@@ -264,7 +260,6 @@ public class FlappyGameControl : MonoBehaviour
     public void ResumeGame()
     {
         hidePaused();
-        Debug.Log($"prev GS :{_prevGameState}");
         isGamePaused = false;
         gameState = _prevGameState;
         Time.timeScale = 1;
@@ -275,14 +270,12 @@ public class FlappyGameControl : MonoBehaviour
 
     void UpdateGameTimerUI()
     {
-            timerObject.specifiedValue = Mathf.Clamp(100 * (90 - triaTimeLeft) / 90f, 0, 100);
-
-        
+        timerObject.specifiedValue = Mathf.Clamp(100 * (90 - triaTimeLeft) / 90f, 0, 100);
     }
 
     public void showPaused()
     {
-          if(AppData.Instance.previousSuccessRates!=null)
+        if(AppData.Instance.previousSuccessRates!=null)
         {
             SuccessRateBanner.SetActive(true);
             prevSR.text = $" previous SR : {AppData.Instance.previousSuccessRates[0]}%";
@@ -303,10 +296,12 @@ public class FlappyGameControl : MonoBehaviour
         SuccessRateBanner.SetActive(false);
     }
 
-        public void BallCaught() {
+    public void BallCaught() {
         isTargetHit = true;
         isTargetMissed = false;
-        nSuccess++;
+        if (skipFirstPoint) nSuccess++;
+        else skipFirstPoint = true; 
+        
     }
 
     public void BallMissed() {
@@ -338,11 +333,6 @@ public class FlappyGameControl : MonoBehaviour
                 GetComponent<AudioSource>().clip = winClip[index];
 
                 if (score != 0) GetComponent<AudioSource>().Play();
-                if (skipFirstPoint) {score += 1;
-                //spawnColumn();
-                }
-                else skipFirstPoint = true; 
-
                 BallCaught();
             }
             else
@@ -353,14 +343,13 @@ public class FlappyGameControl : MonoBehaviour
 
                 BallMissed();
             }
-           // spawnColumn();
         }
     }
 
 
-        public void StartGame()
+    public void StartGame()
     {
-            scrollSpeed = -2 - 1 * .1f;
+        scrollSpeed = -2 - 1 * .1f;
             hidePaused();
         // Start new trial.
         AppData.Instance.StartNewTrial();
@@ -390,14 +379,14 @@ public class FlappyGameControl : MonoBehaviour
         ResumeButton.SetActive(false);
     }
 
-        public bool IsGamePlaying()
+    public bool IsGamePlaying()
     {
         return gameState != GameStates.WAITING 
             && gameState != GameStates.PAUSED
             && gameState != GameStates.STOP;
     }
 
-        private void RunGameStateMachine()
+    private void RunGameStateMachine()
     {
         // Check if the game is to be paused or unpaused.
         Debug.Log($"Game Update : {gameState}");
@@ -463,7 +452,6 @@ public class FlappyGameControl : MonoBehaviour
                 // Set AAN target if needed.
                 isGameFinished = true;
                 AppData.Instance.previousSuccessRates =null;
-                Debug.Log("Done bro 1");
                 if (AppData.Instance.aanController.stateChange) UpdatePlutoAANTarget();
                 // Change to done only when the AAN Controller is AromMoving or Idle state.
                 if (AppData.Instance.aanController.state == PlutoAANController.PlutoAANState.AromMoving
@@ -472,25 +460,22 @@ public class FlappyGameControl : MonoBehaviour
 
                     AppData.Instance.StopTrial(nTargets, nSuccess, nFailure);
                     gameState = GameStates.DONE;
-                    Debug.Log("Done bro 2");
                    if(AppData.Instance.previousSuccessRates ==null)
                    { 
-                    Debug.Log("Done bro 3");
                     AppData.Instance.previousSuccessRates = AppData.Instance.userData.GetLastTwoSuccessRates(AppData.Instance.selectedMechanism.name, AppData.Instance.selectedGame);
-                    //SceneManager.LoadScene(SceneManager.GetActiveScene().name);
                     SceneManager.LoadScene(SceneManager.GetActiveScene().buildIndex);
-
                     }
                 }
                 break;
         }
         UpdateText();
     }
-  private void UpdateText()
+     private void UpdateText()
     {
-       // timeLeftText.text = $"Time Left: {(int)triaTimeLeft}";
+        timeLeftText.text = $"Time Left: {(int)triaTimeLeft}";
         ScoreText.text = $"Score: {nSuccess}";
     }
+
     private void UpdatePlutoAANTarget()
     {
         switch(AppData.Instance.aanController.state)
@@ -508,17 +493,18 @@ public class FlappyGameControl : MonoBehaviour
         }
     }
 
-private float MoveDuration(){
-    float movduration= 0.5f * ((PlayerPosition.x + spawnXposition) - (PlayerPosition.x))/ -scrollSpeed ;
-    return movduration;
-}
+    private float MoveDuration()
+    {
+        float movduration= 0.5f * ((PlayerPosition.x + spawnXposition) - (PlayerPosition.x))/ -scrollSpeed ;
+        return movduration;
+    }
     public void OnStartButtonClick() 
     {
         isGameStarted = true;
     }
 
  
-        public void exitGame()
+    public void exitGame()
     {
         if(gameState == GameStates.DONE || gameState == GameStates.WAITING){
             Time.timeScale = 1f;
@@ -528,17 +514,18 @@ private float MoveDuration(){
         {
             gameState = GameStates.STOP;
             AppData.Instance.aanController.Update(PlutoComm.angle, Time.deltaTime, true);
-             AppData.Instance.StopTrial(nTargets, nSuccess, nFailure);
-             gameState = GameStates.DONE;
-             Time.timeScale = 1f;
-             SceneManager.LoadScene(prevScene);
+            AppData.Instance.StopTrial(nTargets, nSuccess, nFailure);
+            gameState = GameStates.DONE;
+            Time.timeScale = 1f;
+            SceneManager.LoadScene(prevScene);
         }
     }
 
-        private void onPlutoButtonReleased()
+    private void onPlutoButtonReleased()
     {
         // This can mean different things depending on the game state.
         if (gameState == GameStates.WAITING) isGameStarted = true;
         else if (gameState != GameStates.STOP) isGamePaused = !isGamePaused;
     }
+
 }
