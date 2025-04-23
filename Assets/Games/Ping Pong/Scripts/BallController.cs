@@ -8,7 +8,7 @@ public class BallController : MonoBehaviour
 {
 
     //speed of the ball
-    public static float speed = 3F;
+    public static float speed = 2.5F;
 
     //the initial direction of the ball
     private Vector2 spawnDir;
@@ -29,8 +29,8 @@ public class BallController : MonoBehaviour
 
         if (rand == 1)spawnDir = new Vector2(-1, 1);
         else if (rand == 2)spawnDir = new Vector2(-1, -1);
-        else if (rand == 3) spawnDir = new Vector2(1, 1);
-        else if (rand == 4)spawnDir = new Vector2(1, -1);
+        else if (rand == 3) spawnDir = new Vector2(-1, 1);
+        else if (rand == 4)spawnDir = new Vector2(-1, -1);
 
         rig2D.velocity = (spawnDir * speed);
 
@@ -71,7 +71,9 @@ public class BallController : MonoBehaviour
 
             // Determine wall to bounce based on y 
             float wallY = y > 0 ? 4.5f : -4.5f;
-
+            PGC.enemyHit = true;
+            PGC.enemyScore++;
+            PGC.nTargets++;
             float reflectedY = 2 * wallY - PGC.targetPosition.y;
             Vector2 reflectedTarget = new Vector2(PGC.targetPosition.x, reflectedY);
 
@@ -82,15 +84,17 @@ public class BallController : MonoBehaviour
 
         if (col.gameObject.tag == "Player")
         {
-             PGC.targetPosition= new Vector2(5.95f, UnityEngine.Random.Range(-4.5f, 4.5f));
+           //  PGC.targetPosition= new Vector2(5.95f, UnityEngine.Random.Range(-4.5f, 4.5f));
 
-            GameObject t = GameObject.FindGameObjectWithTag("targetPointer");
-            t.transform.position = PGC.targetPosition;
+            
             float y = launchAngle(transform.position,
                                 col.transform.position,
                                 col.collider.bounds.size.y);
             Vector2 d = new Vector2(-1, y).normalized;
             initVelocity(d * speed);
+            PGC.playerScore++;
+            PGC.BallHitted();
+
 
         }
         if (col.gameObject.name == "BottomBound")

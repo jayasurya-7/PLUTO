@@ -251,6 +251,12 @@ public partial class AppData
         {
             return $"{HatGameController.Instance.PlayerPosition.x:F3},{HatGameController.Instance.PlayerPosition.y:F3}";
         }
+        else if(selectedGame == "PONG"){
+            return $"{PongGameController.Instance.PlayerPosition.x:F3},{PongGameController.Instance.PlayerPosition.y:F3}";
+        }
+         else if(selectedGame == "TUK"){
+            return $"{FlappyGameControl.Instance.PlayerPosition.x:F3},{FlappyGameControl.Instance.PlayerPosition.y:F3}";
+        }
         return ",";
     }
 
@@ -264,6 +270,12 @@ public partial class AppData
                 return $"{HatGameController.Instance.TargetPosition.Value.x:F3},{HatGameController.Instance.TargetPosition.Value.y:F3}";
             }   
         }
+        else if(selectedGame == "PONG"){
+            if (PongGameController.Instance.TargetPosition != null)return $"{PongGameController.Instance.TargetPosition.Value.x:F3},{PongGameController.Instance.TargetPosition.Value.y:F3}";
+        }
+        else if(selectedGame == "TUK"){
+           if (FlappyGameControl.Instance.TargetPosition != null) return $"{FlappyGameControl.Instance.TargetPosition.Value.x:F3},{FlappyGameControl.Instance.TargetPosition.Value.y:F3}";
+        }
         return ",";
     }
 
@@ -273,6 +285,12 @@ public partial class AppData
         if (selectedGame == "HAT")
         {
             return $"{HatGameController.Instance.gameState}";
+        }
+        else if(selectedGame == "PONG"){
+            return $"{PongGameController.Instance.gameState}";
+        }
+        else if(selectedGame == "TUK"){
+            return $"{FlappyGameControl.Instance.gameState}";
         }
         return "";
     }

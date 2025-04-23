@@ -21,11 +21,13 @@ public class BoundController : MonoBehaviour
             if (other.gameObject.GetComponent<Rigidbody2D>().velocity.x > 0)
             {
                 playAudio(1);
-                PGC.enemyScore++;
+                PGC.BallMissed();
+
+               // PGC.enemyScore++;
             }
             else
             {
-                PGC.playerScore++;
+              //  PGC.playerScore++;
                 playAudio(0);
             }
             Destroy(other.gameObject);

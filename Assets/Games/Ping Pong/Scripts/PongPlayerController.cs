@@ -8,7 +8,8 @@ public class PongPlayerController : MonoBehaviour
     static float topBound = 4.5F;
     static float bottomBound = -4.5F;
     public static float playSize;
-    public PongGameController PP;
+    private float[] arom, prom;
+    public PongGameController PGC;
 
     void Start()
     {
@@ -16,27 +17,17 @@ public class PongPlayerController : MonoBehaviour
         Time.timeScale = 0;
         topBound = playSize - this.transform.localScale.y / 4;
         bottomBound = -topBound;
+         // Set current AROM and PROM.
+        arom = AppData.Instance.selectedMechanism.CurrentArom;
+        prom = AppData.Instance.selectedMechanism.CurrentProm;
     }
     void Update()
     {
-        this.transform.position = new Vector2(this.transform.position.x, movementControl(this.transform.position.y));
+        this.transform.position = new Vector2(this.transform.position.x, AngleToScreen(PlutoComm.angle));
     }
 
-    private float movementControl(float targetY)
-    {
-        if (Input.GetKey(KeyCode.UpArrow) && targetY < 5f)
-        {
-                return Mathf.Min(targetY + 0.15f, 8f);
-        }
 
-        if (Input.GetKey(KeyCode.DownArrow) && targetY > -5f)
-        {
-                return Mathf.Max(targetY - 0.15f, -8f);
-        }
-
-        // No movement
-        return targetY;
-    }
+    public float AngleToScreen(float angle) => Mathf.Clamp(-playSize + (angle - prom[0]) * (2 * playSize) / (prom[1] - prom[0]), bottomBound, topBound);
 
 
     private void OnCollisionEnter2D(Collision2D collision)

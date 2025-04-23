@@ -5,7 +5,7 @@ public class EnemyController : MonoBehaviour
 {
 
     //Speed of the enemy
-    public static float speedDefault = 2.3F;
+    public static float speedDefault = 4F;
     public static float speed;
     //the ball
     Transform ball;
