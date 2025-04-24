@@ -112,7 +112,7 @@ float targetAngle;
             }
         }
     }
-    public float AngleToScreen(float angle) =>  (-2.3f + (angle - prom[0]) * (PLAYSIZE) / (prom[1] - prom[0]));
+    public float AngleToScreen(float angle) =>  (-3.6f + (angle - prom[0]) * (PLAYSIZE) / (prom[1] - prom[0]));
 
 
 

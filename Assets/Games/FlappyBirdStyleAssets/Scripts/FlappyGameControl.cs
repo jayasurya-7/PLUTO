@@ -7,6 +7,7 @@ using UnityEngine;
 using UnityEngine.SceneManagement;
 using UnityEngine.UI;
 using Michsky.UI.ModernUIPack;
+using Unity.VisualScripting;
 
 
 public class FlappyGameControl : MonoBehaviour
@@ -99,6 +100,10 @@ public class FlappyGameControl : MonoBehaviour
     private float targetPosition;
     public GameObject aromLeft;
     public GameObject aromRight;
+    public GameObject promMin;
+
+    public GameObject promMax,targetPointer;
+
     private GameObject targetTemp;
     void Awake()
     {
@@ -144,8 +149,8 @@ public class FlappyGameControl : MonoBehaviour
     
     }
     
-    public float AngleToScreen(float angle) =>  (-3f + (angle - prom[0]) * (PLAYSIZE) / (prom[1] - prom[0]));
-
+    public float AngleToScreen(float angle) =>  (-3.6f + (angle - prom[0]) * (PLAYSIZE) / (prom[1] - prom[0]));
+   // public float TAToScreen(float angle) =>  (-3f + (angle - prom[0]) * (PLAYSIZE) / (prom[1] - prom[0]));
     void Start()
     {
         InitializeGame();
@@ -157,10 +162,24 @@ public class FlappyGameControl : MonoBehaviour
             AngleToScreen(AppData.Instance.selectedMechanism.currRom.aromMin),
             aromLeft.transform.position.z
         );
+        Debug.Log($" aromMin :{ AngleToScreen(AppData.Instance.selectedMechanism.currRom.aromMin)},aromMax :{ AngleToScreen(AppData.Instance.selectedMechanism.currRom.aromMax)}, promMin :{ AngleToScreen(AppData.Instance.selectedMechanism.currRom.promMin)}, promMax :{ AngleToScreen(AppData.Instance.selectedMechanism.currRom.promMax)}");
+       
         aromRight.transform.position = new Vector3(
             aromRight.transform.position.x,
             AngleToScreen(AppData.Instance.selectedMechanism.currRom.aromMax),
             aromRight.transform.position.z
+        );
+
+        
+         promMin.transform.position = new Vector3(
+            promMin.transform.position.x,
+            AngleToScreen(AppData.Instance.selectedMechanism.currRom.promMin),
+            promMin.transform.position.z
+        );
+        promMax.transform.position = new Vector3(
+            promMax.transform.position.x,
+            AngleToScreen(AppData.Instance.selectedMechanism.currRom.promMax),
+            promMax.transform.position.z
         );
 
     }
@@ -222,8 +241,10 @@ public class FlappyGameControl : MonoBehaviour
         {
             prevSpawnTime = 0;
              nTargets++;
-            columns[CurrentColumn].transform.position = new Vector3(BirdControl.rb2d.transform.position.x + spawnXposition,targetPosition-1f, 0);
-          columns[CurrentColumn].tag = "Target";
+             Debug.Log($"target Position :{ targetPosition}");
+             targetPointer.transform.position = new Vector3(BirdControl.rb2d.transform.position.x + spawnXposition,targetPosition-1.5f, 0);
+            columns[CurrentColumn].transform.position = new Vector3(BirdControl.rb2d.transform.position.x + spawnXposition,targetPosition-1.5f, 0);
+            columns[CurrentColumn].tag = "Target";
 
             if (CurrentColumn == 0)
             {
@@ -418,6 +439,15 @@ public class FlappyGameControl : MonoBehaviour
                 // Get new target position.
                 // targetAngle = HomerTherapy.GetNewTargetPosition(arom, prom);
                 targetAngle = HomerTherapy.GetNewTargetPositionUniformFull(arom, prom);
+                if((prom[0]-targetAngle)<-10){
+                    targetAngle = targetAngle + 20f;
+                    Debug.Log("target negative");
+                }
+                
+                 else if ((prom[1]-targetAngle)<10) {targetAngle = targetAngle - 30f;
+                 Debug.Log("positive target");
+                 }
+                else Debug.Log("not target");
                 targetPosition = AngleToScreen(targetAngle);
                 spawnColumn();
                 MOVEDURATION = MoveDuration();
