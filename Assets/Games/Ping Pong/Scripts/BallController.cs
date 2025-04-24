@@ -38,7 +38,12 @@ public class BallController : MonoBehaviour
 
     void FixedUpdate()
     {
-        preVel = rig2D.velocity;
+        if(PGC.isFinished){
+            rig2D.velocity=new Vector2(0f,0f);
+        }
+        else preVel = rig2D.velocity;
+
+        //if(PGC.isFinished) pauseBall();
     }
     void playAudio(int clipNumber)
     {
@@ -111,6 +116,10 @@ public class BallController : MonoBehaviour
                     float paddleHeight)
     {
         return Mathf.Clamp(0.2f * Mathf.Sign(ballPos.y - paddlePos.y) + (ballPos.y - paddlePos.y) / paddleHeight, -2, 2);
+    }
+
+    public void pauseBall(){
+        Time.timeScale = 0f;
     }
 }
                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                            

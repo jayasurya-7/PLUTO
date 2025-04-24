@@ -61,8 +61,7 @@ public partial class AppData
         // Write trial information to the session details file.
         WriteTrialToSessionsFile();
         // Write trial details to the log file.
-        //float? _currcb = trialType == HomerTherapy.TrialType.SR85PCCATCH ? null : _currControlBound;
-        float? _currcb = trialType == HomerTherapy.TrialType.SR85PCCATCH ? 0f : _currControlBound;
+        float? _currcb = trialType == HomerTherapy.TrialType.SR85PCCATCH ? null : _currControlBound;
 
         string _tdetails = string.Join(" | ",
             new string[] {
@@ -75,8 +74,8 @@ public partial class AppData
                 $"NSuccess: {nSuccess}",
                 $"NFailure: {nFailure}",
                 $"Desired SR: {desiredSuccessRate}",
-                $"Trial SR: {successRate}",
-                $"Current CB: {_currcb.Value:F3}",
+                $"Trial SR: {successRate}", 
+                $"Current CB: {_currcb?.ToString("F3")??"N/A"}",
                 $"Next CB: {aanController.currentCtrlBound:F3}",
                 $"TrialRawDataFile: {trialRawDataFile.Split('/').Last()}"
         });
@@ -265,16 +264,16 @@ public partial class AppData
         // Get the game target X position.
         if (selectedGame == "HAT")
         {
-            if (HatGameController.Instance.TargetPosition != null)
+            if (HatGameController.Instance.TargetPosition.HasValue)
             {
                 return $"{HatGameController.Instance.TargetPosition.Value.x:F3},{HatGameController.Instance.TargetPosition.Value.y:F3}";
             }   
         }
         else if(selectedGame == "PONG"){
-            if (PongGameController.Instance.TargetPosition != null)return $"{PongGameController.Instance.TargetPosition.Value.x:F3},{PongGameController.Instance.TargetPosition.Value.y:F3}";
+            if (PongGameController.Instance.TargetPosition.HasValue) return $"{PongGameController.Instance.TargetPosition.Value.x:F3},{PongGameController.Instance.TargetPosition.Value.y:F3}";
         }
         else if(selectedGame == "TUK"){
-           if (FlappyGameControl.Instance.TargetPosition != null) return $"{FlappyGameControl.Instance.TargetPosition.Value.x:F3},{FlappyGameControl.Instance.TargetPosition.Value.y:F3}";
+           if (FlappyGameControl.Instance.TargetPosition.HasValue) return $"{FlappyGameControl.Instance.TargetPosition.Value.x:F3},{FlappyGameControl.Instance.TargetPosition.Value.y:F3}";
         }
         return ",";
     }

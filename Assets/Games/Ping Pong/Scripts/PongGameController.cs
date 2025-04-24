@@ -75,7 +75,7 @@ public class PongGameController : MonoBehaviour
     static float bottomBound = -5.5F;
     public GameObject aromLeft;
     public GameObject aromRight;
-     private float triaTimeLeft;
+    private float triaTimeLeft;
     private float moveTimeLeft;
 
     // Game score related variables.
