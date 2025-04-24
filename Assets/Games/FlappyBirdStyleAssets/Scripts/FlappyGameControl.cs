@@ -150,7 +150,6 @@ public class FlappyGameControl : MonoBehaviour
     }
     
     public float AngleToScreen(float angle) =>  (-3.6f + (angle - prom[0]) * (PLAYSIZE) / (prom[1] - prom[0]));
-   // public float TAToScreen(float angle) =>  (-3f + (angle - prom[0]) * (PLAYSIZE) / (prom[1] - prom[0]));
     void Start()
     {
         InitializeGame();
@@ -205,7 +204,7 @@ public class FlappyGameControl : MonoBehaviour
             setup = true;
         }
 
-
+        Debug.Log(PlutoComm.CONTROLTYPETEXT[PlutoComm.controlType]);
     }
     void FixedUpdate()
     {
@@ -235,8 +234,6 @@ public class FlappyGameControl : MonoBehaviour
 
     public void spawnColumn()
     {
-
-         
         if (!gameOver && prevSpawnTime > 2)
         {
             prevSpawnTime = 0;
@@ -439,15 +436,15 @@ public class FlappyGameControl : MonoBehaviour
                 // Get new target position.
                 // targetAngle = HomerTherapy.GetNewTargetPosition(arom, prom);
                 targetAngle = HomerTherapy.GetNewTargetPositionUniformFull(arom, prom);
-                if((prom[0]-targetAngle)<-10){
-                    targetAngle = targetAngle + 20f;
+                if(targetAngle < prom[0] + 20f){
+                    targetAngle = targetAngle + 40f;
                     Debug.Log("target negative");
                 }
-                
-                 else if ((prom[1]-targetAngle)<10) {targetAngle = targetAngle - 30f;
-                 Debug.Log("positive target");
+                 else if (targetAngle > prom[1] -20f) 
+                 {
+                    targetAngle = targetAngle - 40f;
+                    Debug.Log("positive target");
                  }
-                else Debug.Log("not target");
                 targetPosition = AngleToScreen(targetAngle);
                 spawnColumn();
                 MOVEDURATION = MoveDuration();
