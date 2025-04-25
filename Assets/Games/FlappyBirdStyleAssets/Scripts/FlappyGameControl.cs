@@ -56,14 +56,12 @@ public class FlappyGameControl : MonoBehaviour
     public Vector3? TargetPosition { get; private set; }
     public Vector3 PlayerPosition { get; private set; }
     private float PLAYSIZE;
-    private Vector3 scale;
     private float triaTimeLeft;
     
     public int nTargets = 0;
     public int nSuccess = 0;
     public int nFailure = 0;
     private string prevScene = "CHGAME";
-    private float maxwidth;
      public Text timeLeftText;
     public enum GameStates
     {
@@ -97,11 +95,9 @@ public class FlappyGameControl : MonoBehaviour
     private float[] arom;
     private float[] prom;
     private float targetAngle;
-    private float maxTargetDur;
     private float targetPosition;
     public GameObject aromLeft;
     public GameObject aromRight;
-
     private GameObject targetTemp;
     void Awake()
     {
@@ -113,24 +109,20 @@ public class FlappyGameControl : MonoBehaviour
         {
             Destroy(gameObject);
         }
-       // PLAYSIZE = Camera.main.orthographicSize * Camera.main.aspect;
+
         float fullHeight = Camera.main.orthographicSize * 2f; // Full camera height in world units
          PLAYSIZE  = fullHeight * 0.8f; // 80% of the camera height
 
     }
 
-    private void InitializeGame(){
-
-        
+    private void InitializeGame()
+    {
         // Enable the buttons
         StartButton.SetActive(true);
         PauseButton.SetActive(false);
         ResumeButton.SetActive(false);
-         // Initailize camera
-       
-       
-        maxwidth = Camera.main.ScreenToWorldPoint(new Vector3(Screen.width, Screen.height, 0)).x - 0.5f;
-         // Intialize game logic variables
+
+        // Intialize game logic variables
         gameState = GameStates.WAITING;
         // Clear even flags.
         isGameStarted = false;
@@ -146,7 +138,6 @@ public class FlappyGameControl : MonoBehaviour
 
         // Attach PLUTO button event.
         PlutoComm.OnButtonReleased += onPlutoButtonReleased;
-    
     }
     
     public float AngleToScreen(float angle) =>  ( -3f + (angle - prom[0]) * (PLAYSIZE) / (prom[1] - prom[0]));
@@ -167,19 +158,6 @@ public class FlappyGameControl : MonoBehaviour
             aromRight.transform.position.x,
             AngleToScreen(AppData.Instance.selectedMechanism.currRom.aromMax),
             aromRight.transform.position.z
-        );
-
-          promLeft.transform.position = new Vector3(
-            promLeft.transform.position.x,
-            AngleToScreen(AppData.Instance.selectedMechanism.currRom.promMin),
-            promLeft.transform.position.z
-        );
-       // Debug.Log($" aromMin :{ AngleToScreen(AppData.Instance.selectedMechanism.currRom.aromMin)},aromMax :{ AngleToScreen(AppData.Instance.selectedMechanism.currRom.aromMax)}, promMin :{ AngleToScreen(AppData.Instance.selectedMechanism.currRom.promMin)}, promMax :{ AngleToScreen(AppData.Instance.selectedMechanism.currRom.promMax)}");
-       
-        promRight.transform.position = new Vector3(
-            promRight.transform.position.x,
-            AngleToScreen(AppData.Instance.selectedMechanism.currRom.promMax),
-            promRight.transform.position.z
         );
 
         
@@ -205,8 +183,6 @@ public class FlappyGameControl : MonoBehaviour
             chooseBackground();
             setup = true;
         }
-        Debug.Log($" main script min :{ AngleToScreen(arom[0])}, max :{ AngleToScreen(arom[1])}");
-        Debug.Log(PlutoComm.CONTROLTYPETEXT[PlutoComm.controlType]);
     }
     void FixedUpdate()
     {
@@ -239,9 +215,7 @@ public class FlappyGameControl : MonoBehaviour
         if (!gameOver && prevSpawnTime > 2)
         {
             prevSpawnTime = 0;
-             nTargets++;
-             Debug.Log($"target Position :{ targetPosition}");
-             targetPointer.transform.position =  new Vector3(BirdControl.rb2d.transform.position.x + spawnXposition,targetPosition, 0);
+            nTargets++;
             columns[CurrentColumn].transform.position = new Vector3(BirdControl.rb2d.transform.position.x + spawnXposition,targetPosition, 0);
             columns[CurrentColumn].tag = "Target";
 
