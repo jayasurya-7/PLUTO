@@ -48,6 +48,7 @@ public class FlappyGameControl : MonoBehaviour
     public GameObject StartButton, ResumeButton, PauseButton, ExitButton;
     public GameObject SuccessRateBanner;
 
+    public GameObject promLeft, promRight, targetPointer;
     public Text prevSR, currSR;
     bool setup;
     float prevSpawnTime;
@@ -100,9 +101,6 @@ public class FlappyGameControl : MonoBehaviour
     private float targetPosition;
     public GameObject aromLeft;
     public GameObject aromRight;
-    public GameObject promMin;
-
-    public GameObject promMax,targetPointer;
 
     private GameObject targetTemp;
     void Awake()
@@ -115,7 +113,9 @@ public class FlappyGameControl : MonoBehaviour
         {
             Destroy(gameObject);
         }
-        PLAYSIZE = Camera.main.orthographicSize * Camera.main.aspect;
+       // PLAYSIZE = Camera.main.orthographicSize * Camera.main.aspect;
+        float fullHeight = Camera.main.orthographicSize * 2f; // Full camera height in world units
+         PLAYSIZE  = fullHeight * 0.8f; // 80% of the camera height
 
     }
 
@@ -149,7 +149,7 @@ public class FlappyGameControl : MonoBehaviour
     
     }
     
-    public float AngleToScreen(float angle) =>  (-3.6f + (angle - prom[0]) * (PLAYSIZE) / (prom[1] - prom[0]));
+    public float AngleToScreen(float angle) =>  ( -3f + (angle - prom[0]) * (PLAYSIZE) / (prom[1] - prom[0]));
     void Start()
     {
         InitializeGame();
@@ -169,18 +169,20 @@ public class FlappyGameControl : MonoBehaviour
             aromRight.transform.position.z
         );
 
-        
-         promMin.transform.position = new Vector3(
-            promMin.transform.position.x,
+          promLeft.transform.position = new Vector3(
+            promLeft.transform.position.x,
             AngleToScreen(AppData.Instance.selectedMechanism.currRom.promMin),
-            promMin.transform.position.z
+            promLeft.transform.position.z
         );
-        promMax.transform.position = new Vector3(
-            promMax.transform.position.x,
+       // Debug.Log($" aromMin :{ AngleToScreen(AppData.Instance.selectedMechanism.currRom.aromMin)},aromMax :{ AngleToScreen(AppData.Instance.selectedMechanism.currRom.aromMax)}, promMin :{ AngleToScreen(AppData.Instance.selectedMechanism.currRom.promMin)}, promMax :{ AngleToScreen(AppData.Instance.selectedMechanism.currRom.promMax)}");
+       
+        promRight.transform.position = new Vector3(
+            promRight.transform.position.x,
             AngleToScreen(AppData.Instance.selectedMechanism.currRom.promMax),
-            promMax.transform.position.z
+            promRight.transform.position.z
         );
 
+        
     }
 
     void Update()
@@ -203,7 +205,7 @@ public class FlappyGameControl : MonoBehaviour
             chooseBackground();
             setup = true;
         }
-
+        Debug.Log($" main script min :{ AngleToScreen(arom[0])}, max :{ AngleToScreen(arom[1])}");
         Debug.Log(PlutoComm.CONTROLTYPETEXT[PlutoComm.controlType]);
     }
     void FixedUpdate()
@@ -239,8 +241,8 @@ public class FlappyGameControl : MonoBehaviour
             prevSpawnTime = 0;
              nTargets++;
              Debug.Log($"target Position :{ targetPosition}");
-             targetPointer.transform.position = new Vector3(BirdControl.rb2d.transform.position.x + spawnXposition,targetPosition-1.5f, 0);
-            columns[CurrentColumn].transform.position = new Vector3(BirdControl.rb2d.transform.position.x + spawnXposition,targetPosition-1.5f, 0);
+             targetPointer.transform.position =  new Vector3(BirdControl.rb2d.transform.position.x + spawnXposition,targetPosition, 0);
+            columns[CurrentColumn].transform.position = new Vector3(BirdControl.rb2d.transform.position.x + spawnXposition,targetPosition, 0);
             columns[CurrentColumn].tag = "Target";
 
             if (CurrentColumn == 0)

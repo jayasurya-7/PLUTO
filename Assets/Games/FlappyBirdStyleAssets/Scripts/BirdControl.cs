@@ -23,7 +23,7 @@ public class BirdControl : MonoBehaviour
     public float spriteBlinkingTotalDuration = 2f;
     public bool startBlinking = false;
 float targetAngle;
-    float startTime, PLAYSIZE = 7.8f;
+    float startTime, PLAYSIZE;
     float endTime;
 
     private float[] arom;
@@ -32,6 +32,9 @@ float targetAngle;
 
     void Start()
     {
+       // PLAYSIZE = Camera.main.orthographicSize * Camera.main.aspect;
+               float fullHeight = Camera.main.orthographicSize * 2f; // Full camera height in world units
+         PLAYSIZE  = fullHeight * 0.8f; // 80% of the camera height
         startTime = 0;
         endTime = 0;
         currentLife = 0;
@@ -44,6 +47,9 @@ float targetAngle;
     void Update()
     {
         if(FGC.isGameStarted && !FGC.isGamePaused && !FGC.isGameFinished) Time.timeScale=1f;
+
+        Debug.Log($" min : {AngleToScreen(arom[0])}, max : { AngleToScreen( arom[1])}");
+
     }
     void FixedUpdate()
     {
@@ -112,7 +118,7 @@ float targetAngle;
             }
         }
     }
-    public float AngleToScreen(float angle) =>  (-3.6f + (angle - prom[0]) * (PLAYSIZE) / (prom[1] - prom[0]));
+    public float AngleToScreen(float angle) =>  (-3f + (angle - prom[0]) * (PLAYSIZE) / (prom[1] - prom[0]));
 
 
 
