@@ -55,26 +55,9 @@ public partial class AppData
     /*
      * SESSION DETAILS
      */
-    public string trialDataFileLocation1;
-    //private bool _sessionStarted;
-    //private DateTime _sessionDateTime;
-    //private GameSession _currentSession;
-    //private readonly string _sessionFilePath;
-    //private bool _loginCalled; // Track if login has been called once
-    //private readonly string csvFilePath;
     public int currentSessionNumber { get; set; }
     public DateTime startTime { get; private set; }
     public DateTime? stopTime { get; private set; }
-    public string trialDataFileLocation { get; set; }
-    public string deviceSetupLocation { get; set; }
-    public string assistMode { get; set; }
-    public string assistModeParameters { get; set; }
-    public string gameParameter { get; set; }
-    public string mechanism { get; set; }
-    public string moveTime { get; set; }
-    // public int trialNumberDay { get; set; }
-    // public int trialNumberSession { get; set; }
-    // public string trialType { get; set; }
     public DateTime trialStartTime { get; set; }
     public DateTime? trialStopTime { get; set; }
 

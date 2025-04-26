@@ -27,9 +27,10 @@ public class welcomSceneHandler : MonoBehaviour
     // Start is called before the first frame update
     void Start()
     {
+          if (!File.Exists(DataManager.configFile)) SceneManager.LoadScene("CONFIG");
         // Check if the directory exists
         if (!Directory.Exists(DataManager.basePath)) Directory.CreateDirectory(DataManager.basePath);
-        if (!File.Exists(DataManager.configFile)) SceneManager.LoadScene("CONFIG");
+      
         
         // Initialize.
         AppData.Instance.Initialize(SceneManager.GetActiveScene().name);

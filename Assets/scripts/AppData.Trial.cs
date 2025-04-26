@@ -1,5 +1,6 @@
 
 using System;
+using System.Diagnostics;
 using System.IO;
 using System.Linq;
 using System.Text;
@@ -162,68 +163,46 @@ public partial class AppData
         PlutoComm.OnNewPlutoData += OnNewPlutoDataDataLogging;
     }
 
+
+
     public void OnNewPlutoDataDataLogging()
     {
-        if (rawDataString == null) return;
+        var localRawData = rawDataString;
+        if (localRawData == null) return;
+        try
+        {
+            localRawData.Append($"{PlutoComm.runTime:F6},");
+            localRawData.Append($"{PlutoComm.packetNumber},");
+            localRawData.Append($"{PlutoComm.status},");
+            localRawData.Append($"{PlutoComm.dataType},");
+            localRawData.Append($"{PlutoComm.errorStatus},");
+            localRawData.Append($"{PlutoComm.controlType},");
+            localRawData.Append($"{PlutoComm.calibration},");
+            localRawData.Append($"{PlutoComm.MECHANISMS[PlutoComm.mechanism]},");
+            localRawData.Append($"{PlutoComm.button},");
+            localRawData.Append($"{PlutoComm.angle},");
+            localRawData.Append($"{PlutoComm.torque},");
+            localRawData.Append($"{PlutoComm.desired},");
+            localRawData.Append($"{PlutoComm.control},");
+            localRawData.Append($"{PlutoComm.controlBound},");
+            localRawData.Append($"{PlutoComm.controlDir},");
+            localRawData.Append($"{PlutoComm.target},");
+            localRawData.Append($"{PlutoComm.err},");
+            localRawData.Append($"{PlutoComm.errDiff},");
+            localRawData.Append($"{PlutoComm.errSum},");
 
-        // Device data
-        // "DeviceRunTime"
-        rawDataString.Append($"{PlutoComm.runTime:F6},");
-        // "PacketNumber"
-        rawDataString.Append($"{PlutoComm.packetNumber},");
-        // "Status"
-        rawDataString.Append($"{PlutoComm.status},");
-        // "DataType"
-        rawDataString.Append($"{PlutoComm.dataType},");
-        // "ErrorStatus"
-        rawDataString.Append($"{PlutoComm.errorStatus},");
-        // "ControlType"
-        rawDataString.Append($"{PlutoComm.controlType},");
-        // "Calibration"
-        rawDataString.Append($"{PlutoComm.calibration},");
-        // "Mechanism" 
-        rawDataString.Append($"{PlutoComm.MECHANISMS[PlutoComm.mechanism]},");
-        // "Button"
-        rawDataString.Append($"{PlutoComm.button},");
-        // "Angle"
-        rawDataString.Append($"{PlutoComm.angle},");
-        // "Torque"
-        rawDataString.Append($"{PlutoComm.torque},");
-        // "Desired"
-        rawDataString.Append($"{PlutoComm.desired},");
-        // "Control"
-        rawDataString.Append($"{PlutoComm.control},");
-        // "ControlBound"
-        rawDataString.Append($"{PlutoComm.controlBound},");
-        // "ControlDir"
-        rawDataString.Append($"{PlutoComm.controlDir},");
-        // "Target"
-        rawDataString.Append($"{PlutoComm.target},");
-        // "Error"
-        rawDataString.Append($"{PlutoComm.err},");
-        // "ErrorDiff"
-        rawDataString.Append($"{PlutoComm.errDiff},");
-        // "ErrorSum"
-        rawDataString.Append($"{PlutoComm.errSum},");
-
-        // Game Data
-        // "GamePlayerX", "GamePlayerY"
-        rawDataString.Append($"{GetGamePlayerPosition()},");
-        // "GameTargetX", "GameTargetY"
-        rawDataString.Append($"{GetGameTargetPosition()},");
-        // "GameState"
-        rawDataString.Append($"{GetGameState()},");
-        
-        // AAN Data
-        // "AanTargetPosition"
-        rawDataString.Append($"{aanController.targetPosition:F3},");
-        // "AanInitialPosition"
-        rawDataString.Append($"{aanController.initialPosition:F3},");
-        // "AanState"
-        rawDataString.Append($"{aanController.state}");
-
-        // End of line.
-        rawDataString.Append("\n");
+            localRawData.Append($"{GetGamePlayerPosition()},");
+            localRawData.Append($"{GetGameTargetPosition()},");
+            localRawData.Append($"{GetGameState()},");
+            localRawData.Append($"{aanController.targetPosition:F3},");
+            localRawData.Append($"{aanController.initialPosition:F3},");
+            localRawData.Append($"{aanController.state}");
+            localRawData.Append("\n");
+        }
+        catch (Exception ex)
+        {
+            UnityEngine.Debug.LogError($"DataLogging error: {ex.Message}\n{ex.StackTrace}");
+        }
     }
 
     private void WriteTrialDataToRawDataFile()
