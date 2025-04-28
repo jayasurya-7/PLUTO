@@ -68,6 +68,7 @@ public partial class AppData
      */
     public string trialRawDataFile { get; private set; } = null;
     private StringBuilder rawDataString = null;
+    private readonly object rawDataLock = new object();
     private StringBuilder aanExecDataString = null;
 
     /*

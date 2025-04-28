@@ -163,45 +163,47 @@ public partial class AppData
         PlutoComm.OnNewPlutoData += OnNewPlutoDataDataLogging;
     }
 
-
-
     public void OnNewPlutoDataDataLogging()
     {
-        var localRawData = rawDataString;
-        if (localRawData == null) return;
-        try
+        lock (rawDataLock)
         {
-            localRawData.Append($"{PlutoComm.runTime:F6},");
-            localRawData.Append($"{PlutoComm.packetNumber},");
-            localRawData.Append($"{PlutoComm.status},");
-            localRawData.Append($"{PlutoComm.dataType},");
-            localRawData.Append($"{PlutoComm.errorStatus},");
-            localRawData.Append($"{PlutoComm.controlType},");
-            localRawData.Append($"{PlutoComm.calibration},");
-            localRawData.Append($"{PlutoComm.MECHANISMS[PlutoComm.mechanism]},");
-            localRawData.Append($"{PlutoComm.button},");
-            localRawData.Append($"{PlutoComm.angle},");
-            localRawData.Append($"{PlutoComm.torque},");
-            localRawData.Append($"{PlutoComm.desired},");
-            localRawData.Append($"{PlutoComm.control},");
-            localRawData.Append($"{PlutoComm.controlBound},");
-            localRawData.Append($"{PlutoComm.controlDir},");
-            localRawData.Append($"{PlutoComm.target},");
-            localRawData.Append($"{PlutoComm.err},");
-            localRawData.Append($"{PlutoComm.errDiff},");
-            localRawData.Append($"{PlutoComm.errSum},");
+            if (rawDataString == null)
+            {
+                UnityEngine.Debug.LogWarning("rawDataString is null, skipping logging.");
+                return;
+            }
 
-            localRawData.Append($"{GetGamePlayerPosition()},");
-            localRawData.Append($"{GetGameTargetPosition()},");
-            localRawData.Append($"{GetGameState()},");
-            localRawData.Append($"{aanController.targetPosition:F3},");
-            localRawData.Append($"{aanController.initialPosition:F3},");
-            localRawData.Append($"{aanController.state}");
-            localRawData.Append("\n");
-        }
-        catch (Exception ex)
-        {
-            UnityEngine.Debug.LogError($"DataLogging error: {ex.Message}\n{ex.StackTrace}");
+            // Device data
+            rawDataString.Append($"{PlutoComm.runTime:F6},");
+            rawDataString.Append($"{PlutoComm.packetNumber},");
+            rawDataString.Append($"{PlutoComm.status},");
+            rawDataString.Append($"{PlutoComm.dataType},");
+            rawDataString.Append($"{PlutoComm.errorStatus},");
+            rawDataString.Append($"{PlutoComm.controlType},");
+            rawDataString.Append($"{PlutoComm.calibration},");
+            rawDataString.Append($"{PlutoComm.MECHANISMS[PlutoComm.mechanism]},");
+            rawDataString.Append($"{PlutoComm.button},");
+            rawDataString.Append($"{PlutoComm.angle},");
+            rawDataString.Append($"{PlutoComm.torque},");
+            rawDataString.Append($"{PlutoComm.desired},");
+            rawDataString.Append($"{PlutoComm.control},");
+            rawDataString.Append($"{PlutoComm.controlBound},");
+            rawDataString.Append($"{PlutoComm.controlDir},");
+            rawDataString.Append($"{PlutoComm.target},");
+            rawDataString.Append($"{PlutoComm.err},");
+            rawDataString.Append($"{PlutoComm.errDiff},");
+            rawDataString.Append($"{PlutoComm.errSum},");
+
+            // Game Data
+            rawDataString.Append($"{GetGamePlayerPosition()},");
+            rawDataString.Append($"{GetGameTargetPosition()},");
+            rawDataString.Append($"{GetGameState()},");
+            rawDataString.Append($"{aanController.targetPosition:F3},");
+            rawDataString.Append($"{aanController.initialPosition:F3},");
+            rawDataString.Append($"{aanController.state}");
+
+            // End of line
+            rawDataString.Append("\n");
         }
     }
 
