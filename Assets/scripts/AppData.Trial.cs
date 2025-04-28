@@ -209,20 +209,25 @@ public partial class AppData
 
     private void WriteTrialDataToRawDataFile()
     {
-        UnityEngine.Debug.Log($"Writing to: {trialRawDataFile}"); // Check if path changes unexpectedly
-        UnityEngine.Debug.Log($"File exists before write? {File.Exists(trialRawDataFile)}");
-
+        AppLogger.LogMessage($"Writing to: {trialRawDataFile}");
+        AppLogger.LogMessage($"File exists before write? {File.Exists(trialRawDataFile)}");
+        
         string _dir = Path.GetDirectoryName(trialRawDataFile);
         if (!Directory.Exists(_dir)) Directory.CreateDirectory(_dir);
-        
-        using (StreamWriter sw = new StreamWriter(trialRawDataFile, false, Encoding.UTF8))
+
+        lock (rawDataLock)  // locking
         {
-            sw.Write(rawDataString.ToString());
+            using (StreamWriter sw = new StreamWriter(trialRawDataFile, false, Encoding.UTF8))
+            {
+                sw.Write(rawDataString.ToString());
+            }
+            rawDataString.Clear();
+            rawDataString = null;
         }
-        UnityEngine.Debug.Log($"File exists after write? {File.Exists(trialRawDataFile)}");
-        rawDataString.Clear();
-        rawDataString = null;
+        AppLogger.LogMessage($"File exists before write? {File.Exists(trialRawDataFile)}");
+
     }
+
 
     private string GetGamePlayerPosition()
     {
