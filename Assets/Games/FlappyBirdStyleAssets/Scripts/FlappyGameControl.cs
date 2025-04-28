@@ -69,7 +69,7 @@ public class FlappyGameControl : MonoBehaviour
         START,
         STOP,
         PAUSED,
-        SPAWNBALL,
+        SPAWNTARGET,
         MOVE,
         SUCCESS,
         FAILURE,
@@ -404,9 +404,9 @@ public class FlappyGameControl : MonoBehaviour
                // HideFinished();
                 // Start the game.
                 StartGame();
-                gameState = GameStates.SPAWNBALL;
+                gameState = GameStates.SPAWNTARGET;
                 break;
-            case GameStates.SPAWNBALL:
+            case GameStates.SPAWNTARGET:
                 // Spawn a new ball.
                 AppData.Instance.aanController.ResetTrial();
                 // Get new target position.
@@ -441,7 +441,7 @@ public class FlappyGameControl : MonoBehaviour
             case GameStates.SUCCESS:
             case GameStates.FAILURE:
                 // Wait for the user to score.
-                gameState = (isTimeUp || gameOver) ? GameStates.STOP : GameStates.SPAWNBALL;
+                gameState = (isTimeUp || gameOver) ? GameStates.STOP : GameStates.SPAWNTARGET;
                 isTargetHit = false;
                 isTargetMissed = false;
                 break;
