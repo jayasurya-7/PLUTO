@@ -6,7 +6,7 @@ using System.Web;
 using UnityEngine;
 using Debug = UnityEngine.Debug;
 using System.Threading.Tasks;
-public class awsManager : MonoBehaviour
+public static class awsManager
 {
     public static string pythonScriptPath = @"C:/pythonscripts/uploadToAWS.pyw";
     public static  string pythonExecutionPath = @"C:\Program Files\Python312\pythonw.exe";
@@ -14,20 +14,7 @@ public class awsManager : MonoBehaviour
     public static string[] status = new string[] {"upload_needed","no_upload"};
     public static  string taskName ="AWSUploaderPlutoTask"; //change according to the device
     public static string DeviceName = "Pluto";//change according to the device
-    void Start()
-    {
 
-        if (!IsTaskScheduled(taskName))
-        {
-            ScheduleTask();
-           
-        }
-        else
-        {
-            //RunAWSpythonScript();
-        }
-     
-    }
 
     // Method to schedule the task using SCHTASKS
     public static void ScheduleTask()
@@ -81,6 +68,14 @@ public static void RunAWSpythonScript()
             AppLogger.LogError("An error occurred while running the Python script: " + ex.Message);
         }
     });
+}
+
+public static void changeUploadStatus(string status){
+       string uploadFilePath = Path.Combine(filePathUploadStatus, "uploadStatus.txt");
+
+        // You don't need `File.Create(...).Dispose()` manually � File.WriteAllText will create/write directly.
+        File.WriteAllText(uploadFilePath, $"{Application.dataPath},{status},{DeviceName},{AppData.Instance.userData.hospNumber}");
+    
 }
 
 public static void RunAWSpythonScript_()
