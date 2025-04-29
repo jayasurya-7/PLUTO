@@ -41,9 +41,18 @@ public class welcomSceneHandler : MonoBehaviour
         // Update summary display
         if (!piChartUpdated)
         {
+         
             UpdateUserData();
             UpdatePieChart();
+           
         }
+        if (!awsManager.IsTaskScheduled(awsManager.taskName))
+        {
+            awsManager.ScheduleTask();
+
+        }
+        awsManager.RunAWSpythonScript();
+       
     }
 
     void Update()
@@ -79,6 +88,9 @@ public class welcomSceneHandler : MonoBehaviour
         timeRemainingToday.text = $"{AppData.Instance.userData.totalMoveTimeRemaining} min";
         todaysDay.text = AppData.Instance.userData.getCurrentDayOfTraining().ToString();
         todaysDate.text = DateTime.Now.ToString("ddd, dd-MM-yyyy");
+        if (!File.Exists(awsManager.filePathUploadStatus))
+            awsManager.createFile(userName.text);
+        
     }
 
     private void UpdatePieChart()

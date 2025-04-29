@@ -123,7 +123,9 @@ public partial class AppData
             // "CurrentControlBound"
             trialType == HomerTherapy.TrialType.SR85PCCATCH ? null : $"{_currControlBound:F3}",
             // "NextControlBound"
-            trialType == HomerTherapy.TrialType.SR85PCCATCH ? null : $"{aanController.currentCtrlBound:F3}"
+            trialType == HomerTherapy.TrialType.SR85PCCATCH ? null : $"{aanController.currentCtrlBound:F3}",
+            //movement time of player
+            MovementTracker.PlayerMovementTime.ToString()
         };
 
         // Write the trial row to the session file.
@@ -209,8 +211,8 @@ public partial class AppData
 
     private void WriteTrialDataToRawDataFile()
     {
-        AppLogger.LogMessage($"Writing to: {trialRawDataFile}");
-        AppLogger.LogMessage($"File exists before write? {File.Exists(trialRawDataFile)}");
+        AppLogger.LogInfo($"Writing to: {trialRawDataFile}");
+        AppLogger.LogInfo($"File exists before write? {File.Exists(trialRawDataFile)}");
         
         string _dir = Path.GetDirectoryName(trialRawDataFile);
         if (!Directory.Exists(_dir)) Directory.CreateDirectory(_dir);
@@ -224,7 +226,7 @@ public partial class AppData
             rawDataString.Clear();
             rawDataString = null;
         }
-        AppLogger.LogMessage($"File exists before write? {File.Exists(trialRawDataFile)}");
+        AppLogger.LogInfo($"File exists before write? {File.Exists(trialRawDataFile)}");
 
     }
 

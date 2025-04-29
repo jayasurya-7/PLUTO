@@ -38,7 +38,7 @@ public static class DataManager
         "TrialNumberDay", "TrialNumberSession", "TrialType", "TrialStartTime", "TrialStopTime", "TrialRawDataFile", 
         "Mechanism", 
         "GameName", "GameParameter", "GameSpeed",  
-        "AssistMode", "DesiredSuccessRate", "SuccessRate", "CurrentControlBound", "NextControlBound"
+        "AssistMode", "DesiredSuccessRate", "SuccessRate", "CurrentControlBound", "NextControlBound","MoveTime"
     };
 
     // Raw data header.    

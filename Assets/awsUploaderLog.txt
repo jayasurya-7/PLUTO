@@ -1,0 +1,57 @@
+2025-04-29 11:50:20 - INFO - Script started
+2025-04-29 11:50:20 - INFO - Upload required. Starting upload process...
+2025-04-29 11:50:24 - INFO - Successfully uploaded: D:/mobbo1/PLUTO-HOMER/Assets/data\configdata.csv to 1/Pluto/configdata.csv
+2025-04-29 11:50:26 - INFO - Successfully uploaded: D:/mobbo1/PLUTO-HOMER/Assets/data\applog\29-04-2025-09-40-45-application.log to 1/Pluto/applog/29-04-2025-09-40-45-application.log
+2025-04-29 11:50:28 - INFO - Successfully uploaded: D:/mobbo1/PLUTO-HOMER/Assets/data\applog\29-04-2025-09-40-45-plutocomm.log to 1/Pluto/applog/29-04-2025-09-40-45-plutocomm.log
+2025-04-29 11:50:29 - INFO - Successfully uploaded: D:/mobbo1/PLUTO-HOMER/Assets/data\applog\29-04-2025-09-41-55-application.log to 1/Pluto/applog/29-04-2025-09-41-55-application.log
+2025-04-29 11:50:31 - INFO - Successfully uploaded: D:/mobbo1/PLUTO-HOMER/Assets/data\applog\29-04-2025-09-41-55-plutocomm.log to 1/Pluto/applog/29-04-2025-09-41-55-plutocomm.log
+2025-04-29 11:50:33 - INFO - Successfully uploaded: D:/mobbo1/PLUTO-HOMER/Assets/data\applog\29-04-2025-09-42-46-application.log to 1/Pluto/applog/29-04-2025-09-42-46-application.log
+2025-04-29 11:50:35 - INFO - Successfully uploaded: D:/mobbo1/PLUTO-HOMER/Assets/data\applog\29-04-2025-09-42-46-plutocomm.log to 1/Pluto/applog/29-04-2025-09-42-46-plutocomm.log
+2025-04-29 11:50:37 - INFO - Successfully uploaded: D:/mobbo1/PLUTO-HOMER/Assets/data\applog\29-04-2025-09-45-03-application.log to 1/Pluto/applog/29-04-2025-09-45-03-application.log
+2025-04-29 11:50:39 - INFO - Successfully uploaded: D:/mobbo1/PLUTO-HOMER/Assets/data\applog\29-04-2025-09-45-03-plutocomm.log to 1/Pluto/applog/29-04-2025-09-45-03-plutocomm.log
+2025-04-29 11:50:41 - INFO - Successfully uploaded: D:/mobbo1/PLUTO-HOMER/Assets/data\applog\29-04-2025-09-50-21-application.log to 1/Pluto/applog/29-04-2025-09-50-21-application.log
+2025-04-29 11:50:43 - INFO - Successfully uploaded: D:/mobbo1/PLUTO-HOMER/Assets/data\applog\29-04-2025-09-50-21-plutocomm.log to 1/Pluto/applog/29-04-2025-09-50-21-plutocomm.log
+2025-04-29 11:50:45 - INFO - Successfully uploaded: D:/mobbo1/PLUTO-HOMER/Assets/data\applog\29-04-2025-09-51-14-application.log to 1/Pluto/applog/29-04-2025-09-51-14-application.log
+2025-04-29 11:50:47 - INFO - Successfully uploaded: D:/mobbo1/PLUTO-HOMER/Assets/data\applog\29-04-2025-09-51-14-plutoaan.log to 1/Pluto/applog/29-04-2025-09-51-14-plutoaan.log
+2025-04-29 11:50:50 - INFO - Successfully uploaded: D:/mobbo1/PLUTO-HOMER/Assets/data\applog\29-04-2025-09-51-14-plutocomm.log to 1/Pluto/applog/29-04-2025-09-51-14-plutocomm.log
+2025-04-29 11:50:52 - INFO - Successfully uploaded: D:/mobbo1/PLUTO-HOMER/Assets/data\applog\29-04-2025-10-35-29-application.log to 1/Pluto/applog/29-04-2025-10-35-29-application.log
+2025-04-29 11:50:54 - INFO - Successfully uploaded: D:/mobbo1/PLUTO-HOMER/Assets/data\applog\29-04-2025-10-35-29-plutoaan.log to 1/Pluto/applog/29-04-2025-10-35-29-plutoaan.log
+2025-04-29 11:50:57 - INFO - Successfully uploaded: D:/mobbo1/PLUTO-HOMER/Assets/data\applog\29-04-2025-10-35-29-plutocomm.log to 1/Pluto/applog/29-04-2025-10-35-29-plutocomm.log
+2025-04-29 11:50:59 - INFO - Successfully uploaded: D:/mobbo1/PLUTO-HOMER/Assets/data\applog\29-04-2025-11-26-27-application.log to 1/Pluto/applog/29-04-2025-11-26-27-application.log
+2025-04-29 11:51:02 - INFO - Successfully uploaded: D:/mobbo1/PLUTO-HOMER/Assets/data\applog\29-04-2025-11-26-27-plutoaan.log to 1/Pluto/applog/29-04-2025-11-26-27-plutoaan.log
+2025-04-29 11:51:04 - INFO - Successfully uploaded: D:/mobbo1/PLUTO-HOMER/Assets/data\applog\29-04-2025-11-26-27-plutocomm.log to 1/Pluto/applog/29-04-2025-11-26-27-plutocomm.log
+2025-04-29 11:51:06 - INFO - Successfully uploaded: D:/mobbo1/PLUTO-HOMER/Assets/data\applog\29-04-2025-11-50-14-application.log to 1/Pluto/applog/29-04-2025-11-50-14-application.log
+2025-04-29 11:51:07 - INFO - Successfully uploaded: D:/mobbo1/PLUTO-HOMER/Assets/data\applog\29-04-2025-11-50-14-plutoaan.log to 1/Pluto/applog/29-04-2025-11-50-14-plutoaan.log
+2025-04-29 11:51:10 - INFO - Successfully uploaded: D:/mobbo1/PLUTO-HOMER/Assets/data\applog\29-04-2025-11-50-14-plutocomm.log to 1/Pluto/applog/29-04-2025-11-50-14-plutocomm.log
+2025-04-29 11:51:12 - INFO - Successfully uploaded: D:/mobbo1/PLUTO-HOMER/Assets/data\mechparams\FPS-mechparams.csv to 1/Pluto/mechparams/FPS-mechparams.csv
+2025-04-29 11:51:14 - INFO - Successfully uploaded: D:/mobbo1/PLUTO-HOMER/Assets/data\mechparams\WFE-mechparams.csv to 1/Pluto/mechparams/WFE-mechparams.csv
+2025-04-29 11:51:16 - INFO - Successfully uploaded: D:/mobbo1/PLUTO-HOMER/Assets/data\mechparams\WURD-mechparams.csv to 1/Pluto/mechparams/WURD-mechparams.csv
+2025-04-29 11:51:26 - INFO - Successfully uploaded: D:/mobbo1/PLUTO-HOMER/Assets/data\rawdata\raw-sess01-trial001-HAT-FPS.csv to 1/Pluto/rawdata/raw-sess01-trial001-HAT-FPS.csv
+2025-04-29 11:51:44 - INFO - Successfully uploaded: D:/mobbo1/PLUTO-HOMER/Assets/data\rawdata\raw-sess01-trial002-TUK-FPS.csv to 1/Pluto/rawdata/raw-sess01-trial002-TUK-FPS.csv
+2025-04-29 11:52:12 - INFO - Successfully uploaded: D:/mobbo1/PLUTO-HOMER/Assets/data\rawdata\raw-sess01-trial003-PONG-FPS.csv to 1/Pluto/rawdata/raw-sess01-trial003-PONG-FPS.csv
+2025-04-29 11:52:24 - INFO - Successfully uploaded: D:/mobbo1/PLUTO-HOMER/Assets/data\rawdata\raw-sess02-trial001-PONG-WURD.csv to 1/Pluto/rawdata/raw-sess02-trial001-PONG-WURD.csv
+2025-04-29 11:52:42 - INFO - Successfully uploaded: D:/mobbo1/PLUTO-HOMER/Assets/data\rawdata\raw-sess02-trial002-TUK-WURD.csv to 1/Pluto/rawdata/raw-sess02-trial002-TUK-WURD.csv
+2025-04-29 11:53:11 - INFO - Successfully uploaded: D:/mobbo1/PLUTO-HOMER/Assets/data\rawdata\raw-sess02-trial003-HAT-WURD.csv to 1/Pluto/rawdata/raw-sess02-trial003-HAT-WURD.csv
+2025-04-29 11:53:23 - INFO - Successfully uploaded: D:/mobbo1/PLUTO-HOMER/Assets/data\rawdata\raw-sess03-trial001-HAT-WFE.csv to 1/Pluto/rawdata/raw-sess03-trial001-HAT-WFE.csv
+2025-04-29 11:53:41 - INFO - Successfully uploaded: D:/mobbo1/PLUTO-HOMER/Assets/data\rawdata\raw-sess03-trial002-HAT-WFE.csv to 1/Pluto/rawdata/raw-sess03-trial002-HAT-WFE.csv
+2025-04-29 11:53:43 - INFO - Successfully uploaded: D:/mobbo1/PLUTO-HOMER/Assets/data\rom\FPS-rom.csv to 1/Pluto/rom/FPS-rom.csv
+2025-04-29 11:53:45 - INFO - Successfully uploaded: D:/mobbo1/PLUTO-HOMER/Assets/data\rom\WFE-rom.csv to 1/Pluto/rom/WFE-rom.csv
+2025-04-29 11:53:48 - INFO - Successfully uploaded: D:/mobbo1/PLUTO-HOMER/Assets/data\rom\WURD-rom.csv to 1/Pluto/rom/WURD-rom.csv
+2025-04-29 11:53:51 - INFO - Successfully uploaded: D:/mobbo1/PLUTO-HOMER/Assets/data\sessions\sessions.csv to 1/Pluto/sessions/sessions.csv
+2025-04-29 11:53:51 - INFO - Upload process completed and status updated.
+2025-04-29 11:53:51 - INFO - downloading configFile form aws s3
+2025-04-29 11:53:55 - INFO - ConfigFile updated succesfully
+2025-04-29 12:03:30 - INFO - Script started
+2025-04-29 12:03:30 - INFO - Upload required. Starting upload process...
+2025-04-29 12:03:39 - INFO - Successfully uploaded: D:/mobbo1/PLUTO-HOMER/Assets/data\applog\29-04-2025-11-50-14-application.log to 1/Pluto/applog/29-04-2025-11-50-14-application.log
+2025-04-29 12:03:41 - INFO - Successfully uploaded: D:/mobbo1/PLUTO-HOMER/Assets/data\applog\29-04-2025-11-50-14-plutoaan.log to 1/Pluto/applog/29-04-2025-11-50-14-plutoaan.log
+2025-04-29 12:03:45 - INFO - Successfully uploaded: D:/mobbo1/PLUTO-HOMER/Assets/data\applog\29-04-2025-11-50-14-plutocomm.log to 1/Pluto/applog/29-04-2025-11-50-14-plutocomm.log
+2025-04-29 12:03:47 - INFO - Successfully uploaded: D:/mobbo1/PLUTO-HOMER/Assets/data\applog\29-04-2025-12-03-29-application.log to 1/Pluto/applog/29-04-2025-12-03-29-application.log
+2025-04-29 12:03:49 - INFO - Successfully uploaded: D:/mobbo1/PLUTO-HOMER/Assets/data\applog\29-04-2025-12-03-29-plutoaan.log to 1/Pluto/applog/29-04-2025-12-03-29-plutoaan.log
+2025-04-29 12:03:51 - INFO - Successfully uploaded: D:/mobbo1/PLUTO-HOMER/Assets/data\applog\29-04-2025-12-03-29-plutocomm.log to 1/Pluto/applog/29-04-2025-12-03-29-plutocomm.log
+2025-04-29 12:04:03 - INFO - Successfully uploaded: D:/mobbo1/PLUTO-HOMER/Assets/data\rawdata\raw-sess04-trial004-TUK-WURD.csv to 1/Pluto/rawdata/raw-sess04-trial004-TUK-WURD.csv
+2025-04-29 12:04:13 - INFO - Successfully uploaded: D:/mobbo1/PLUTO-HOMER/Assets/data\rawdata\raw-sess04-trial005-HAT-WURD.csv to 1/Pluto/rawdata/raw-sess04-trial005-HAT-WURD.csv
+2025-04-29 12:04:16 - INFO - Successfully uploaded: D:/mobbo1/PLUTO-HOMER/Assets/data\sessions\sessions.csv to 1/Pluto/sessions/sessions.csv
+2025-04-29 12:04:16 - INFO - Upload process completed and status updated.
+2025-04-29 12:04:16 - INFO - downloading configFile form aws s3
+2025-04-29 12:04:18 - INFO - ConfigFile updated succesfully

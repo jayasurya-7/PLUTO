@@ -39,6 +39,8 @@ float targetAngle;
         endTime = 0;
         currentLife = 0;
         rb2d = GetComponent<Rigidbody2D>();
+        MovementTracker.Initialize(this, this.transform.position);
+
         Time.timeScale=0f;
          // Set current AROM and PROM.
         arom = AppData.Instance.selectedMechanism.CurrentArom;
@@ -49,6 +51,9 @@ float targetAngle;
         if(FGC.isGameStarted && !FGC.isGamePaused && !FGC.isGameFinished) Time.timeScale=1f;
 
         Debug.Log($" min : {AngleToScreen(arom[0])}, max : { AngleToScreen( arom[1])}");
+
+        MovementTracker.UpdatePosition(this.transform.position);
+
 
     }
     void FixedUpdate()
