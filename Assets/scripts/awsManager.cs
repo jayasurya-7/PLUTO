@@ -78,42 +78,6 @@ public static void changeUploadStatus(string status){
     
 }
 
-public static void RunAWSpythonScript_()
-    {
-        if (!File.Exists(pythonScriptPath))
-        {
-            AppLogger.LogInfo("python script does not exists");
-            Debug.Log("file not found python script");
-            return;
-        }
-            
-        AppLogger.LogInfo("start to run python script");
-       
-        try
-        {
-            Process process = new Process();
-            process.StartInfo.FileName = pythonExecutionPath; 
-            process.StartInfo.Arguments = pythonScriptPath;
-            process.StartInfo.UseShellExecute = false; 
-            process.StartInfo.RedirectStandardOutput = true;
-            process.StartInfo.RedirectStandardError = true;
-            process.StartInfo.CreateNoWindow = true; 
-            process.Start();
-            string output = process.StandardOutput.ReadToEnd();
-            string error = process.StandardError.ReadToEnd();
-            process.WaitForExit();
-            //Debug.Log(output);
-            //Debug.LogError(error);
-            AppLogger.LogInfo(output);
-            AppLogger.LogError(error);
-        }
-        catch (System.Exception ex)
-        {
-            Debug.Log("An error occurred while running the Python script: " + ex.Message);
-            AppLogger.LogError("An error occurred while running the Python script: " + ex.Message);
-          
-        }
-    }
 
     //To create the uploadStatusFile
     public  static void createFile(string userID)
