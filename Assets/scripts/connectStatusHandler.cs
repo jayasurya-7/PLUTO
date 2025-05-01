@@ -51,7 +51,6 @@ public class connectStatusHandler : MonoBehaviour
 
      private void CloseAppLogger()
     {
-        awsManager.changeUploadStatus(awsManager.status[0]);
         AppLogger.StopLogging(); 
         PlutoAanLogger.StopLogging();
         PlutoComLogger.StopLogging();

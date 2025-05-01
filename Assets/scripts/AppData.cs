@@ -19,7 +19,7 @@ public partial class AppData
      * CONSTANT FIXED VARIABLES.
      */
     // COM Port for the device
-    public const string COMPort = "COM3";
+    public const string COMPort = "COM6";
 
     // Keeping track of time.
     private double nanosecPerTick = 1.0f / Stopwatch.Frequency;
@@ -143,6 +143,9 @@ public partial class AppData
         currentSessionNumber = userData.dTableSession.Rows.Count > 0 ? 
             Convert.ToInt32(userData.dTableSession.Rows[userData.dTableSession.Rows.Count - 1]["SessionNumber"]) + 1 : 1;        
         AppLogger.LogWarning($"Session number set to {currentSessionNumber}.");
+
+        //set to upload the data to the AWS
+        awsManager.changeUploadStatus(awsManager.status[0]);
     }
 
     private void InitializeRobotConnection(bool doNotResetMech, string datetimestr = null)

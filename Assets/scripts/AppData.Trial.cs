@@ -16,6 +16,9 @@ public partial class AppData
     // Start a new trial.
     public void StartNewTrial()
     {
+         //set to upload the data to the AWS
+        awsManager.changeUploadStatus(awsManager.status[0]);
+        
         trialStartTime = DateTime.Now;
         trialStopTime = null;
         selectedMechanism.NextTrail();
@@ -83,6 +86,7 @@ public partial class AppData
         AppLogger.LogInfo($"StopTrial | {_tdetails}");
         // Stop Raw and AAN real-time data logging.
         WriteTrialDataToRawDataFile();
+        PlutoComm.OnNewPlutoData -= OnNewPlutoDataDataLogging;
         trialRawDataFile = null;
     }
 
