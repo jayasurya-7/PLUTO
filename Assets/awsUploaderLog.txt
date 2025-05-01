@@ -203,3 +203,31 @@
 2025-04-30 14:25:53 - INFO - Upload process completed and status updated.
 2025-04-30 14:25:53 - INFO - downloading configFile form aws s3
 2025-04-30 14:25:54 - INFO - ConfigFile updated succesfully
+2025-05-01 09:14:31 - INFO - Script started
+2025-05-01 09:14:31 - INFO - No upload needed. Exiting script.
+2025-05-01 09:14:32 - INFO - downloading configFile form aws s3
+2025-05-01 09:14:34 - INFO - ConfigFile updated succesfully
+2025-05-01 09:20:01 - INFO - Script started
+2025-05-01 09:20:01 - INFO - No upload needed. Exiting script.
+2025-05-01 09:20:01 - INFO - downloading configFile form aws s3
+2025-05-01 09:20:03 - INFO - ConfigFile updated succesfully
+2025-05-01 09:26:53 - INFO - Script started
+2025-05-01 09:26:53 - INFO - Upload required. Starting upload process...
+2025-05-01 09:26:54 - INFO - 'configdata.csv' already exists on S3. Skipping upload.
+2025-05-01 09:26:56 - INFO - Successfully uploaded: D:/mobbo1/PLUTO-HOMER/Assets/data\applog\01-05-2025-09-14-29-application.log to 1/Pluto/applog/01-05-2025-09-14-29-application.log
+2025-05-01 09:26:58 - INFO - Successfully uploaded: D:/mobbo1/PLUTO-HOMER/Assets/data\applog\01-05-2025-09-14-29-plutoaan.log to 1/Pluto/applog/01-05-2025-09-14-29-plutoaan.log
+2025-05-01 09:27:00 - INFO - Successfully uploaded: D:/mobbo1/PLUTO-HOMER/Assets/data\applog\01-05-2025-09-14-29-plutocomm.log to 1/Pluto/applog/01-05-2025-09-14-29-plutocomm.log
+2025-05-01 09:27:02 - INFO - Successfully uploaded: D:/mobbo1/PLUTO-HOMER/Assets/data\applog\01-05-2025-09-20-00-application.log to 1/Pluto/applog/01-05-2025-09-20-00-application.log
+2025-05-01 09:27:04 - INFO - Successfully uploaded: D:/mobbo1/PLUTO-HOMER/Assets/data\applog\01-05-2025-09-20-00-plutoaan.log to 1/Pluto/applog/01-05-2025-09-20-00-plutoaan.log
+2025-05-01 09:27:06 - INFO - Successfully uploaded: D:/mobbo1/PLUTO-HOMER/Assets/data\applog\01-05-2025-09-20-00-plutocomm.log to 1/Pluto/applog/01-05-2025-09-20-00-plutocomm.log
+2025-05-01 09:27:08 - INFO - Successfully uploaded: D:/mobbo1/PLUTO-HOMER/Assets/data\applog\01-05-2025-09-24-24-application.log to 1/Pluto/applog/01-05-2025-09-24-24-application.log
+2025-05-01 09:27:10 - INFO - Successfully uploaded: D:/mobbo1/PLUTO-HOMER/Assets/data\applog\01-05-2025-09-24-24-plutocomm.log to 1/Pluto/applog/01-05-2025-09-24-24-plutocomm.log
+2025-05-01 09:27:30 - INFO - Successfully uploaded: D:/mobbo1/PLUTO-HOMER/Assets/data\mechparams\FPS-mechparams.csv to 1/Pluto/mechparams/FPS-mechparams.csv
+2025-05-01 09:27:47 - INFO - Successfully uploaded: D:/mobbo1/PLUTO-HOMER/Assets/data\rawdata\raw-sess08-trial001-HAT-FPS.csv to 1/Pluto/rawdata/raw-sess08-trial001-HAT-FPS.csv
+2025-05-01 09:28:14 - INFO - Successfully uploaded: D:/mobbo1/PLUTO-HOMER/Assets/data\rawdata\raw-sess08-trial002-HAT-FPS.csv to 1/Pluto/rawdata/raw-sess08-trial002-HAT-FPS.csv
+2025-05-01 09:28:43 - INFO - Successfully uploaded: D:/mobbo1/PLUTO-HOMER/Assets/data\rawdata\raw-sess08-trial003-TUK-FPS.csv to 1/Pluto/rawdata/raw-sess08-trial003-TUK-FPS.csv
+2025-05-01 09:29:26 - INFO - Successfully uploaded: D:/mobbo1/PLUTO-HOMER/Assets/data\rawdata\raw-sess08-trial004-PONG-FPS.csv to 1/Pluto/rawdata/raw-sess08-trial004-PONG-FPS.csv
+2025-05-01 09:29:30 - INFO - Successfully uploaded: D:/mobbo1/PLUTO-HOMER/Assets/data\sessions\sessions.csv to 1/Pluto/sessions/sessions.csv
+2025-05-01 09:29:30 - INFO - Upload process completed and status updated.
+2025-05-01 09:29:30 - INFO - downloading configFile form aws s3
+2025-05-01 09:29:31 - INFO - ConfigFile updated succesfully

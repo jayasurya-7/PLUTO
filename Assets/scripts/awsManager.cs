@@ -33,8 +33,7 @@ public static class awsManager
 
 public static void RunAWSpythonScript()
 {
-    Task.Run(() =>  // Run in a background task
-    {
+    
         if (!File.Exists(pythonScriptPath))
         {
             AppLogger.LogInfo("Python script does not exist");
@@ -67,16 +66,16 @@ public static void RunAWSpythonScript()
             Debug.Log("An error occurred while running the Python script: " + ex.Message);
             AppLogger.LogError("An error occurred while running the Python script: " + ex.Message);
         }
-    });
-}
-
-public static void changeUploadStatus(string status){
-       string uploadFilePath = Path.Combine(filePathUploadStatus, "uploadStatus.txt");
-
-        // You don't need `File.Create(...).Dispose()` manually � File.WriteAllText will create/write directly.
-        File.WriteAllText(uploadFilePath, $"{Application.dataPath},{status},{DeviceName},{AppData.Instance.userData.hospNumber}");
     
 }
+
+    public static void changeUploadStatus(string status){
+        string uploadFilePath = Path.Combine(filePathUploadStatus, "uploadStatus.txt");
+
+            // You don't need `File.Create(...).Dispose()` manually � File.WriteAllText will create/write directly.
+            File.WriteAllText(uploadFilePath, $"{Application.dataPath},{status},{DeviceName},{AppData.Instance.userData.hospNumber}");
+        
+    }
 
 
     //To create the uploadStatusFile
