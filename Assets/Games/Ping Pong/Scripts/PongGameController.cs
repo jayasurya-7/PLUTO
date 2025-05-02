@@ -164,7 +164,12 @@ public class PongGameController : MonoBehaviour
         // if (isGamePaused && gameState != GameStates.PAUSED) pauseGame();
         // else if (!isGamePaused && gameState == GameStates.PAUSED) resumeGame();
         if((isFinished && Input.GetKeyDown(KeyCode.P)) || (isFinished && isButtonPressed) ){
+
+            if (AppData.Instance.aanController.state == PlutoAANController.PlutoAANState.AromMoving
+                    || AppData.Instance.aanController.state == PlutoAANController.PlutoAANState.Idle) 
+                {
              Reload();
+                }
              isButtonPressed = false;
         }
 
@@ -424,7 +429,7 @@ public class PongGameController : MonoBehaviour
 
         targetPosition = new Vector2(6f,targetPositiony);
         GameObject t = GameObject.FindGameObjectWithTag("targetPointer");
-        t.transform.position = targetPosition;
+       // t.transform.position = targetPosition;
     }
 
     private void InitializeGame()
