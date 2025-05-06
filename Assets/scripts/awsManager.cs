@@ -71,7 +71,7 @@ public static void RunAWSpythonScript()
 
     public static void changeUploadStatus(string status){
         string uploadFilePath = Path.Combine(filePathUploadStatus, "uploadStatus.txt");
-
+            Debug.Log("nodata :"+AppData.Instance.userData.hospNumber);
             // You don't need `File.Create(...).Dispose()` manually � File.WriteAllText will create/write directly.
             File.WriteAllText(uploadFilePath, $"{Application.dataPath},{status},{DeviceName},{AppData.Instance.userData.hospNumber}");
         

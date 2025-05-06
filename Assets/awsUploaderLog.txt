@@ -243,3 +243,59 @@
 2025-05-02 11:18:36 - INFO - No upload needed. Exiting script.
 2025-05-02 11:18:37 - INFO - downloading configFile form aws s3
 2025-05-02 11:18:50 - INFO - ConfigFile updated succesfully
+2025-05-02 15:54:36 - INFO - Script started
+2025-05-02 15:54:36 - INFO - No upload needed. Exiting script.
+2025-05-02 15:54:37 - INFO - downloading configFile form aws s3
+2025-05-02 15:54:38 - INFO - ConfigFile updated succesfully
+2025-05-05 09:24:39 - INFO - Script started
+2025-05-05 09:24:39 - INFO - No upload needed. Exiting script.
+2025-05-05 09:24:39 - INFO - downloading configFile form aws s3
+2025-05-05 09:24:41 - INFO - ConfigFile updated succesfully
+2025-05-05 11:44:11 - INFO - Script started
+2025-05-05 11:44:11 - INFO - No upload needed. Exiting script.
+2025-05-05 11:44:11 - INFO - downloading configFile form aws s3
+2025-05-05 11:44:24 - ERROR - An error occurred: SSL validation failed for https://homer-data.s3.amazonaws.com/1/Pluto/configdata.csv [SSL: CERTIFICATE_VERIFY_FAILED] certificate verify failed: self-signed certificate in certificate chain (_ssl.c:1000)
+2025-05-05 11:59:53 - INFO - Script started
+2025-05-05 11:59:53 - INFO - No upload needed. Exiting script.
+2025-05-05 11:59:53 - INFO - downloading configFile form aws s3
+2025-05-05 11:59:55 - INFO - ConfigFile updated succesfully
+2025-05-05 12:23:26 - INFO - Script started
+2025-05-05 12:23:26 - INFO - No upload needed. Exiting script.
+2025-05-05 12:23:26 - INFO - downloading configFile form aws s3
+2025-05-05 12:23:27 - INFO - ConfigFile updated succesfully
+2025-05-05 12:24:19 - INFO - Script started
+2025-05-05 12:24:19 - INFO - No upload needed. Exiting script.
+2025-05-05 12:24:19 - INFO - downloading configFile form aws s3
+2025-05-05 12:24:21 - INFO - ConfigFile updated succesfully
+2025-05-05 12:25:14 - INFO - Script started
+2025-05-05 12:25:14 - INFO - No upload needed. Exiting script.
+2025-05-05 12:25:14 - INFO - downloading configFile form aws s3
+2025-05-05 12:25:16 - INFO - ConfigFile updated succesfully
+2025-05-05 12:40:45 - INFO - Script started
+2025-05-05 12:40:45 - INFO - No upload needed. Exiting script.
+2025-05-05 12:40:45 - INFO - downloading configFile form aws s3
+2025-05-05 12:40:47 - INFO - ConfigFile updated succesfully
+2025-05-05 14:57:03 - INFO - Script started
+2025-05-05 14:57:03 - INFO - No upload needed. Exiting script.
+2025-05-05 14:57:04 - INFO - downloading configFile form aws s3
+2025-05-05 14:57:06 - INFO - ConfigFile updated succesfully
+2025-05-05 16:41:14 - INFO - Script started
+2025-05-05 16:41:14 - INFO - No upload needed. Exiting script.
+2025-05-05 16:41:14 - INFO - downloading configFile form aws s3
+2025-05-05 16:41:16 - INFO - ConfigFile updated succesfully
+2025-05-06 09:59:28 - INFO - Script started
+2025-05-06 09:59:28 - INFO - No upload needed. Exiting script.
+2025-05-06 09:59:29 - INFO - downloading configFile form aws s3
+2025-05-06 09:59:30 - INFO - ConfigFile updated succesfully
+2025-05-06 10:00:20 - INFO - Script started
+2025-05-06 10:00:20 - INFO - No upload needed. Exiting script.
+2025-05-06 10:00:20 - INFO - downloading configFile form aws s3
+2025-05-06 10:00:21 - INFO - ConfigFile updated succesfully
+2025-05-06 10:41:18 - INFO - Script started
+2025-05-06 10:41:18 - INFO - No upload needed. Exiting script.
+2025-05-06 10:41:18 - INFO - downloading configFile form aws s3
+2025-05-06 10:41:20 - INFO - ConfigFile updated succesfully
+2025-05-06 11:05:08 - INFO - Script started
+2025-05-06 11:05:08 - INFO - No upload needed. Exiting script.
+2025-05-06 11:05:09 - INFO - downloading configFile form aws s3
+2025-05-06 11:05:10 - INFO - ConfigFile updated succesfully

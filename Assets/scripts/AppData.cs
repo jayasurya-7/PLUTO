@@ -145,7 +145,7 @@ public partial class AppData
         AppLogger.LogWarning($"Session number set to {currentSessionNumber}.");
 
         //set to upload the data to the AWS
-        awsManager.changeUploadStatus(awsManager.status[0]);
+       // awsManager.changeUploadStatus(awsManager.status[0]);
     }
 
     private void InitializeRobotConnection(bool doNotResetMech, string datetimestr = null)
@@ -156,7 +156,10 @@ public partial class AppData
             PlutoComLogger.StartLogging(datetimestr);
         }
         
-        ConnectToRobot.Connect(COMPort);
+        if(!ConnectToRobot.isPLUTO) {
+            ConnectToRobot.Connect(COMPort);
+            UnityEngine.Debug.Log("Trying to connect");
+        }
         // Check if the connection is successful.
         if (!ConnectToRobot.isConnected)
         {
