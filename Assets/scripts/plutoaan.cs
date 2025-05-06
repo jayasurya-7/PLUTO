@@ -149,9 +149,29 @@ public class PlutoAANController
         }
         else
         {
-            // Now order the selRows by the trailNumberDay in increasing order and get the last row.
-            DataRow lastRow = selRows.LastOrDefault();
-            currentCtrlBound = Convert.ToSingle(lastRow.Field<string>("NextControlBound"));
+            // // Now order the selRows by the trailNumberDay in increasing order and get the last row.
+             DataRow lastRow = selRows.LastOrDefault();
+
+            //     string nextBoundStr = lastRow?.Field<string>("NextControlBound");
+            //     if (string.IsNullOrWhiteSpace(nextBoundStr) || !float.TryParse(nextBoundStr, out currentCtrlBound))
+            //     {
+            //         currentCtrlBound = DEFAULTCONTROLBOUND;
+            //     }
+
+            // //currentCtrlBound = Convert.ToSingle(lastRow.Field<string>("NextControlBound"));
+        
+            float tempBound;
+            string nextBoundStr = lastRow?.Field<string>("NextControlBound");
+
+            if (string.IsNullOrWhiteSpace(nextBoundStr) || !float.TryParse(nextBoundStr, out tempBound))
+            {
+                currentCtrlBound = DEFAULTCONTROLBOUND;
+            }
+            else
+            {
+                currentCtrlBound = tempBound;
+            }
+
         }
         PlutoAanLogger.LogInfo($"Currrent Control Bound: {currentCtrlBound}");
     }
