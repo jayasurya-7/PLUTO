@@ -300,7 +300,7 @@ public class PongGameController : MonoBehaviour
             prevSR.text = $" previous SR : {AppData.Instance.previousSuccessRates[0]}%";
             currSR.text = $"Current Success Rate : {AppData.Instance.previousSuccessRates[1]}%";
         }
-         gameOverText.text = (playerScore > enemyScore) ? "GAME OVER!\nPLAYER WON!" : "GAME OVER!\nENEMY WON!";
+         gameOverText.text = (playerScore >= enemyScore) ? "GAME OVER!\nPLAYER WON!" : "GAME OVER!\nENEMY WON!";
     }
 
     public void hideFinished()

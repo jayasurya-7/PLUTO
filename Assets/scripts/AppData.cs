@@ -19,7 +19,7 @@ public partial class AppData
      * CONSTANT FIXED VARIABLES.
      */
     // COM Port for the device
-    public const string COMPort = "COM6";
+    public const string COMPort = "COM3";
 
     // Keeping track of time.
     private double nanosecPerTick = 1.0f / Stopwatch.Frequency;
@@ -44,6 +44,20 @@ public partial class AppData
 
     // What is this used for?
     public string _dataLogDir = null;
+
+        // Default folder name
+    private const string DefaultUserID = "defaultId";
+
+    // Backing field
+    private string _userID = null;
+
+    // Property with default fallback
+    public string userID
+    {
+        get => string.IsNullOrEmpty(_userID) ? DefaultUserID : _userID;
+        set => _userID = value;
+    }
+
     
     /*
      * USED AND THERAPY RELATED DATA.

@@ -162,9 +162,6 @@ public static class JediComm
             HeaderOut,                     // Header byte 2
             (byte)(outBytes.Length + 1)    // Length of the message (+1 for checksum)
         };
-        Debug.Log($"[sendHeartbeat] Running on Thread ID: {System.Threading.Thread.CurrentThread.ManagedThreadId}");
-        Debug.Log($"IsMainThread: {UnityEngine.Application.isPlaying && System.Threading.Thread.CurrentThread.ManagedThreadId == 1}");
-
 
         // Add the message bytes to the payload
         outPayload.AddRange(outBytes);

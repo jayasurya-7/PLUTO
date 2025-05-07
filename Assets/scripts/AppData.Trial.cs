@@ -54,6 +54,7 @@ public partial class AppData
         // PlutoComm.OnNewPlutoData -= OnNewPlutoDataDataLogging;
 
         trialStopTime = DateTime.Now;
+        nTargets =(nTargets == 0)? 1 : nTargets;
         successRate = 100 * nSuccess / nTargets;
 
         // Update the control bound if needed.

@@ -239,7 +239,7 @@ public class calibrationSceneHandler : MonoBehaviour
     void Update()
     {
         PlutoComm.sendHeartbeat();
-        angText.text = $" {PlutoComm.angle.ToString("F3")} + {PlutoComm.CONTROLTYPETEXT[PlutoComm.controlType]} + {PlutoComm.MECHANISMSTEXT[PlutoComm.mechanism - 1]}";
+        angText.text = $" {PlutoComm.angle.ToString("F3")}";
 
         if (!isCalibrating && startCalibration)
         {

@@ -299,3 +299,19 @@
 2025-05-06 11:05:08 - INFO - No upload needed. Exiting script.
 2025-05-06 11:05:09 - INFO - downloading configFile form aws s3
 2025-05-06 11:05:10 - INFO - ConfigFile updated succesfully
+2025-05-07 13:38:51 - INFO - Script started
+2025-05-07 13:38:51 - INFO - No upload needed. Exiting script.
+2025-05-07 13:38:52 - INFO - downloading configFile form aws s3
+2025-05-07 13:38:54 - ERROR - An error occurred: An error occurred (404) when calling the HeadObject operation: Not Found
+2025-05-07 13:39:28 - INFO - Script started
+2025-05-07 13:39:28 - INFO - No upload needed. Exiting script.
+2025-05-07 13:39:28 - INFO - downloading configFile form aws s3
+2025-05-07 13:39:30 - ERROR - An error occurred: An error occurred (404) when calling the HeadObject operation: Not Found
+2025-05-07 13:41:29 - INFO - Script started
+2025-05-07 13:41:29 - INFO - No upload needed. Exiting script.
+2025-05-07 13:41:29 - INFO - downloading configFile form aws s3
+2025-05-07 13:41:31 - ERROR - An error occurred: An error occurred (404) when calling the HeadObject operation: Not Found
+2025-05-07 13:58:52 - INFO - Script started
+2025-05-07 13:58:52 - INFO - No upload needed. Exiting script.
+2025-05-07 13:58:52 - INFO - downloading configFile form aws s3
+2025-05-07 13:58:53 - ERROR - An error occurred: An error occurred (404) when calling the HeadObject operation: Not Found

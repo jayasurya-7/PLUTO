@@ -18,7 +18,14 @@ public struct DaySummary
 
 public static class DataManager
 {
-    public static readonly string basePath = FixPath(Path.Combine(Application.dataPath, "data"));
+
+    public static readonly string userIdPath = 
+        AppData.Instance.userID != null 
+        ? Path.Combine(Application.dataPath, "data", AppData.Instance.userID) 
+        : Application.dataPath;
+
+    public static readonly string basePath = FixPath(Path.Combine(userIdPath, "data"));
+
     static string directoryPathConfig;
     public static string sessionPath { get; private set; }
     public static string gamePath { get; private set; }
