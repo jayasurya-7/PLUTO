@@ -172,7 +172,6 @@ public partial class AppData
         
         if(!ConnectToRobot.isPLUTO) {
             ConnectToRobot.Connect(COMPort);
-            UnityEngine.Debug.Log("Trying to connect");
         }
         // Check if the connection is successful.
         if (!ConnectToRobot.isConnected)

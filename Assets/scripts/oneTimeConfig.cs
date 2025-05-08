@@ -1,4 +1,5 @@
 using System;
+using System.Collections.Generic;
 using System.IO;
 using TMPro;
 using UnityEngine;
@@ -21,6 +22,7 @@ public class OneTimeConfig : MonoBehaviour
     public TMP_Dropdown affectedSideDropdown;
 
     public TextMeshProUGUI totalDurationText;
+    public TMP_Text msg;
 
 
     private void Start()
@@ -65,21 +67,28 @@ public class OneTimeConfig : MonoBehaviour
 
     public void saveConfig()
     {
-        if (string.IsNullOrWhiteSpace(nameField.text) ||
-          string.IsNullOrWhiteSpace(ageField.text) ||
-          string.IsNullOrWhiteSpace(hospitalIdField.text) ||
-          string.IsNullOrWhiteSpace(startDateField.text) ||
-          string.IsNullOrWhiteSpace(endDateField.text))
+        List<string> emptyFields = new List<string>();
+
+        if (string.IsNullOrWhiteSpace(nameField.text)) emptyFields.Add("Name");
+        if (string.IsNullOrWhiteSpace(ageField.text)) emptyFields.Add("Age");
+        if (string.IsNullOrWhiteSpace(hospitalIdField.text)) emptyFields.Add("Hospital ID");
+        if (string.IsNullOrWhiteSpace(startDateField.text)) emptyFields.Add("Start Date");
+        if (string.IsNullOrWhiteSpace(endDateField.text)) emptyFields.Add("End Date");
+
+        if (emptyFields.Count > 0)
         {
-            Debug.LogError("Name, Age, Hospital ID, Start Date, and End Date fields must not be empty.");
+            string missing = string.Join(", ", emptyFields);
+            string message = $"{missing} field{(emptyFields.Count > 1 ? "s are" : " is")} required!";
+            msg.text = message;
             return;
         }
+
 
         string date = DateTime.Now.ToString("dd-MM-yyyy");
         string name = nameField.text;
         string age = ageField.text;
         string hospitalId = hospitalIdField.text;
-        //AppData.Instance.userID= hospitalId;
+        AppData.Instance.userID= hospitalId;
         string startDate = startDateField.text;
         string endDate = endDateField.text;
         
@@ -124,5 +133,9 @@ public class OneTimeConfig : MonoBehaviour
 
         }
         
+    }
+
+    public void LoginScreen(){
+        SceneManager.LoadScene("LOGIN");
     }
 }
