@@ -133,6 +133,101 @@ public class calibrationSceneHandler : MonoBehaviour
         Invoke("LoadNextScene", 0.4f);
     }
 
+
+    //forced auto calibration function.
+     IEnumerator autoCalibrateForced()
+    {
+        textMessage.color = Color.black;
+        textMessage.text = "Calibrating...";
+
+
+        // Move the robot to the extreme position.
+        while (PlutoComm.CONTROLTYPE[PlutoComm.controlType] != "TORQUE" || PlutoComm.target != -0.15f)
+        {
+            Debug.Log("Anticlockwise");
+            ApplyCounterClockwiseTorque();
+            yield return new WaitForSeconds(0.1f);
+        }
+        yield return new WaitForSeconds(1.5f);
+
+        // Send the calibration command.
+        while (PlutoComm.angle != -PlutoComm.MECHOFFSETVALUE[PlutoComm.mechanism])
+        {
+            Debug.Log(PlutoComm.mechanism + "mechanism");
+            PlutoComm.calibrate(AppData.Instance.selectedMechanism.name);
+            yield return new WaitForSeconds(0.1f);
+        }
+        yield return new WaitForSeconds(1.5f);
+
+        //ApplyTorqueToSep(PlutoComm.angle, separationAngle);
+        while (PlutoComm.CONTROLTYPE[PlutoComm.controlType] != "TORQUE" || PlutoComm.target != 0.15f)
+        {
+            ApplyClockwiseTorque();
+            yield return new WaitForSeconds(0.1f);
+        }
+        yield return new WaitForSeconds(1.5f);
+
+        // Check if the ROM is correct.
+        int mechInx = Array.IndexOf(PlutoComm.MECHANISMS, AppData.Instance.selectedMechanism.name);
+        float _angval = PlutoComm.angle + PlutoComm.MECHOFFSETVALUE[mechInx];
+        isCalibrating = false;
+        if (Math.Abs(_angval) < 0.9 * PlutoComm.CALIBANGLE[mechInx]
+            || Math.Abs(_angval) > 1.1 * PlutoComm.CALIBANGLE[mechInx])
+        {
+            // Error in calibration
+            PlutoComm.setControlType("NONE");
+            PlutoComm.calibrate("NOMECH");
+            textMessage.text = $"Try Again.";
+            textMessage.color = Color.red;
+            AppLogger.LogError($"Calibration failed for {AppData.Instance.selectedMechanism.name}.");
+            isCalibrating = false;
+            doneCalibration = false;
+            yield break;
+        }
+        // All good.
+        textMessage.text = "Calibration Done";
+        textMessage.color = new Color32(62, 214, 111, 255);
+        AppLogger.LogError($"Calibration was successful for '{AppData.Instance.selectedMechanism.name}'.");
+
+        //HOC assessment UI  works based on closed position,
+        if (PlutoComm.MECHANISMS[PlutoComm.mechanism] != "HOC")
+        {
+            // Move the robot to the neutral position.
+            while (PlutoComm.CONTROLTYPE[PlutoComm.controlType] != "POSITION")
+            {
+                PlutoComm.setControlType("POSITION");
+                yield return new WaitForSeconds(0.1f);
+            }
+
+            // Set the target to zero slowly.
+            float _initAngle = PlutoComm.angle;
+            int N = 20;
+            for (int i = 0; i < N; i++)
+            {
+                PlutoComm.setControlBound(1.0f * (i + 1) / N);
+                PlutoComm.setControlTarget((N - i) * _initAngle / N);
+                yield return new WaitForSeconds(0.5f);
+            }
+        }
+        if (PlutoComm.MECHANISMS[PlutoComm.mechanism] == "HOC") PlutoComm.calibrate(AppData.Instance.selectedMechanism.name);
+
+        PlutoComm.setControlTarget(0.0f);
+        PlutoComm.setControlType("NONE");
+        yield return new WaitForSeconds(1.5f);
+
+        // Set selected mechanism.
+        AppData.Instance.SetMechanism(PlutoComm.MECHANISMS[PlutoComm.mechanism]);
+
+        // Update flags.
+        isCalibrating = false;
+        doneCalibration = true;
+
+        // Go to the next scene.
+        Invoke("LoadNextScene", 0.4f);
+
+
+    }
+
     void LoadNextScene()
     {
         // Updat game speed for the chosen mechanism.

@@ -58,7 +58,6 @@ public static void RunAWSpythonScript()
         catch (System.Exception ex)
         {
             Debug.Log("An error occurred while running the Python script: " + ex.Message);
-            AppLogger.LogError("An error occurred while running the Python script: " + ex.Message);
         }
     
 }
@@ -80,8 +79,7 @@ public static void RunAWSpythonScript()
 
         string uploadFilePath = Path.Combine(filePathUploadStatus, "uploadStatus.txt");
 
-        // You don't need `File.Create(...).Dispose()` manually � File.WriteAllText will create/write directly.
-        File.WriteAllText(uploadFilePath, $"{Application.dataPath},{status[0]},{DeviceName},{userID}");
+        File.WriteAllText(uploadFilePath, $"{Path.Combine(Application.dataPath,"data", AppData.Instance.userID)},{status[0]},{DeviceName},{userID}");
 
     }
     // Method to check if the task is already scheduled
