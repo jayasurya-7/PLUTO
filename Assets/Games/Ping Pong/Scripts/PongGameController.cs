@@ -70,8 +70,10 @@ public class PongGameController : MonoBehaviour
 
     public Text timeLeftText;
     static float playSize;
-    static float topBound = 5.5F;
-    static float bottomBound = -5.5F;
+    // static float topBound = 5.5F;
+    static float topBound = 6F;
+
+    static float bottomBound = -6F;
     public GameObject aromLeft;
     public GameObject aromRight;
     private float triaTimeLeft;
