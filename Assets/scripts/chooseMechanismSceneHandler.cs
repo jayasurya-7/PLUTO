@@ -175,7 +175,24 @@ public class MechanismSceneHandler : MonoBehaviour
 
     private void OnExitButtonClicked()
     {
-        StartCoroutine(LoadSummaryScene());
+        // Set the mechanism.
+        if (AppData.Instance.userData.dTableSession != null && AppData.Instance.userData.dTableSession.Rows.Count >= 1)
+        {
+            Debug.Log(AppData.Instance.userData.dTableSession.Rows.Count);
+            StartCoroutine(LoadSummaryScene());
+        }
+        else
+        {
+            Debug.Log(AppData.Instance.userData.dTableSession.Rows.Count);
+            PlutoComm.stopSensorStream();
+            ConnectToRobot.disconnect();
+            Application.Quit();
+
+        #if UNITY_EDITOR
+            UnityEditor.EditorApplication.isPlaying = false;
+        #endif
+        }
+        
     }
 
     private void OnNextButtonClicked()

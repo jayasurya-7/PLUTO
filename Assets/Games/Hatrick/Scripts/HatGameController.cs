@@ -323,7 +323,8 @@ public class HatGameController : MonoBehaviour
                 if (AppData.Instance.aanController.state == PlutoAANController.PlutoAANState.AromMoving
                     || AppData.Instance.aanController.state == PlutoAANController.PlutoAANState.Idle) 
                 {
-
+                    float gameTime = HomerTherapy.TrialDuration - triaTimeLeft;
+                    Others.gameTime = (gameTime < HomerTherapy.TrialDuration) ? gameTime : HomerTherapy.TrialDuration;
                     AppData.Instance.StopTrial(nTargets, nSuccess, nFailure);
                     gameState = GameStates.DONE;
                    if(AppData.Instance.previousSuccessRates ==null)
@@ -424,6 +425,8 @@ public class HatGameController : MonoBehaviour
         {
             gameState = GameStates.STOP;
             AppData.Instance.aanController.Update(PlutoComm.angle, Time.deltaTime, true);
+            float gameTime = HomerTherapy.TrialDuration - triaTimeLeft;
+            Others.gameTime = (gameTime < HomerTherapy.TrialDuration) ? gameTime : HomerTherapy.TrialDuration;
              AppData.Instance.StopTrial(nTargets, nSuccess, nFailure);
              gameState = GameStates.DONE;
              Time.timeScale = 1f;

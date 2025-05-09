@@ -16,7 +16,7 @@ public class PongPlayerController : MonoBehaviour
         playSize = Camera.main.orthographicSize;
         Time.timeScale = 0;
         topBound = playSize - this.transform.localScale.y / 4;
-        MovementTracker.Initialize(this, this.transform.position);
+        // MovementTracker.Initialize(this, this.transform.position);
         bottomBound = -topBound;
          // Set current AROM and PROM.
         arom = AppData.Instance.selectedMechanism.CurrentArom;
@@ -25,7 +25,7 @@ public class PongPlayerController : MonoBehaviour
     void FixedUpdate()
     {
         this.transform.position = new Vector2(this.transform.position.x, AngleToScreen(PlutoComm.angle));
-        MovementTracker.UpdatePosition(this.transform.position);
+        // MovementTracker.UpdatePosition(this.transform.position);
     }
 
 

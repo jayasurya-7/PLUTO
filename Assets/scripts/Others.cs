@@ -525,6 +525,7 @@ public static class MovementTracker
 
 public static class Others
 {
+    public static float gameTime = 0f;
     public static string GetAbbreviatedDayName(DayOfWeek dayOfWeek)
     {
         return dayOfWeek.ToString().Substring(0, 3);

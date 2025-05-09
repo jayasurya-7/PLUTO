@@ -130,8 +130,8 @@ public partial class AppData
             trialType == HomerTherapy.TrialType.SR85PCCATCH ? null : $"{_currControlBound:F3}",
             // "NextControlBound"
             trialType == HomerTherapy.TrialType.SR85PCCATCH ? null : $"{aanController.currentCtrlBound:F3}",
-            //movement time of player
-            MovementTracker.PlayerMovementTime.ToString()
+            //gameTime
+            Others.gameTime.ToString()
         };
 
         // Write the trial row to the session file.

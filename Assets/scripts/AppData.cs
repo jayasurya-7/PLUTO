@@ -45,18 +45,8 @@ public partial class AppData
     // What is this used for?
     public string _dataLogDir = null;
 
-        // Default folder name
-    private const string DefaultUserID = "defaultId";
-
-    // Backing field
-    private string _userID = null;
-
     // Property with default fallback
-    public string userID
-    {
-        get => string.IsNullOrEmpty(_userID) ? DefaultUserID : _userID;
-        set => _userID = value;
-    }
+    public string userID = null;
 
     
     /*

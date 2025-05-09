@@ -24,7 +24,7 @@ public static class DataManager
         ? Path.Combine(Application.dataPath, "data", AppData.Instance.userID) 
         : Application.dataPath;
 
-    public static readonly string basePath = FixPath(Path.Combine(userIdPath, "data"));
+    public static  string basePath = FixPath(Path.Combine(userIdPath, "data"));
 
     static string directoryPathConfig;
     public static string sessionPath { get; private set; }
@@ -36,7 +36,7 @@ public static class DataManager
     public static string romPath { get; private set; }
     public static string logPath { get; private set; }
 
-    public static readonly string configFile = basePath + "/configdata.csv";
+    public static  string configFile = basePath + "/configdata.csv";
     public static string sessionFile { get; private set; }
 
     // Sessions file definitions.
@@ -86,6 +86,11 @@ public static class DataManager
 
     // Fix stupid Window's path separator issue.
     public static string FixPath(string path) => path.Replace("\\", "/");
+
+    public static void setUserId(string userID){
+        basePath = FixPath(Path.Combine(Application.dataPath,"data", AppData.Instance.userID,"data"));
+        configFile = basePath + "/configdata.csv";
+    }
     
     public static void CreateFileStructure()
     {

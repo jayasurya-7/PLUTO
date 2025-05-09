@@ -39,7 +39,7 @@ float targetAngle;
         endTime = 0;
         currentLife = 0;
         rb2d = GetComponent<Rigidbody2D>();
-        MovementTracker.Initialize(this, this.transform.position);
+        // MovementTracker.Initialize(this, this.transform.position);
 
         Time.timeScale=0f;
          // Set current AROM and PROM.
@@ -52,7 +52,7 @@ float targetAngle;
 
         Debug.Log($" min : {AngleToScreen(arom[0])}, max : { AngleToScreen( arom[1])}");
 
-        MovementTracker.UpdatePosition(this.transform.position);
+        // MovementTracker.UpdatePosition(this.transform.position);
 
 
     }

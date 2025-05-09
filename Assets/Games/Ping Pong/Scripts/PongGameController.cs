@@ -246,11 +246,13 @@ public class PongGameController : MonoBehaviour
         else
         {
             gameState = GameStates.STOP;
+            float gameTime = HomerTherapy.TrialDuration - triaTimeLeft;
+            Others.gameTime = (gameTime < HomerTherapy.TrialDuration) ? gameTime : HomerTherapy.TrialDuration;
             AppData.Instance.aanController.Update(PlutoComm.angle, Time.deltaTime, true);
-             AppData.Instance.StopTrial(nTargets, nSuccess, nFailure);
-             gameState = GameStates.DONE;
-             Time.timeScale = 1f;
-             SceneManager.LoadScene(prevScene);
+            AppData.Instance.StopTrial(nTargets, nSuccess, nFailure);
+            gameState = GameStates.DONE;
+            Time.timeScale = 1f;
+            SceneManager.LoadScene(prevScene);
         }
     }
 
@@ -396,7 +398,8 @@ public class PongGameController : MonoBehaviour
                 if (AppData.Instance.aanController.state == PlutoAANController.PlutoAANState.AromMoving
                     || AppData.Instance.aanController.state == PlutoAANController.PlutoAANState.Idle) 
                 {
-
+                    float gameTime = HomerTherapy.TrialDuration - triaTimeLeft;
+                    Others.gameTime = (gameTime < HomerTherapy.TrialDuration) ? gameTime : HomerTherapy.TrialDuration;
                     AppData.Instance.StopTrial(nTargets, nSuccess, nFailure);
                     gameState = GameStates.DONE;
                    if(AppData.Instance.previousSuccessRates ==null)

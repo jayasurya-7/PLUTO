@@ -5,6 +5,8 @@ using UnityEngine;
 using UnityEngine.UI;
 using UnityEngine.SceneManagement;
 using System.Threading.Tasks;
+using System.Collections.Generic;
+using System.Linq;
 
 public class welcomSceneHandler : MonoBehaviour
 {
@@ -25,13 +27,34 @@ public class welcomSceneHandler : MonoBehaviour
     private bool attachPlutoButtonEvent = false;
     bool changeScene = false;
 
-    // Start is called before the first frame update
     void Start()
     {
-        if (!File.Exists(DataManager.configFile)) SceneManager.LoadScene("CONFIG");
-        // Check if the directory exists
-        if (!Directory.Exists(DataManager.basePath)) Directory.CreateDirectory(DataManager.basePath);
-      
+
+        if (!Directory.Exists(DataManager.basePath)) 
+        {
+            SceneManager.LoadScene("CONFIG");
+            return;
+        }
+
+        // Get all subdirectories excluding metadata
+            // Get valid user directories
+        var validUserDirs = Directory.GetDirectories(DataManager.basePath)
+        .Select(Path.GetFileName)
+        .Where(name => !name.ToLower().Contains("meta"))
+        .ToList();
+
+
+        if (validUserDirs.Count == 1) 
+        {
+            AppData.Instance.userID = validUserDirs[0];
+            DataManager.setUserId(AppData.Instance.userID);
+        }
+
+        if (!File.Exists(DataManager.configFile)) 
+        {
+            SceneManager.LoadScene("CONFIG");
+            return;
+        }
         
         // Initialize.
         AppData.Instance.Initialize(SceneManager.GetActiveScene().name);
@@ -42,10 +65,8 @@ public class welcomSceneHandler : MonoBehaviour
         // Update summary display
         if (!piChartUpdated)
         {
-         
             UpdateUserData();
             UpdatePieChart();
-           
         }
         Task.Run(() =>  // Run in a background task
             {
