@@ -32,11 +32,14 @@ public class AROMsceneHandler : MonoBehaviour
 
     
     public DoubleSlider aromSlider;
+    public DoubleSlider aromSliderHOC;
     public DoubleSlider promSlider;
 
     public bool isSelected = false;
     private bool isRestarting = false;
     public bool isButtonPressed = false;
+
+    public bool runOnce = false;
 
     public assessmentSceneHandler panelControl;
 
@@ -126,7 +129,10 @@ public class AROMsceneHandler : MonoBehaviour
         {
             case AssessStates.INIT:
                 startButton.SetActive(true);
+                if(!runOnce){
                 InitializeAssessment();
+                runOnce = true;
+                }
                 if (isButtonPressed || Input.GetKeyDown(KeyCode.Return))
                 {
                     startAssessment();

@@ -57,6 +57,7 @@ public class assessmentSceneHandler : MonoBehaviour
         aromImage.color = new Color(220f / 255f, 83f / 255f, 87f / 255f, 1f);
         promHandler.isSelected = true;
         aromHandler.isSelected = false;
+        aromHandler.runOnce = false;
         SetActiveStatus(aromSelected, false);
         SetActiveStatus(promSelected, true);
         aromImageDisabled.gameObject.SetActive(true);
