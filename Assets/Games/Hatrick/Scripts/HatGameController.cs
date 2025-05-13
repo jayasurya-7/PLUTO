@@ -35,7 +35,7 @@ public class HatGameController : MonoBehaviour
     private GameObject PlayerObj;
 
     public GameObject SuccessRateBanner;
-    public Text prevSR , currSR;
+    public Text prevSR , currSR,HS;
     private GameObject[] pauseObjects, finishObjects;
     public AudioClip[] audioClips; // win, level complete, loose
     public AudioSource gameSound;
@@ -120,6 +120,7 @@ public class HatGameController : MonoBehaviour
     private float targetPosition;
     private float playerPosition;
     private  GameObject targetTemp;
+    
 
     private void Awake()
     {
@@ -144,16 +145,17 @@ public class HatGameController : MonoBehaviour
         HidePaused();
         HideFinished();
         // Set the position of the AROM lines.
-        aromLeft.transform.position = new Vector3(
-            AngleToScreen(AppData.Instance.selectedMechanism.currRom.aromMin),
-            aromLeft.transform.position.y,
-            aromLeft.transform.position.z
-        );
-        aromRight.transform.position = new Vector3(
-            AngleToScreen(AppData.Instance.selectedMechanism.currRom.aromMax),
-            aromRight.transform.position.y,
-            aromRight.transform.position.z
-        );
+        // aromLeft.transform.position = new Vector3(
+        //     AngleToScreen(AppData.Instance.selectedMechanism.currRom.aromMin),
+        //     aromLeft.transform.position.y,
+        //     aromLeft.transform.position.z
+        // );
+        // aromRight.transform.position = new Vector3(
+        //     AngleToScreen(AppData.Instance.selectedMechanism.currRom.aromMax),
+        //     aromRight.transform.position.y,
+        //     aromRight.transform.position.z
+        // );
+        HS.text = $"Highest Effi Rate :{ Others.highestSuccessRate} %";
     }
     
     private void Update()

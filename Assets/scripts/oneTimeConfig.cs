@@ -88,7 +88,7 @@ public class OneTimeConfig : MonoBehaviour
         string name = nameField.text;
         string age = ageField.text;
         string hospitalId = hospitalIdField.text;
-        AppData.Instance.userID= hospitalId;
+        AppData.Instance.setUser(hospitalId);
         string startDate = startDateField.text;
         string endDate = endDateField.text;
         

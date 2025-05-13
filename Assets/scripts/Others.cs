@@ -426,6 +426,49 @@ public List<float> GetLastTwoSuccessRates(string mechanism, string gameName)
             row.Field<string>("GameName") == gameName)
         .OrderByDescending(row => DateTime.ParseExact(row.Field<string>("TrialStartTime"), DataManager.DATEFORMAT, CultureInfo.InvariantCulture))
         .ToList();
+    // var successRows = dTableSession.AsEnumerable()
+    // .Where(row =>
+    //     row.Field<string>("Mechanism") == mechanism &&
+    //     row.Field<string>("GameName") == gameName &&
+    //     !string.IsNullOrWhiteSpace(row.Field<string>("SuccessRate")))
+    // .ToList();
+
+    //     if (successRows.Any())
+    //     {
+    //         Others.highestSuccessRate = successRows
+    //             .Max(row => float.Parse(row.Field<string>("SuccessRate"), CultureInfo.InvariantCulture));
+    //             Debug.Log(Others.highestSuccessRate);
+    //     }
+    //     else
+    //     {
+    //         Others.highestSuccessRate = 0f; // or float.NaN, or handle as needed
+    //     }
+
+    var successRows = dTableSession.AsEnumerable()
+    .Where(row =>
+        row.Field<string>("Mechanism") == mechanism &&
+        row.Field<string>("GameName") == gameName &&
+        !string.IsNullOrWhiteSpace(row.Field<string>("SuccessRate")) &&
+        !string.IsNullOrWhiteSpace(row.Field<string>("CurrentControlBound")))
+    .ToList();
+
+    if (successRows.Any())
+    {
+        Others.highestSuccessRate = successRows
+            .Max(row =>
+            {
+                float successRate = float.Parse(row.Field<string>("SuccessRate"), CultureInfo.InvariantCulture);
+                float controlBound = float.Parse(row.Field<string>("CurrentControlBound"), CultureInfo.InvariantCulture);
+                return successRate * (1 - controlBound);
+            });
+
+        Debug.Log(Others.highestSuccessRate);
+    }
+    else
+    {
+        Others.highestSuccessRate = 0f; 
+    }
+
 
     if (!filteredRows.Any())
     {
@@ -526,6 +569,7 @@ public static class MovementTracker
 public static class Others
 {
     public static float gameTime = 0f;
+    public static float highestSuccessRate = 0f;
     public static string GetAbbreviatedDayName(DayOfWeek dayOfWeek)
     {
         return dayOfWeek.ToString().Substring(0, 3);

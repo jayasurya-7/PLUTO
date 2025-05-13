@@ -46,9 +46,10 @@ public partial class AppData
     public string _dataLogDir = null;
 
     // Property with default fallback
-    public string userID = null;
+    // public string userID = null;
 
-    
+    public string userID { get; private set; } = null;
+
     /*
      * USED AND THERAPY RELATED DATA.
      */
@@ -201,6 +202,10 @@ public partial class AppData
         AppLogger.LogInfo($"Selected mechanism '{selectedMechanism.name}'.");
         AppLogger.SetCurrentMechanism(selectedMechanism.name);
         AppLogger.LogInfo($"Trial numbers for ' {selectedMechanism.name}' updated. Day: {selectedMechanism.trialNumberDay}, Session: {selectedMechanism.trialNumberSession}.");
+    }
+
+    public void setUser(string user){
+        userID = user;
     }
 
     public void SetGame(string gameName)

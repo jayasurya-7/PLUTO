@@ -37,7 +37,6 @@ public class welcomSceneHandler : MonoBehaviour
         }
 
         // Get all subdirectories excluding metadata
-            // Get valid user directories
         var validUserDirs = Directory.GetDirectories(DataManager.basePath)
         .Select(Path.GetFileName)
         .Where(name => !name.ToLower().Contains("meta"))
@@ -46,7 +45,7 @@ public class welcomSceneHandler : MonoBehaviour
 
         if (validUserDirs.Count == 1) 
         {
-            AppData.Instance.userID = validUserDirs[0];
+            AppData.Instance.setUser(validUserDirs[0]);
             DataManager.setUserId(AppData.Instance.userID);
         }
 

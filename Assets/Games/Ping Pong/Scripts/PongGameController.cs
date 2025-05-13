@@ -4,6 +4,7 @@ using UnityEngine.SceneManagement;
 using UnityEngine.SocialPlatforms;
 using UnityEngine.Analytics;
 using UnityEngine.UI;
+using TMPro;
 
 public class PongGameController : MonoBehaviour
 {
@@ -66,7 +67,7 @@ public class PongGameController : MonoBehaviour
     private float playerPosition;
     private  GameObject targetTemp;
     public  GameObject SuccessRateBanner,ExitButton;
-    public Text prevSR, currSR;
+    public Text prevSR, currSR, HS;
 
     public Text timeLeftText;
     static float playSize;
@@ -84,7 +85,6 @@ public class PongGameController : MonoBehaviour
     public int nSuccess = 0;
     public int nFailure = 0;
     private  float MOVEDURATION;
-
     private void Awake()
     {
         if (Instance == null)
@@ -109,17 +109,17 @@ public class PongGameController : MonoBehaviour
         ballClone.transform.SetParent(this.transform);
 
         //arom
-                 aromLeft.transform.position = new Vector3(
-            aromLeft.transform.position.x,
-            AngleToScreen(AppData.Instance.selectedMechanism.currRom.aromMin),
-            aromLeft.transform.position.z
-        );
-        aromRight.transform.position = new Vector3(
-            aromRight.transform.position.x,
-            AngleToScreen(AppData.Instance.selectedMechanism.currRom.aromMax),
-            aromRight.transform.position.z
-        );
-
+        //          aromLeft.transform.position = new Vector3(
+        //     aromLeft.transform.position.x,
+        //     AngleToScreen(AppData.Instance.selectedMechanism.currRom.aromMin),
+        //     aromLeft.transform.position.z
+        // );
+        // aromRight.transform.position = new Vector3(
+        //     aromRight.transform.position.x,
+        //     AngleToScreen(AppData.Instance.selectedMechanism.currRom.aromMax),
+        //     aromRight.transform.position.z
+        // );
+        HS.text = $"Highest Effi Rate :{ Others.highestSuccessRate} %";
 
     }
     void Update()

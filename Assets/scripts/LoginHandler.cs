@@ -151,7 +151,7 @@ public class LoginHandler : MonoBehaviour
         {
             Debug.LogError("originalValues is null");
         }
-        AppData.Instance.userID = hospitalID;
+        AppData.Instance.setUser(hospitalID);
         SceneManager.LoadScene("MAIN");
     }
 

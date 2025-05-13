@@ -9,7 +9,7 @@ using System.Threading.Tasks;
 public static class awsManager
 {
     public static string pythonScriptPath = @"C:/pythonscripts/uploadToAWS.pyw";
-    public static  string pythonExecutionPath = @"C:\Program Files\Python312\pythonw.exe";
+    public static  string pythonExecutionPath = @"C:/Program Files/Python312/pythonw.exe";
     public static string filePathUploadStatus = @"C:/DeviceSetups/Pluto"; //change according to the device
     public static string[] status = new string[] {"upload_needed","no_upload"};
     public static  string taskName ="AWSUploaderPlutoTask"; //change according to the device

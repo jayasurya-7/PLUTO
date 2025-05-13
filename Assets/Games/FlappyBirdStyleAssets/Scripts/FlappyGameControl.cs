@@ -8,6 +8,7 @@ using UnityEngine.SceneManagement;
 using UnityEngine.UI;
 using Michsky.UI.ModernUIPack;
 using Unity.VisualScripting;
+using TMPro;
 
 
 public class FlappyGameControl : MonoBehaviour
@@ -49,7 +50,7 @@ public class FlappyGameControl : MonoBehaviour
     public GameObject SuccessRateBanner;
 
     public GameObject promLeft, promRight, targetPointer;
-    public Text prevSR, currSR;
+    public Text prevSR, currSR,HS;
     bool setup;
     float prevSpawnTime;
     // Target and player positions
@@ -147,19 +148,19 @@ public class FlappyGameControl : MonoBehaviour
         pauseObjects = GameObject.FindGameObjectsWithTag("ShowOnPause");
         setup = false;
 
-         aromLeft.transform.position = new Vector3(
-            aromLeft.transform.position.x,
-            AngleToScreen(AppData.Instance.selectedMechanism.currRom.aromMin),
-            aromLeft.transform.position.z
-        );
-        Debug.Log($" aromMin :{ AngleToScreen(AppData.Instance.selectedMechanism.currRom.aromMin)},aromMax :{ AngleToScreen(AppData.Instance.selectedMechanism.currRom.aromMax)}, promMin :{ AngleToScreen(AppData.Instance.selectedMechanism.currRom.promMin)}, promMax :{ AngleToScreen(AppData.Instance.selectedMechanism.currRom.promMax)}");
+        //  aromLeft.transform.position = new Vector3(
+        //     aromLeft.transform.position.x,
+        //     AngleToScreen(AppData.Instance.selectedMechanism.currRom.aromMin),
+        //     aromLeft.transform.position.z
+        // );
+        // Debug.Log($" aromMin :{ AngleToScreen(AppData.Instance.selectedMechanism.currRom.aromMin)},aromMax :{ AngleToScreen(AppData.Instance.selectedMechanism.currRom.aromMax)}, promMin :{ AngleToScreen(AppData.Instance.selectedMechanism.currRom.promMin)}, promMax :{ AngleToScreen(AppData.Instance.selectedMechanism.currRom.promMax)}");
        
-        aromRight.transform.position = new Vector3(
-            aromRight.transform.position.x,
-            AngleToScreen(AppData.Instance.selectedMechanism.currRom.aromMax),
-            aromRight.transform.position.z
-        );
-
+        // aromRight.transform.position = new Vector3(
+        //     aromRight.transform.position.x,
+        //     AngleToScreen(AppData.Instance.selectedMechanism.currRom.aromMax),
+        //     aromRight.transform.position.z
+        // );
+    HS.text = $"Highest Effi Rate :{ Others.highestSuccessRate} %";
         
     }
 
