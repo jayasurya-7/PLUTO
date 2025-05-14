@@ -8,7 +8,7 @@ public class assessmentSceneHandler : MonoBehaviour
 
     public Button promButton;
 
-    public Button RedoPRom;
+    public Button RedoARom;
     public Button aromButton;
     public TextMeshProUGUI mechName;
     
@@ -35,7 +35,7 @@ public class assessmentSceneHandler : MonoBehaviour
         AppLogger.LogInfo($"'{SceneManager.GetActiveScene().name}' scene started.");
         
         // Select PROM first.
-        SelectpROM();
+        SelectAROM();
 
         // Set mechanism name
         mechName.text = PlutoComm.MECHANISMSTEXT[PlutoComm.GetPlutoCodeFromLabel(PlutoComm.MECHANISMS, AppData.Instance.selectedMechanism.name)];
@@ -48,16 +48,13 @@ public class assessmentSceneHandler : MonoBehaviour
 
     public void SelectpROM()
     {
-        promButton.Select();
-        if(AppData.Instance.selectedMechanism.IsMechanism("HOC"))
-        {
-           // Ins.text = "set mechanism to zero position and press  'K'  to set zero";
-        }
+       // promButton.Select();
         promImage.color = new Color(0f / 255f, 55f / 255f, 52f / 255f);
         aromImage.color = new Color(220f / 255f, 83f / 255f, 87f / 255f, 1f);
         promHandler.isSelected = true;
         aromHandler.isSelected = false;
-        aromHandler.runOnce = false;
+        promHandler.isButtonPressed = false;
+
         SetActiveStatus(aromSelected, false);
         SetActiveStatus(promSelected, true);
         aromImageDisabled.gameObject.SetActive(true);
@@ -66,11 +63,13 @@ public class assessmentSceneHandler : MonoBehaviour
 
     public void SelectAROM()
     {
+        aromButton.Select();
         promImage.color = new Color(220f / 255f, 83f / 255f, 87f / 255f, 1f);
         aromImage.color =  new Color(0f / 255f, 55f / 255f, 52f / 255f);
         promHandler.isSelected = false;
         aromHandler.isSelected = true;
-        aromHandler.isButtonPressed = false;
+        promHandler.runOnce = false;
+
         SetActiveStatus(aromSelected, true);
         SetActiveStatus(promSelected, true);
         aromImageDisabled.gameObject.SetActive(false);

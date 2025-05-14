@@ -7839,7 +7839,7 @@ RectTransform:
   m_LocalEulerAnglesHint: {x: 0, y: 0, z: 0}
   m_AnchorMin: {x: 0, y: 1}
   m_AnchorMax: {x: 0, y: 1}
-  m_AnchoredPosition: {x: 1335.8, y: -313}
+  m_AnchoredPosition: {x: 440, y: -313}
   m_SizeDelta: {x: 821.9829, y: 540.47}
   m_Pivot: {x: 0.5, y: 0.5}
 --- !u!95 &413374357
@@ -7986,19 +7986,18 @@ MonoBehaviour:
   m_EditorClassIdentifier: 
   lText: {fileID: 1665958982}
   rText: {fileID: 532276865}
+  insText: {fileID: 0}
   cText: {fileID: 652360326}
   relaxText: {fileID: 1305638951}
-  JointAngle: {fileID: 1473497566}
-  JointAngleHoc: {fileID: 2029941214}
-  warningText: {fileID: 0}
+  jointAngle: {fileID: 1473497566}
+  jointAngleHoc: {fileID: 2029941214}
   nextButton: {fileID: 7449488}
   startButton: {fileID: 1808124141}
-  curreposition: {fileID: 382207399}
-  currepositionHoc: {fileID: 1200861006}
+  CurrPositioncursor: {fileID: 1496658277}
+  CurrPositioncursorHoc: {fileID: 1200861006}
   aromSlider: {fileID: 528539155}
-  promSlider: {fileID: 0}
+  aromSliderHOC: {fileID: 0}
   isSelected: 0
-  isInteractable: 0
   panelControl: {fileID: 1932140814}
 --- !u!114 &413374365
 MonoBehaviour:
@@ -17820,9 +17819,9 @@ MonoBehaviour:
   m_OnClick:
     m_PersistentCalls:
       m_Calls:
-      - m_Target: {fileID: 8209750394461808011}
-        m_TargetAssemblyTypeName: PROMsceneHandler, Assembly-CSharp
-        m_MethodName: OnRedoPromClick
+      - m_Target: {fileID: 413374364}
+        m_TargetAssemblyTypeName: AROMsceneHandler, Assembly-CSharp
+        m_MethodName: OnRedoAromClick
         m_Mode: 1
         m_Arguments:
           m_ObjectArgument: {fileID: 0}
@@ -37628,7 +37627,7 @@ MonoBehaviour:
   m_OnCullStateChanged:
     m_PersistentCalls:
       m_Calls: []
-  m_text: ' REDO PROM'
+  m_text: ' REDO AROM'
   m_isRightToLeft: 0
   m_fontAsset: {fileID: 11400000, guid: 19fdcf8687240c84282a0307838c5f96, type: 2}
   m_sharedMaterial: {fileID: 6678091363555379842, guid: 19fdcf8687240c84282a0307838c5f96, type: 2}
@@ -38135,7 +38134,7 @@ MonoBehaviour:
   m_Name: 
   m_EditorClassIdentifier: 
   promButton: {fileID: 8209750394461808017}
-  RedoPRom: {fileID: 0}
+  RedoARom: {fileID: 0}
   aromButton: {fileID: 413374363}
   mechName: {fileID: 1095993573}
   promHandler: {fileID: 8209750394461808011}
@@ -44156,7 +44155,7 @@ RectTransform:
   m_LocalEulerAnglesHint: {x: 0, y: 0, z: 0}
   m_AnchorMin: {x: 0, y: 1}
   m_AnchorMax: {x: 0, y: 1}
-  m_AnchoredPosition: {x: 440, y: -313}
+  m_AnchoredPosition: {x: 1336, y: -313}
   m_SizeDelta: {x: 840, y: 540.466}
   m_Pivot: {x: 0.5, y: 0.5}
 --- !u!114 &8209750394461808006
@@ -44229,18 +44228,20 @@ MonoBehaviour:
   m_EditorClassIdentifier: 
   lText: {fileID: 1948570589}
   rText: {fileID: 538157347}
-  insText: {fileID: 2003915166}
   cText: {fileID: 188136809}
   relaxText: {fileID: 1265882813}
-  jointAngle: {fileID: 6630573}
-  jointAngleHoc: {fileID: 1075589465}
+  JointAngle: {fileID: 6630573}
+  JointAngleHoc: {fileID: 1075589465}
+  warningText: {fileID: 1265882813}
   nextButton: {fileID: 1194691562}
   startButton: {fileID: 1276971196}
-  CurrPositioncursor: {fileID: 2756669748342342149}
-  CurrPositioncursorHoc: {fileID: 1207974071}
+  curreposition: {fileID: 2756669748342342149}
+  currepositionHoc: {fileID: 1207974071}
   promSlider: {fileID: 2870106807345754064}
   promSliderHOC: {fileID: 0}
   isSelected: 1
+  isButtonPressed: 0
+  runOnce: 0
   panelControl: {fileID: 1932140814}
 --- !u!114 &8209750394461808014
 MonoBehaviour:

@@ -45,17 +45,29 @@ public static class HomerTherapy
     }
 
     private static float[] SuccessRateForTrials = new float[] {
-        85, 90, 90, 87, 84,
+        85, 85, 85, 85, 85,
+        90, 90, 90, 87, 84,
         79, 79, 79, 79, 79,
-        79, 79, 81, 83, 85,
-        85, 85, 85, 85, 85
+        81, 83, 85, 90, 90
     };
     private static TrialType[] TrialTypeForTrials = new TrialType[] {
-        TrialType.SR85PCTRAIN, TrialType.TRAIN, TrialType.TRAIN, TrialType.TRAIN, TrialType.TRAIN,
+        TrialType.SR85PCTRAIN, TrialType.SR85PCTRAIN, TrialType.SR85PCTRAIN, TrialType.SR85PCTRAIN, TrialType.SR85PCCATCH, 
         TrialType.TRAIN, TrialType.TRAIN, TrialType.TRAIN, TrialType.TRAIN, TrialType.TRAIN,
         TrialType.TRAIN, TrialType.TRAIN, TrialType.TRAIN, TrialType.TRAIN, TrialType.TRAIN,
-        TrialType.SR85PCCATCH, TrialType.SR85PCTRAIN, TrialType.SR85PCTRAIN, TrialType.SR85PCTRAIN, TrialType.SR85PCTRAIN, 
+        TrialType.TRAIN, TrialType.TRAIN, TrialType.TRAIN, TrialType.TRAIN, TrialType.TRAIN,
     };
+    // private static float[] SuccessRateForTrials = new float[] {
+    //     85, 90, 90, 87, 84,
+    //     79, 79, 79, 79, 79,
+    //     79, 79, 81, 83, 85,
+    //     85, 85, 85, 85, 85
+    // };
+    // private static TrialType[] TrialTypeForTrials = new TrialType[] {
+    //     TrialType.SR85PCTRAIN, TrialType.TRAIN, TrialType.TRAIN, TrialType.TRAIN, TrialType.TRAIN,
+    //     TrialType.TRAIN, TrialType.TRAIN, TrialType.TRAIN, TrialType.TRAIN, TrialType.TRAIN,
+    //     TrialType.TRAIN, TrialType.TRAIN, TrialType.TRAIN, TrialType.TRAIN, TrialType.TRAIN,
+    //     TrialType.SR85PCCATCH, TrialType.SR85PCTRAIN, TrialType.SR85PCTRAIN, TrialType.SR85PCTRAIN, TrialType.SR85PCTRAIN, 
+    // };
 
     // Function to return the success rate and trial type.
     public static (float sRate, TrialType tType) GetTrailTypeAndSuccessRate(int trialNo)
@@ -121,7 +133,24 @@ public static class HomerTherapy
 
     public static float GetNewTargetPositionUniformFull(float[] arom, float[] prom)
     {
-        return UnityEngine.Random.Range(prom[0], prom[1]);
+
+    float first = UnityEngine.Random.Range(prom[0], prom[1]);
+
+    // Check which PROM boundary it's closer to
+    float distanceToMin = Mathf.Abs(first - prom[0]);
+    float distanceToMax = Mathf.Abs(first - prom[1]);
+
+    float target;
+    if (distanceToMin < distanceToMax)
+    {
+        target = UnityEngine.Random.Range(first, prom[1]);
+    }
+    else
+    {
+        target = UnityEngine.Random.Range(prom[0], first);
+    }
+
+    return target;
     }
 }
 
