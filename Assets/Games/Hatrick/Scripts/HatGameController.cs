@@ -22,7 +22,7 @@ public class HatGameController : MonoBehaviour
 
     // Game graphics related variables.
     public Text ScoreText;
-    public Text timeLeftText;
+    public Text timeLeftText, status;
     public GameObject GameOverObject;
     public GameObject StartButton, ExitButton;
     public GameObject PauseButton;
@@ -156,6 +156,9 @@ public class HatGameController : MonoBehaviour
             aromRight.transform.position.z
         );
         HS.text = $"Highest Effi Rate :{ Others.highestSuccessRate} %";
+        status.text = $"s.no: {AppData.Instance.currentSessionNumber}\n" +
+              $"trialNo: {AppData.Instance.selectedMechanism.trialNumberSession}\n" +
+              $"CB: {AppData.Instance.aanController.currentCtrlBound}";
     }
     
     private void Update()

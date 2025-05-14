@@ -67,7 +67,7 @@ public class PongGameController : MonoBehaviour
     private float playerPosition;
     private  GameObject targetTemp;
     public  GameObject SuccessRateBanner,ExitButton;
-    public Text prevSR, currSR, HS;
+    public Text prevSR, currSR, HS, status;
 
     public Text timeLeftText;
     static float playSize;
@@ -120,6 +120,9 @@ public class PongGameController : MonoBehaviour
             aromRight.transform.position.z
         );
         HS.text = $"Highest Effi Rate :{ Others.highestSuccessRate} %";
+        status.text = $"s.no: {AppData.Instance.currentSessionNumber}\n" +
+              $"trialNo: {AppData.Instance.selectedMechanism.trialNumberSession}\n" +
+              $"CB: {AppData.Instance.aanController.currentCtrlBound}";
 
     }
     void Update()

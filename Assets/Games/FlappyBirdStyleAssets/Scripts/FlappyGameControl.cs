@@ -63,7 +63,7 @@ public class FlappyGameControl : MonoBehaviour
     public int nSuccess = 0;
     public int nFailure = 0;
     private string prevScene = "CHGAME";
-     public Text timeLeftText;
+     public Text timeLeftText, status;
     public enum GameStates
     {
         WAITING = 0,
@@ -161,6 +161,10 @@ public class FlappyGameControl : MonoBehaviour
             aromRight.transform.position.z
         );
     HS.text = $"Highest Effi Rate :{ Others.highestSuccessRate} %";
+    status.text = $"s.no: {AppData.Instance.currentSessionNumber}\n" +
+              $"trialNo: {AppData.Instance.selectedMechanism.trialNumberSession}\n" +
+              $"CB:{AppData.Instance.aanController.currentCtrlBound}";
+
         
     }
 
