@@ -139,6 +139,9 @@ public partial class AppData
         //SessionManager.Instance.Login();
 
         // Initialize the user data.
+        UnityEngine.Debug.Log(DataManager.configFile);
+        UnityEngine.Debug.Log( DataManager.sessionFile);
+
         userData = new PlutoUserData(DataManager.configFile, DataManager.sessionFile);
         // Selected mechanism and game.
         selectedMechanism = null;
@@ -206,6 +209,7 @@ public partial class AppData
 
     public void setUser(string user){
         userID = user;
+        UnityEngine.Debug.Log($" id : {userID}");
     }
 
     public void SetGame(string gameName)

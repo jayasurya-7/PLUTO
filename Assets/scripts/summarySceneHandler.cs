@@ -56,8 +56,11 @@ public class summarySceneHandler : MonoBehaviour
         });
     }
     public void LoginScene(){
-        //AppData.Instance.userData = null;
-        //SceneManager.LoadScene("LOGIN");
+    //     AppData.Instance.userData = null;
+    //    // PlutoComm.stopSensorStream();
+
+    //    AppData.Instance.setUser(null);
+    //     if(AppData.Instance.userData == null && AppData.Instance.userID == null) SceneManager.LoadScene("LOGIN");
     }
 
     //To initialize the barchart with whole data of moveTime per day

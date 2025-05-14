@@ -71,7 +71,7 @@ public class assessmentSceneHandler : MonoBehaviour
         promHandler.runOnce = false;
 
         SetActiveStatus(aromSelected, true);
-        SetActiveStatus(promSelected, true);
+        SetActiveStatus(promSelected, false);
         aromImageDisabled.gameObject.SetActive(false);
         promImagedisabled.gameObject.SetActive(true);
     }
