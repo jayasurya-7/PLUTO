@@ -109,16 +109,16 @@ public class PongGameController : MonoBehaviour
         ballClone.transform.SetParent(this.transform);
 
         //arom
-        //          aromLeft.transform.position = new Vector3(
-        //     aromLeft.transform.position.x,
-        //     AngleToScreen(AppData.Instance.selectedMechanism.currRom.aromMin),
-        //     aromLeft.transform.position.z
-        // );
-        // aromRight.transform.position = new Vector3(
-        //     aromRight.transform.position.x,
-        //     AngleToScreen(AppData.Instance.selectedMechanism.currRom.aromMax),
-        //     aromRight.transform.position.z
-        // );
+                 aromLeft.transform.position = new Vector3(
+            aromLeft.transform.position.x,
+            AngleToScreen(AppData.Instance.selectedMechanism.currRom.aromMin),
+            aromLeft.transform.position.z
+        );
+        aromRight.transform.position = new Vector3(
+            aromRight.transform.position.x,
+            AngleToScreen(AppData.Instance.selectedMechanism.currRom.aromMax),
+            aromRight.transform.position.z
+        );
         HS.text = $"Highest Effi Rate :{ Others.highestSuccessRate} %";
 
     }
