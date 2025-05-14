@@ -154,6 +154,175 @@ public static class HomerTherapy
     }
 }
 
+//gameSpeed.
+
+
+public class MechanismChecker
+{
+    public float gameSpeed = 1.0f;
+    public string mechanismToCheck;
+
+    private DataTable sessionTable;
+    private string mechParamsCsvPath;
+
+    public MechanismChecker(string mechanism, DataTable sessionData, string mechParamsCsvPath)
+    {
+        this.mechanismToCheck = mechanism;
+        this.sessionTable = sessionData;
+        this.mechParamsCsvPath = mechParamsCsvPath;
+    }
+
+    public void EvaluateAndUpdateGameSpeed()
+    {
+        Debug.Log($"[MechanismChecker] Evaluating game speed for mechanism: {mechanismToCheck}");
+
+        var mechData = sessionTable.AsEnumerable()
+            .Where(row => row.Field<string>("Mechanism") == mechanismToCheck)
+            .ToList();
+
+        if (mechData.Count == 0)
+        {
+            Debug.Log("[MechanismChecker] No data found for the specified mechanism.");
+            return;
+        }
+
+        if (!mechData.Any(row => row.Field<string>("TrialNumberDay") == "1"))
+        {
+            Debug.Log("[MechanismChecker] No TrialNumberDay == 1 found for this mechanism.");
+            return;
+        }
+
+        int trainCount = 0;
+        bool catchFound = false;
+
+        foreach (var row in mechData)
+        {
+            string trialType = row.Field<string>("TrialType");
+
+            if (trialType == "SR85PCTRAIN")
+                trainCount++;
+            else if (trialType == "SR85PCCATCH" && trainCount >= 4)
+            {
+                catchFound = true;
+                Debug.Log("[MechanismChecker] Found 4+ SR85PCTRAIN trials followed by SR85PCCATCH.");
+                break;
+            }
+        }
+
+        if (!catchFound)
+        {
+            Debug.Log("[MechanismChecker] SR85PCCATCH not found after 4 SR85PCTRAIN trials."+ trainCount);
+            return;
+        }
+
+        var cbByDate = new Dictionary<DateTime, float>();
+        foreach (var row in mechData)
+        {
+            if (!DateTime.TryParseExact(row.Field<string>("DateTime"), "yyyy-MM-dd HH:mm:ss", CultureInfo.InvariantCulture, DateTimeStyles.None, out DateTime fullDate))
+            {
+                Debug.Log("[MechanismChecker] Failed to parse DateTime: " + row.Field<string>("DateTime"));
+                continue;
+            }
+
+            DateTime onlyDate = fullDate.Date;
+
+            if (float.TryParse(row.Field<string>("CurrentControlBound"), out float cb))
+            {
+                if (!cbByDate.ContainsKey(onlyDate))
+                    cbByDate[onlyDate] = 0;
+                cbByDate[onlyDate] += cb;
+            }
+        }
+
+        if (cbByDate.Count < 2)
+        {
+            Debug.Log("[MechanismChecker] Less than 3 unique dates found in controlBound data.");
+            return;
+        }
+
+        var sortedDates = cbByDate.Keys.OrderBy(d => d).ToList();
+        float firstCB = cbByDate[sortedDates[0]];
+        float thirdCB = cbByDate[sortedDates[1]];
+
+        Debug.Log($"[MechanismChecker] First Date: {sortedDates[0]:yyyy-MM-dd}, CB: {firstCB}");
+        Debug.Log($"[MechanismChecker] Third Date: {sortedDates[1]:yyyy-MM-dd}, CB: {thirdCB}");
+
+        if (thirdCB >= firstCB)
+        
+        {
+            Debug.Log("[MechanismChecker] Third date CB is not less than first date CB. No update needed.");
+            return;
+        }
+
+        DateTime? lastMechParamDate = GetLastDateFromMechParams();
+        if (lastMechParamDate == null)
+        {
+            Debug.Log("[MechanismChecker] Could not retrieve last date from mechParams CSV.");
+            return;
+        }
+
+        var sessionDates = mechData
+            .Select(row => DateTime.ParseExact(row.Field<string>("DateTime"), "yyyy-MM-dd HH:mm:ss", CultureInfo.InvariantCulture).Date)
+            .Distinct()
+            .ToList();
+
+        if (!sessionDates.Contains(DateTime.Today))
+        {
+            Debug.Log("[MechanismChecker] No session entry for today. Skipping update.");
+            return;
+        }
+
+        int dateDiff = (DateTime.Today - lastMechParamDate.Value.Date).Days;
+        Debug.Log($"[MechanismChecker] Days since last mechParams update: {dateDiff}");
+
+        if (dateDiff >= 3)
+        {
+            UpdateGameSpeed();
+        }
+        else
+        {
+            Debug.Log("[MechanismChecker] Less than 3 days since last update. Skipping game speed change.");
+        }
+    }
+
+    private void UpdateGameSpeed()
+    {
+        gameSpeed *= 1.1f;
+        Debug.Log($"[MechanismChecker] Game speed updated to: {gameSpeed}");
+    }
+
+    private DateTime? GetLastDateFromMechParams()
+    {
+        if (!File.Exists(mechParamsCsvPath))
+        {
+            Debug.Log("[MechanismChecker] mechParams CSV file not found.");
+            return null;
+        }
+
+        var lines = File.ReadAllLines(mechParamsCsvPath);
+        if (lines.Length < 2)
+        {
+            Debug.Log("[MechanismChecker] mechParams CSV has no data lines.");
+            return null;
+        }
+
+        var lastLine = lines.Last();
+        var tokens = lastLine.Split(',');
+
+        foreach (string token in tokens)
+        {
+            if (DateTime.TryParseExact(token.Trim(), "yyyy-MM-dd HH:mm:ss", CultureInfo.InvariantCulture, DateTimeStyles.None, out var result))
+            {
+                Debug.Log($"[MechanismChecker] Last date from mechParams: {result:yyyy-MM-dd}");
+                return result;
+            }
+        }
+
+        Debug.Log("[MechanismChecker] No valid DateTime found in last line of mechParams.");
+        return null;
+    }
+}
+
 // PLUTO UserData Class
 public class PlutoUserData
 {
