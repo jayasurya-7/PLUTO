@@ -43,6 +43,7 @@ public class calibrationSceneHandler : MonoBehaviour
     {
         PlutoComm.sendHeartbeat();
         angText.text = $" {PlutoComm.angle.ToString("F3")}";
+        Debug.Log(PlutoComm.MECHANISMS[PlutoComm.mechanism] == "HOC");
         // Check of calibration is started.
         if (!isCalibrating && startCalibration)
         {
@@ -251,14 +252,14 @@ public class calibrationSceneHandler : MonoBehaviour
 
     private void ApplyCounterClockwiseTorque()
     {
-        float torqueValue = -0.07f;
+        float torqueValue = PlutoComm.MECHANISMS[PlutoComm.mechanism] == "HOC" ? -0.15f : -0.07f;
         PlutoComm.setControlType("TORQUE");
         PlutoComm.setControlTarget(torqueValue);
     }
 
     private void ApplyClockwiseTorque()
     {
-        float torqueValue = 0.07f;
+        float torqueValue = PlutoComm.MECHANISMS[PlutoComm.mechanism] == "HOC" ? 0.15f : 0.07f;
         PlutoComm.setControlType("TORQUE");
         PlutoComm.setControlTarget(torqueValue);
     }

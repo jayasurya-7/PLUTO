@@ -357,7 +357,7 @@ public class AROMsceneHandler : MonoBehaviour
 
         // Update the min and max values.
         angLimit = AppData.Instance.selectedMechanism.IsMechanism("HOC") ? PlutoComm.CALIBANGLE[PlutoComm.mechanism] : PlutoComm.MECHOFFSETVALUE[PlutoComm.mechanism];
-        aromSlider.Setup(-angLimit, angLimit, AppData.Instance.selectedMechanism.oldRom.promMin, AppData.Instance.selectedMechanism.oldRom.promMax);
+        aromSlider.Setup(-angLimit, angLimit, AppData.Instance.selectedMechanism.oldRom.aromMin, AppData.Instance.selectedMechanism.oldRom.aromMax);
         aromSlider.minAng = 0;
         aromSlider.maxAng = 0;
 
