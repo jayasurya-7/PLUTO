@@ -119,10 +119,10 @@ public class PongGameController : MonoBehaviour
             AngleToScreen(AppData.Instance.selectedMechanism.currRom.aromMax),
             aromRight.transform.position.z
         );
-        HS.text = $"Highest Effi Rate :{ Others.highestSuccessRate} %";
-        status.text = $"s.no: {AppData.Instance.currentSessionNumber}\n" +
+        HS.text = $" BEST :{ Others.highestSuccessRate:F0} %";
+         status.text = $"s.no: {AppData.Instance.currentSessionNumber}\n" +
               $"trialNo: {AppData.Instance.selectedMechanism.trialNumberSession}\n" +
-              $"CB: {AppData.Instance.aanController.currentCtrlBound}";
+              $"CB: {AppData.Instance.CurrentControlBound}";
 
     }
     void Update()
@@ -470,6 +470,9 @@ public class PongGameController : MonoBehaviour
         // Start new trial.
         AppData.Instance.StartNewTrial();
 
+         status.text = $"s.no: {AppData.Instance.currentSessionNumber}\n" +
+              $"trialNo: {AppData.Instance.selectedMechanism.trialNumberSession}\n" +
+              $"CB: {AppData.Instance.CurrentControlBound}";
         // Put PLUTO in the AAN mode.
         PlutoComm.setControlType("POSITIONAAN");
         PlutoComm.setControlBound(AppData.Instance.CurrentControlBound);

@@ -160,10 +160,11 @@ public class FlappyGameControl : MonoBehaviour
             AngleToScreen(AppData.Instance.selectedMechanism.currRom.aromMax),
             aromRight.transform.position.z
         );
-    HS.text = $"Highest Effi Rate :{ Others.highestSuccessRate} %";
-    status.text = $"s.no: {AppData.Instance.currentSessionNumber}\n" +
+     HS.text = $" BEST :{ Others.highestSuccessRate:F0} %";
+     status.text = $"s.no: {AppData.Instance.currentSessionNumber}\n" +
               $"trialNo: {AppData.Instance.selectedMechanism.trialNumberSession}\n" +
-              $"CB:{AppData.Instance.aanController.currentCtrlBound}";
+              $"CB: {AppData.Instance.CurrentControlBound}";
+   
 
         
     }
@@ -223,7 +224,7 @@ public class FlappyGameControl : MonoBehaviour
             nTargets++;
             columns[CurrentColumn].transform.position = new Vector3(BirdControl.rb2d.transform.position.x + spawnXposition,targetPosition, 0);
             columns[CurrentColumn].tag = "Target";
-
+            Debug.Log($"{(BirdControl.rb2d.transform.position.x + spawnXposition,targetPosition, 0)}");
             if (CurrentColumn == 0)
             {
                 columns[columnPoolSize - 1].tag = "Untagged";
@@ -352,6 +353,9 @@ public class FlappyGameControl : MonoBehaviour
             hidePaused();
         // Start new trial.
         AppData.Instance.StartNewTrial();
+         status.text = $"s.no: {AppData.Instance.currentSessionNumber}\n" +
+              $"trialNo: {AppData.Instance.selectedMechanism.trialNumberSession}\n" +
+              $"CB: {AppData.Instance.CurrentControlBound}";
 
         // Put PLUTO in the AAN mode.
         PlutoComm.setControlType("POSITIONAAN");
@@ -417,15 +421,6 @@ public class FlappyGameControl : MonoBehaviour
                 // Get new target position.
                 // targetAngle = HomerTherapy.GetNewTargetPosition(arom, prom);
                 targetAngle = HomerTherapy.GetNewTargetPositionUniformFull(arom, prom);
-                if(targetAngle < prom[0] + 20f){
-                    targetAngle = targetAngle + 40f;
-                    Debug.Log("target negative");
-                }
-                 else if (targetAngle > prom[1] -20f) 
-                 {
-                    targetAngle = targetAngle - 40f;
-                    Debug.Log("positive target");
-                 }
                 targetPosition = AngleToScreen(targetAngle);
                 spawnColumn();
                 MOVEDURATION = MoveDuration();

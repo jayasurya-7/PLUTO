@@ -416,9 +416,16 @@ public class PROMsceneHandler : MonoBehaviour
     }
     private void checkPromLimits()
     {
-        if (_tmin >= AppData.Instance.selectedMechanism.newRom.aromMin || 
-            _tmax <= AppData.Instance.selectedMechanism.newRom.aromMax)
+        bool isHOC=AppData.Instance.selectedMechanism.IsMechanism("HOC");
+        bool condition = isHOC? (_tmin > AppData.Instance.selectedMechanism.newRom.aromMin || 
+            _tmax < AppData.Instance.selectedMechanism.newRom.aromMax) : (_tmin >= AppData.Instance.selectedMechanism.newRom.aromMin || 
+            _tmax <= AppData.Instance.selectedMechanism.newRom.aromMax);
+      
+        if (condition)
         {
+             Debug.Log($" min :{_tmin}, arom { AppData.Instance.selectedMechanism.newRom.aromMin},,{_tmin < AppData.Instance.selectedMechanism.newRom.aromMin}");
+            Debug.Log($" max :{_tmax}, arom { AppData.Instance.selectedMechanism.newRom.aromMax},,{_tmax> AppData.Instance.selectedMechanism.newRom.aromMax}");
+            
             promSlider.UpdateMinMaxvalues = false;
             RestartAssessment();
             isButtonPressed = false;
