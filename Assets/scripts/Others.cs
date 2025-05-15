@@ -109,82 +109,6 @@ public static class HomerTherapy
         };
     }
 
-    public static float GetNewTargetPosition(float[] arom, float[] prom)
-    {
-        float[] region_boundaries = GetRomBoundariesForTargets(arom, prom);
-        
-        // Sample the region where the target is the appear.
-        float _region = UnityEngine.Random.Range(0.01f, region_boundaries.Length - 1.01f);
-        
-        // Get the integer and fractional part of _region.
-        int _intpart = (int)Math.Floor(_region);
-        float _decpart = _region - _intpart;
-
-        // Choose target accoding to _randloc
-        return region_boundaries[_intpart] + (region_boundaries[_intpart + 1] - region_boundaries[_intpart]) * _decpart;
-    }
-
-    public static float GetNewTargetPositionUniform(float[] arom, float[] prom)
-    {
-        if (UnityEngine.Random.Range(0f, 1f) < 0.5) return UnityEngine.Random.Range(arom[0], arom[1]);
-        if (UnityEngine.Random.Range(0f, 1f) < 0.5) return UnityEngine.Random.Range(prom[0], arom[0]);
-        else return UnityEngine.Random.Range(arom[1], prom[1]);
-    }
-
-    // public static float GetNewTargetPositionUniformFull(float[] arom, float[] prom)
-    // {
-
-    // float first = UnityEngine.Random.Range(prom[0], prom[1]);
-
-    // // Check which PROM boundary it's closer to
-    // float distanceToMin = Mathf.Abs(first - prom[0]);
-    // float distanceToMax = Mathf.Abs(first - prom[1]);
-
-    // float target;
-    // if (distanceToMin < distanceToMax)
-    // {
-    //     target = UnityEngine.Random.Range(first, prom[1]);
-    // }
-    // else
-    // {
-    //     target = UnityEngine.Random.Range(prom[0], first);
-    // }
-
-    // return target;
-    // }
-
-    // private static HashSet<float> previousPositions = new HashSet<float>();
-
-    // public static float GetNewTargetPositionUniformFull(float[] arom, float[] prom)
-    // {
-    //     float first = UnityEngine.Random.Range(prom[0], prom[1]);
-
-    //     // Check which PROM boundary it's closer to
-    //     float distanceToMin = Mathf.Abs(first - prom[0]);
-    //     float distanceToMax = Mathf.Abs(first - prom[1]);
-
-    //     float target;
-    //     if (distanceToMin < distanceToMax)
-    //     {
-    //         target = UnityEngine.Random.Range(first, prom[1]);
-    //     }
-    //     else
-    //     {
-    //         target = UnityEngine.Random.Range(prom[0], first);
-    //     }
-
-    //     // Ensure the new target position doesn't match any previously generated positions
-    //     while (previousPositions.Contains(target))
-    //     {
-    //         // Generate a new position if it's already been used
-    //         target = UnityEngine.Random.Range(prom[0], prom[1]);
-    //     }
-
-    //     // Add the new target position to the set of previously generated positions
-    //     previousPositions.Add(target);
-
-    //     return target;
-    // }
 
     private static float lastTarget = float.NaN;
     private const float minDistance = 10f; // Minimum allowed distance between spawns
@@ -575,7 +499,7 @@ public List<float> GetLastTwoSuccessRates(string mechanism, string gameName)
             {
                 float successRate = float.Parse(row.Field<string>("SuccessRate"), CultureInfo.InvariantCulture);
                 float controlBound = float.Parse(row.Field<string>("CurrentControlBound"), CultureInfo.InvariantCulture);
-                return successRate * (1 - controlBound);
+                return successRate * (3 - controlBound);
             });
 
         Debug.Log(Others.highestSuccessRate);
