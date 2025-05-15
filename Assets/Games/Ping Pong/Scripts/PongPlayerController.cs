@@ -24,7 +24,8 @@ public class PongPlayerController : MonoBehaviour
     }
     void FixedUpdate()
     {
-        this.transform.position = new Vector2(this.transform.position.x, AngleToScreen(PlutoComm.angle));
+        float position = (AppData.Instance.IsTrainingSide("RIGHT") || AppData.Instance.selectedMechanism.IsMechanism("HOC")) ?AngleToScreen(PlutoComm.angle):AngleToScreen(-(PlutoComm.angle));
+        this.transform.position = new Vector2(this.transform.position.x, position);
         // MovementTracker.UpdatePosition(this.transform.position);
     }
 

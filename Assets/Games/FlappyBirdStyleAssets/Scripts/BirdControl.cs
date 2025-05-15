@@ -68,7 +68,7 @@ float targetAngle;
 
         }
         if(FGC.isGameStarted){
-            targetAngle = approxRollingAverage(targetAngle, AngleToScreen(-(PlutoComm.angle)));
+            targetAngle = (AppData.Instance.IsTrainingSide("RIGHT") || AppData.Instance.selectedMechanism.IsMechanism("HOC")) ?approxRollingAverage(targetAngle, AngleToScreen((PlutoComm.angle))):approxRollingAverage(targetAngle, AngleToScreen(-(PlutoComm.angle)));
         transform.position = new Vector2(Mathf.SmoothStep(-13, -7, startTime / 2), Mathf.Clamp(targetAngle, -2.5f, 7));
 
         }
