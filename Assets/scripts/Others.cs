@@ -131,26 +131,113 @@ public static class HomerTherapy
         else return UnityEngine.Random.Range(arom[1], prom[1]);
     }
 
+    // public static float GetNewTargetPositionUniformFull(float[] arom, float[] prom)
+    // {
+
+    // float first = UnityEngine.Random.Range(prom[0], prom[1]);
+
+    // // Check which PROM boundary it's closer to
+    // float distanceToMin = Mathf.Abs(first - prom[0]);
+    // float distanceToMax = Mathf.Abs(first - prom[1]);
+
+    // float target;
+    // if (distanceToMin < distanceToMax)
+    // {
+    //     target = UnityEngine.Random.Range(first, prom[1]);
+    // }
+    // else
+    // {
+    //     target = UnityEngine.Random.Range(prom[0], first);
+    // }
+
+    // return target;
+    // }
+
+    // private static HashSet<float> previousPositions = new HashSet<float>();
+
+    // public static float GetNewTargetPositionUniformFull(float[] arom, float[] prom)
+    // {
+    //     float first = UnityEngine.Random.Range(prom[0], prom[1]);
+
+    //     // Check which PROM boundary it's closer to
+    //     float distanceToMin = Mathf.Abs(first - prom[0]);
+    //     float distanceToMax = Mathf.Abs(first - prom[1]);
+
+    //     float target;
+    //     if (distanceToMin < distanceToMax)
+    //     {
+    //         target = UnityEngine.Random.Range(first, prom[1]);
+    //     }
+    //     else
+    //     {
+    //         target = UnityEngine.Random.Range(prom[0], first);
+    //     }
+
+    //     // Ensure the new target position doesn't match any previously generated positions
+    //     while (previousPositions.Contains(target))
+    //     {
+    //         // Generate a new position if it's already been used
+    //         target = UnityEngine.Random.Range(prom[0], prom[1]);
+    //     }
+
+    //     // Add the new target position to the set of previously generated positions
+    //     previousPositions.Add(target);
+
+    //     return target;
+    // }
+
+    private static float lastTarget = float.NaN;
+    private const float minDistance = 10f; // Minimum allowed distance between spawns
+
     public static float GetNewTargetPositionUniformFull(float[] arom, float[] prom)
     {
+        float first = UnityEngine.Random.Range(prom[0], prom[1]);
 
-    float first = UnityEngine.Random.Range(prom[0], prom[1]);
+        float distanceToMin = Mathf.Abs(first - prom[0]);
+        float distanceToMax = Mathf.Abs(first - prom[1]);
 
-    // Check which PROM boundary it's closer to
-    float distanceToMin = Mathf.Abs(first - prom[0]);
-    float distanceToMax = Mathf.Abs(first - prom[1]);
+        float target;
+        if (distanceToMin < distanceToMax)
+        {
+            target = UnityEngine.Random.Range(first, prom[1]);
+        }
+        else
+        {
+            target = UnityEngine.Random.Range(prom[0], first);
+        }
 
-    float target;
-    if (distanceToMin < distanceToMax)
-    {
-        target = UnityEngine.Random.Range(first, prom[1]);
+        // If target is too close to the last one, shift it
+        if (!float.IsNaN(lastTarget) && Mathf.Abs(target - lastTarget) < minDistance)
+        {
+            // Decide shift direction based on boundary room
+            if (target + minDistance <= prom[1])
+                target += minDistance;
+            else if (target - minDistance >= prom[0])
+                target -= minDistance;
+            else
+            {
+                // If there's no room to shift, fallback to random safe generation
+                target = GetSafeTarget(prom, lastTarget, minDistance);
+            }
+        }
+
+        lastTarget = target;
+        return target;
     }
-    else
-    {
-        target = UnityEngine.Random.Range(prom[0], first);
-    }
 
-    return target;
+    // Fallback: generate a target with minimum distance from last
+    private static float GetSafeTarget(float[] prom, float last, float minDist)
+    {
+        int safety = 0;
+        float target;
+        do
+        {
+            target = UnityEngine.Random.Range(prom[0], prom[1]);
+            safety++;
+            if (safety > 1000) break;
+        }
+        while (Mathf.Abs(target - last) < minDist);
+        return target;
     }
 }
 

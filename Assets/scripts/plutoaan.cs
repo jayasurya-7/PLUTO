@@ -22,9 +22,9 @@ public class PlutoAANController
     public static readonly float BOUNDARY = 0.9f;               // Boundary where assistance is to be enabled.
     public static readonly float FORGETINGFACTOR = 0.9f;        // Forgetting factor for the control bound.
     public static readonly float ASSISTFACTOR = 0.01f;          // Assistance factor for the control bound.
-    public static readonly float DEFAULTCONTROLBOUND = 1f;    // Default control bound value.
-    public static readonly float MAXCONTROLBOUND = 1.8f;       // Maximum control bound value.
-    public static readonly float MINCONTROLBOUND = 1.0f;       // Minimum control bound value.
+    public static readonly float DEFAULTCONTROLBOUND = 2.5f;    // Default control bound value.
+    public static readonly float MAXCONTROLBOUND = 3.0f;       // Maximum control bound value.
+    public static readonly float MINCONTROLBOUND = 2.5f;       // Minimum control bound value.
 
     public static readonly string[] ADAPTFILEHEADER = new string[] {
         "SessionNumber", "TrialNumberSession", "TrialNumberDay", 
