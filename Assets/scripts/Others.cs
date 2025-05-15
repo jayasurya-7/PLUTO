@@ -157,6 +157,174 @@ public static class HomerTherapy
 //gameSpeed.
 
 
+// public class MechanismChecker
+// {
+//     public float gameSpeed = 1.0f;
+//     public string mechanismToCheck;
+
+//     private DataTable sessionTable;
+//     private string mechParamsCsvPath;
+
+//     public MechanismChecker(string mechanism, DataTable sessionData, string mechParamsCsvPath)
+//     {
+//         this.mechanismToCheck = mechanism;
+//         this.sessionTable = sessionData;
+//         this.mechParamsCsvPath = mechParamsCsvPath;
+//     }
+
+//     public void EvaluateAndUpdateGameSpeed()
+//     {
+//         Debug.Log($"[MechanismChecker] Evaluating game speed for mechanism: {mechanismToCheck}");
+
+//         var mechData = sessionTable.AsEnumerable()
+//             .Where(row => row.Field<string>("Mechanism") == mechanismToCheck)
+//             .ToList();
+
+//         if (mechData.Count == 0)
+//         {
+//             Debug.Log("[MechanismChecker] No data found for the specified mechanism.");
+//             return;
+//         }
+
+//         if (!mechData.Any(row => row.Field<string>("TrialNumberDay") == "1"))
+//         {
+//             Debug.Log("[MechanismChecker] No TrialNumberDay == 1 found for this mechanism.");
+//             return;
+//         }
+
+//         int trainCount = 0;
+//         bool catchFound = false;
+
+//         foreach (var row in mechData)
+//         {
+//             string trialType = row.Field<string>("TrialType");
+
+//             if (trialType == "SR85PCTRAIN")
+//                 trainCount++;
+//             else if (trialType == "SR85PCCATCH" && trainCount >= 4)
+//             {
+//                 catchFound = true;
+//                 Debug.Log("[MechanismChecker] Found 4+ SR85PCTRAIN trials followed by SR85PCCATCH.");
+//                 break;
+//             }
+//         }
+
+//         if (!catchFound)
+//         {
+//             Debug.Log("[MechanismChecker] SR85PCCATCH not found after 4 SR85PCTRAIN trials."+ trainCount);
+//             return;
+//         }
+
+//         var cbByDate = new Dictionary<DateTime, float>();
+//         foreach (var row in mechData)
+//         {
+//             if (!DateTime.TryParseExact(row.Field<string>("DateTime"), "yyyy-MM-dd HH:mm:ss", CultureInfo.InvariantCulture, DateTimeStyles.None, out DateTime fullDate))
+//             {
+//                 Debug.Log("[MechanismChecker] Failed to parse DateTime: " + row.Field<string>("DateTime"));
+//                 continue;
+//             }
+
+//             DateTime onlyDate = fullDate.Date;
+
+//             if (float.TryParse(row.Field<string>("CurrentControlBound"), out float cb))
+//             {
+//                 if (!cbByDate.ContainsKey(onlyDate))
+//                     cbByDate[onlyDate] = 0;
+//                 cbByDate[onlyDate] += cb;
+//             }
+//         }
+
+//         if (cbByDate.Count < 2)
+//         {
+//             Debug.Log("[MechanismChecker] Less than 3 unique dates found in controlBound data.");
+//             return;
+//         }
+
+//         var sortedDates = cbByDate.Keys.OrderBy(d => d).ToList();
+//         float firstCB = cbByDate[sortedDates[0]];
+//         float thirdCB = cbByDate[sortedDates[1]];
+
+//         Debug.Log($"[MechanismChecker] First Date: {sortedDates[0]:yyyy-MM-dd}, CB: {firstCB}");
+//         Debug.Log($"[MechanismChecker] Third Date: {sortedDates[1]:yyyy-MM-dd}, CB: {thirdCB}");
+
+//         if (thirdCB <= firstCB)
+        
+//         {
+//             Debug.Log("[MechanismChecker] Third date CB is not less than first date CB. No update needed.");
+//             return;
+//         }
+
+//         DateTime? lastMechParamDate = GetLastDateFromMechParams();
+//         if (lastMechParamDate == null)
+//         {
+//             Debug.Log("[MechanismChecker] Could not retrieve last date from mechParams CSV.");
+//             return;
+//         }
+
+//         var sessionDates = mechData
+//             .Select(row => DateTime.ParseExact(row.Field<string>("DateTime"), "yyyy-MM-dd HH:mm:ss", CultureInfo.InvariantCulture).Date)
+//             .Distinct()
+//             .ToList();
+
+//         if (!sessionDates.Contains(DateTime.Today))
+//         {
+//             Debug.Log("[MechanismChecker] No session entry for today. Skipping update.");
+//             return;
+//         }
+
+//         int dateDiff = (DateTime.Today - lastMechParamDate.Value.Date).Days;
+//         Debug.Log($"[MechanismChecker] Days since last mechParams update: {dateDiff}");
+
+//         if (dateDiff >= 3)
+//         {
+//             AppData.Instance.selectedMechanism.UpdateSpeed();
+//         }
+//         else
+//         {
+//             Debug.Log("[MechanismChecker] Less than 3 days since last update. Skipping game speed change.");
+//         }
+//     }
+
+//     private void UpdateGameSpeed()
+//     {
+//         gameSpeed *= 1.1f;
+//         Debug.Log($"[MechanismChecker] Game speed updated to: {gameSpeed}");
+//     }
+
+//     private DateTime? GetLastDateFromMechParams()
+//     {
+//         if (!File.Exists(mechParamsCsvPath))
+//         {
+//             Debug.Log("[MechanismChecker] mechParams CSV file not found.");
+//             return null;
+//         }
+
+//         var lines = File.ReadAllLines(mechParamsCsvPath);
+//         if (lines.Length < 2)
+//         {
+//             Debug.Log("[MechanismChecker] mechParams CSV has no data lines.");
+//             return null;
+//         }
+
+//         var lastLine = lines.Last();
+//         var tokens = lastLine.Split(',');
+
+//         foreach (string token in tokens)
+//         {
+//             if (DateTime.TryParseExact(token.Trim(), "yyyy-MM-dd HH:mm:ss", CultureInfo.InvariantCulture, DateTimeStyles.None, out var result))
+//             {
+//                 Debug.Log($"[MechanismChecker] Last date from mechParams: {result:yyyy-MM-dd}");
+//                 return result;
+//             }
+//         }
+
+//         Debug.Log("[MechanismChecker] No valid DateTime found in last line of mechParams.");
+//         return null;
+//     }
+// }
+
+
+
 public class MechanismChecker
 {
     public float gameSpeed = 1.0f;
@@ -164,7 +332,17 @@ public class MechanismChecker
 
     private DataTable sessionTable;
     private string mechParamsCsvPath;
-
+    public float currSpeed {get; private set;} = -1f;
+    private static readonly string[]speedChMode = new string[] {"manual","automatic"};  
+     public static readonly Dictionary<string, float> DefaultMechanismSpeeds = new Dictionary<string, float>
+    {
+        { "WFE", 10.0f },
+        { "WURD", 10.0f },
+        { "FPS", 10.0f },
+        { "HOC", 10.0f },
+        { "FME1", 10.0f },
+        { "FME2", 10.0f },
+    };
     public MechanismChecker(string mechanism, DataTable sessionData, string mechParamsCsvPath)
     {
         this.mechanismToCheck = mechanism;
@@ -174,137 +352,105 @@ public class MechanismChecker
 
     public void EvaluateAndUpdateGameSpeed()
     {
-        Debug.Log($"[MechanismChecker] Evaluating game speed for mechanism: {mechanismToCheck}");
-
         var mechData = sessionTable.AsEnumerable()
             .Where(row => row.Field<string>("Mechanism") == mechanismToCheck)
             .ToList();
 
-        if (mechData.Count == 0)
-        {
-            Debug.Log("[MechanismChecker] No data found for the specified mechanism.");
-            return;
-        }
-
-        if (!mechData.Any(row => row.Field<string>("TrialNumberDay") == "1"))
-        {
-            Debug.Log("[MechanismChecker] No TrialNumberDay == 1 found for this mechanism.");
-            return;
-        }
-
-        int trainCount = 0;
-        bool catchFound = false;
-
-        foreach (var row in mechData)
-        {
-            string trialType = row.Field<string>("TrialType");
-
-            if (trialType == "SR85PCTRAIN")
-                trainCount++;
-            else if (trialType == "SR85PCCATCH" && trainCount >= 4)
-            {
-                catchFound = true;
-                Debug.Log("[MechanismChecker] Found 4+ SR85PCTRAIN trials followed by SR85PCCATCH.");
-                break;
-            }
-        }
-
-        if (!catchFound)
-        {
-            Debug.Log("[MechanismChecker] SR85PCCATCH not found after 4 SR85PCTRAIN trials."+ trainCount);
-            return;
-        }
-
-        var cbByDate = new Dictionary<DateTime, float>();
-        foreach (var row in mechData)
-        {
-            if (!DateTime.TryParseExact(row.Field<string>("DateTime"), "yyyy-MM-dd HH:mm:ss", CultureInfo.InvariantCulture, DateTimeStyles.None, out DateTime fullDate))
-            {
-                Debug.Log("[MechanismChecker] Failed to parse DateTime: " + row.Field<string>("DateTime"));
-                continue;
-            }
-
-            DateTime onlyDate = fullDate.Date;
-
-            if (float.TryParse(row.Field<string>("CurrentControlBound"), out float cb))
-            {
-                if (!cbByDate.ContainsKey(onlyDate))
-                    cbByDate[onlyDate] = 0;
-                cbByDate[onlyDate] += cb;
-            }
-        }
-
-        if (cbByDate.Count < 2)
-        {
-            Debug.Log("[MechanismChecker] Less than 3 unique dates found in controlBound data.");
-            return;
-        }
-
-        var sortedDates = cbByDate.Keys.OrderBy(d => d).ToList();
-        float firstCB = cbByDate[sortedDates[0]];
-        float thirdCB = cbByDate[sortedDates[1]];
-
-        Debug.Log($"[MechanismChecker] First Date: {sortedDates[0]:yyyy-MM-dd}, CB: {firstCB}");
-        Debug.Log($"[MechanismChecker] Third Date: {sortedDates[1]:yyyy-MM-dd}, CB: {thirdCB}");
-
-        if (thirdCB >= firstCB)
-        
-        {
-            Debug.Log("[MechanismChecker] Third date CB is not less than first date CB. No update needed.");
-            return;
-        }
-
-        DateTime? lastMechParamDate = GetLastDateFromMechParams();
-        if (lastMechParamDate == null)
-        {
-            Debug.Log("[MechanismChecker] Could not retrieve last date from mechParams CSV.");
-            return;
-        }
-
-        var sessionDates = mechData
-            .Select(row => DateTime.ParseExact(row.Field<string>("DateTime"), "yyyy-MM-dd HH:mm:ss", CultureInfo.InvariantCulture).Date)
-            .Distinct()
+        var groupedByDate = mechData
+            .GroupBy(row => DateTime.ParseExact(row.Field<string>("DateTime"), "yyyy-MM-dd HH:mm:ss", CultureInfo.InvariantCulture).Date)
+            .OrderBy(g => g.Key)
             .ToList();
 
-        if (!sessionDates.Contains(DateTime.Today))
+        if (groupedByDate.Count < 3)
         {
-            Debug.Log("[MechanismChecker] No session entry for today. Skipping update.");
+            Debug.Log("Not enough different dates for evaluation.");
             return;
         }
 
-        int dateDiff = (DateTime.Today - lastMechParamDate.Value.Date).Days;
-        Debug.Log($"[MechanismChecker] Days since last mechParams update: {dateDiff}");
+        var firstDay = groupedByDate[0];
+        var thirdDay = groupedByDate[2];
 
-        if (dateDiff >= 3)
+        float avgTrainSR1 = GetAvgSuccessRate(firstDay, "SR85PCTRAIN");
+        float avgTrainSR3 = GetAvgSuccessRate(thirdDay, "SR85PCTRAIN");
+
+        float catchSR1 = GetSuccessRate(firstDay, "SR85PCCATCH");
+        float catchSR3 = GetSuccessRate(thirdDay, "SR85PCCATCH");
+
+        float avgCB1 = GetAvgControlBound(firstDay, "SR85PCTRAIN");
+        float avgCB3 = GetAvgControlBound(thirdDay, "SR85PCTRAIN");
+
+        Debug.Log($"Train SR Day1: {avgTrainSR1}, Train SR Day3: {avgTrainSR3}");
+        Debug.Log($"Catch SR Day1: {catchSR1}, Catch SR Day3: {catchSR3}");
+        Debug.Log($"CB Day1: {avgCB1}, CB Day3: {avgCB3}");
+
+        if (avgTrainSR3 > avgTrainSR1 && catchSR3 > catchSR1 && avgCB3 < avgCB1)
         {
-            UpdateGameSpeed();
+            DateTime? lastUpdate = GetLastDateFromMechParams();
+            if (lastUpdate == null)
+            {
+                Debug.Log("Mechanism params file not found. Creating new file with default speed.");
+                WriteInitialSpeed();
+                return;
+            }
+
+            var sessionDatesBetween = groupedByDate
+                .Where(g => g.Key > lastUpdate.Value.Date && g.Key < DateTime.Today)
+                .Select(g => g.Key)
+                .Distinct()
+                .ToList();
+
+            Debug.Log($"Dates between last update and today: {sessionDatesBetween.Count}");
+
+            if ((DateTime.Today - lastUpdate.Value).Days >= 3 && sessionDatesBetween.Count >= 2)
+            {
+                UpdateGameSpeed();
+            }
+            else
+            {
+                Debug.Log("Not enough session activity since last update to warrant game speed change.");
+            }
         }
         else
         {
-            Debug.Log("[MechanismChecker] Less than 3 days since last update. Skipping game speed change.");
+            Debug.Log("Conditions for game speed update not met.");
         }
     }
 
-    private void UpdateGameSpeed()
+    private float GetAvgSuccessRate(IEnumerable<DataRow> rows, string trialType)
     {
-        gameSpeed *= 1.1f;
-        Debug.Log($"[MechanismChecker] Game speed updated to: {gameSpeed}");
+        var selected = rows.Where(r => r.Field<string>("TrialType") == trialType)
+                            .Take(4)
+                            .Select(r => float.TryParse(r.Field<string>("SuccessRate"), out var sr) ? sr : -1f)
+                            .Where(sr => sr >= 0)
+                            .ToList();
+
+        return selected.Count > 0 ? selected.Average() : 0;
+    }
+
+    private float GetSuccessRate(IEnumerable<DataRow> rows, string trialType)
+    {
+        return rows.Where(r => r.Field<string>("TrialType") == trialType)
+                   .Select(r => float.TryParse(r.Field<string>("SuccessRate"), out var sr) ? sr : -1f)
+                   .FirstOrDefault(sr => sr >= 0);
+    }
+
+    private float GetAvgControlBound(IEnumerable<DataRow> rows, string trialType)
+    {
+        var selected = rows.Where(r => r.Field<string>("TrialType") == trialType)
+                            .Take(4)
+                            .Select(r => float.TryParse(r.Field<string>("CurrentControlBound"), out var cb) ? cb : -1f)
+                            .Where(cb => cb >= 0)
+                            .ToList();
+
+        return selected.Count > 0 ? selected.Average() : 0;
     }
 
     private DateTime? GetLastDateFromMechParams()
     {
-        if (!File.Exists(mechParamsCsvPath))
-        {
-            Debug.Log("[MechanismChecker] mechParams CSV file not found.");
-            return null;
-        }
+        if (!File.Exists(mechParamsCsvPath)) return null;
 
         var lines = File.ReadAllLines(mechParamsCsvPath);
-        if (lines.Length < 2)
-        {
-            Debug.Log("[MechanismChecker] mechParams CSV has no data lines.");
-            return null;
-        }
+        if (lines.Length < 2) return null;
 
         var lastLine = lines.Last();
         var tokens = lastLine.Split(',');
@@ -312,16 +458,48 @@ public class MechanismChecker
         foreach (string token in tokens)
         {
             if (DateTime.TryParseExact(token.Trim(), "yyyy-MM-dd HH:mm:ss", CultureInfo.InvariantCulture, DateTimeStyles.None, out var result))
-            {
-                Debug.Log($"[MechanismChecker] Last date from mechParams: {result:yyyy-MM-dd}");
                 return result;
-            }
         }
-
-        Debug.Log("[MechanismChecker] No valid DateTime found in last line of mechParams.");
         return null;
     }
+
+    private void WriteInitialSpeed()
+    {
+        gameSpeed =DefaultMechanismSpeeds[mechanismToCheck];
+        using (var writer = new StreamWriter(mechParamsCsvPath, false))
+        {
+            writer.WriteLine("DateTime,Mode,Speed");
+            writer.WriteLine($"{DateTime.Now.ToString("yyyy-MM-dd HH:mm:ss")},Default,{gameSpeed}");
+        }
+    }
+
+    private void UpdateGameSpeed(int mode=1)
+    {
+        // Read last gameSpeed if mechfile exists
+        if (File.Exists(mechParamsCsvPath))
+        {
+            var lines = File.ReadAllLines(mechParamsCsvPath);
+            if (lines.Length > 1)
+            {
+                var lastTokens = lines.Last().Split(',');
+                if (lastTokens.Length >= 3 && float.TryParse(lastTokens[2], out float lastSpeed))
+                {
+                    gameSpeed = lastSpeed;
+                }
+            }
+        }
+        string chMode = speedChMode[mode];
+        gameSpeed *= 1.1f; // increase by 10%
+
+        using (var writer = new StreamWriter(mechParamsCsvPath, true))
+        {
+            writer.WriteLine($"{DateTime.Now:yyyy-MM-dd HH:mm:ss},{chMode},{gameSpeed}");
+        }
+
+        Debug.Log($"Game speed updated to: {gameSpeed}");
+    }
 }
+
 
 // PLUTO UserData Class
 public class PlutoUserData
@@ -785,6 +963,8 @@ public class PlutoMechanism
         { "FME1", 10.0f },
         { "FME2", 10.0f },
     };
+
+    public static readonly string[] speedChMode= new string[] {"manual","automatic"};
     // public static string MECHPATH { get; private set; } = DataManager.mechPath;
     public string name { get; private set; }
     public string side { get; private set; }
@@ -794,6 +974,8 @@ public class PlutoMechanism
     public ROM newRom { get; private set; }
     public ROM currRom { get => newRom.isSet ? newRom : (oldRom.isSet ? oldRom : null); }
     public float currSpeed { get; private set; } = -1f;
+
+    public string mode;
     // Trial details for the mechanism.
     public int trialNumberDay { get; private set; }
     public int trialNumberSession { get; private set; }
@@ -873,7 +1055,7 @@ public class PlutoMechanism
         {
             using (var writer = new StreamWriter(fileName, false, Encoding.UTF8))
             {
-                writer.WriteLine("DateTime,Speed");
+                writer.WriteLine("DateTime,Mode,Speed");
             }
         }
         // Read the file and get the most recent speed value.
@@ -883,6 +1065,7 @@ public class PlutoMechanism
         if (speedData.Rows.Count == 0)
         {
             currSpeed = DefaultMechanismSpeeds[name];
+            mode = speedChMode[1];
             _updateFile = true;
         }
         else
@@ -904,7 +1087,8 @@ public class PlutoMechanism
                 // Call the update function to compute the new game speed.
                 // For now this is set to default, but this will need to changed.
                 // If the last date is not today, set default value for the speed.
-                currSpeed = DefaultMechanismSpeeds[name];
+                currSpeed = DefaultMechanismSpeeds[name] * (DefaultMechanismSpeeds[name] % 2);
+                mode = speedChMode[1];
                 _updateFile = true;
             }
         }
@@ -915,7 +1099,7 @@ public class PlutoMechanism
             // Write the new speed to the file.
             using (StreamWriter file = new StreamWriter(fileName, true))
             {
-                file.WriteLine(string.Join(",", new string[] { DateTime.Now.ToString(DataManager.DATEFORMAT), currSpeed.ToString() }));
+                file.WriteLine(string.Join(",", new string[] { DateTime.Now.ToString(DataManager.DATEFORMAT), mode ,currSpeed.ToString() }));
             }
         }
     }

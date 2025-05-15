@@ -232,7 +232,7 @@ public class calibrationSceneHandler : MonoBehaviour
     void LoadNextScene()
     {
         // Updat game speed for the chosen mechanism.
-        AppData.Instance.selectedMechanism.UpdateSpeed();
+       // AppData.Instance.selectedMechanism.UpdateSpeed();
         Debug.Log(AppData.Instance.selectedMechanism.IsSpeedUpdated());
         AppLogger.LogInfo($"Game speed set to {AppData.Instance.selectedMechanism.currSpeed} deg/sec.");
 

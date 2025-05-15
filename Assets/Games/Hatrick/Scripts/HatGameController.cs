@@ -16,6 +16,7 @@ public class HatGameController : MonoBehaviour
 
     // Constant game related variables.
     private static readonly float BALLSPEED = 1f + 0.3f * (1 + 1);
+    // private static readonly float BALLSPEED = 1f + 0.3f * (2 + (0.1 * gameSpeed));
     private static readonly float BALLSTARTY = 6.0f;
     private static readonly float BALLENDY = -2.0f;
     private static readonly float MOVEDURATION = 0.5f * (BALLSTARTY - BALLENDY) / BALLSPEED;
