@@ -13,6 +13,7 @@ public class HatController : MonoBehaviour
     public AudioSource gamesound;
     public AudioClip win;
     public AudioClip loose;
+    private bool side, mech;
 
     void Start()
     {
@@ -23,11 +24,18 @@ public class HatController : MonoBehaviour
         Vector3 targetWidth = cam.ScreenToWorldPoint(UpperCorner);
         maxwidth = targetWidth.x - hatwidth;
         playSize = maxwidth * 1f;
+        side = AppData.Instance.IsTrainingSide("RIGHT");
+        mech = AppData.Instance.selectedMechanism.IsMechanism("HOC");
+
     }
 
     void Update()
     {
-        position = HatGameController.Instance.AngleToScreen(PlutoComm.angle);
+        if(side && !mech)position = HatGameController.Instance.AngleToScreen(-PlutoComm.angle);
+        else if (!side &&mech) position = HatGameController.Instance.AngleToScreen(PlutoComm.angle);
+        else position = HatGameController.Instance.AngleToScreen(PlutoComm.angle);
+
+        // position = (AppData.Instance.IsTrainingSide("RIGHT") && AppData.Instance.selectedMechanism.IsMechanism("HOC")) ? HatGameController.Instance.AngleToScreen(-PlutoComm.angle):HatGameController.Instance.AngleToScreen((PlutoComm.angle));
         // MovementTracker.UpdatePosition( this.transform.position);
 
         Vector2 targetPosition = new Vector2(position, this.transform.position.y);

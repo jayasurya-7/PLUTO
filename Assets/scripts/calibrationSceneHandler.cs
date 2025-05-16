@@ -43,7 +43,6 @@ public class calibrationSceneHandler : MonoBehaviour
     {
         PlutoComm.sendHeartbeat();
         angText.text = $" {PlutoComm.angle.ToString("F3")}";
-        Debug.Log(PlutoComm.MECHANISMS[PlutoComm.mechanism] == "HOC");
         // Check of calibration is started.
         if (!isCalibrating && startCalibration)
         {
@@ -104,7 +103,7 @@ public class calibrationSceneHandler : MonoBehaviour
         AppLogger.LogError($"Calibration was successful for '{AppData.Instance.selectedMechanism.name}'.");
 
         //HOC assessment UI  works based on closed position,
-        if(PlutoComm.MECHANISMS[PlutoComm.mechanism] != "HOC") {
+        if((PlutoComm.MECHANISMS[PlutoComm.mechanism] != "HOC") && (PlutoComm.MECHANISMS[PlutoComm.mechanism] != "FME1")&& (PlutoComm.MECHANISMS[PlutoComm.mechanism] != "FME2")) {
             // Move the robot to the neutral position.
             PlutoComm.setControlType("POSITION");
             // Set the target to zero slowly.

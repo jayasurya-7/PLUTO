@@ -72,8 +72,8 @@ public static class PlutoComm
         68,   // Wrist Ulnar/Radial Deviation
         90,   // Forearm Prono/Sunpination
         0,    // Hand Opening/Closing
-        0,    // Functional mechanism 1
-        0,    // Functional mechanism 2
+        90,    // Functional mechanism 1
+        90,    // Functional mechanism 2
     };
     public static readonly double[] TORQUE = new double[] { -MAXTORQUE, MAXTORQUE };
     public static readonly double[] POSITION = new double[] { -135, 0 };
