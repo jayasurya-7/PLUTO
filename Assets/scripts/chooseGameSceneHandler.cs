@@ -82,6 +82,10 @@ public class ChooseGameSceneHandler : MonoBehaviour
         {
             SceneManager.LoadScene("ASSESS");
         }
+        else if (Input.GetKey(KeyCode.LeftControl) && Input.GetKeyDown(KeyCode.A))
+        {
+            SceneManager.LoadScene("ASSISTPROFILE");
+        }
     }
 
     void AttachCallbacks()

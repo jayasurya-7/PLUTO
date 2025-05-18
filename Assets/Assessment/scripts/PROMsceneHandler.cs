@@ -316,7 +316,7 @@ public class PROMsceneHandler : MonoBehaviour
     private void InitializeAssessment()
     {
         // Set control to NONE.
-        PlutoComm.setControlType("NONE");
+        PlutoComm.setControlType("TORQUE");
 
         promSlider.UpdateMinMaxvalues = false;
         nextButton.SetActive(false);

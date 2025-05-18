@@ -10,6 +10,8 @@ public class PongPlayerController : MonoBehaviour
     public static float playSize;
     private float[] arom, prom;
     public PongGameController PGC;
+    private bool side, mech;
+    private float position;
 
     void Start()
     {
@@ -18,13 +20,16 @@ public class PongPlayerController : MonoBehaviour
         topBound = playSize - this.transform.localScale.y / 4;
         // MovementTracker.Initialize(this, this.transform.position);
         bottomBound = -topBound;
-         // Set current AROM and PROM.
+        // Set current AROM and PROM.
         arom = AppData.Instance.selectedMechanism.CurrentArom;
         prom = AppData.Instance.selectedMechanism.CurrentProm;
+        side = AppData.Instance.IsTrainingSide("RIGHT");
+        mech = AppData.Instance.selectedMechanism.IsMechanism("HOC");
     }
     void FixedUpdate()
     {
-        float position = (AppData.Instance.IsTrainingSide("RIGHT") || AppData.Instance.selectedMechanism.IsMechanism("HOC")) ?AngleToScreen(PlutoComm.angle):AngleToScreen(-(PlutoComm.angle));
+
+        float position = AngleToScreen(PlutoComm.angle);
         this.transform.position = new Vector2(this.transform.position.x, position);
         // MovementTracker.UpdatePosition(this.transform.position);
     }

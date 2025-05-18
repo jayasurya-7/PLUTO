@@ -477,6 +477,7 @@ public static class PlutoComm
 
     public static void setControlBound(float ctrlBound)
     {
+        Debug.Log($" cb : {ctrlBound}");
         // Limit the value to be between 0 and 1.
         ctrlBound = Math.Max(0, Math.Min(1, ctrlBound));
         PlutoComLogger.LogInfo($"Setting Control Bound | ControlBound: {ctrlBound:F2}");
