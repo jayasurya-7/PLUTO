@@ -104,7 +104,7 @@ public class calibrationSceneHandler : MonoBehaviour
         AppLogger.LogError($"Calibration was successful for '{AppData.Instance.selectedMechanism.name}'.");
 
         //HOC assessment UI  works based on closed position,
-        if(PlutoComm.MECHANISMS[PlutoComm.mechanism] != "HOC") {
+        if((PlutoComm.MECHANISMS[PlutoComm.mechanism] != "HOC")&& (PlutoComm.MECHANISMS[PlutoComm.mechanism] != "FME1")&& (PlutoComm.MECHANISMS[PlutoComm.mechanism] != "FME2")) {
             // Move the robot to the neutral position.
             PlutoComm.setControlType("POSITION");
             // Set the target to zero slowly.
@@ -191,7 +191,7 @@ public class calibrationSceneHandler : MonoBehaviour
         AppLogger.LogError($"Calibration was successful for '{AppData.Instance.selectedMechanism.name}'.");
 
         //HOC assessment UI  works based on closed position,
-        if (PlutoComm.MECHANISMS[PlutoComm.mechanism] != "HOC")
+        if ((PlutoComm.MECHANISMS[PlutoComm.mechanism] != "HOC")&& (PlutoComm.MECHANISMS[PlutoComm.mechanism] != "FME1")&& (PlutoComm.MECHANISMS[PlutoComm.mechanism] != "FME2"))
         {
             // Move the robot to the neutral position.
             while (PlutoComm.CONTROLTYPE[PlutoComm.controlType] != "POSITION")
@@ -232,7 +232,7 @@ public class calibrationSceneHandler : MonoBehaviour
     void LoadNextScene()
     {
         // Updat game speed for the chosen mechanism.
-        AppData.Instance.selectedMechanism.UpdateSpeed();
+       // AppData.Instance.selectedMechanism.UpdateSpeed();
         Debug.Log(AppData.Instance.selectedMechanism.IsSpeedUpdated());
         AppLogger.LogInfo($"Game speed set to {AppData.Instance.selectedMechanism.currSpeed} deg/sec.");
 

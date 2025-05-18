@@ -15,11 +15,11 @@ public class HatGameController : MonoBehaviour
     public static HatGameController Instance { get; private set; }
 
     // Constant game related variables.
-    private static readonly float BALLSPEED = 1f + 0.3f * (1 + 1);
+    // private float BALLSPEED = 1f + 0.3f * (1 + 1);
     private static readonly float BALLSTARTY = 6.0f;
     private static readonly float BALLENDY = -2.0f;
-    private static readonly float MOVEDURATION = 0.5f * (BALLSTARTY - BALLENDY) / BALLSPEED;
-
+    // private static readonly float MOVEDURATION = 0.5f * (BALLSTARTY - BALLENDY) / BALLSPEED;
+    private static float BALLSPEED, MOVEDURATION;
     // Game graphics related variables.
     public Text ScoreText;
     public Text timeLeftText, status;
@@ -210,10 +210,12 @@ public class HatGameController : MonoBehaviour
               $"trialNo: {AppData.Instance.selectedMechanism.trialNumberSession}\n" +
               $"CB: {AppData.Instance.CurrentControlBound}";
         // Put PLUTO in the AAN mode.
-        PlutoComm.setControlType("POSITIONAAN");
-        PlutoComm.setControlBound(AppData.Instance.CurrentControlBound);
-        PlutoComm.setControlDir(0);
-
+        if ((PlutoComm.MECHANISMS[PlutoComm.mechanism] != "FME1") && (PlutoComm.MECHANISMS[PlutoComm.mechanism] != "FME2"))
+        {
+            PlutoComm.setControlType("POSITIONAAN");
+            PlutoComm.setControlBound(AppData.Instance.CurrentControlBound);
+            PlutoComm.setControlDir(0);
+        }
         // Reset the AAN controller.
         AppData.Instance.aanController.ResetTrial();
         
@@ -385,12 +387,12 @@ public class HatGameController : MonoBehaviour
         player = GameObject.FindGameObjectWithTag("Player");
         scale = new Vector3(1f, 1f, 1f);
         player.transform.localScale = scale;
-        
+
         // Intialize text
         timeLeftText = GameObject.FindGameObjectWithTag("TimeLeftText").GetComponent<Text>();
         ScoreText = GameObject.FindGameObjectWithTag("ScoreText").GetComponent<Text>();
 
-        
+
         // Enable the buttons
         StartButton.SetActive(true);
         PauseButton.SetActive(false);
@@ -416,6 +418,9 @@ public class HatGameController : MonoBehaviour
 
         // Attach PLUTO button event.
         PlutoComm.OnButtonReleased += onPlutoButtonReleased;
+
+        BALLSPEED = 1f + 0.3f * (1 + (0.2f * AppData.Instance.speedData.gameSpeed));
+        MOVEDURATION = 0.5f * (BALLSTARTY - BALLENDY) / BALLSPEED;
     }
 
     private void UpdateText()

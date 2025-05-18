@@ -358,9 +358,12 @@ public class FlappyGameControl : MonoBehaviour
               $"CB: {AppData.Instance.CurrentControlBound}";
 
         // Put PLUTO in the AAN mode.
-        PlutoComm.setControlType("POSITIONAAN");
-        PlutoComm.setControlBound(AppData.Instance.CurrentControlBound);
-        PlutoComm.setControlDir(0);
+        if ((PlutoComm.MECHANISMS[PlutoComm.mechanism] != "FME1") && (PlutoComm.MECHANISMS[PlutoComm.mechanism] != "FME2"))
+        {
+            PlutoComm.setControlType("POSITIONAAN");
+            PlutoComm.setControlBound(AppData.Instance.CurrentControlBound);
+            PlutoComm.setControlDir(0);
+        }
 
         // Reset the AAN controller.
         AppData.Instance.aanController.ResetTrial();

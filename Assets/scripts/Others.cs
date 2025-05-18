@@ -36,8 +36,11 @@ public static class HomerTherapy
         { "TUK-TUK", 0.2f },
         { "HAT-Trick", 1f }
     };
+    
+    private static float? lastTarget = null;
+    private static float threshold = 0f;
 
-    public enum TrialType 
+    public enum TrialType
     {
         SR85PCCATCH,
         TRAIN,
@@ -51,7 +54,7 @@ public static class HomerTherapy
         81, 83, 85, 90, 90
     };
     private static TrialType[] TrialTypeForTrials = new TrialType[] {
-        TrialType.SR85PCTRAIN, TrialType.SR85PCTRAIN, TrialType.SR85PCTRAIN, TrialType.SR85PCTRAIN, TrialType.SR85PCCATCH, 
+        TrialType.SR85PCTRAIN, TrialType.SR85PCTRAIN, TrialType.SR85PCTRAIN, TrialType.SR85PCTRAIN, TrialType.SR85PCCATCH,
         TrialType.TRAIN, TrialType.TRAIN, TrialType.TRAIN, TrialType.TRAIN, TrialType.TRAIN,
         TrialType.TRAIN, TrialType.TRAIN, TrialType.TRAIN, TrialType.TRAIN, TrialType.TRAIN,
         TrialType.TRAIN, TrialType.TRAIN, TrialType.TRAIN, TrialType.TRAIN, TrialType.TRAIN,
@@ -110,60 +113,215 @@ public static class HomerTherapy
     }
 
 
-    private static float lastTarget = float.NaN;
-    private const float minDistance = 10f; // Minimum allowed distance between spawns
-
     public static float GetNewTargetPositionUniformFull(float[] arom, float[] prom)
     {
-        float first = UnityEngine.Random.Range(prom[0], prom[1]);
-
-        float distanceToMin = Mathf.Abs(first - prom[0]);
-        float distanceToMax = Mathf.Abs(first - prom[1]);
-
         float target;
-        if (distanceToMin < distanceToMax)
-        {
-            target = UnityEngine.Random.Range(first, prom[1]);
-        }
-        else
-        {
-            target = UnityEngine.Random.Range(prom[0], first);
-        }
+        threshold = (AppData.Instance.selectedMechanism.currRom.promMax - AppData.Instance.selectedMechanism.currRom.promMin) * 0.2f;
+        int attempts = 0;
 
-        // If target is too close to the last one, shift it
-        if (!float.IsNaN(lastTarget) && Mathf.Abs(target - lastTarget) < minDistance)
+        do
         {
-            // Decide shift direction based on boundary room
-            if (target + minDistance <= prom[1])
-                target += minDistance;
-            else if (target - minDistance >= prom[0])
-                target -= minDistance;
-            else
-            {
-                // If there's no room to shift, fallback to random safe generation
-                target = GetSafeTarget(prom, lastTarget, minDistance);
-            }
-        }
+            // Directly pick random value in full range
+            target = UnityEngine.Random.Range(prom[0], prom[1]);
+            attempts++;
+
+            if (attempts > 20) break;
+
+        } while (lastTarget != null && Mathf.Abs((float)lastTarget - target) < threshold);
 
         lastTarget = target;
         return target;
     }
+  
+}
 
-    // Fallback: generate a target with minimum distance from last
-    private static float GetSafeTarget(float[] prom, float last, float minDist)
+
+public class MechanismChecker
+{
+    public float gameSpeed = 1.0f;
+    public string mechanismToCheck;
+
+    private DataTable sessionTable;
+    private string mechParamsCsvPath;
+    public float currSpeed {get; private set;} = -1f;
+    private static readonly string[]speedChMode = new string[] {"manual","automatic"};  
+     public static readonly Dictionary<string, float> DefaultMechanismSpeeds = new Dictionary<string, float>
     {
-        int safety = 0;
-        float target;
-        do
+        { "WFE", 10.0f },
+        { "WURD", 10.0f },
+        { "FPS", 10.0f },
+        { "HOC", 10.0f },
+        { "FME1", 10.0f },
+        { "FME2", 10.0f },
+    };
+    public MechanismChecker(string mechanism, DataTable sessionData, string mechParamsCsvPath)
+    {
+        this.mechanismToCheck = mechanism;
+        this.sessionTable = sessionData;
+        this.mechParamsCsvPath = mechParamsCsvPath;
+    }
+
+    public void EvaluateAndUpdateGameSpeed()
+    {
+        if (!File.Exists(mechParamsCsvPath))
         {
-            target = UnityEngine.Random.Range(prom[0], prom[1]);
-            safety++;
-            if (safety > 1000) break;
+            WriteInitialSpeed();
+            return;
         }
-        while (Mathf.Abs(target - last) < minDist);
-        return target;
+        var mechData = sessionTable.AsEnumerable()
+            .Where(row => row.Field<string>("Mechanism") == mechanismToCheck)
+            .ToList();
+
+        var groupedByDate = mechData
+            .GroupBy(row => DateTime.ParseExact(row.Field<string>("DateTime"), "yyyy-MM-dd HH:mm:ss", CultureInfo.InvariantCulture).Date)
+            .OrderBy(g => g.Key)
+            .ToList();
+
+        if (groupedByDate.Count < 3)
+        {
+            Debug.Log("Not enough different dates for evaluation.");
+            return;
+        }
+
+        var firstDay = groupedByDate[0];
+        var thirdDay = groupedByDate[2];
+
+        float avgTrainSR1 = GetAvgSuccessRate(firstDay, "SR85PCTRAIN");
+        float avgTrainSR3 = GetAvgSuccessRate(thirdDay, "SR85PCTRAIN");
+
+        float catchSR1 = GetSuccessRate(firstDay, "SR85PCCATCH");
+        float catchSR3 = GetSuccessRate(thirdDay, "SR85PCCATCH");
+
+        float avgCB1 = GetAvgControlBound(firstDay, "SR85PCTRAIN");
+        float avgCB3 = GetAvgControlBound(thirdDay, "SR85PCTRAIN");
+
+        Debug.Log($"Train SR Day1: {avgTrainSR1}, Train SR Day3: {avgTrainSR3}");
+        Debug.Log($"Catch SR Day1: {catchSR1}, Catch SR Day3: {catchSR3}");
+        Debug.Log($"CB Day1: {avgCB1}, CB Day3: {avgCB3}");
+
+        if (avgTrainSR3 > avgTrainSR1 && catchSR3 > catchSR1 && avgCB3 < avgCB1)
+        {
+            DateTime? lastUpdate = GetLastDateFromMechParams();
+            if (lastUpdate == null)
+            {
+                Debug.Log("Mechanism params file not found. Creating new file with default speed.");
+                WriteInitialSpeed();
+                return;
+            }
+
+            var sessionDatesBetween = groupedByDate
+                .Where(g => g.Key > lastUpdate.Value.Date && g.Key < DateTime.Today)
+                .Select(g => g.Key)
+                .Distinct()
+                .ToList();
+
+            Debug.Log($"Dates between last update and today: {sessionDatesBetween.Count}");
+
+            if ((DateTime.Today - lastUpdate.Value).Days >= 3 && sessionDatesBetween.Count >= 2)
+            {
+                UpdateGameSpeed();
+            }
+            else
+            {
+                Debug.Log("Not enough session activity since last update to warrant game speed change.");
+            }
+        }
+        else
+        {
+            Debug.Log("Conditions for game speed update not met.");
+        }
+    }
+
+    private float GetAvgSuccessRate(IEnumerable<DataRow> rows, string trialType)
+    {
+        var selected = rows.Where(r => r.Field<string>("TrialType") == trialType)
+                            .Take(4)
+                            .Select(r => float.TryParse(r.Field<string>("SuccessRate"), out var sr) ? sr : -1f)
+                            .Where(sr => sr >= 0)
+                            .ToList();
+
+        return selected.Count > 0 ? selected.Average() : 0;
+    }
+
+    private float GetSuccessRate(IEnumerable<DataRow> rows, string trialType)
+    {
+        return rows.Where(r => r.Field<string>("TrialType") == trialType)
+                   .Select(r => float.TryParse(r.Field<string>("SuccessRate"), out var sr) ? sr : -1f)
+                   .FirstOrDefault(sr => sr >= 0);
+    }
+
+    private float GetAvgControlBound(IEnumerable<DataRow> rows, string trialType)
+    {
+        var selected = rows.Where(r => r.Field<string>("TrialType") == trialType)
+                            .Take(4)
+                            .Select(r => float.TryParse(r.Field<string>("CurrentControlBound"), out var cb) ? cb : -1f)
+                            .Where(cb => cb >= 0)
+                            .ToList();
+
+        return selected.Count > 0 ? selected.Average() : 0;
+    }
+
+    private DateTime? GetLastDateFromMechParams()
+{
+    if (!File.Exists(mechParamsCsvPath)) return null;
+
+    var lines = File.ReadAllLines(mechParamsCsvPath);
+    if (lines.Length < 2) return null;
+
+    var lastLine = lines.Last();
+    var tokens = lastLine.Split(',');
+
+    // Parse DateTime
+    DateTime? lastDate = null;
+    foreach (string token in tokens)
+    {
+        if (DateTime.TryParseExact(token.Trim(), "yyyy-MM-dd HH:mm:ss", CultureInfo.InvariantCulture, DateTimeStyles.None, out var result))
+        {
+            lastDate = result;
+            break;
+        }
+    }
+
+    // Parse Speed
+    if (tokens.Length >= 3 && float.TryParse(tokens[2], out float lastSpeed))
+    {
+        currSpeed = lastSpeed;
+    }
+
+    return lastDate;
+}
+
+
+    private void WriteInitialSpeed()
+    {
+        gameSpeed =DefaultMechanismSpeeds[mechanismToCheck];
+        using (var writer = new StreamWriter(mechParamsCsvPath, false))
+        {
+            writer.WriteLine("DateTime,Mode,Speed");
+            writer.WriteLine($"{DateTime.Now.ToString("yyyy-MM-dd HH:mm:ss")},Default,{gameSpeed}");
+        }
+    }
+
+    private void UpdateGameSpeed(int mode=1)
+    {
+        if (currSpeed <= 0)
+        {
+            currSpeed = DefaultMechanismSpeeds[mechanismToCheck];
+        }
+
+        string chMode = speedChMode[mode];
+        gameSpeed = currSpeed * 1.1f;
+
+        using (var writer = new StreamWriter(mechParamsCsvPath, true))
+        {
+            writer.WriteLine($"{DateTime.Now:yyyy-MM-dd HH:mm:ss},{chMode},{gameSpeed}");
+        }
+
+        Debug.Log($"Game speed updated to: {gameSpeed}");
     }
 }
+
+
 
 // PLUTO UserData Class
 public class PlutoUserData
@@ -271,7 +429,7 @@ public class PlutoUserData
         this.rightHand = dTableConfig.Rows[0]["TrainingSide"].ToString().ToUpper() == "RIGHT";
     }
 
-    
+
     // // Get the last session number.
     // public static int GetPreviousSessionNumber()
     // {
@@ -447,113 +605,113 @@ public class PlutoUserData
         return daySummaries;
     }
 
-public List<float> GetLastTwoSuccessRates(string mechanism, string gameName)
-{
-    List<float> lastTwoSuccessRates = new List<float>();
-
-    dTableSession = DataManager.loadCSV(DataManager.sessionFile);
-
-    if (dTableSession == null || dTableSession.Rows.Count == 0)
+    public List<float> GetLastTwoSuccessRates(string mechanism, string gameName)
     {
-        return new List<float> { 0f, 0f };
-    }
+        List<float> lastTwoSuccessRates = new List<float>();
 
-    var today = DateTime.Today;
+        dTableSession = DataManager.loadCSV(DataManager.sessionFile);
 
-    var filteredRows = dTableSession.AsEnumerable()
+        if (dTableSession == null || dTableSession.Rows.Count == 0)
+        {
+            return new List<float> { 0f, 0f };
+        }
+
+        var today = DateTime.Today;
+
+        var filteredRows = dTableSession.AsEnumerable()
+            .Where(row =>
+                row.Field<string>("Mechanism") == mechanism &&
+                row.Field<string>("GameName") == gameName)
+            .OrderByDescending(row => DateTime.ParseExact(row.Field<string>("TrialStartTime"), DataManager.DATEFORMAT, CultureInfo.InvariantCulture))
+            .ToList();
+        // var successRows = dTableSession.AsEnumerable()
+        // .Where(row =>
+        //     row.Field<string>("Mechanism") == mechanism &&
+        //     row.Field<string>("GameName") == gameName &&
+        //     !string.IsNullOrWhiteSpace(row.Field<string>("SuccessRate")))
+        // .ToList();
+
+        //     if (successRows.Any())
+        //     {
+        //         Others.highestSuccessRate = successRows
+        //             .Max(row => float.Parse(row.Field<string>("SuccessRate"), CultureInfo.InvariantCulture));
+        //             Debug.Log(Others.highestSuccessRate);
+        //     }
+        //     else
+        //     {
+        //         Others.highestSuccessRate = 0f; // or float.NaN, or handle as needed
+        //     }
+
+        var successRows = dTableSession.AsEnumerable()
         .Where(row =>
             row.Field<string>("Mechanism") == mechanism &&
-            row.Field<string>("GameName") == gameName)
-        .OrderByDescending(row => DateTime.ParseExact(row.Field<string>("TrialStartTime"), DataManager.DATEFORMAT, CultureInfo.InvariantCulture))
-        .ToList();
-    // var successRows = dTableSession.AsEnumerable()
-    // .Where(row =>
-    //     row.Field<string>("Mechanism") == mechanism &&
-    //     row.Field<string>("GameName") == gameName &&
-    //     !string.IsNullOrWhiteSpace(row.Field<string>("SuccessRate")))
-    // .ToList();
-
-    //     if (successRows.Any())
-    //     {
-    //         Others.highestSuccessRate = successRows
-    //             .Max(row => float.Parse(row.Field<string>("SuccessRate"), CultureInfo.InvariantCulture));
-    //             Debug.Log(Others.highestSuccessRate);
-    //     }
-    //     else
-    //     {
-    //         Others.highestSuccessRate = 0f; // or float.NaN, or handle as needed
-    //     }
-
-    var successRows = dTableSession.AsEnumerable()
-    .Where(row =>
-        row.Field<string>("Mechanism") == mechanism &&
-        row.Field<string>("GameName") == gameName &&
-        !string.IsNullOrWhiteSpace(row.Field<string>("SuccessRate")) &&
-        !string.IsNullOrWhiteSpace(row.Field<string>("CurrentControlBound")))
-    .ToList();
-
-    if (successRows.Any())
-    {
-        Others.highestSuccessRate = successRows
-            .Max(row =>
-            {
-                float successRate = float.Parse(row.Field<string>("SuccessRate"), CultureInfo.InvariantCulture);
-                float controlBound = float.Parse(row.Field<string>("CurrentControlBound"), CultureInfo.InvariantCulture);
-                return successRate * (3 - controlBound);
-            });
-
-        Debug.Log(Others.highestSuccessRate);
-    }
-    else
-    {
-        Others.highestSuccessRate = 0f; 
-    }
-
-
-    if (!filteredRows.Any())
-    {
-        return null;
-    }
-
-    // Get all success rates from today
-    var todayRates = filteredRows
-        .Where(row => DateTime.ParseExact(row.Field<string>("TrialStartTime"), DataManager.DATEFORMAT, CultureInfo.InvariantCulture).Date == today)
-        .Select(row => Convert.ToSingle(row["SuccessRate"]))
+            row.Field<string>("GameName") == gameName &&
+            !string.IsNullOrWhiteSpace(row.Field<string>("SuccessRate")) &&
+            !string.IsNullOrWhiteSpace(row.Field<string>("CurrentControlBound")))
         .ToList();
 
-    if (todayRates.Count >= 2)
-    {
-        lastTwoSuccessRates.Add(todayRates[1]);
-        lastTwoSuccessRates.Add(todayRates[0]);
-    }
-    else if (todayRates.Count == 1)
-    {
+        if (successRows.Any())
+        {
+            Others.highestSuccessRate = successRows
+                .Max(row =>
+                {
+                    float successRate = float.Parse(row.Field<string>("SuccessRate"), CultureInfo.InvariantCulture);
+                    float controlBound = float.Parse(row.Field<string>("CurrentControlBound"), CultureInfo.InvariantCulture);
+                    return successRate * (3 - controlBound);
+                });
 
-        var previousDayRate = filteredRows
-            .Where(row => DateTime.ParseExact(row.Field<string>("TrialStartTime"), DataManager.DATEFORMAT, CultureInfo.InvariantCulture).Date < today)
+            Debug.Log(Others.highestSuccessRate);
+        }
+        else
+        {
+            Others.highestSuccessRate = 0f;
+        }
+
+
+        if (!filteredRows.Any())
+        {
+            return null;
+        }
+
+        // Get all success rates from today
+        var todayRates = filteredRows
+            .Where(row => DateTime.ParseExact(row.Field<string>("TrialStartTime"), DataManager.DATEFORMAT, CultureInfo.InvariantCulture).Date == today)
             .Select(row => Convert.ToSingle(row["SuccessRate"]))
-            .FirstOrDefault();
+            .ToList();
 
-        lastTwoSuccessRates.Add(previousDayRate);
-        lastTwoSuccessRates.Add(todayRates[0]);
+        if (todayRates.Count >= 2)
+        {
+            lastTwoSuccessRates.Add(todayRates[1]);
+            lastTwoSuccessRates.Add(todayRates[0]);
+        }
+        else if (todayRates.Count == 1)
+        {
 
+            var previousDayRate = filteredRows
+                .Where(row => DateTime.ParseExact(row.Field<string>("TrialStartTime"), DataManager.DATEFORMAT, CultureInfo.InvariantCulture).Date < today)
+                .Select(row => Convert.ToSingle(row["SuccessRate"]))
+                .FirstOrDefault();
+
+            lastTwoSuccessRates.Add(previousDayRate);
+            lastTwoSuccessRates.Add(todayRates[0]);
+
+        }
+        else
+        {
+            var previousDayRate = filteredRows
+                .Where(row => DateTime.ParseExact(row.Field<string>("TrialStartTime"), DataManager.DATEFORMAT, CultureInfo.InvariantCulture).Date < today)
+                .Select(row => Convert.ToSingle(row["SuccessRate"]))
+                .FirstOrDefault();
+
+            lastTwoSuccessRates.Add(previousDayRate);
+            lastTwoSuccessRates.Add(0f);
+        }
+
+        while (lastTwoSuccessRates.Count < 2)
+            lastTwoSuccessRates.Add(0f);
+
+        return lastTwoSuccessRates;
     }
-    else
-    {
-        var previousDayRate = filteredRows
-            .Where(row => DateTime.ParseExact(row.Field<string>("TrialStartTime"), DataManager.DATEFORMAT, CultureInfo.InvariantCulture).Date < today)
-            .Select(row => Convert.ToSingle(row["SuccessRate"]))
-            .FirstOrDefault();
-
-        lastTwoSuccessRates.Add(previousDayRate);
-        lastTwoSuccessRates.Add(0f);
-    }
-
-    while (lastTwoSuccessRates.Count < 2)
-        lastTwoSuccessRates.Add(0f);
-
-    return lastTwoSuccessRates;
-}
 
 
 
