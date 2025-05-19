@@ -179,6 +179,7 @@ public class MechanismChecker
 
         if (groupedByDate.Count < 3)
         {
+            GetLastDateFromMechParams();
             Debug.Log("Not enough different dates for evaluation.");
             return;
         }
@@ -262,34 +263,35 @@ public class MechanismChecker
     }
 
     private DateTime? GetLastDateFromMechParams()
-{
-    if (!File.Exists(mechParamsCsvPath)) return null;
-
-    var lines = File.ReadAllLines(mechParamsCsvPath);
-    if (lines.Length < 2) return null;
-
-    var lastLine = lines.Last();
-    var tokens = lastLine.Split(',');
-
-    // Parse DateTime
-    DateTime? lastDate = null;
-    foreach (string token in tokens)
     {
-        if (DateTime.TryParseExact(token.Trim(), "yyyy-MM-dd HH:mm:ss", CultureInfo.InvariantCulture, DateTimeStyles.None, out var result))
+        if (!File.Exists(mechParamsCsvPath)) return null;
+
+        var lines = File.ReadAllLines(mechParamsCsvPath);
+        if (lines.Length < 2) return null;
+
+        var lastLine = lines.Last();
+        var tokens = lastLine.Split(',');
+
+        // Parse DateTime
+        DateTime? lastDate = null;
+        foreach (string token in tokens)
         {
-            lastDate = result;
-            break;
+            if (DateTime.TryParseExact(token.Trim(), "yyyy-MM-dd HH:mm:ss", CultureInfo.InvariantCulture, DateTimeStyles.None, out var result))
+            {
+                lastDate = result;
+                break;
+            }
         }
-    }
 
-    // Parse Speed
-    if (tokens.Length >= 3 && float.TryParse(tokens[2], out float lastSpeed))
-    {
-        currSpeed = lastSpeed;
-    }
+        // Parse Speed
+        if (tokens.Length >= 3 && float.TryParse(tokens[2], out float lastSpeed))
+        {
+            currSpeed = lastSpeed;
+            gameSpeed = lastSpeed;
+        }
 
-    return lastDate;
-}
+        return lastDate;
+    }
 
 
     private void WriteInitialSpeed()
@@ -774,6 +776,7 @@ public static class Others
     }
 }
 
+
 public class PlutoMechanism
 {
     public static readonly Dictionary<string, float> DefaultMechanismSpeeds = new Dictionary<string, float>
@@ -790,6 +793,7 @@ public class PlutoMechanism
     public string side { get; private set; }
     public bool promCompleted { get; private set; }
     public bool aromCompleted { get; private set; }
+    public bool apromCompleted { get; private set; }
     public ROM oldRom { get; private set; }
     public ROM newRom { get; private set; }
     public ROM currRom { get => newRom.isSet ? newRom : (oldRom.isSet ? oldRom : null); }
@@ -806,6 +810,7 @@ public class PlutoMechanism
         newRom = new ROM();
         promCompleted = false;
         aromCompleted = false;
+        apromCompleted = false;
         this.side = side;
         currSpeed = -1f;
         UpdateTrialNumbers(sessno);
@@ -817,14 +822,15 @@ public class PlutoMechanism
 
     public bool IsSpeedUpdated() => currSpeed > 0;
 
-    public void NextTrail() { 
+    public void NextTrail()
+    {
         trialNumberDay += 1;
         trialNumberSession += 1;
     }
 
-    public float[] CurrentArom => currRom == null? null : new float[] { currRom.aromMin, currRom.aromMax };
-    public float[] CurrentProm => currRom == null? null : new float[] { currRom.promMin, currRom.promMax };
-
+    public float[] CurrentArom => currRom == null ? null : new float[] { currRom.aromMin, currRom.aromMax };
+    public float[] CurrentProm => currRom == null ? null : new float[] { currRom.promMin, currRom.promMax };
+    public float[] CurrentAProm => currRom == null ? null : new float[] { currRom.apromMin, currRom.apromMax };
     public void ResetPromValues()
     {
         newRom.SetProm(0, 0);
@@ -835,6 +841,11 @@ public class PlutoMechanism
     {
         newRom.SetArom(0, 0);
         aromCompleted = false;
+    }
+    public void ResetAPromValues()
+    {
+        newRom.SetAProm(0, 0);
+        apromCompleted = false;
     }
 
     public void SetNewPromValues(float pmin, float pmax)
@@ -854,9 +865,15 @@ public class PlutoMechanism
         if (amin != 0 || amax != 0) aromCompleted = true;
     }
 
+    public void SetNewAPromValues(float apmin, float apmax)
+    {
+        newRom.SetAProm(apmin, apmax);
+        if (apmin != 0 || apmax != 0) apromCompleted = true;
+    }
+
     public void SaveAssessmentData()
     {
-        if (promCompleted && aromCompleted)
+        if (promCompleted && aromCompleted && apromCompleted)
         {
             // Save the new ROM values to the file.
             newRom.WriteToAssessmentFile();
@@ -961,7 +978,7 @@ public class PlutoMechanism
 public class ROM
 {
     public static string[] FILEHEADER = new string[] {
-        "DateTime", "PromMin", "PromMax", "AromMin", "AromMax"
+        "DateTime", "PromMin", "PromMax", "AromMin", "AromMax","APromMin","APromMax"
     };
     // Class attributes to store data read from the file
     public string datetime;
@@ -969,6 +986,8 @@ public class ROM
     public float promMax { get; private set; }
     public float aromMin { get; private set; }
     public float aromMax { get; private set; }
+    public float apromMin { get; private set; }
+    public float apromMax { get; private set; }
     public string mechanism { get; private set; }
     public bool isAromSet { get => aromMin != 0 || aromMax != 0; }
     public bool isPromSet { get => promMin != 0 || promMax != 0; }
@@ -987,6 +1006,8 @@ public class ROM
             promMax = 0;
             aromMin = 0;
             aromMax = 0;
+            apromMin = 0;
+            apromMax = 0;
         }
     }
 
@@ -1007,6 +1028,8 @@ public class ROM
         promMax = 0;
         aromMin = 0;
         aromMax = 0;
+        apromMin = 0;
+        apromMax = 0;
         mechanism = null;
         datetime = null;
     }
@@ -1026,13 +1049,20 @@ public class ROM
         aromMax = max;
         datetime = DateTime.Now.ToString();
     }
+    public void SetAProm(float min, float max)
+    {
+        apromMin = min;
+        apromMax = max;
+        datetime = DateTime.Now.ToString();
+    }
+
 
     public void WriteToAssessmentFile()
     {
-        string fileName = DataManager.GetRomFileName(mechanism);;
+        string fileName = DataManager.GetRomFileName(mechanism); ;
         using (StreamWriter file = new StreamWriter(fileName, true))
         {
-            file.WriteLine(string.Join(",", new string[] { datetime, promMin.ToString(), promMax.ToString(), aromMin.ToString(), aromMax.ToString() }));
+            file.WriteLine(string.Join(",", new string[] { datetime, promMin.ToString(), promMax.ToString(), aromMin.ToString(), aromMax.ToString(), apromMin.ToString(), apromMax.ToString() }));
         }
     }
 
@@ -1059,6 +1089,8 @@ public class ROM
             promMax = 0;
             aromMin = 0;
             aromMax = 0;
+            apromMin = 0;
+            apromMax = 0;
             return;
         }
         // Assign ROM from the last row.
@@ -1068,9 +1100,10 @@ public class ROM
         promMax = float.Parse(romData.Rows[romData.Rows.Count - 1].Field<string>("PromMax"));
         aromMin = float.Parse(romData.Rows[romData.Rows.Count - 1].Field<string>("AromMin"));
         aromMax = float.Parse(romData.Rows[romData.Rows.Count - 1].Field<string>("AromMax"));
+        apromMin = float.Parse(romData.Rows[romData.Rows.Count - 1].Field<string>("APromMin"));
+        apromMax = float.Parse(romData.Rows[romData.Rows.Count - 1].Field<string>("APromMax"));
     }
 }
-
 /*
  * AAN Controller for HOMER
  */

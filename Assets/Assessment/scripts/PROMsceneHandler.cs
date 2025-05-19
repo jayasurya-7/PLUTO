@@ -305,7 +305,8 @@ public class PROMsceneHandler : MonoBehaviour
          new string[] {"",""}
      };
 
-    private string nextScene = "CHGAME";
+    // private string nextScene = "CHGAME";
+    private string nextScene = "ASSISTPROFILE";
    
     void Start()
     {
@@ -473,7 +474,6 @@ public class PROMsceneHandler : MonoBehaviour
     {
         // Set the new PROM values in the selected mechanism.
         AppData.Instance.selectedMechanism.SetNewPromValues(promSlider.minAng, promSlider.maxAng);
-        AppData.Instance.selectedMechanism.SaveAssessmentData();
 
         if (AppData.Instance.selectedMechanism.IsMechanism("HOC"))
         {

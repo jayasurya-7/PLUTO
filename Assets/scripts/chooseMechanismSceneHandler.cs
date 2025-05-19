@@ -156,12 +156,12 @@ public class MechanismSceneHandler : MonoBehaviour
 
     void LoadNextScene()
     {
-        var checker = new MechanismChecker(
+        AppData.Instance.speedData = new MechanismChecker(
     mechanism: AppData.Instance.selectedMechanism.name,
     sessionData: AppData.Instance.userData.dTableSession,
     mechParamsCsvPath: DataManager.GetMechFileName(AppData.Instance.selectedMechanism.name)
 );
-checker.EvaluateAndUpdateGameSpeed();
+AppData.Instance.speedData .EvaluateAndUpdateGameSpeed();
       
         AppLogger.LogInfo($"New AAN controller created for '{AppData.Instance.selectedMechanism.name}'.");
 
