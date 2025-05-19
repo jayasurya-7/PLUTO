@@ -16,11 +16,12 @@ public class AssistsceneHandler : MonoBehaviour
     public TMP_Text lText;
     public TMP_Text rText;
     public TMP_Text insText;
-    public TMP_Text cText;
+    public TMP_Text cText, inst;
     public TMP_Text relaxText;
 
     public TMP_Text jointAngle;
     public TMP_Text jointAngleHoc;
+    public TextMeshProUGUI mechName;
 
     private int _linx, _rinx;
     private float _tmin = 0f, _tmax  =0f;
@@ -79,6 +80,9 @@ float torqueRampSpeed = 0.1f; // You can tweak this value (e.g., 0.05f, 0.02f fo
 
     void Start()
     {
+          // Set mechanism name
+        mechName.text = PlutoComm.MECHANISMSTEXT[PlutoComm.GetPlutoCodeFromLabel(PlutoComm.MECHANISMS, AppData.Instance.selectedMechanism.name)];
+  
         InitializeAssessment();
     }
 
@@ -94,7 +98,8 @@ float torqueRampSpeed = 0.1f; // You can tweak this value (e.g., 0.05f, 0.02f fo
         apromSlider.Setup(-angLimit, angLimit, -10, 10);
         apromSlider.minAng = 0;
         apromSlider.maxAng = 0;
-
+        reachedNegative = false;
+        reachedPositive = false;
         // Update central text.
         cText.gameObject.SetActive(AppData.Instance.selectedMechanism.IsMechanism("HOC"));
         cText.text = AppData.Instance.selectedMechanism.IsMechanism("HOC") ? "Closed" : "";
@@ -106,186 +111,131 @@ float torqueRampSpeed = 0.1f; // You can tweak this value (e.g., 0.05f, 0.02f fo
 
         // Set the state to INIT.
         _state = AssessStates.INIT;
-        
+        inst.text = "";
         // Attach callback for PLUTO button release.
         PlutoComm.OnButtonReleased += OnPlutoButtonReleased;
 
         UpdateStatusText();
     }
-    // void runAssessment()
-    // {
-    //     float deltaAngle = Mathf.Abs(currentAngle - previousAngle);
-    //     bool movingTowardTarget = (goingPositive && !AppData.Instance.selectedMechanism.IsMechanism("HOC") )? (currentAngle > previousAngle) : (currentAngle < previousAngle);
-
-    //     if (!movingTowardTarget || deltaAngle < 3f)
-    //         stuckTimer += Time.deltaTime;
-    //     else
-    //         stuckTimer = 0f;
-
-    //     if (goingPositive) // && !AppData.Instance.selectedMechanism.IsMechanism("HOC"))
-    //     {
-    //         if (!reachedPositive)
-    //         {
-    //             if (currentAngle < targetPositiveEnd - endpointTolerance)
-    //             {
-    //                 // Always gradually increase torque to max
-    //                 torque = Mathf.Min(torque + Time.deltaTime, 1f);
-
-    //                 // If stuck too long at max torque, give up
-    //                 if (stuckTimer > stuckThresholdTime && torque == 1f)
-    //                     positiveStuckAttempts++;
-
-    //                 if (positiveStuckAttempts >= maxStuckAttempts)
-    //                 {
-    //                     reachedPositive = true;
-    //                     maxAngle = currentAngle;
-    //                     Debug.Log("Max torque limit reached. Saving maxAngle: " + maxAngle);
-    //                     torque = 0f;
-    //                     PlutoComm.setControlTarget(0);
-    //                     goingPositive = false;
-    //                     return;
-    //                 }
-
-    //                 PlutoComm.setControlTarget(torque);
-    //             }
-    //             else
-    //             {
-    //                 reachedPositive = true;
-    //                 maxAngle = currentAngle;
-    //                 torque = 0f;
-    //                 PlutoComm.setControlTarget(0);
-    //                 goingPositive = false;
-    //                 Debug.Log("Reached targetPositiveEnd. Saving maxAngle: " + maxAngle);
-    //             }
-    //         }
-    //     }
-    //     else
-    //     {
-    //         if (!reachedNegative)
-    //         {
-    //                 if (currentAngle > targetNegativeEnd + endpointTolerance)
-    //                 {
-    //                     // Gradually increase reverse torque
-    //                     torque = Mathf.Max(torque - Time.deltaTime, -1f);
-
-    //                     // If stuck too long at max reverse torque, give up
-    //                     if (stuckTimer > stuckThresholdTime && torque == -1f)
-    //                         negativeStuckAttempts++;
-
-    //                     if (negativeStuckAttempts >= maxStuckAttempts)
-    //                     {
-    //                         reachedNegative = true;
-    //                         minAngle = currentAngle;
-    //                         Debug.Log("Min torque limit reached. Saving minAngle: " + minAngle);
-    //                         torque = 0f;
-    //                         PlutoComm.setControlType("NONE");
-    //                         //PlutoComm.setControlTarget(0);
-    //                         return;
-    //                     }
-
-    //                     PlutoComm.setControlTarget(torque);
-    //                 }
-    //                 else
-    //                 {
-    //                     reachedNegative = true;
-    //                     minAngle = currentAngle;
-    //                     torque = 0f;
-    //                     PlutoComm.setControlTarget(0);
-    //                     Debug.Log("Reached targetNegativeEnd. Saving minAngle: " + minAngle);
-    //                     return;
-    //             }
-    //         }
-    //     }
-
-    //     previousAngle = currentAngle;
-
-    //      if (isButtonPressed)
-    //         {
-    //             AppData.Instance.selectedMechanism.SetNewAPromValues(_tmin, _tmax);
-
-    //             PlutoComm.setControlType("NONE");
-    //             AppData.Instance.selectedMechanism.SaveAssessmentData();
-    //             OnSaveClick();
-    //             isButtonPressed = false;
-    //             Debug.Log("Reached both ends. Stopping control.");
-    //             Debug.Log($"Final Limits => MinAngle: {minAngle}, MaxAngle: {maxAngle}");
-    //             if(AppData.Instance.selectedMechanism.apromCompleted) SceneManager.LoadScene("CHGAME");
-    //         }
-    // }
 
     //--------------------------------------------------------------------------------------------
 
-    // void runAssessment()
-    //     {
-    //         float deltaAngle = Mathf.Abs(currentAngle - previousAngle);
-    //         bool movingTowardTarget = (goingPositive && !AppData.Instance.selectedMechanism.IsMechanism("HOC") ) ? (currentAngle > previousAngle) : (currentAngle < previousAngle);
+    void runAssessment()
+        {
+            float deltaAngle = Mathf.Abs(currentAngle - previousAngle);
+            bool movingTowardTarget = (goingPositive && !AppData.Instance.selectedMechanism.IsMechanism("HOC") ) ? (currentAngle > previousAngle) : (currentAngle < previousAngle);
 
-    //         if (!movingTowardTarget || deltaAngle < 4f)
-    //             stuckTimer += Time.deltaTime;
-    //         else
-    //             stuckTimer = 0f;
+            if (!movingTowardTarget || deltaAngle < 4f)
+                stuckTimer += Time.deltaTime;
+            else
+                stuckTimer = 0f;
 
-    //         if (goingPositive)
-    //         {
-    //             if (!reachedPositive)
-    //             {
-    //                 if (currentAngle < targetPositiveEnd - endpointTolerance)
-    //                 {
-    //                     if (stuckTimer > stuckThresholdTime)
-    //                         torque = Mathf.Min(torque + Time.deltaTime, 1f);
-    //                     else
-    //                         torque = 0.3f;
+        if (!reachedPositive || !reachedNegative)
+        {
+            if (goingPositive)
+            {
+                if (!reachedPositive)
+                {
+                    if (currentAngle < targetPositiveEnd - endpointTolerance)
+                    {
+                        if (stuckTimer > stuckThresholdTime)
+                        {
+                            torque = Mathf.Min(torque + Time.deltaTime, 1f);
 
-    //                     PlutoComm.setControlTarget(torque);
-    //                 }
-    //                 else
-    //                 {
-    //                     reachedPositive = true;
-    //                     goingPositive = false;
-    //                     torque = 0f;
-    //                     PlutoComm.setControlTarget(0);
-    //                 }
-    //             }
-    //         }
-    //         else
-    //         {
-    //             if (!reachedNegative)
-    //             {
-    //                 if (currentAngle > targetNegativeEnd + endpointTolerance)
-    //                 {
-    //                     if (stuckTimer > stuckThresholdTime)
-    //                         torque = Mathf.Max(torque - Time.deltaTime, -1f);
-    //                     else
-    //                         torque = -0.3f;
+                            // If stuck at max torque
+                            if (torque >= 1f && stuckTimer > stuckThresholdTime)
+                            {
+                                positiveStuckAttempts++;
+                                stuckTimer = 0f; // Reset timer for next retry
+                            }
 
-    //                     PlutoComm.setControlTarget(torque);
-    //                 }
-    //                 else
-    //                 {
-    //                     reachedNegative = true;
-    //                     torque = 0f;
-    //                     PlutoComm.setControlTarget(0);
-    //                 }
-    //             }
-    //         }
+                            // After 4 stuck attempts, give up
+                            if (positiveStuckAttempts >= 4)
+                            {
+                                reachedPositive = true;
+                                maxAngle = currentAngle;
+                                torque = 0f;
+                                PlutoComm.setControlTarget(0);
+                                goingPositive = false;
+                                Debug.Log("Max torque attempts reached. Saving maxAngle: " + maxAngle);
+                                return;
+                            }
+                        }
+                        else
+                            torque = 0.4f;
 
-    //         previousAngle = currentAngle;
+                        PlutoComm.setControlTarget(torque);
+                    }
+                    else
+                    {
+                        reachedPositive = true;
+                        goingPositive = false;
+                        torque = 0f;
+                        PlutoComm.setControlTarget(0);
+                    }
+                }
+            }
+            else
+            {
+                if (!reachedNegative)
+                {
+                    if (currentAngle > targetNegativeEnd + endpointTolerance)
+                    {
+                        if (stuckTimer > stuckThresholdTime)
+                        {
+                            torque = Mathf.Max(torque - Time.deltaTime, -1f);
+                           // If stuck at max negative torque
+                            if (torque <= -1f && stuckTimer > stuckThresholdTime)
+                            {
+                                negativeStuckAttempts++;
+                                stuckTimer = 0f; // Reset for next retry
+                            }
+
+                            // After 4 stuck attempts, give up
+                            if (negativeStuckAttempts >= 4)
+                            {
+                                reachedNegative = true;
+                                minAngle = currentAngle;
+                                torque = 0f;
+                                PlutoComm.setControlType("NONE");
+                                inst.text = $"APROM Reached both ends min : {_tmin},max :{_tmax}. Press PLUTO button to move next scene";
+                                Debug.Log("Min torque attempts reached. Saving minAngle: " + minAngle);
+                                return;
+                            }
+                        }
+                        else
+                            torque = -0.4f;
+
+                        PlutoComm.setControlTarget(torque);
+                    }
+                    else
+                    {
+                        inst.text = $"APROM Reached both ends min : {_tmin},max :{_tmax}. Press PLUTO button to move next scene";
+
+                        reachedNegative = true;
+                        PlutoComm.setControlType("NONE");
+                    }
+                }
+            }
+            Debug.Log("running");
+            }else PlutoComm.setControlType("NONE");
+            previousAngle = currentAngle;
 
 
-    //         // if (reachedPositive && reachedNegative && isButtonPressed)
-    //         if (isButtonPressed)
-    //         {
-    //             AppData.Instance.selectedMechanism.SetNewAPromValues(_tmin, _tmax);
+            // if (reachedPositive && reachedNegative && isButtonPressed)
+            if (reachedNegative && reachedPositive && isButtonPressed)
+            {
+                AppData.Instance.selectedMechanism.SetNewAPromValues(_tmin, _tmax);
 
-    //             PlutoComm.setControlType("NONE");
-    //             AppData.Instance.selectedMechanism.SaveAssessmentData();
-    //             OnSaveClick();
-    //             isButtonPressed = false;
-    //             Debug.Log("Reached both ends. Stopping control.");
-    //             Debug.Log($"Final Limits => MinAngle: {minAngle}, MaxAngle: {maxAngle}");
-    //             if(AppData.Instance.selectedMechanism.apromCompleted) SceneManager.LoadScene("CHGAME");
-    //         }
-    //     }
+                PlutoComm.setControlType("NONE");
+                AppData.Instance.selectedMechanism.SaveAssessmentData();
+                OnSaveClick();
+                isButtonPressed = false;
+                Debug.Log("Reached both ends. Stopping control.");
+                Debug.Log($"Final Limits => MinAngle: {minAngle}, MaxAngle: {maxAngle}");
+                if(AppData.Instance.selectedMechanism.apromCompleted) SceneManager.LoadScene("CHGAME");
+            }
+        }
 
     //-------------------------------------
 
@@ -335,7 +285,11 @@ float torqueRampSpeed = 0.1f; // You can tweak this value (e.g., 0.05f, 0.02f fo
     //                     {
     //                         torque = Mathf.Min(torque + Time.deltaTime * torqueRampSpeed, 1f);
     //                         if (torque >= 1f)
+    //                         {
+    //                              Debug.Log($"pos Att: {positiveStuckAttempts}");
     //                             positiveStuckAttempts++;
+    //                         }
+                               
 
     //                         if (positiveStuckAttempts >= maxStuckAttempts)
     //                         {
@@ -350,7 +304,7 @@ float torqueRampSpeed = 0.1f; // You can tweak this value (e.g., 0.05f, 0.02f fo
     //                     }
     //                     else
     //                     {
-    //                         torque = 0.1f;
+    //                         torque = 0.33f;
     //                     }
 
     //                     PlutoComm.setControlTarget(torque);
@@ -377,25 +331,28 @@ float torqueRampSpeed = 0.1f; // You can tweak this value (e.g., 0.05f, 0.02f fo
     //                     if (stuckTimer > stuckThresholdTime)
     //                     {
     //                         // torque = Mathf.Max(torque - Time.deltaTime, -1f);
-    //                         torque = Mathf.Min(torque + Time.deltaTime * torqueRampSpeed, 1f);
+    //                         torque = Mathf.Min(torque + Time.deltaTime * torqueRampSpeed, -1f);
+
     //                         if (torque <= -1f)
+    //                         {
+    //                             Debug.Log($"neg Att: {negativeStuckAttempts}");
     //                             negativeStuckAttempts++;
+
+    //                         }
 
     //                         if (negativeStuckAttempts >= maxStuckAttempts)
     //                         {
     //                             reachedNegative = true;
     //                             minAngle = currentAngle;
     //                             Debug.Log("Min torque limit reached. Saving minAngle: " + minAngle);
-    //                             torque = 0f;
+    //                             inst.text = $"APROM Reached both ends min : {_tmin},max :{_tmax}. Press PLUTO button to move next scene";
     //                             PlutoComm.setControlType("NONE");
-    //                             PlutoComm.setControlTarget(0);
     //                             return;
     //                         }
     //                     }
     //                     else
     //                     {
-    //                         // Smooth negative torque increase instead of abrupt jump
-    //                 torque = Mathf.Max(torque - Time.deltaTime, -1f);
+    //                         torque = -0.33f;
     //                     }
 
     //                     PlutoComm.setControlTarget(torque);
@@ -404,8 +361,8 @@ float torqueRampSpeed = 0.1f; // You can tweak this value (e.g., 0.05f, 0.02f fo
     //                 {
     //                     reachedNegative = true;
     //                     minAngle = currentAngle;
-    //                     torque = 0f;
-    //                     PlutoComm.setControlTarget(0);
+    //                     inst.text = $"APROM Reached both ends min : {_tmin},max :{_tmax}. Press PLUTO button to move next scene";
+    //                     PlutoComm.setControlType("NONE");
     //                     Debug.Log("Reached targetNegativeEnd. Saving minAngle: " + minAngle);
     //                 }
     //             }
@@ -414,8 +371,7 @@ float torqueRampSpeed = 0.1f; // You can tweak this value (e.g., 0.05f, 0.02f fo
     //         }
     //         previousAngle = currentAngle;
 
-    //         // if (reachedPositive && reachedNegative && isButtonPressed)
-    //         if (isButtonPressed)
+    //         if (reachedPositive && reachedNegative && isButtonPressed)
     //         {
     //             AppData.Instance.selectedMechanism.SetNewAPromValues(_tmin, _tmax);
 
@@ -429,121 +385,6 @@ float torqueRampSpeed = 0.1f; // You can tweak this value (e.g., 0.05f, 0.02f fo
     //         }
     //     }
 
-
-
-
-    //temp
-    
-
-    void runAssessment()
-{
-    float deltaAngle = Mathf.Abs(currentAngle - previousAngle);
-    bool movingTowardTarget = (goingPositive && !AppData.Instance.selectedMechanism.IsMechanism("HOC"))
-                                ? (currentAngle > previousAngle)
-                                : (currentAngle < previousAngle);
-
-    if (!movingTowardTarget || deltaAngle < 0.5f)
-        stuckTimer += Time.deltaTime;
-    else
-        stuckTimer = 0f;
-
-        if (!reachedPositive || !reachedNegative)
-        {
-        if (goingPositive)
-    {
-        if (!reachedPositive)
-        {
-            if (currentAngle < targetPositiveEnd - endpointTolerance)
-            {
-                torque = Mathf.Min(torque + Time.deltaTime, 1f);
-
-                // If stuck at max torque
-                if (torque >= 1f && stuckTimer > stuckThresholdTime)
-                {
-                    positiveStuckAttempts++;
-                    stuckTimer = 0f; // Reset timer for next retry
-                }
-
-                // After 4 stuck attempts, give up
-                if (positiveStuckAttempts >= 4)
-                {
-                    reachedPositive = true;
-                    maxAngle = currentAngle;
-                    torque = 0f;
-                    PlutoComm.setControlTarget(0);
-                    goingPositive = false;
-                    Debug.Log("Max torque attempts reached. Saving maxAngle: " + maxAngle);
-                    return;
-                }
-
-                PlutoComm.setControlTarget(torque);
-            }
-            else
-            {
-                reachedPositive = true;
-                maxAngle = currentAngle;
-                torque = 0f;
-                PlutoComm.setControlTarget(0);
-                goingPositive = false;
-                Debug.Log("Reached targetPositiveEnd. Saving maxAngle: " + maxAngle);
-            }
-        }
-    }
-    else
-    {
-        if (!reachedNegative)
-        {
-            if (currentAngle > targetNegativeEnd + endpointTolerance)
-            {
-                torque = Mathf.Max(torque - Time.deltaTime, -1f);
-
-                // If stuck at max negative torque
-                if (torque <= -1f && stuckTimer > stuckThresholdTime)
-                {
-                    negativeStuckAttempts++;
-                    stuckTimer = 0f; // Reset for next retry
-                }
-
-                // After 4 stuck attempts, give up
-                if (negativeStuckAttempts >= 4)
-                {
-                    reachedNegative = true;
-                    minAngle = currentAngle;
-                    torque = 0f;
-                    PlutoComm.setControlType("NONE");
-                    Debug.Log("Min torque attempts reached. Saving minAngle: " + minAngle);
-                    return;
-                }
-
-                PlutoComm.setControlTarget(torque);
-            }
-            else
-            {
-                reachedNegative = true;
-                minAngle = currentAngle;
-                torque = 0f;
-                PlutoComm.setControlTarget(0);
-                Debug.Log("Reached targetNegativeEnd. Saving minAngle: " + minAngle);
-            }
-        }
-    }
-            Debug.Log("running");
-    }
-    previousAngle = currentAngle;
-
-    if (isButtonPressed)
-    {
-        AppData.Instance.selectedMechanism.SetNewAPromValues(_tmin, _tmax);
-        PlutoComm.setControlType("NONE");
-        AppData.Instance.selectedMechanism.SaveAssessmentData();
-        OnSaveClick();
-        isButtonPressed = false;
-        Debug.Log("Reached both ends. Stopping control.");
-        Debug.Log($"Final Limits => MinAngle: {minAngle}, MaxAngle: {maxAngle}");
-        if (AppData.Instance.selectedMechanism.apromCompleted)
-            SceneManager.LoadScene("CHGAME");
-    }
-}
 
     public void OnExit()
     {
@@ -602,7 +443,8 @@ float torqueRampSpeed = 0.1f; // You can tweak this value (e.g., 0.05f, 0.02f fo
 
         // Reinitialize the assessment process
         InitializeAssessment();
-
+        negativeStuckAttempts = positiveStuckAttempts = 0;
+        goingPositive = true;
         UpdateStatusText();
       //  AppData.Instance.selectedMechanism.ResetAromValues();
         Debug.Log("Redo PROM: Reset to INIT state.");

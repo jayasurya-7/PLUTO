@@ -36,6 +36,9 @@ EditorBuildSettings:
     path: Assets/Scenes/ASSISTPROFILE.unity
     guid: 4c6ff9c09ed83b344893754d14998d1b
   - enabled: 1
+    path: Assets/Games/HAT-CV/_Scenes/HATCV.unity
+    guid: 074187bd057527448ba1ad4459177e36
+  - enabled: 1
     path: Assets/Games/Ping Pong/Scenes/PONGMENU.unity
     guid: 3638c2108d2f16d4882a47f92c783028
   - enabled: 1

@@ -262,36 +262,47 @@ public class MechanismChecker
         return selected.Count > 0 ? selected.Average() : 0;
     }
 
-    private DateTime? GetLastDateFromMechParams()
+private DateTime? GetLastDateFromMechParams()
+{
+    // If file doesn't exist, return null
+    if (!File.Exists(mechParamsCsvPath))
+        return null;
+
+    // Load CSV into DataTable
+    DataTable mechData = DataManager.loadCSV(mechParamsCsvPath);  // assumes columns: DateTime, ChangeMode, Speed
+
+    if (mechData.Rows.Count == 0)
+        return null;
+
+    // Get last row
+    DataRow lastRow = mechData.Rows[mechData.Rows.Count - 1];
+
+    DateTime? lastDate = null;
+    float parsedSpeed;
+
+    try
     {
-        if (!File.Exists(mechParamsCsvPath)) return null;
+        string dateStr = lastRow["DateTime"].ToString();
+        string speedStr = lastRow["Speed"].ToString();
 
-        var lines = File.ReadAllLines(mechParamsCsvPath);
-        if (lines.Length < 2) return null;
+        // Parse date
+        if (DateTime.TryParseExact(dateStr, DataManager.DATEFORMAT, CultureInfo.InvariantCulture, DateTimeStyles.None, out var dt))
+            lastDate = dt;
 
-        var lastLine = lines.Last();
-        var tokens = lastLine.Split(',');
-
-        // Parse DateTime
-        DateTime? lastDate = null;
-        foreach (string token in tokens)
+        // Parse speed
+        if (float.TryParse(speedStr, out parsedSpeed))
         {
-            if (DateTime.TryParseExact(token.Trim(), "yyyy-MM-dd HH:mm:ss", CultureInfo.InvariantCulture, DateTimeStyles.None, out var result))
-            {
-                lastDate = result;
-                break;
-            }
+            currSpeed = parsedSpeed;
+            gameSpeed = parsedSpeed;
         }
-
-        // Parse Speed
-        if (tokens.Length >= 3 && float.TryParse(tokens[2], out float lastSpeed))
-        {
-            currSpeed = lastSpeed;
-            gameSpeed = lastSpeed;
-        }
-
-        return lastDate;
     }
+    catch (Exception ex)
+    {
+        Debug.LogError("Error parsing mechParams: " + ex.Message);
+    }
+
+    return lastDate;
+}
 
 
     private void WriteInitialSpeed()

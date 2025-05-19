@@ -10,9 +10,9 @@ using Unity.Mathematics;
 using System.IO;
 using Unity.VisualScripting;
 
-public class HatGameController : MonoBehaviour
+public class HatGameControllerCV : MonoBehaviour
 {
-    public static HatGameController Instance { get; private set; }
+    public static HatGameControllerCV Instance { get; private set; }
 
     // Constant game related variables.
     // private float BALLSPEED = 1f + 0.3f * (1 + 1);
@@ -155,10 +155,6 @@ public class HatGameController : MonoBehaviour
             aromRight.transform.position.y,
             aromRight.transform.position.z
         );
-         HS.text = $" BEST :{ Others.highestSuccessRate:F0} %";
-         status.text = $"s.no: {AppData.Instance.currentSessionNumber}\n" +
-              $"trialNo: {AppData.Instance.selectedMechanism.trialNumberSession}\n" +
-              $"CB: {AppData.Instance.CurrentControlBound}";
         
     }
     
@@ -205,10 +201,6 @@ public class HatGameController : MonoBehaviour
     {
         // Start new trial.
         AppData.Instance.StartNewTrial();
-
-        status.text = $"s.no: {AppData.Instance.currentSessionNumber}\n" +
-              $"trialNo: {AppData.Instance.selectedMechanism.trialNumberSession}\n" +
-              $"CB: {AppData.Instance.CurrentControlBound}";
         // Put PLUTO in the AAN mode.
         if ((PlutoComm.MECHANISMS[PlutoComm.mechanism] != "FME1") && (PlutoComm.MECHANISMS[PlutoComm.mechanism] != "FME2"))
         {
@@ -388,10 +380,6 @@ public class HatGameController : MonoBehaviour
         scale = new Vector3(1f, 1f, 1f);
         player.transform.localScale = scale;
 
-        // Intialize text
-        timeLeftText = GameObject.FindGameObjectWithTag("TimeLeftText").GetComponent<Text>();
-        ScoreText = GameObject.FindGameObjectWithTag("ScoreText").GetComponent<Text>();
-
 
         // Enable the buttons
         StartButton.SetActive(true);
@@ -426,13 +414,22 @@ public class HatGameController : MonoBehaviour
 
     private void UpdateText()
     {
-        timeLeftText.text = $"Time Left: {(int)triaTimeLeft}";
-        ScoreText.text = $"Score: {nSuccess}";
+        // timeLeftText.text = $"Time Left: {(int)triaTimeLeft}";
+         ScoreText.text = $"control value :{PlutoComm.control}"; //getControlValue:
+    }
+    public void addControlGain()
+    {
+        //increaseCintrolGain();
+    }
+     public void minusControlGain()
+    {
+        //reduceControlGain();
     }
 
     public void exitGame()
     {
-        if(gameState == GameStates.DONE || gameState == GameStates.WAITING){
+        if (gameState == GameStates.DONE || gameState == GameStates.WAITING)
+        {
             Time.timeScale = 1f;
             SceneManager.LoadScene(prevScene);
         }
@@ -442,21 +439,15 @@ public class HatGameController : MonoBehaviour
             AppData.Instance.aanController.Update(PlutoComm.angle, Time.deltaTime, true);
             float gameTime = HomerTherapy.TrialDuration - triaTimeLeft;
             Others.gameTime = (gameTime < HomerTherapy.TrialDuration) ? gameTime : HomerTherapy.TrialDuration;
-             AppData.Instance.StopTrial(nTargets, nSuccess, nFailure);
-             gameState = GameStates.DONE;
-             Time.timeScale = 1f;
-             SceneManager.LoadScene(prevScene);
+            AppData.Instance.StopTrial(nTargets, nSuccess, nFailure);
+            gameState = GameStates.DONE;
+            Time.timeScale = 1f;
+            SceneManager.LoadScene(prevScene);
         }
     }
 
     public void ShowPaused()
     {
-          if(AppData.Instance.previousSuccessRates!=null)
-        {
-            SuccessRateBanner.SetActive(true);
-            prevSR.text = $" previous SR : {AppData.Instance.previousSuccessRates[0]}%";
-            currSR.text = $"Current Success Rate : {AppData.Instance.previousSuccessRates[1]}%";
-        }
         foreach (GameObject g in pauseObjects)
         {
             g.SetActive(true);
@@ -469,7 +460,6 @@ public class HatGameController : MonoBehaviour
         {
             g.SetActive(false);
         }
-        SuccessRateBanner.SetActive(false);
     }
 
     public void ShowFinished()

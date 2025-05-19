@@ -86,6 +86,10 @@ public class ChooseGameSceneHandler : MonoBehaviour
         {
             SceneManager.LoadScene("ASSISTPROFILE");
         }
+        if (Input.GetKey(KeyCode.LeftControl) && Input.GetKeyDown(KeyCode.X))
+        {
+            SceneManager.LoadScene("HATCV");
+        }
     }
 
     void AttachCallbacks()
