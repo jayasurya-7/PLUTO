@@ -73,7 +73,7 @@ int negativeStuckAttempts = 0;
 const int maxStuckAttempts = 4;
 float maxAngle = 0f;
 float minAngle = 0f;
-float torqueRampSpeed = 0.1f; // You can tweak this value (e.g., 0.05f, 0.02f for even slower)
+float torqueRampSpeed = 0.07f; // You can tweak this value (e.g., 0.05f, 0.02f for even slower)
 
 //torque = Mathf.Min(torque + Time.deltaTime * torqueRampSpeed, 1f); // for positive
 
@@ -375,7 +375,7 @@ float torqueRampSpeed = 0.1f; // You can tweak this value (e.g., 0.05f, 0.02f fo
                             Debug.Log("Min torque limit reached. Saving minAngle: " + minAngle);
                             torque = 0f;
                             PlutoComm.setControlType("NONE");
-                            PlutoComm.setControlTarget(0);
+                          //  PlutoComm.setControlTarget(0);
                             return;
                         }
                     }
@@ -400,13 +400,18 @@ float torqueRampSpeed = 0.1f; // You can tweak this value (e.g., 0.05f, 0.02f fo
 
         previousAngle = currentAngle;
 
-        if (reachedPositive && reachedNegative && isButtonPressed)
+        // if (reachedPositive && reachedNegative && isButtonPressed)
+        if (isButtonPressed)
         {
             PlutoComm.setControlTarget(0);
             PlutoComm.setControlType("NONE");
+            Debug.Log($"APROM:{_tmin},{_tmax}");
+            AppData.Instance.selectedMechanism.SetNewAPromValues(_tmin, _tmax);
             isButtonPressed = false;
+            OnNextButtonClick();
             Debug.Log("Reached both ends. Stopping control.");
             Debug.Log($"Final Limits => MinAngle: {minAngle}, MaxAngle: {maxAngle}");
+            SceneManager.LoadScene("ASSESS");
         }
     }
         
@@ -451,16 +456,16 @@ float torqueRampSpeed = 0.1f; // You can tweak this value (e.g., 0.05f, 0.02f fo
                 _tmax = apromSlider.maxAng;
                // relaxText.text = FormatRelaxText(AppData.Instance.selectedMechanism.oldRom.promMin, AppData.Instance.selectedMechanism.oldRom.promMax);
                 
-                if (isButtonPressed || Input.GetKeyDown(KeyCode.Return))
-                {
-                    OnNextButtonClick();
-                    isButtonPressed = false;
-                }
+                // if (isButtonPressed || Input.GetKeyDown(KeyCode.Return))
+                // {
+                //     //OnNextButtonClick();
+                //     isButtonPressed = false;
+                // }
                 break;
         }
     }
 
-    public void OnRedoPromClick()
+    public void OnRedoAPromClick()
     {
         _state = AssessStates.INIT;
         isButtonPressed = false;

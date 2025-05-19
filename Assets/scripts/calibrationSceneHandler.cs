@@ -241,7 +241,8 @@ public class calibrationSceneHandler : MonoBehaviour
         if (AppData.Instance.selectedMechanism.currRom == null)
         {
             AppLogger.LogInfo("Current ROM is null. Going to assessment scene.");
-            SceneManager.LoadScene("ASSESS");
+            SceneManager.LoadScene("ASSISTPROFILE");
+           // SceneManager.LoadScene("ASSESS");
             return;
         } 
 

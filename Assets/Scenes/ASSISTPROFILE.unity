@@ -4539,7 +4539,7 @@ MonoBehaviour:
       m_Calls:
       - m_Target: {fileID: 8209750394461808019}
         m_TargetAssemblyTypeName: AssistsceneHandler, Assembly-CSharp
-        m_MethodName: OnrestartButtonClick
+        m_MethodName: OnRedoAPromClick
         m_Mode: 1
         m_Arguments:
           m_ObjectArgument: {fileID: 0}
