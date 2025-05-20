@@ -121,7 +121,6 @@ public static class HomerTherapy
 
         do
         {
-            // Directly pick random value in full range
             target = UnityEngine.Random.Range(prom[0], prom[1]);
             attempts++;
 
@@ -136,14 +135,14 @@ public static class HomerTherapy
 }
 
 
-public class MechanismChecker
+public class MechanismSpeed
 {
-    public float gameSpeed = 1.0f;
-    public string mechanismToCheck;
+    public float gameSpeed { get; private set; } = -1f;
+
+    private string mechanismToCheck;
 
     private DataTable sessionTable;
     private string mechParamsCsvPath;
-    public float currSpeed {get; private set;} = -1f;
     private static readonly string[]speedChMode = new string[] {"manual","automatic"};  
      public static readonly Dictionary<string, float> DefaultMechanismSpeeds = new Dictionary<string, float>
     {
@@ -154,11 +153,11 @@ public class MechanismChecker
         { "FME1", 10.0f },
         { "FME2", 10.0f },
     };
-    public MechanismChecker(string mechanism, DataTable sessionData, string mechParamsCsvPath)
+    public MechanismSpeed()
     {
-        this.mechanismToCheck = mechanism;
-        this.sessionTable = sessionData;
-        this.mechParamsCsvPath = mechParamsCsvPath;
+        this.mechanismToCheck = AppData.Instance.selectedMechanism.name;
+        this.sessionTable = AppData.Instance.userData.dTableSession;
+        this.mechParamsCsvPath = DataManager.GetMechFileName(AppData.Instance.selectedMechanism.name);
     }
 
     public void EvaluateAndUpdateGameSpeed()
@@ -262,48 +261,42 @@ public class MechanismChecker
         return selected.Count > 0 ? selected.Average() : 0;
     }
 
-private DateTime? GetLastDateFromMechParams()
-{
-    // If file doesn't exist, return null
-    if (!File.Exists(mechParamsCsvPath))
-        return null;
-
-    // Load CSV into DataTable
-    DataTable mechData = DataManager.loadCSV(mechParamsCsvPath);  // assumes columns: DateTime, ChangeMode, Speed
-
-    if (mechData.Rows.Count == 0)
-        return null;
-
-    // Get last row
-    DataRow lastRow = mechData.Rows[mechData.Rows.Count - 1];
-
-    DateTime? lastDate = null;
-    float parsedSpeed;
-
-    try
+    private DateTime? GetLastDateFromMechParams()
     {
-        string dateStr = lastRow["DateTime"].ToString();
-        string speedStr = lastRow["Speed"].ToString();
+        if (!File.Exists(mechParamsCsvPath))
+            return null;
 
-        // Parse date
-        if (DateTime.TryParseExact(dateStr, DataManager.DATEFORMAT, CultureInfo.InvariantCulture, DateTimeStyles.None, out var dt))
-            lastDate = dt;
+        DataTable mechData = DataManager.loadCSV(mechParamsCsvPath); 
 
-        // Parse speed
-        if (float.TryParse(speedStr, out parsedSpeed))
+        if (mechData.Rows.Count == 0)
+            return null;
+
+        DataRow lastRow = mechData.Rows[mechData.Rows.Count - 1];
+
+        DateTime? lastDate = null;
+        float parsedSpeed;
+
+        try
         {
-            currSpeed = parsedSpeed;
-            gameSpeed = parsedSpeed;
+            string dateStr = lastRow["DateTime"].ToString();
+            string speedStr = lastRow["Speed"].ToString();
+
+            if (DateTime.TryParseExact(dateStr, DataManager.DATEFORMAT, CultureInfo.InvariantCulture, DateTimeStyles.None, out var dt))
+                lastDate = dt;
+
+            if (float.TryParse(speedStr, out parsedSpeed))
+            {
+                //currSpeed = parsedSpeed;
+                gameSpeed = parsedSpeed;
+            }
         }
-    }
-    catch (Exception ex)
-    {
-        Debug.LogError("Error parsing mechParams: " + ex.Message);
-    }
+        catch (Exception ex)
+        {
+            Debug.LogError("Error parsing mechParams: " + ex.Message);
+        }
 
-    return lastDate;
-}
-
+        return lastDate;
+    }
 
     private void WriteInitialSpeed()
     {
@@ -317,13 +310,13 @@ private DateTime? GetLastDateFromMechParams()
 
     private void UpdateGameSpeed(int mode=1)
     {
-        if (currSpeed <= 0)
+        if (gameSpeed <= 0)
         {
-            currSpeed = DefaultMechanismSpeeds[mechanismToCheck];
+            gameSpeed = DefaultMechanismSpeeds[mechanismToCheck];
         }
 
         string chMode = speedChMode[mode];
-        gameSpeed = currSpeed * 1.1f;
+        gameSpeed = gameSpeed * 1.1f;
 
         using (var writer = new StreamWriter(mechParamsCsvPath, true))
         {
@@ -670,7 +663,7 @@ public class PlutoUserData
                 {
                     float successRate = float.Parse(row.Field<string>("SuccessRate"), CultureInfo.InvariantCulture);
                     float controlBound = float.Parse(row.Field<string>("CurrentControlBound"), CultureInfo.InvariantCulture);
-                    return successRate * (3 - controlBound);
+                    return successRate * (PlutoAANController.MAXCONTROLBOUND - controlBound);
                 });
 
             Debug.Log(Others.highestSuccessRate);
@@ -812,6 +805,7 @@ public class PlutoMechanism
     // Trial details for the mechanism.
     public int trialNumberDay { get; private set; }
     public int trialNumberSession { get; private set; }
+    
 
     public PlutoMechanism(string name, string side, int sessno)
     {

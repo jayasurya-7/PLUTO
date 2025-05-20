@@ -35,8 +35,9 @@ public static class DataManager
     public static string rawPath { get; private set; }
     public static string romPath { get; private set; }
     public static string logPath { get; private set; }
+    public static string controlGainPath{ get; private set; }
 
-    public static  string configFile = basePath + "/configdata.csv";
+    public static string configFile = basePath + "/configdata.csv";
     public static string sessionFile { get; private set; }
 
     // Sessions file definitions.
@@ -66,6 +67,7 @@ public static class DataManager
     public static string GetAanExecFileName(string mechanism) => FixPath(Path.Combine(aanExecPath, $"{mechanism}-execaan.csv"));
     public static string GetGameFileName(string game) => FixPath(Path.Combine(gamePath, $"{game}-gameparams.csv"));
     public static string GetMechFileName(string mechanism) => FixPath(Path.Combine(mechPath, $"{mechanism}-mechparams.csv"));
+    public static string GetMechControlGainFileName(string mechanism) => FixPath(Path.Combine(controlGainPath, $"{mechanism}-controlgain.csv"));
     public static string GetRawFileName(
         string game,
         string mechanism,
@@ -91,7 +93,7 @@ public static class DataManager
         basePath = FixPath(Path.Combine(Application.dataPath,"data", AppData.Instance.userID,"data"));
         configFile = basePath + "/configdata.csv";
     }
-    
+
     public static void CreateFileStructure()
     {
         directoryPathConfig = FixPath(basePath + "/configuration");
@@ -103,6 +105,7 @@ public static class DataManager
         rawPath = FixPath(Path.Combine(basePath, "rawdata"));
         romPath = FixPath(Path.Combine(basePath, "rom"));
         logPath = FixPath(Path.Combine(basePath, "applog"));
+        controlGainPath = FixPath(Path.Combine(basePath, "controlgain"));
         sessionFile = FixPath(Path.Combine(sessionPath, "sessions.csv"));
         // Check if the directory exists
         Directory.CreateDirectory(sessionPath);
@@ -113,6 +116,7 @@ public static class DataManager
         Directory.CreateDirectory(rawPath);
         Directory.CreateDirectory(romPath);
         Directory.CreateDirectory(logPath);
+        Directory.CreateDirectory(controlGainPath);
     }
 
     public static DataTable loadCSV(string filePath)

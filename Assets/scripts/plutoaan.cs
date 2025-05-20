@@ -22,9 +22,9 @@ public class PlutoAANController
     public static readonly float BOUNDARY = 0.9f;               // Boundary where assistance is to be enabled.
     public static readonly float FORGETINGFACTOR = 0.9f;        // Forgetting factor for the control bound.
     public static readonly float ASSISTFACTOR = 0.01f;          // Assistance factor for the control bound.
-    public static readonly float DEFAULTCONTROLBOUND = 7f;    // Default control bound value.
+    public static readonly float DEFAULTCONTROLBOUND = 8f;    // Default control bound value.
     public static readonly float MAXCONTROLBOUND = 8f;       // Maximum control bound value.
-    public static readonly float MINCONTROLBOUND = 7f;       // Minimum control bound value.
+    public static readonly float MINCONTROLBOUND = 8f;       // Minimum control bound value.
 
     public static readonly string[] ADAPTFILEHEADER = new string[] {
         "SessionNumber", "TrialNumberSession", "TrialNumberDay", 
@@ -65,6 +65,7 @@ public class PlutoAANController
     public bool trialRunning { private set; get; }
     public float[] aRom => mechanism.CurrentArom;
     public float[] pRom => mechanism.CurrentProm;
+    public float[] apRom => mechanism.CurrentAProm;
     // Setter will automatically change the stateChange variable to true/false
     // depending on whether a new state value has been set.
     private PlutoAANState _state;

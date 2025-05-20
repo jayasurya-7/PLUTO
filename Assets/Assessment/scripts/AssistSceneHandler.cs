@@ -3,6 +3,7 @@ using UnityEngine;
 using TMPro;
 using TS.DoubleSlider;
 using UnityEngine.SceneManagement;
+using UnityEngine.UI;
 
 
 public class AssistsceneHandler : MonoBehaviour
@@ -18,7 +19,7 @@ public class AssistsceneHandler : MonoBehaviour
     public TMP_Text insText;
     public TMP_Text cText, inst;
     public TMP_Text relaxText;
-
+    
     public TMP_Text jointAngle;
     public TMP_Text jointAngleHoc;
     public TextMeshProUGUI mechName;
@@ -28,7 +29,7 @@ public class AssistsceneHandler : MonoBehaviour
 
     public GameObject CurrPositioncursor;
     public GameObject CurrPositioncursorHoc;
-
+    public GameObject redoButton;
     private AssessStates _state;
 
     private float angLimit;
@@ -198,6 +199,7 @@ float torqueRampSpeed = 0.1f; // You can tweak this value (e.g., 0.05f, 0.02f fo
                                 minAngle = currentAngle;
                                 torque = 0f;
                                 PlutoComm.setControlType("NONE");
+                                redoButton.SetActive(true);
                                 inst.text = $"APROM Reached both ends min : {_tmin},max :{_tmax}. Press PLUTO button to move next scene";
                                 Debug.Log("Min torque attempts reached. Saving minAngle: " + minAngle);
                                 return;
@@ -211,7 +213,7 @@ float torqueRampSpeed = 0.1f; // You can tweak this value (e.g., 0.05f, 0.02f fo
                     else
                     {
                         inst.text = $"APROM Reached both ends min : {_tmin},max :{_tmax}. Press PLUTO button to move next scene";
-
+                        redoButton.SetActive(true);
                         reachedNegative = true;
                         PlutoComm.setControlType("NONE");
                     }
@@ -446,6 +448,8 @@ float torqueRampSpeed = 0.1f; // You can tweak this value (e.g., 0.05f, 0.02f fo
         negativeStuckAttempts = positiveStuckAttempts = 0;
         goingPositive = true;
         UpdateStatusText();
+        redoButton.SetActive(false);
+
       //  AppData.Instance.selectedMechanism.ResetAromValues();
         Debug.Log("Redo PROM: Reset to INIT state.");
     }

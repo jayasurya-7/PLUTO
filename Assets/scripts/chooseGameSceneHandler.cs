@@ -64,7 +64,7 @@ public class ChooseGameSceneHandler : MonoBehaviour
         // Make sure No control is set
         PlutoComm.setControlType("NONE");
 
-        Debug.Log($"Curr ROM: {AppData.Instance.selectedMechanism.currRom.promMin:F2}, {AppData.Instance.selectedMechanism.currRom.promMax:F2}, {AppData.Instance.selectedMechanism.currRom.aromMin:F2}, {AppData.Instance.selectedMechanism.currRom.aromMax:F2}");
+        Debug.Log($"Curr APROM: {AppData.Instance.selectedMechanism.currRom.apromMin:F2}, {AppData.Instance.selectedMechanism.currRom.apromMax:F2}, Curr ROM: {AppData.Instance.selectedMechanism.currRom.promMin:F2}, {AppData.Instance.selectedMechanism.currRom.promMax:F2},{AppData.Instance.selectedMechanism.currRom.aromMin:F2}, {AppData.Instance.selectedMechanism.currRom.aromMax:F2}");
     }
 
     void Update()
@@ -82,11 +82,7 @@ public class ChooseGameSceneHandler : MonoBehaviour
         {
             SceneManager.LoadScene("ASSESS");
         }
-        else if (Input.GetKey(KeyCode.LeftControl) && Input.GetKeyDown(KeyCode.A))
-        {
-            SceneManager.LoadScene("ASSISTPROFILE");
-        }
-        if (Input.GetKey(KeyCode.LeftControl) && Input.GetKeyDown(KeyCode.X))
+        if (Input.GetKey(KeyCode.LeftControl) && Input.GetKeyDown(KeyCode.G))
         {
             SceneManager.LoadScene("HATCV");
         }
@@ -151,13 +147,16 @@ public class ChooseGameSceneHandler : MonoBehaviour
             // Log the ROM information.
             AppLogger.LogInfo(
                 $"Old  PROM: [{AppData.Instance.selectedMechanism.oldRom.promMin:F2}, {AppData.Instance.selectedMechanism.oldRom.promMax:F2}]" +
-                $" | AROM: [{AppData.Instance.selectedMechanism.oldRom.aromMin:F2}, {AppData.Instance.selectedMechanism.oldRom.aromMax:F2}]");
+                $" | AROM: [{AppData.Instance.selectedMechanism.oldRom.aromMin:F2}, {AppData.Instance.selectedMechanism.oldRom.aromMax:F2}]" +
+                $" | APROM: [{AppData.Instance.selectedMechanism.oldRom.apromMin:F2}, {AppData.Instance.selectedMechanism.oldRom.apromMax:F2}]");
             AppLogger.LogInfo(
                 $"New  PROM: [{AppData.Instance.selectedMechanism.newRom.promMin:F2}, {AppData.Instance.selectedMechanism.newRom.promMax:F2}]" +
-                $" | AROM: [{AppData.Instance.selectedMechanism.newRom.aromMin:F2}, {AppData.Instance.selectedMechanism.newRom.aromMax:F2}]");
+                $" | AROM: [{AppData.Instance.selectedMechanism.newRom.aromMin:F2}, {AppData.Instance.selectedMechanism.newRom.aromMax:F2}]" +
+                $" | APROM: [{AppData.Instance.selectedMechanism.newRom.apromMin:F2}, {AppData.Instance.selectedMechanism.newRom.apromMax:F2}]");
             AppLogger.LogInfo(
                 $"Curr PROM: [{AppData.Instance.selectedMechanism.currRom.promMin:F2}, {AppData.Instance.selectedMechanism.currRom.promMax:F2}]" +
-                $" | AROM: [{AppData.Instance.selectedMechanism.currRom.aromMin:F2}, {AppData.Instance.selectedMechanism.currRom.aromMax:F2}]");
+                $" | AROM: [{AppData.Instance.selectedMechanism.currRom.aromMin:F2}, {AppData.Instance.selectedMechanism.currRom.aromMax:F2}]"+
+                $" | APROM: [{AppData.Instance.selectedMechanism.currRom.apromMin:F2}, {AppData.Instance.selectedMechanism.currRom.apromMax:F2}]");
             // Instantitate the game object and load the appropriate scene.
             AppData.Instance.SetGame(game);
             

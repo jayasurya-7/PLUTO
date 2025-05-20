@@ -27,7 +27,7 @@ public class BirdControl : MonoBehaviour
     float endTime;
 
     private float[] arom;
-    private float[] prom;
+    private float[] prom, aprom;
     private bool side, mech;
 
 
@@ -46,6 +46,8 @@ public class BirdControl : MonoBehaviour
         // Set current AROM and PROM.
         arom = AppData.Instance.selectedMechanism.CurrentArom;
         prom = AppData.Instance.selectedMechanism.CurrentProm;
+        aprom = AppData.Instance.selectedMechanism.CurrentAProm;
+
         
         side = AppData.Instance.IsTrainingSide("RIGHT");
         mech = AppData.Instance.selectedMechanism.IsMechanism("HOC");
@@ -129,7 +131,7 @@ public class BirdControl : MonoBehaviour
             }
         }
     }
-    public float AngleToScreen(float angle) =>  (-3f + (angle - prom[0]) * (PLAYSIZE) / (prom[1] - prom[0]));
+    public float AngleToScreen(float angle) =>  (-3f + (angle - aprom[0]) * (PLAYSIZE) / (aprom[1] - aprom[0]));
 
 
 

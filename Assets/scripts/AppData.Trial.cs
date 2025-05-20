@@ -119,7 +119,7 @@ public partial class AppData
             // "GameParameter"
             null,
             // "GameSpeed"
-            selectedMechanism.currSpeed.ToString(),
+            speedData.gameSpeed.ToString(),
             // "AssistMode"
             trialType == HomerTherapy.TrialType.SR85PCCATCH ? "ACTIVE" : "AAN",
             // "DesiredSuccessRate"
@@ -163,6 +163,7 @@ public partial class AppData
         rawDataString.AppendLine($":TrialNumberDay: {selectedMechanism.trialNumberDay}");
         rawDataString.AppendLine($":AROM: [{selectedMechanism.CurrentArom[0]:F3},{selectedMechanism.CurrentArom[1]:F3}]");        
         rawDataString.AppendLine($":PROM: [{selectedMechanism.CurrentProm[0]:F3},{selectedMechanism.CurrentProm[1]:F3}]");
+        rawDataString.AppendLine($":APROM: [{selectedMechanism.CurrentAProm[0]:F3},{selectedMechanism.CurrentAProm[1]:F3}]");
         rawDataString.AppendLine($":DesiredSuccessRate: {desiredSuccessRate:F3}");
         rawDataString.AppendLine($":ControlBound: {_currControlBound:F3}");
         rawDataString.AppendLine(string.Join(",", DataManager.RAWFILEHEADER));

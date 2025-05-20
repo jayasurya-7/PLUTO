@@ -9,6 +9,8 @@ using System;
 using Unity.Mathematics;
 using System.IO;
 using Unity.VisualScripting;
+using System.Text;
+using System.Data;
 
 public class HatGameControllerCV : MonoBehaviour
 {
@@ -21,7 +23,7 @@ public class HatGameControllerCV : MonoBehaviour
     // private static readonly float MOVEDURATION = 0.5f * (BALLSTARTY - BALLENDY) / BALLSPEED;
     private static float BALLSPEED, MOVEDURATION;
     // Game graphics related variables.
-    public Text ScoreText;
+    public Text ScoreText, gainText;
     public Text timeLeftText, status;
     public GameObject GameOverObject;
     public GameObject StartButton, ExitButton;
@@ -35,7 +37,7 @@ public class HatGameControllerCV : MonoBehaviour
     private GameObject PlayerObj;
 
     public GameObject SuccessRateBanner;
-    public Text prevSR , currSR,HS;
+    public Text prevSR, currSR, HS;
     private GameObject[] pauseObjects, finishObjects;
     public AudioClip[] audioClips; // win, level complete, loose
     public AudioSource gameSound;
@@ -60,7 +62,7 @@ public class HatGameControllerCV : MonoBehaviour
     private bool isPlaying = false;
     public bool targetSpwan = false;
     bool paramSet = false;
-    
+
     // Game timing related variables
     private float triaTimeLeft;
     private float moveTimeLeft;
@@ -69,7 +71,7 @@ public class HatGameControllerCV : MonoBehaviour
     public int nTargets = 0;
     public int nSuccess = 0;
     public int nFailure = 0;
-    public float currSuccessRate => nTargets == 0 ? 0f : 100f * nSuccess / nTargets; 
+    public float currSuccessRate => nTargets == 0 ? 0f : 100f * nSuccess / nTargets;
 
     private float ballFallingTime = 0f;
     private int totalTargetsSpawned = 0;
@@ -118,9 +120,9 @@ public class HatGameControllerCV : MonoBehaviour
     private float targetAngle;
     private float maxTargetDur;
     private float targetPosition;
-    private float playerPosition;
-    private  GameObject targetTemp;
-    
+    private float playerPosition, gain = 0f;
+    private GameObject targetTemp;
+
 
     private void Awake()
     {
@@ -136,7 +138,7 @@ public class HatGameControllerCV : MonoBehaviour
     }
 
     void Start()
-    { 
+    {
         InitializeGame();
         // Initialize the game objects.
         pauseObjects = GameObject.FindGameObjectsWithTag("ShowOnPause");
@@ -155,16 +157,41 @@ public class HatGameControllerCV : MonoBehaviour
             aromRight.transform.position.y,
             aromRight.transform.position.z
         );
-        
+        if (File.Exists(DataManager.GetMechControlGainFileName(AppData.Instance.selectedMechanism.name)))
+        {
+
+            DataTable gainData = DataManager.loadCSV(DataManager.GetMechControlGainFileName(AppData.Instance.selectedMechanism.name));
+
+            if (gainData.Rows.Count > 0)
+            {
+
+                DataRow lastRow = gainData.Rows[gainData.Rows.Count - 1];
+
+                float parsedGain;
+
+                string gainStr = lastRow["ControlGain"].ToString();
+
+                if (float.TryParse(gainStr, out parsedGain))
+                {
+                    gain = parsedGain;
+                    gainText.text = $"{gain}";
+                }
+
+            }
+        }
+        else
+        {
+            createCGFile();
+        }
     }
-    
+
     private void Update()
     {
 
         if (isGamePaused && gameState != GameStates.PAUSED) PauseGame();
         else if (!isGamePaused && gameState == GameStates.PAUSED) ResumeGame();
 
-        Debug.Log($"ControlType : {Time.timeScale}+{ PlutoComm.CONTROLTYPETEXT[PlutoComm.controlType]}");
+        Debug.Log($"ControlType : {Time.timeScale}+{PlutoComm.CONTROLTYPETEXT[PlutoComm.controlType]}");
     }
 
     void FixedUpdate()
@@ -178,22 +205,25 @@ public class HatGameControllerCV : MonoBehaviour
         // Update player and target positions
         PlayerPosition = GameObject.FindGameObjectWithTag("Player").transform.position;
         targetTemp = GameObject.FindGameObjectWithTag("Target");
-        TargetPosition = targetTemp != null ? targetTemp.transform.position : null;   
+        TargetPosition = targetTemp != null ? targetTemp.transform.position : null;
     }
 
-    public void BallCaught() {
+    public void BallCaught()
+    {
         isBallCaught = true;
         isBallMissed = false;
         nSuccess++;
     }
 
-    public void BallMissed() {
+    public void BallMissed()
+    {
         isBallCaught = false;
         isBallMissed = true;
         nFailure++;
     }
 
-    public void OnStartButtonClick() {
+    public void OnStartButtonClick()
+    {
         isGameStarted = true;
     }
 
@@ -210,7 +240,7 @@ public class HatGameControllerCV : MonoBehaviour
         }
         // Reset the AAN controller.
         AppData.Instance.aanController.ResetTrial();
-        
+
         // Initialize game variables.
         triaTimeLeft = HomerTherapy.TrialDuration;
 
@@ -251,7 +281,7 @@ public class HatGameControllerCV : MonoBehaviour
 
     public bool IsGamePlaying()
     {
-        return gameState != GameStates.WAITING 
+        return gameState != GameStates.WAITING
             && gameState != GameStates.PAUSED
             && gameState != GameStates.STOP;
     }
@@ -277,7 +307,7 @@ public class HatGameControllerCV : MonoBehaviour
                 break;
             case GameStates.START:
                 HidePaused();
-               // HideFinished();
+                // HideFinished();
                 // Start the game.
                 StartGame();
                 gameState = GameStates.SPAWNBALL;
@@ -319,21 +349,21 @@ public class HatGameControllerCV : MonoBehaviour
                 AppData.Instance.aanController.Update(PlutoComm.angle, Time.deltaTime, true);
                 // Set AAN target if needed.
 
-                AppData.Instance.previousSuccessRates =null;
+                AppData.Instance.previousSuccessRates = null;
 
                 if (AppData.Instance.aanController.stateChange) UpdatePlutoAANTarget();
                 // Change to done only when the AAN Controller is AromMoving or Idle state.
                 if (AppData.Instance.aanController.state == PlutoAANController.PlutoAANState.AromMoving
-                    || AppData.Instance.aanController.state == PlutoAANController.PlutoAANState.Idle) 
+                    || AppData.Instance.aanController.state == PlutoAANController.PlutoAANState.Idle)
                 {
                     float gameTime = HomerTherapy.TrialDuration - triaTimeLeft;
                     Others.gameTime = (gameTime < HomerTherapy.TrialDuration) ? gameTime : HomerTherapy.TrialDuration;
                     AppData.Instance.StopTrial(nTargets, nSuccess, nFailure);
                     gameState = GameStates.DONE;
-                   if(AppData.Instance.previousSuccessRates ==null)
-                   { 
-                    AppData.Instance.previousSuccessRates = AppData.Instance.userData.GetLastTwoSuccessRates(AppData.Instance.selectedMechanism.name, AppData.Instance.selectedGame);
-                    SceneManager.LoadScene(SceneManager.GetActiveScene().name);
+                    if (AppData.Instance.previousSuccessRates == null)
+                    {
+                        AppData.Instance.previousSuccessRates = AppData.Instance.userData.GetLastTwoSuccessRates(AppData.Instance.selectedMechanism.name, AppData.Instance.selectedGame);
+                        SceneManager.LoadScene(SceneManager.GetActiveScene().name);
                     }
                 }
                 break;
@@ -343,7 +373,7 @@ public class HatGameControllerCV : MonoBehaviour
 
     private void UpdatePlutoAANTarget()
     {
-        switch(AppData.Instance.aanController.state)
+        switch (AppData.Instance.aanController.state)
         {
             case PlutoAANController.PlutoAANState.AromMoving:
                 // Reset AAN Target
@@ -358,7 +388,7 @@ public class HatGameControllerCV : MonoBehaviour
         }
     }
 
-    public float AngleToScreen(float angle) => Mathf.Lerp(-PLAYSIZE, PLAYSIZE, (angle - prom[0]) / (prom[1]- prom[0]));
+    public float AngleToScreen(float angle) => Mathf.Lerp(-PLAYSIZE, PLAYSIZE, (angle - prom[0]) / (prom[1] - prom[0]));
 
     public void SpawnTarget()
     {
@@ -415,23 +445,29 @@ public class HatGameControllerCV : MonoBehaviour
     private void UpdateText()
     {
         // timeLeftText.text = $"Time Left: {(int)triaTimeLeft}";
-         ScoreText.text = $"control value :{PlutoComm.control}"; //getControlValue:
+        ScoreText.text = $"control value :{PlutoComm.control}"; //getControlValue:
+        gainText.text = $"gain : {gain}";
     }
     public void addControlGain()
     {
-        //increaseCintrolGain();
+        // gain = increaseCintrolGain();
     }
-     public void minusControlGain()
+    public void minusControlGain()
     {
-        //reduceControlGain();
+        // gain = reduceControlGain();
     }
 
+    public void saveData()
+    {
+        saveControlGain();
+    }
     public void exitGame()
     {
         if (gameState == GameStates.DONE || gameState == GameStates.WAITING)
         {
             Time.timeScale = 1f;
             SceneManager.LoadScene(prevScene);
+              saveControlGain();
         }
         else
         {
@@ -442,6 +478,7 @@ public class HatGameControllerCV : MonoBehaviour
             AppData.Instance.StopTrial(nTargets, nSuccess, nFailure);
             gameState = GameStates.DONE;
             Time.timeScale = 1f;
+            saveControlGain();
             SceneManager.LoadScene(prevScene);
         }
     }
@@ -495,5 +532,30 @@ public class HatGameControllerCV : MonoBehaviour
         // This can mean different things depending on the game state.
         if (gameState == GameStates.WAITING) isGameStarted = true;
         else if (gameState != GameStates.STOP) isGamePaused = !isGamePaused;
+    }
+
+    private void createCGFile()
+    {
+        string filePath = DataManager.GetMechControlGainFileName(AppData.Instance.selectedMechanism.name);
+        if (!File.Exists(filePath))
+        {
+            using (var writer = new StreamWriter(filePath, false, Encoding.UTF8))
+            {
+                writer.WriteLine("DateTime,ControlGain");
+            }
+        }
+        Debug.Log("file Created");
+}
+    private void saveControlGain()
+    {
+        string filePath = DataManager.GetMechControlGainFileName(AppData.Instance.selectedMechanism.name);
+        if (File.Exists(filePath))
+        {
+            using (var writer = new StreamWriter(filePath, true, Encoding.UTF8)) // Append mode
+            {
+                writer.WriteLine($"{DateTime.Now:yyyy-MM-dd HH:mm:ss},{gain}");
+            }
+        }
+
     }
 }

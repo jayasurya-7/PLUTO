@@ -94,7 +94,7 @@ public class FlappyGameControl : MonoBehaviour
 
     // Target and player positions.
     private float[] arom;
-    private float[] prom;
+    private float[] prom, aprom;
     private float targetAngle;
     private float targetPosition;
     public GameObject aromLeft;
@@ -136,12 +136,13 @@ public class FlappyGameControl : MonoBehaviour
         // Set current AROM and PROM.
         arom = AppData.Instance.selectedMechanism.CurrentArom;
         prom = AppData.Instance.selectedMechanism.CurrentProm;
+        aprom = AppData.Instance.selectedMechanism.CurrentAProm;
 
         // Attach PLUTO button event.
         PlutoComm.OnButtonReleased += onPlutoButtonReleased;
     }
     
-    public float AngleToScreen(float angle) =>  ( -3f + (angle - prom[0]) * (PLAYSIZE) / (prom[1] - prom[0]));
+    public float AngleToScreen(float angle) =>  ( -3f + (angle - aprom[0]) * (PLAYSIZE) / (aprom[1] - aprom[0]));
     void Start()
     {
         InitializeGame();
@@ -349,7 +350,7 @@ public class FlappyGameControl : MonoBehaviour
 
     public void StartGame()
     {
-        scrollSpeed = -2 - 1 * .1f;
+        scrollSpeed = -2 - 1 * (0.02f * AppData.Instance.speedData.gameSpeed);
             hidePaused();
         // Start new trial.
         AppData.Instance.StartNewTrial();
@@ -423,7 +424,7 @@ public class FlappyGameControl : MonoBehaviour
                 AppData.Instance.aanController.ResetTrial();
                 // Get new target position.
                 // targetAngle = HomerTherapy.GetNewTargetPosition(arom, prom);
-                targetAngle = HomerTherapy.GetNewTargetPositionUniformFull(arom, prom);
+                targetAngle = HomerTherapy.GetNewTargetPositionUniformFull(arom, aprom);
                 targetPosition = AngleToScreen(targetAngle);
                 spawnColumn();
                 MOVEDURATION = MoveDuration();
@@ -444,6 +445,7 @@ public class FlappyGameControl : MonoBehaviour
             case GameStates.SUCCESS:
             case GameStates.FAILURE:
                 // Wait for the user to score.
+                Debug.Log(gameState);
                 gameState = (isTimeUp || gameOver) ? GameStates.STOP : GameStates.SPAWNTARGET;
                 isTargetHit = false;
                 isTargetMissed = false;

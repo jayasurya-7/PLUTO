@@ -114,7 +114,7 @@ public class HatGameController : MonoBehaviour
 
     // Target and player positions.
     private float[] arom;
-    private float[] prom;
+    private float[] prom,aprom;
     private float targetAngle;
     private float maxTargetDur;
     private float targetPosition;
@@ -295,7 +295,7 @@ public class HatGameController : MonoBehaviour
                 AppData.Instance.aanController.ResetTrial();
                 // Get new target position.
                 // targetAngle = HomerTherapy.GetNewTargetPosition(arom, prom);
-                targetAngle = HomerTherapy.GetNewTargetPositionUniformFull(arom, prom);
+                targetAngle = HomerTherapy.GetNewTargetPositionUniformFull(arom, aprom);
                 targetPosition = AngleToScreen(targetAngle);
                 SpawnTarget();
                 // Set new trial in the AAN controller.
@@ -366,7 +366,7 @@ public class HatGameController : MonoBehaviour
         }
     }
 
-    public float AngleToScreen(float angle) => Mathf.Lerp(-PLAYSIZE, PLAYSIZE, (angle - prom[0]) / (prom[1]- prom[0]));
+    public float AngleToScreen(float angle) => Mathf.Lerp(-PLAYSIZE, PLAYSIZE, (angle - aprom[0]) / (aprom[1]- aprom[0]));
 
     public void SpawnTarget()
     {
@@ -415,6 +415,8 @@ public class HatGameController : MonoBehaviour
         // Set current AROM and PROM.
         arom = AppData.Instance.selectedMechanism.CurrentArom;
         prom = AppData.Instance.selectedMechanism.CurrentProm;
+        aprom = AppData.Instance.selectedMechanism.CurrentAProm;
+
 
         // Attach PLUTO button event.
         PlutoComm.OnButtonReleased += onPlutoButtonReleased;

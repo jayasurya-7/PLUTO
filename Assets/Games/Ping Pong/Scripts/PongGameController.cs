@@ -61,7 +61,7 @@ public class PongGameController : MonoBehaviour
     //scene
     private static string prevScene = "PONGMENU";
     private float[] arom;
-    private float[] prom;
+    private float[] prom, aprom;
     private float targetAngle;
     
     private float playerPosition;
@@ -380,7 +380,7 @@ public class PongGameController : MonoBehaviour
 
                 isBallHitted = false;
                 isBallMissed = false;
-                targetAngle = HomerTherapy.GetNewTargetPositionUniformFull(arom, prom);
+                targetAngle = HomerTherapy.GetNewTargetPositionUniformFull(arom, aprom);
                 targetPositiony = AngleToScreen(targetAngle);
                 setTarget();
                 break;
@@ -454,6 +454,8 @@ public class PongGameController : MonoBehaviour
         // Set current AROM and PROM.
         arom = AppData.Instance.selectedMechanism.CurrentArom;
         prom = AppData.Instance.selectedMechanism.CurrentProm;
+        aprom = AppData.Instance.selectedMechanism.CurrentAProm;
+
 
         // Attach PLUTO button event.
         PlutoComm.OnButtonReleased += onPlutoButtonReleased;
@@ -463,7 +465,7 @@ public class PongGameController : MonoBehaviour
         isButtonPressed = true;
     }
 
-    public float AngleToScreen(float angle) => Mathf.Clamp(-playSize + (angle - prom[0]) * (2 * playSize) / (prom[1] - prom[0]), bottomBound, topBound);
+    public float AngleToScreen(float angle) => Mathf.Clamp(-playSize + (angle - aprom[0]) * (2 * playSize) / (aprom[1] - aprom[0]), bottomBound, topBound);
 
         public void StartGame()
     {
@@ -492,12 +494,13 @@ public class PongGameController : MonoBehaviour
         nSuccess = 0;
         nFailure = 0;
 
-        targetAngle = HomerTherapy.GetNewTargetPositionUniformFull(arom, prom);
+        targetAngle = HomerTherapy.GetNewTargetPositionUniformFull(arom, aprom);
         targetPositiony = AngleToScreen(targetAngle);
         setTarget();
     }
 
-        public void BallHitted() {
+    public void BallHitted()
+    {
         isBallHitted = true;
         isBallMissed = false;
         nSuccess++;

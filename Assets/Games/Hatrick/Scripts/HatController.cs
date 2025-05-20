@@ -32,9 +32,7 @@ public class HatController : MonoBehaviour
 
     void Update()
     {
-        if(side && !mech)position = HatGameController.Instance.AngleToScreen(-PlutoComm.angle);
-        else if (!side &&mech) position = HatGameController.Instance.AngleToScreen(PlutoComm.angle);
-        else position = HatGameController.Instance.AngleToScreen(PlutoComm.angle);
+        position = HatGameController.Instance.AngleToScreen(PlutoComm.angle);
 
         // position = (AppData.Instance.IsTrainingSide("RIGHT") && AppData.Instance.selectedMechanism.IsMechanism("HOC")) ? HatGameController.Instance.AngleToScreen(-PlutoComm.angle):HatGameController.Instance.AngleToScreen((PlutoComm.angle));
         // MovementTracker.UpdatePosition( this.transform.position);

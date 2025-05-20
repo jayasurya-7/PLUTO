@@ -34,7 +34,7 @@ public partial class AppData
      * USED AND THERAPY RELATED DATA.
      */
     public PlutoUserData userData;
-    public MechanismChecker speedData;
+    public MechanismSpeed speedData;
     public PlutoMechanism selectedMechanism { get; private set; }
     public string selectedGame { get; private set; } = null;
 

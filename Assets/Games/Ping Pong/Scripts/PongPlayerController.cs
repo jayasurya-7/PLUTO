@@ -8,7 +8,7 @@ public class PongPlayerController : MonoBehaviour
     static float topBound = 4.5F;
     static float bottomBound = -4.5F;
     public static float playSize;
-    private float[] arom, prom;
+    private float[] arom, prom,aprom;
     public PongGameController PGC;
     private bool side, mech;
     private float position;
@@ -23,6 +23,7 @@ public class PongPlayerController : MonoBehaviour
         // Set current AROM and PROM.
         arom = AppData.Instance.selectedMechanism.CurrentArom;
         prom = AppData.Instance.selectedMechanism.CurrentProm;
+        aprom = AppData.Instance.selectedMechanism.CurrentAProm;
         side = AppData.Instance.IsTrainingSide("RIGHT");
         mech = AppData.Instance.selectedMechanism.IsMechanism("HOC");
     }
@@ -35,7 +36,7 @@ public class PongPlayerController : MonoBehaviour
     }
 
 
-    public float AngleToScreen(float angle) => Mathf.Clamp(-playSize + (angle - prom[0]) * (2 * playSize) / (prom[1] - prom[0]), bottomBound, topBound);
+    public float AngleToScreen(float angle) => Mathf.Clamp(-playSize + (angle - aprom[0]) * (2 * playSize) / (aprom[1] - aprom[0]), bottomBound, topBound);
 
 
     private void OnCollisionEnter2D(Collision2D collision)
