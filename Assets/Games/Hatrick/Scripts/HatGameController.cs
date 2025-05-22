@@ -1,5 +1,4 @@
-﻿
-using System.Collections;
+﻿using System.Collections;
 using System.Collections.Generic;
 using UnityEngine;
 using UnityEngine.UI;
@@ -42,6 +41,8 @@ public class HatGameController : MonoBehaviour
     public Image targetImage;
     public AudioSource gamesound;
     public AudioClip loose;
+    public TextMeshProUGUI score;
+    public GameObject HSC; //HighScoreCanvas
 
 
     // Target and player positions
@@ -63,7 +64,7 @@ public class HatGameController : MonoBehaviour
     
     // Game timing related variables
     private float triaTimeLeft;
-    private float moveTimeLeft;
+    private float lastHighScore;
 
     // Game score related variables.
     public int nTargets = 0;
@@ -120,7 +121,9 @@ public class HatGameController : MonoBehaviour
     private float targetPosition;
     private float playerPosition;
     private  GameObject targetTemp;
-    
+
+    private float eventDelayTimer = 0f;
+    private bool runOnce = false;
 
     private void Awake()
     {
@@ -155,7 +158,7 @@ public class HatGameController : MonoBehaviour
             aromRight.transform.position.y,
             aromRight.transform.position.z
         );
-         HS.text = $" BEST :{ Others.highestSuccessRate:F0} %";
+         HS.text = $"{(int) Others.highestSuccessRate:F0} %";
          status.text = $"s.no: {AppData.Instance.currentSessionNumber}\n" +
               $"trialNo: {AppData.Instance.selectedMechanism.trialNumberSession}\n" +
               $"CB: {AppData.Instance.CurrentControlBound}";
@@ -164,7 +167,6 @@ public class HatGameController : MonoBehaviour
     
     private void Update()
     {
-
         if (isGamePaused && gameState != GameStates.PAUSED) PauseGame();
         else if (!isGamePaused && gameState == GameStates.PAUSED) ResumeGame();
 
@@ -247,6 +249,7 @@ public class HatGameController : MonoBehaviour
 
     public void ResumeGame()
     {
+
         HidePaused();
         Debug.Log($"prev GS :{_prevGameState}");
         isGamePaused = false;
@@ -255,6 +258,16 @@ public class HatGameController : MonoBehaviour
         PauseButton.SetActive(true);
         ResumeButton.SetActive(false);
         ExitButton.SetActive(true);
+        // Send PLUTO heartbeat
+        PlutoComm.sendHeartbeat();
+        
+         if ((PlutoComm.MECHANISMS[PlutoComm.mechanism] != "FME1") && (PlutoComm.MECHANISMS[PlutoComm.mechanism] != "FME2"))
+        {
+            PlutoComm.setControlType("POSITIONAAN");
+            PlutoComm.setControlBound(AppData.Instance.CurrentControlBound);
+            PlutoComm.setControlDir(0);
+        }
+        
     }
 
     public bool IsGamePlaying()
@@ -267,9 +280,9 @@ public class HatGameController : MonoBehaviour
     private void RunGameStateMachine()
     {
         // Check if the game is to be paused or unpaused.
-        Debug.Log("Game Update");
-        if (isGamePaused) PauseGame();
-        else if (gameState == GameStates.PAUSED) ResumeGame();
+        // Debug.Log("Game Update");
+        // if (isGamePaused) PauseGame();
+        // else if (gameState == GameStates.PAUSED) ResumeGame();
 
         // Run the game timer
         if (IsGamePlaying()) triaTimeLeft -= Time.deltaTime;
@@ -291,16 +304,30 @@ public class HatGameController : MonoBehaviour
                 gameState = GameStates.SPAWNBALL;
                 break;
             case GameStates.SPAWNBALL:
-                // Spawn a new ball.
-                AppData.Instance.aanController.ResetTrial();
-                // Get new target position.
-                // targetAngle = HomerTherapy.GetNewTargetPosition(arom, prom);
-                targetAngle = HomerTherapy.GetNewTargetPositionUniformFull(arom, aprom);
-                targetPosition = AngleToScreen(targetAngle);
-                SpawnTarget();
-                // Set new trial in the AAN controller.
-                AppData.Instance.aanController.SetNewTrialDetails(PlutoComm.angle, targetAngle, MOVEDURATION);
-                gameState = GameStates.MOVE;
+
+                if (eventDelayTimer <= 0f && !runOnce)
+                {
+                    // Spawn a new ball.
+                    AppData.Instance.aanController.ResetTrial();
+                    // Get new target position.
+                    // targetAngle = HomerTherapy.GetNewTargetPosition(arom, prom);
+                    targetAngle = HomerTherapy.GetNewTargetPositionUniformFull(arom, aprom);
+                    targetPosition = AngleToScreen(targetAngle);
+                    SpawnTarget();
+                    // Set new trial in the AAN controller.
+                    AppData.Instance.aanController.SetNewTrialDetails(PlutoComm.angle, targetAngle, MOVEDURATION);
+                    eventDelayTimer = 0.05f;
+                    runOnce = true;
+                }
+                else
+                {
+                    eventDelayTimer -= Time.deltaTime;
+                    if (eventDelayTimer <= 0f)
+                    {
+                        gameState = GameStates.MOVE;   
+                    }
+                }
+                
                 break;
             case GameStates.MOVE:
                 // Update AANController.
@@ -313,10 +340,24 @@ public class HatGameController : MonoBehaviour
                 break;
             case GameStates.SUCCESS:
             case GameStates.FAILURE:
-                // Wait for the user to score.
-                gameState = isTimeUp ? GameStates.STOP : GameStates.SPAWNBALL;
-                isBallCaught = false;
-                isBallMissed = false;
+                if (eventDelayTimer <= 0f)
+                {
+                    eventDelayTimer = 0.05f;
+                }
+                else
+                {
+                    eventDelayTimer -= Time.deltaTime;
+                    if (eventDelayTimer <= 0f)
+                    {
+                        // Wait for the user to score.
+                        gameState = isTimeUp ? GameStates.STOP : GameStates.SPAWNBALL;
+                        isBallCaught = false;
+                        isBallMissed = false;
+                        runOnce = false;
+                    }
+                    
+                }
+                
                 break;
             case GameStates.PAUSED:
                 Debug.Log(isGamePaused);
@@ -328,7 +369,7 @@ public class HatGameController : MonoBehaviour
                 // Set AAN target if needed.
 
                 AppData.Instance.previousSuccessRates =null;
-
+                
                 if (AppData.Instance.aanController.stateChange) UpdatePlutoAANTarget();
                 // Change to done only when the AAN Controller is AromMoving or Idle state.
                 if (AppData.Instance.aanController.state == PlutoAANController.PlutoAANState.AromMoving
@@ -338,10 +379,21 @@ public class HatGameController : MonoBehaviour
                     Others.gameTime = (gameTime < HomerTherapy.TrialDuration) ? gameTime : HomerTherapy.TrialDuration;
                     AppData.Instance.StopTrial(nTargets, nSuccess, nFailure);
                     gameState = GameStates.DONE;
-                   if(AppData.Instance.previousSuccessRates ==null)
-                   { 
-                    AppData.Instance.previousSuccessRates = AppData.Instance.userData.GetLastTwoSuccessRates(AppData.Instance.selectedMechanism.name, AppData.Instance.selectedGame);
-                    SceneManager.LoadScene(SceneManager.GetActiveScene().name);
+                    lastHighScore = AppData.Instance.successRate * (PlutoAANController.MAXCONTROLBOUND - AppData.Instance.CurrentControlBound);
+                   if (AppData.Instance.previousSuccessRates == null)
+                    {
+                        score.text = $"{(int)lastHighScore}";
+                        if (lastHighScore > Others.highestSuccessRate)
+                        {
+                            StartCoroutine(ShowForSeconds(HSC, 5f));
+                        }
+                        else
+                        {
+                            AppData.Instance.previousSuccessRates = AppData.Instance.userData.GetLastTwoSuccessRates(AppData.Instance.selectedMechanism.name, AppData.Instance.selectedGame);
+                            SceneManager.LoadScene(SceneManager.GetActiveScene().name);
+                        }
+                        
+                        
                     }
                 }
                 break;
@@ -349,9 +401,18 @@ public class HatGameController : MonoBehaviour
         UpdateText();
     }
 
+    private IEnumerator ShowForSeconds(GameObject obj, float seconds)
+    {
+        obj.SetActive(true);
+        yield return new WaitForSeconds(seconds);
+        obj.SetActive(false);
+        AppData.Instance.previousSuccessRates = AppData.Instance.userData.GetLastTwoSuccessRates(AppData.Instance.selectedMechanism.name, AppData.Instance.selectedGame);
+        SceneManager.LoadScene(SceneManager.GetActiveScene().name);
+    }
+
     private void UpdatePlutoAANTarget()
     {
-        switch(AppData.Instance.aanController.state)
+        switch (AppData.Instance.aanController.state)
         {
             case PlutoAANController.PlutoAANState.AromMoving:
                 // Reset AAN Target
@@ -428,7 +489,7 @@ public class HatGameController : MonoBehaviour
 
     private void UpdateText()
     {
-        timeLeftText.text = $"Time Left: {(int)triaTimeLeft}";
+        timeLeftText.text = $": {(int)triaTimeLeft}";
         ScoreText.text = $"Score: {nSuccess}";
     }
 

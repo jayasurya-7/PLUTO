@@ -100,6 +100,11 @@ public class FlappyGameControl : MonoBehaviour
     public GameObject aromLeft;
     public GameObject aromRight;
     private GameObject targetTemp;
+    public GameObject HSC; //HighScoreCanvas
+    public TextMeshProUGUI score1;
+    private float lastHighScore, eventDelayTimer = 0f;
+    private bool runOnce = false;
+
     void Awake()
     {
         if (Instance == null)
@@ -172,6 +177,7 @@ public class FlappyGameControl : MonoBehaviour
 
     void Update()
     {
+        
 
         if (isGamePaused && gameState != GameStates.PAUSED) PauseGame();
         else if (!isGamePaused && gameState == GameStates.PAUSED) ResumeGame();
@@ -193,10 +199,12 @@ public class FlappyGameControl : MonoBehaviour
     }
     void FixedUpdate()
     {
-        if (isGameStarted)
-        {UpdateGameTimerUI(); }
         // Send PLUTO heartbeat
         PlutoComm.sendHeartbeat();
+        if (isGameStarted)
+        { UpdateGameTimerUI(); }
+        // Send PLUTO heartbeat
+       // PlutoComm.sendHeartbeat();
 
         // Handle the current game state.
         RunGameStateMachine();
@@ -267,16 +275,33 @@ public class FlappyGameControl : MonoBehaviour
         PauseButton.SetActive(true);
         ResumeButton.SetActive(false);
         ExitButton.SetActive(true);
+        // Send PLUTO heartbeat
+        PlutoComm.sendHeartbeat();
+        
+          if ((PlutoComm.MECHANISMS[PlutoComm.mechanism] != "FME1") && (PlutoComm.MECHANISMS[PlutoComm.mechanism] != "FME2"))
+        {
+            PlutoComm.setControlType("POSITIONAAN");
+            PlutoComm.setControlBound(AppData.Instance.CurrentControlBound);
+            PlutoComm.setControlDir(0);
+        }
     }
 
     void UpdateGameTimerUI()
     {
         timerObject.specifiedValue = Mathf.Clamp(100 * (90 - triaTimeLeft) / 90f, 0, 100);
     }
+     private IEnumerator ShowForSeconds(GameObject obj, float seconds)
+    {
+        obj.SetActive(true);
+        yield return new WaitForSeconds(seconds);
+        obj.SetActive(false);
+        AppData.Instance.previousSuccessRates = AppData.Instance.userData.GetLastTwoSuccessRates(AppData.Instance.selectedMechanism.name, AppData.Instance.selectedGame);
+        SceneManager.LoadScene(SceneManager.GetActiveScene().name);
+    }
 
     public void showPaused()
     {
-        if(AppData.Instance.previousSuccessRates!=null)
+        if (AppData.Instance.previousSuccessRates != null)
         {
             SuccessRateBanner.SetActive(true);
             prevSR.text = $" previous SR : {AppData.Instance.previousSuccessRates[0]}%";
@@ -420,18 +445,31 @@ public class FlappyGameControl : MonoBehaviour
                 gameState = GameStates.SPAWNTARGET;
                 break;
             case GameStates.SPAWNTARGET:
-                // Spawn a new ball.
-                AppData.Instance.aanController.ResetTrial();
-                // Get new target position.
-                // targetAngle = HomerTherapy.GetNewTargetPosition(arom, prom);
-                targetAngle = HomerTherapy.GetNewTargetPositionUniformFull(arom, aprom);
-                targetPosition = AngleToScreen(targetAngle);
-                spawnColumn();
-                MOVEDURATION = MoveDuration();
-                Debug.Log($"mm :{MOVEDURATION}");
-                // Set new trial in the AAN controller.
-                AppData.Instance.aanController.SetNewTrialDetails(PlutoComm.angle, targetAngle, MOVEDURATION);
-                gameState = GameStates.MOVE;
+                if (eventDelayTimer <= 0f && !runOnce)
+                {
+                    // Spawn a new ball.
+                    AppData.Instance.aanController.ResetTrial();
+                    // Get new target position.
+                    // targetAngle = HomerTherapy.GetNewTargetPosition(arom, prom);
+                    targetAngle = HomerTherapy.GetNewTargetPositionUniformFull(arom, aprom);
+                    targetPosition = AngleToScreen(targetAngle);
+                    spawnColumn();
+                    MOVEDURATION = MoveDuration();
+                    Debug.Log($"mm :{MOVEDURATION}");
+                    // Set new trial in the AAN controller.
+                    AppData.Instance.aanController.SetNewTrialDetails(PlutoComm.angle, targetAngle, MOVEDURATION);
+                    runOnce = true;
+                    eventDelayTimer = 0.05f;
+
+                }
+                else
+                {
+                    eventDelayTimer -= Time.deltaTime;
+                    if (eventDelayTimer <= 0f)
+                    {
+                        gameState = GameStates.MOVE;   
+                    }
+                }               
                 break;
             case GameStates.MOVE:
                 // Update AANController.
@@ -444,11 +482,25 @@ public class FlappyGameControl : MonoBehaviour
                 break;
             case GameStates.SUCCESS:
             case GameStates.FAILURE:
+
+                if (eventDelayTimer <= 0f)
+                {
+                    eventDelayTimer = 0.05f;
+                }
+                else
+                {
+                    eventDelayTimer -= Time.deltaTime;
+                    if (eventDelayTimer <= 0f)
+                    {
+                        gameState = (isTimeUp || gameOver) ? GameStates.STOP : GameStates.SPAWNTARGET;
+                        isTargetHit = false;
+                        isTargetMissed = false;
+                        runOnce = false;
+                    }
+                    
+                }
                 // Wait for the user to score.
-                Debug.Log(gameState);
-                gameState = (isTimeUp || gameOver) ? GameStates.STOP : GameStates.SPAWNTARGET;
-                isTargetHit = false;
-                isTargetMissed = false;
+             
                 break;
             case GameStates.PAUSED:
                 Debug.Log(isGamePaused);
@@ -469,10 +521,19 @@ public class FlappyGameControl : MonoBehaviour
                     Others.gameTime = (gameTime < HomerTherapy.TrialDuration) ? gameTime : HomerTherapy.TrialDuration;
                     AppData.Instance.StopTrial(nTargets, nSuccess, nFailure);
                     gameState = GameStates.DONE;
-                   if(AppData.Instance.previousSuccessRates ==null)
-                   { 
-                    AppData.Instance.previousSuccessRates = AppData.Instance.userData.GetLastTwoSuccessRates(AppData.Instance.selectedMechanism.name, AppData.Instance.selectedGame);
-                    SceneManager.LoadScene(SceneManager.GetActiveScene().buildIndex);
+                   lastHighScore = AppData.Instance.successRate * (PlutoAANController.MAXCONTROLBOUND - AppData.Instance.CurrentControlBound);
+                   if (AppData.Instance.previousSuccessRates == null)
+                    {
+                        score1.text = $"{(int)lastHighScore}";
+                        if (lastHighScore > Others.highestSuccessRate)
+                        {
+                            StartCoroutine(ShowForSeconds(HSC, 5f));
+                        }
+                        else
+                        {
+                            AppData.Instance.previousSuccessRates = AppData.Instance.userData.GetLastTwoSuccessRates(AppData.Instance.selectedMechanism.name, AppData.Instance.selectedGame);
+                            SceneManager.LoadScene(SceneManager.GetActiveScene().name);
+                        }
                     }
                 }
                 break;

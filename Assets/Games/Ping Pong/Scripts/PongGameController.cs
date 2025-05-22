@@ -68,7 +68,9 @@ public class PongGameController : MonoBehaviour
     private  GameObject targetTemp;
     public  GameObject SuccessRateBanner,ExitButton;
     public Text prevSR, currSR, HS, status;
-
+    public GameObject HSC; //HighScoreCanvas
+    public TextMeshProUGUI score;
+    private float lastHighScore;
     public Text timeLeftText;
     static float playSize;
     // static float topBound = 5.5F;
@@ -84,7 +86,7 @@ public class PongGameController : MonoBehaviour
     public int nTargets = 0;
     public int nSuccess = 0;
     public int nFailure = 0;
-    private  float MOVEDURATION;
+    private  float MOVEDURATION, eventDelayTimer = 0f;
     private void Awake()
     {
         if (Instance == null)
@@ -127,6 +129,7 @@ public class PongGameController : MonoBehaviour
     }
     void Update()
     {
+        
         pointCounter.text = enemyScore + "\t\t" +
             playerScore;
 
@@ -182,6 +185,7 @@ public class PongGameController : MonoBehaviour
 
        void FixedUpdate()
     {
+        
         // Send PLUTO heartbeat
         PlutoComm.sendHeartbeat();
 
@@ -217,12 +221,20 @@ public class PongGameController : MonoBehaviour
 
     private void resumeGame()
     {
+
         gameState = _prevGameState;
         Time.timeScale = 1;
         isGamePaused = false;
         isPaused = false;
         hidePaused();
         ExitButton.SetActive(true);
+        PlutoComm.sendHeartbeat();
+         if ((PlutoComm.MECHANISMS[PlutoComm.mechanism] != "FME1") && (PlutoComm.MECHANISMS[PlutoComm.mechanism] != "FME2"))
+        {
+            PlutoComm.setControlType("POSITIONAAN");
+            PlutoComm.setControlBound(AppData.Instance.CurrentControlBound);
+            PlutoComm.setControlDir(0);
+        }
     }
 
     private float timeToReach(){
@@ -259,6 +271,15 @@ public class PongGameController : MonoBehaviour
         }
     }
 
+    private IEnumerator ShowForSeconds(GameObject obj, float seconds)
+    {
+        obj.SetActive(true);
+        yield return new WaitForSeconds(seconds);
+        obj.SetActive(false);
+        AppData.Instance.previousSuccessRates = AppData.Instance.userData.GetLastTwoSuccessRates(AppData.Instance.selectedMechanism.name, AppData.Instance.selectedGame);
+        showFinished();
+        gameEnd();
+    }
     public void Reload()
     {
         playerScore = enemyScore = 0;
@@ -375,14 +396,27 @@ public class PongGameController : MonoBehaviour
                 break;
             case GameStates.SUCCESS:
             case GameStates.FAILURE:
-                // Wait for the user to score.
-                gameState = isTimeUp ? GameStates.STOP : GameStates.SPAWNBALL;
+                if (eventDelayTimer <= 0f)
+                {
+                    eventDelayTimer = 0.05f;
+                }
+                else
+                {
+                    eventDelayTimer -= Time.deltaTime;
+                    if (eventDelayTimer <= 0f)
+                    {
+                        Debug.Log(gameState);
+                        // Wait for the user to score.
+                        gameState = isTimeUp ? GameStates.STOP : GameStates.SPAWNBALL;
 
-                isBallHitted = false;
-                isBallMissed = false;
-                targetAngle = HomerTherapy.GetNewTargetPositionUniformFull(arom, aprom);
-                targetPositiony = AngleToScreen(targetAngle);
-                setTarget();
+                        isBallHitted = false;
+                        isBallMissed = false;
+                        targetAngle = HomerTherapy.GetNewTargetPositionUniformFull(arom, aprom);
+                        targetPositiony = AngleToScreen(targetAngle);
+                        setTarget();
+                    }
+                }
+                
                 break;
             case GameStates.PAUSED:
                 Debug.Log(isGamePaused);
@@ -405,12 +439,24 @@ public class PongGameController : MonoBehaviour
                     Others.gameTime = (gameTime < HomerTherapy.TrialDuration) ? gameTime : HomerTherapy.TrialDuration;
                     AppData.Instance.StopTrial(nTargets, nSuccess, nFailure);
                     gameState = GameStates.DONE;
-                   if(AppData.Instance.previousSuccessRates ==null)
-                   { 
-                    AppData.Instance.previousSuccessRates = AppData.Instance.userData.GetLastTwoSuccessRates(AppData.Instance.selectedMechanism.name, AppData.Instance.selectedGame);
-                    showFinished();
-                    gameEnd();
+                    lastHighScore = AppData.Instance.successRate * (PlutoAANController.MAXCONTROLBOUND - AppData.Instance.CurrentControlBound);
+                   if (AppData.Instance.previousSuccessRates == null)
+                    {
+                        score.text = $"{(int)lastHighScore}";
+                        if (lastHighScore > Others.highestSuccessRate)
+                        {
+                            StartCoroutine(ShowForSeconds(HSC, 5f));
+                        }
+                        else
+                        {
+                            AppData.Instance.previousSuccessRates = AppData.Instance.userData.GetLastTwoSuccessRates(AppData.Instance.selectedMechanism.name, AppData.Instance.selectedGame);
+                            showFinished();
+                            gameEnd();
+                        }
+                        
+                        
                     }
+                   
                 }
                 break;
         }

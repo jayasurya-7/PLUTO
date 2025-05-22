@@ -187,6 +187,8 @@ public class HatGameControllerCV : MonoBehaviour
 
     private void Update()
     {
+        // Send PLUTO heartbeat
+        PlutoComm.sendHeartbeat();
 
         if (isGamePaused && gameState != GameStates.PAUSED) PauseGame();
         else if (!isGamePaused && gameState == GameStates.PAUSED) ResumeGame();
@@ -197,7 +199,7 @@ public class HatGameControllerCV : MonoBehaviour
     void FixedUpdate()
     {
         // Send PLUTO heartbeat
-        PlutoComm.sendHeartbeat();
+        //PlutoComm.sendHeartbeat();
 
         // Handle the current game state.
         RunGameStateMachine();
@@ -277,6 +279,13 @@ public class HatGameControllerCV : MonoBehaviour
         PauseButton.SetActive(true);
         ResumeButton.SetActive(false);
         ExitButton.SetActive(true);
+        PlutoComm.sendHeartbeat();
+        if ((PlutoComm.MECHANISMS[PlutoComm.mechanism] != "FME1") && (PlutoComm.MECHANISMS[PlutoComm.mechanism] != "FME2"))
+        {
+            PlutoComm.setControlType("POSITIONAAN");
+            PlutoComm.setControlBound(AppData.Instance.CurrentControlBound);
+            PlutoComm.setControlDir(0);
+        }
     }
 
     public bool IsGamePlaying()
