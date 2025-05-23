@@ -542,7 +542,7 @@ public class FlappyGameControl : MonoBehaviour
     }
      private void UpdateText()
     {
-        timeLeftText.text = $"Time Left: {(int)triaTimeLeft}";
+        timeLeftText.text = $": {(int)triaTimeLeft}";
         ScoreText.text = $"Score: {nSuccess}";
     }
 

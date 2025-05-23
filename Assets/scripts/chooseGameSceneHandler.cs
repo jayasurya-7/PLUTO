@@ -3,6 +3,8 @@ using UnityEngine.SceneManagement;
 using UnityEngine.UI;
 using System.Collections.Generic;
 using TMPro;
+using System.IO;
+using System.Data;
 
 public class ChooseGameSceneHandler : MonoBehaviour
 {
@@ -31,7 +33,7 @@ public class ChooseGameSceneHandler : MonoBehaviour
             // Inialize the logger
             AppData.Instance.Initialize(SceneManager.GetActiveScene().name, doNotResetMech: false);
         }
-// Create a new AAN controller.
+        // Create a new AAN controller.
         AppData.Instance.aanController = new PlutoAANController(
             mechanism: AppData.Instance.selectedMechanism,
             sessionData: AppData.Instance.userData.dTableSession,
@@ -48,6 +50,26 @@ public class ChooseGameSceneHandler : MonoBehaviour
             {
                 SceneManager.LoadScene("CHMECH");
                 return;
+            }
+        }
+        if (File.Exists(DataManager.GetMechControlGainFileName(AppData.Instance.selectedMechanism.name)))
+        {
+
+            DataTable gainData = DataManager.loadCSV(DataManager.GetMechControlGainFileName(AppData.Instance.selectedMechanism.name));
+
+            if (gainData.Rows.Count > 0)
+            {
+
+                DataRow lastRow = gainData.Rows[gainData.Rows.Count - 1];
+
+                float parsedGain;
+
+                string gainStr = lastRow["ControlGain"].ToString();
+
+                if (float.TryParse(gainStr, out parsedGain))
+                {
+                    PlutoComm.setControlGain(parsedGain);
+                }
             }
         }
 

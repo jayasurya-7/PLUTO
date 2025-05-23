@@ -1101,7 +1101,7 @@ MonoBehaviour:
   m_OnCullStateChanged:
     m_PersistentCalls:
       m_Calls: []
-  m_text: Please make movements across the entire range of motion
+  m_text: relax your hands. rest will takecare by assisst profile
   m_isRightToLeft: 0
   m_fontAsset: {fileID: 11400000, guid: 19fdcf8687240c84282a0307838c5f96, type: 2}
   m_sharedMaterial: {fileID: 6678091363555379842, guid: 19fdcf8687240c84282a0307838c5f96, type: 2}
@@ -1128,7 +1128,7 @@ MonoBehaviour:
   m_faceColor:
     serializedVersion: 2
     rgba: 4294967295
-  m_fontSize: 19
+  m_fontSize: 19.85
   m_fontSizeBase: 64
   m_fontWeight: 400
   m_enableAutoSizing: 1

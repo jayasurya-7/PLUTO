@@ -250,6 +250,7 @@ float stopClock;
                         reachedNegative = true;
                         minAngle = currentAngle;
                         torque = 0f;
+                        inst.text = $"APROM Reached both ends min : {_tmin},max :{_tmax}. Press PLUTO button to move next scene";
                         PlutoComm.setControlType("NONE");
                         redoButton.SetActive(true);
                         Debug.Log("Min torque attempts reached. Saving minAngle: " + minAngle);

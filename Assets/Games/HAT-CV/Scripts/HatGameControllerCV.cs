@@ -120,8 +120,9 @@ public class HatGameControllerCV : MonoBehaviour
     private float targetAngle;
     private float maxTargetDur;
     private float targetPosition;
-    private float playerPosition, gain = 0f;
+    private float playerPosition, gain = 1f;
     private GameObject targetTemp;
+    public GameObject increaseCG, decreaseCG;
 
 
     private void Awake()
@@ -176,22 +177,37 @@ public class HatGameControllerCV : MonoBehaviour
                     gain = parsedGain;
                     gainText.text = $"{gain}";
                 }
+                // if (gain >= 5f)
+                // {
+                //     increaseCG.SetActive(false);
+                // }
+                // else if (gain <= 1f)
+                // {
+                //     decreaseCG.SetActive(false);
+                // }
+                // else
+                // {
+                //     increaseCG.SetActive(true);
+                //     decreaseCG.SetActive(true);
+                // }
 
             }
         }
         else
         {
             createCGFile();
+            // increaseCG.SetActive(true);
+            // decreaseCG.SetActive(true);
         }
     }
 
     private void Update()
     {
-        // Send PLUTO heartbeat
-        PlutoComm.sendHeartbeat();
-
         if (isGamePaused && gameState != GameStates.PAUSED) PauseGame();
         else if (!isGamePaused && gameState == GameStates.PAUSED) ResumeGame();
+        
+        // increaseCG.SetActive(gain >= 5f);
+        // decreaseCG.SetActive(gain <= 1f);
 
         Debug.Log($"ControlType : {Time.timeScale}+{PlutoComm.CONTROLTYPETEXT[PlutoComm.controlType]}");
     }
@@ -199,7 +215,7 @@ public class HatGameControllerCV : MonoBehaviour
     void FixedUpdate()
     {
         // Send PLUTO heartbeat
-        //PlutoComm.sendHeartbeat();
+        PlutoComm.sendHeartbeat();
 
         // Handle the current game state.
         RunGameStateMachine();
@@ -237,7 +253,7 @@ public class HatGameControllerCV : MonoBehaviour
         if ((PlutoComm.MECHANISMS[PlutoComm.mechanism] != "FME1") && (PlutoComm.MECHANISMS[PlutoComm.mechanism] != "FME2"))
         {
             PlutoComm.setControlType("POSITIONAAN");
-            PlutoComm.setControlBound(AppData.Instance.CurrentControlBound);
+            PlutoComm.setControlBound(1.0f);
             PlutoComm.setControlDir(0);
         }
         // Reset the AAN controller.
@@ -345,7 +361,7 @@ public class HatGameControllerCV : MonoBehaviour
             case GameStates.SUCCESS:
             case GameStates.FAILURE:
                 // Wait for the user to score.
-                gameState = isTimeUp ? GameStates.STOP : GameStates.SPAWNBALL;
+                gameState = GameStates.SPAWNBALL;
                 isBallCaught = false;
                 isBallMissed = false;
                 break;
@@ -454,15 +470,32 @@ public class HatGameControllerCV : MonoBehaviour
     private void UpdateText()
     {
         // timeLeftText.text = $"Time Left: {(int)triaTimeLeft}";
-        ScoreText.text = $"control value :{PlutoComm.control}"; //getControlValue:
-        gainText.text = $"gain : {gain}";
+        ScoreText.text = $"control  :{PlutoComm.control}"; //getControlValue:
+        gainText.text = $"gain : {PlutoComm.controlGain}";
     }
     public void addControlGain()
     {
+        Debug.Log("add button clicked");
+        gain = gain + 1f;
+         Debug.Log(gain);
+        if (gain < 8f)
+        {
+            Debug.Log(gain);
+            PlutoComm.setControlGain(gain);
+        }
+        else Debug.Log("can't update anymore");
+        
         // gain = increaseCintrolGain();
     }
     public void minusControlGain()
     {
+        Debug.Log("minus button clicked");
+        gain = gain - 1f;
+        if (gain >=1f)
+        {
+            Debug.Log(gain);
+            PlutoComm.setControlGain(gain);
+        }
         // gain = reduceControlGain();
     }
 
