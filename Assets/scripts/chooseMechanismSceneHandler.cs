@@ -30,6 +30,7 @@ public class MechanismSceneHandler : MonoBehaviour
         // Reset mechanisms.
         PlutoComm.sendHeartbeat();
         PlutoComm.calibrate("NOMECH");
+        PlutoComm.setControlGain(1.0f);
         AppData.Instance.SetMechanism(null);
 
         // Initialize if needed
@@ -160,7 +161,7 @@ public class MechanismSceneHandler : MonoBehaviour
         AppData.Instance.speedData .EvaluateAndUpdateGameSpeed();
       
         AppLogger.LogInfo($"New AAN controller created for '{AppData.Instance.selectedMechanism.name}'.");
-        PlutoComm.setControlGain(1.0f);
+        //PlutoComm.setControlGain(1.0f);
         // Set the mechanism.
         AppLogger.LogInfo($"Switching scene to '{nextScene}'.");
         SceneManager.LoadScene(nextScene);

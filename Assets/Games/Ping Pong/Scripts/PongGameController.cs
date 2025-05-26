@@ -86,7 +86,9 @@ public class PongGameController : MonoBehaviour
     public int nTargets = 0;
     public int nSuccess = 0;
     public int nFailure = 0;
-    private  float MOVEDURATION, eventDelayTimer = 0f;
+
+    private float MOVEDURATION, eventDelayTimer = 0f;
+    public Image loadingImage;
     private void Awake()
     {
         if (Instance == null)
@@ -273,9 +275,20 @@ public class PongGameController : MonoBehaviour
 
     private IEnumerator ShowForSeconds(GameObject obj, float seconds)
     {
-        obj.SetActive(true);
-        yield return new WaitForSeconds(seconds);
+          obj.SetActive(true);
+        loadingImage.gameObject.SetActive(true);
+        loadingImage.fillAmount = 0f;
+
+        float elapsed = 0f;
+        while (elapsed < seconds)
+        {
+            elapsed += Time.deltaTime;
+            loadingImage.fillAmount = Mathf.Clamp01(elapsed / seconds);
+            yield return null;
+        }
+
         obj.SetActive(false);
+        loadingImage.gameObject.SetActive(false);
         AppData.Instance.previousSuccessRates = AppData.Instance.userData.GetLastTwoSuccessRates(AppData.Instance.selectedMechanism.name, AppData.Instance.selectedGame);
         showFinished();
         gameEnd();

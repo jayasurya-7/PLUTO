@@ -20,7 +20,7 @@ public class HatGameController : MonoBehaviour
     // private static readonly float MOVEDURATION = 0.5f * (BALLSTARTY - BALLENDY) / BALLSPEED;
     private static float BALLSPEED, MOVEDURATION;
     // Game graphics related variables.
-    public Text ScoreText;
+    public Text ScoreText, speed;
     public Text timeLeftText, status;
     public GameObject GameOverObject;
     public GameObject StartButton, ExitButton;
@@ -97,6 +97,7 @@ public class HatGameController : MonoBehaviour
         FAILURE,
         DONE
     }
+     public Image loadingImage;
     private GameStates _gameState;
     public GameStates gameState
     {
@@ -122,8 +123,11 @@ public class HatGameController : MonoBehaviour
     private float playerPosition;
     private  GameObject targetTemp;
 
-    private float eventDelayTimer = 0f;
+    private float eventDelayTimer = 0f , gameSpeed;
     private bool runOnce = false;
+    public GameObject increaseSpeed, decreaseSpeed;
+    bool speedControlsVisible = false;
+
 
     private void Awake()
     {
@@ -164,13 +168,26 @@ public class HatGameController : MonoBehaviour
               $"CB: {AppData.Instance.CurrentControlBound}";
         
     }
-    
+
     private void Update()
     {
         if (isGamePaused && gameState != GameStates.PAUSED) PauseGame();
         else if (!isGamePaused && gameState == GameStates.PAUSED) ResumeGame();
 
-        Debug.Log($"ControlType : {Time.timeScale}+{ PlutoComm.CONTROLTYPETEXT[PlutoComm.controlType]}");
+        // Magic key cobmination for doing the speed control.
+    
+    if (Input.GetKey(KeyCode.LeftControl) && Input.GetKeyDown(KeyCode.G))
+    {
+        speedControlsVisible = !speedControlsVisible;
+
+        increaseSpeed.SetActive(speedControlsVisible);
+        decreaseSpeed.SetActive(speedControlsVisible);
+
+        Debug.Log("Speed controls " + (speedControlsVisible ? "enabled" : "disabled"));
+    }
+
+        
+
     }
 
     void FixedUpdate()
@@ -184,7 +201,8 @@ public class HatGameController : MonoBehaviour
         // Update player and target positions
         PlayerPosition = GameObject.FindGameObjectWithTag("Player").transform.position;
         targetTemp = GameObject.FindGameObjectWithTag("Target");
-        TargetPosition = targetTemp != null ? targetTemp.transform.position : null;   
+        TargetPosition = targetTemp != null ? targetTemp.transform.position : null;
+        Debug.Log(gameSpeed);
     }
 
     public void BallCaught() {
@@ -201,6 +219,26 @@ public class HatGameController : MonoBehaviour
 
     public void OnStartButtonClick() {
         isGameStarted = true;
+    }
+
+    public void increaseGameSpeed()
+    {
+        if (gameSpeed < 20f)
+        {
+            gameSpeed = gameSpeed + 2.0f;
+            BALLSPEED = 1f + 0.3f * (1 + (0.2f * gameSpeed));
+            MOVEDURATION = 0.5f * (BALLSTARTY - BALLENDY) / BALLSPEED;
+        }
+        Debug.Log($" gs- {AppData.Instance.speedData.gameSpeed}+{gameSpeed}");
+    }
+    public void decreaseGameSpeed()
+    {
+        if (gameSpeed > 10f)
+        {
+            gameSpeed = gameSpeed - 2.0f;
+            BALLSPEED = 1f + 0.3f * (1 + (0.2f * gameSpeed));
+            MOVEDURATION = 0.5f * (BALLSTARTY - BALLENDY) / BALLSPEED;
+        }
     }
 
     public void StartGame()
@@ -220,7 +258,7 @@ public class HatGameController : MonoBehaviour
         }
         // Reset the AAN controller.
         AppData.Instance.aanController.ResetTrial();
-        
+
         // Initialize game variables.
         triaTimeLeft = HomerTherapy.TrialDuration;
 
@@ -233,6 +271,7 @@ public class HatGameController : MonoBehaviour
         StartButton.SetActive(false);
         PauseButton.SetActive(true);
         ResumeButton.SetActive(false);
+        gameSpeed = AppData.Instance.speedData.gameSpeed;
     }
 
     public void PauseGame()
@@ -369,6 +408,7 @@ public class HatGameController : MonoBehaviour
                 // Set AAN target if needed.
 
                 AppData.Instance.previousSuccessRates =null;
+                if (AppData.Instance.speedData.gameSpeed != gameSpeed) AppData.Instance.speedData.updateGameSpeedfromGame(gameSpeed);
                 
                 if (AppData.Instance.aanController.stateChange) UpdatePlutoAANTarget();
                 // Change to done only when the AAN Controller is AromMoving or Idle state.
@@ -404,8 +444,19 @@ public class HatGameController : MonoBehaviour
     private IEnumerator ShowForSeconds(GameObject obj, float seconds)
     {
         obj.SetActive(true);
-        yield return new WaitForSeconds(seconds);
+        loadingImage.gameObject.SetActive(true);
+        loadingImage.fillAmount = 0f;
+
+        float elapsed = 0f;
+        while (elapsed < seconds)
+        {
+            elapsed += Time.deltaTime;
+            loadingImage.fillAmount = Mathf.Clamp01(elapsed / seconds);
+            yield return null;
+        }
+
         obj.SetActive(false);
+        loadingImage.gameObject.SetActive(false);
         AppData.Instance.previousSuccessRates = AppData.Instance.userData.GetLastTwoSuccessRates(AppData.Instance.selectedMechanism.name, AppData.Instance.selectedGame);
         SceneManager.LoadScene(SceneManager.GetActiveScene().name);
     }
@@ -491,6 +542,7 @@ public class HatGameController : MonoBehaviour
     {
         timeLeftText.text = $": {(int)triaTimeLeft}";
         ScoreText.text = $"Score: {nSuccess}";
+        speed.text = $"GS: {(int) gameSpeed}";
     }
 
     public void exitGame()

@@ -143,8 +143,8 @@ public class MechanismSpeed
 
     private DataTable sessionTable;
     private string mechParamsCsvPath;
-    private static readonly string[]speedChMode = new string[] {"manual","automatic"};  
-     public static readonly Dictionary<string, float> DefaultMechanismSpeeds = new Dictionary<string, float>
+    private static readonly string[] speedChMode = new string[] { "manual", "automatic" };
+    public static readonly Dictionary<string, float> DefaultMechanismSpeeds = new Dictionary<string, float>
     {
         { "WFE", 10.0f },
         { "WURD", 10.0f },
@@ -266,7 +266,7 @@ public class MechanismSpeed
         if (!File.Exists(mechParamsCsvPath))
             return null;
 
-        DataTable mechData = DataManager.loadCSV(mechParamsCsvPath); 
+        DataTable mechData = DataManager.loadCSV(mechParamsCsvPath);
 
         if (mechData.Rows.Count == 0)
             return null;
@@ -300,7 +300,7 @@ public class MechanismSpeed
 
     private void WriteInitialSpeed()
     {
-        gameSpeed =DefaultMechanismSpeeds[mechanismToCheck];
+        gameSpeed = DefaultMechanismSpeeds[mechanismToCheck];
         using (var writer = new StreamWriter(mechParamsCsvPath, false))
         {
             writer.WriteLine("DateTime,Mode,Speed");
@@ -308,7 +308,7 @@ public class MechanismSpeed
         }
     }
 
-    private void UpdateGameSpeed(int mode=1)
+    private void UpdateGameSpeed(int mode = 1)
     {
         if (gameSpeed <= 0)
         {
@@ -324,6 +324,24 @@ public class MechanismSpeed
         }
 
         Debug.Log($"Game speed updated to: {gameSpeed}");
+    }
+
+    public void updateGameSpeedfromGame(float gs, int mode = 0)
+    {
+        if (gs <= 0)
+        {
+            gs= DefaultMechanismSpeeds[mechanismToCheck];
+        }
+
+        string chMode = speedChMode[mode];
+
+        using (var writer = new StreamWriter(mechParamsCsvPath, true))
+        {
+            writer.WriteLine($"{DateTime.Now:yyyy-MM-dd HH:mm:ss},{chMode},{gs}");
+        }
+
+        Debug.Log($"Game speed updated to: {gs}");
+
     }
 }
 

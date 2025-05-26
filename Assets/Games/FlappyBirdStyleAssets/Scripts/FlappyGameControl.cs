@@ -104,6 +104,7 @@ public class FlappyGameControl : MonoBehaviour
     public TextMeshProUGUI score1;
     private float lastHighScore, eventDelayTimer = 0f;
     private bool runOnce = false;
+    public Image loadingImage;
 
     void Awake()
     {
@@ -293,8 +294,19 @@ public class FlappyGameControl : MonoBehaviour
      private IEnumerator ShowForSeconds(GameObject obj, float seconds)
     {
         obj.SetActive(true);
-        yield return new WaitForSeconds(seconds);
+        loadingImage.gameObject.SetActive(true);
+        loadingImage.fillAmount = 0f;
+
+        float elapsed = 0f;
+        while (elapsed < seconds)
+        {
+            elapsed += Time.deltaTime;
+            loadingImage.fillAmount = Mathf.Clamp01(elapsed / seconds);
+            yield return null;
+        }
+
         obj.SetActive(false);
+        loadingImage.gameObject.SetActive(false);
         AppData.Instance.previousSuccessRates = AppData.Instance.userData.GetLastTwoSuccessRates(AppData.Instance.selectedMechanism.name, AppData.Instance.selectedGame);
         SceneManager.LoadScene(SceneManager.GetActiveScene().name);
     }

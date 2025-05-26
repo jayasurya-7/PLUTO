@@ -205,6 +205,13 @@ public class HatGameControllerCV : MonoBehaviour
     {
         if (isGamePaused && gameState != GameStates.PAUSED) PauseGame();
         else if (!isGamePaused && gameState == GameStates.PAUSED) ResumeGame();
+
+        // Reset gain to 1 when Escape is pressed
+        if (Input.GetKeyDown(KeyCode.Escape))
+        {
+            gain = 1f;
+            PlutoComm.setControlGain(gain);
+        }
         
         // increaseCG.SetActive(gain >= 5f);
         // decreaseCG.SetActive(gain <= 1f);
@@ -476,9 +483,9 @@ public class HatGameControllerCV : MonoBehaviour
     public void addControlGain()
     {
         Debug.Log("add button clicked");
-        gain = gain + 1f;
+        gain = gain + 0.3f;
          Debug.Log(gain);
-        if (gain < 8f)
+        if (gain < 10f)
         {
             Debug.Log(gain);
             PlutoComm.setControlGain(gain);
@@ -490,7 +497,7 @@ public class HatGameControllerCV : MonoBehaviour
     public void minusControlGain()
     {
         Debug.Log("minus button clicked");
-        gain = gain - 1f;
+        gain = gain - 0.3f;
         if (gain >=1f)
         {
             Debug.Log(gain);

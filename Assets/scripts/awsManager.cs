@@ -14,7 +14,7 @@ public static class awsManager
     public static string[] status = new string[] {"upload_needed","no_upload"};
     public static  string taskName ="AWSUploaderPlutoTask"; //change according to the device
     public static string DeviceName = "Pluto";//change according to the device
-
+    public static string fullTaskAction = $"\\\"{pythonExecutionPath}\\\"\\\"{pythonScriptPath}\\\"";
 
     // Method to schedule the task using SCHTASKS
     public static void ScheduleTask()
@@ -24,7 +24,7 @@ public static class awsManager
         string commandArguments = $"\"{pythonScriptPath}\"";
         string scheduleFrequency = "/SC MINUTE /MO 30";
         string command = $"schtasks /Create {scheduleFrequency} /TN \"{taskName}\" " +
-                         $"/TR \"{pythonExecutionPath} {commandArguments}\" /F ";
+                         $"/TR \"{fullTaskAction}\" /F ";
         RunCommand(command);
     }
   
