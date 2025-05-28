@@ -418,9 +418,8 @@ public class PROMsceneHandler : MonoBehaviour
     private void checkPromLimits()
     {
         bool isHOC=AppData.Instance.selectedMechanism.IsMechanism("HOC");
-        bool condition = isHOC? (_tmin > AppData.Instance.selectedMechanism.newRom.aromMin || 
-            _tmax < AppData.Instance.selectedMechanism.newRom.aromMax) : (_tmin >= AppData.Instance.selectedMechanism.newRom.aromMin || 
-            _tmax <= AppData.Instance.selectedMechanism.newRom.aromMax);
+        bool condition = _tmin > AppData.Instance.selectedMechanism.newRom.aromMin || 
+            _tmax < AppData.Instance.selectedMechanism.newRom.aromMax;
       
         if (condition)
         {
@@ -472,6 +471,7 @@ public class PROMsceneHandler : MonoBehaviour
 
     public void onSavePressed()
     {
+         bool mechFME = (PlutoComm.MECHANISMS[PlutoComm.mechanism] != "FME1") && (PlutoComm.MECHANISMS[PlutoComm.mechanism] != "FME2");
         // Set the new PROM values in the selected mechanism.
         AppData.Instance.selectedMechanism.SetNewPromValues(promSlider.minAng, promSlider.maxAng);
 
@@ -503,8 +503,14 @@ public class PROMsceneHandler : MonoBehaviour
         AppLogger.LogInfo(logMessage);
 
         // Switch scene if assessment is complete.
-        if (AppData.Instance.selectedMechanism.promCompleted && AppData.Instance.selectedMechanism.aromCompleted) SceneManager.LoadScene(nextScene);
-        else Debug.Log("Complete your PROM and AROM");
+        if (AppData.Instance.selectedMechanism.promCompleted && AppData.Instance.selectedMechanism.aromCompleted && mechFME) SceneManager.LoadScene(nextScene);
+        else if (AppData.Instance.selectedMechanism.promCompleted && AppData.Instance.selectedMechanism.aromCompleted && !mechFME)
+        {
+            AppData.Instance.selectedMechanism.SetNewAPromValues(promSlider.minAng, promSlider.maxAng);
+            AppData.Instance.selectedMechanism.SaveAssessmentData();
+            SceneManager.LoadScene("CHGAME");
+        }
+    
     }
 
     private string FormatRelaxText(float min, float max)

@@ -104,10 +104,14 @@ public class ChooseGameSceneHandler : MonoBehaviour
         {
             SceneManager.LoadScene("ASSESS");
         }
-        if (Input.GetKey(KeyCode.LeftControl) && Input.GetKeyDown(KeyCode.G))
+        if ((PlutoComm.MECHANISMS[PlutoComm.mechanism] != "FME1") && (PlutoComm.MECHANISMS[PlutoComm.mechanism] != "FME2"))
         {
-            SceneManager.LoadScene("HATCV");
+             if (Input.GetKey(KeyCode.LeftControl) && Input.GetKeyDown(KeyCode.G))
+                {
+                    SceneManager.LoadScene("HATCV");
+                }
         }
+       
     }
 
     void AttachCallbacks()

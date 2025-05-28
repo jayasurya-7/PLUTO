@@ -425,7 +425,7 @@ public class HatGameController : MonoBehaviour
                         score.text = $"{(int)lastHighScore}";
                         if (lastHighScore > Others.highestSuccessRate)
                         {
-                            StartCoroutine(ShowForSeconds(HSC, 5f));
+                            StartCoroutine(ShowForSeconds(HSC, 1.3f));
                         }
                         else
                         {
