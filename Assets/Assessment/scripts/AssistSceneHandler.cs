@@ -68,7 +68,7 @@ bool goingPositive = true;
 // For tracking stuck situation
 float previousAngle = 0f;
 float stuckTimer = 0f;
-    float stuckThresholdTime = 1.5f; // seconds
+    float stuckThresholdTime = 2f; // seconds
 // Add these as class-level variables:
 int positiveStuckAttempts = 0;
 int negativeStuckAttempts = 0;
@@ -78,7 +78,17 @@ float minAngle = 0f;
 float torqueRampSpeed = 0.1f; // You can tweak this value (e.g., 0.05f, 0.02f for even slower)
 bool onceReached = false, firstPositiveStart=true, firstNegativeStart = true;
 float trailDuration = 1f;
-float stopClock;
+    float stopClock;
+float positiveTimer = 0f;
+float negativeTimer = 0f;
+    float maxDirectionDuration = 20f;
+float fadeOutDuration = 2f;
+float fadeOutTimer = 0f;
+    bool fadingOut = false;
+float positiveMovementTime = 0f;
+float negativeMovementTime = 0f;
+
+
 //torque = Mathf.Min(torque + Time.deltaTime * torqueRampSpeed, 1f); // for positive
 
     void Start()
@@ -142,160 +152,388 @@ float stopClock;
 
         UpdateStatusText();
     }
-    
+
+
+
+    // void runAssessment()
+    // {
+    //     stopClock -= Time.deltaTime;
+    //     stopClock = Mathf.Max(0, stopClock); // Clamp to 0
+
+    //     float deltaAngle = Mathf.Abs(currentAngle - previousAngle);
+    //     bool movingTowardTarget = (goingPositive && !AppData.Instance.selectedMechanism.IsMechanism("HOC")) 
+    //                                 ? (currentAngle > previousAngle) 
+    //                                 : (currentAngle < previousAngle);
+
+    //     // Stuck detection
+    //     if (!movingTowardTarget || deltaAngle < 3f)
+    //         stuckTimer += Time.deltaTime;
+    //     else
+    //         stuckTimer = 0f;
+
+    //     float timeFraction = Mathf.Clamp01((trailDuration - stopClock) / trailDuration); // 0 to 1
+    //     float smoothTorque = Mathf.SmoothStep(0f, 1f, timeFraction); // smooth ramp
+
+    //         if (!reachedPositive || !reachedNegative)
+    //         {
+    //         if (goingPositive)
+    //     {
+    //         if (!reachedPositive)
+    //         {
+    //                 if (!reachedPositive && firstPositiveStart)
+    //                 {
+    //                     trailDuration = 3.5f;
+    //                     stopClock = trailDuration;
+    //                     torque = 0f;
+    //                     onceReached = false;
+    //                     firstPositiveStart = false;
+    //                 positiveTimer = 0f;
+
+    //             }
+    //             positiveTimer += Time.deltaTime;
+
+    //             if (positiveTimer >= maxDirectionDuration)
+    //             {
+    //                 reachedPositive = true;
+    //                 maxAngle = currentAngle;
+    //                 torque = 0f;
+    //                 PlutoComm.setControlTarget(0);
+    //                 goingPositive = false;
+    //                 Debug.Log("Timed out after 20s. MaxAngle: " + maxAngle);
+    //                 return;
+    //             }
+
+
+    //             if (currentAngle < targetPositiveEnd - endpointTolerance)
+    //                 {
+    //                     // Set smooth torque ramp
+    //                     if (!onceReached)
+    //                         torque = smoothTorque;
+
+    //                     // Stuck at max torque
+    //                     if (stuckTimer > stuckThresholdTime && torque >= 0.85f)
+    //                     {
+    //                         stuckTimer = 0f;
+    //                         positiveStuckAttempts++;
+    //                         onceReached = true; // Mark that we reached or got stuck
+    //                     }
+
+    //                     // If stuck too many times, stop
+    //                     if (positiveStuckAttempts >= maxStuckAttempts)
+    //                     {
+    //                         reachedPositive = true;
+    //                         maxAngle = currentAngle;
+    //                         torque = 0f;
+    //                         PlutoComm.setControlTarget(0);
+    //                         goingPositive = false;
+    //                         Debug.Log("Max torque attempts reached. MaxAngle: " + maxAngle);
+    //                         return;
+    //                     }
+
+    //                     // Decay torque if direction flips
+    //                     if (onceReached && currentAngle > previousAngle)
+    //                         torque -= Time.deltaTime * 0.05f;
+
+    //                     PlutoComm.setControlTarget(torque);
+    //                 }
+    //                 else
+    //                 {
+    //                     reachedPositive = true;
+    //                     maxAngle = currentAngle;
+    //                     torque = 0f;
+    //                     PlutoComm.setControlTarget(0);
+    //                     goingPositive = false;
+    //                     Debug.Log("Reached Positive End. MaxAngle: " + maxAngle);
+    //                 }
+    //         }
+    //     }
+    //     else
+    //     {
+    //         if (!reachedNegative)
+    //         {
+
+    //                 if (!reachedNegative && firstNegativeStart)
+    //                 {
+    //                     trailDuration = 3.5f;
+    //                     stopClock = trailDuration;
+    //                     torque = 0f;
+    //                     onceReached = false;
+    //                     firstNegativeStart = false;
+    //                     negativeTimer = 0f;
+
+    //             }
+    //             negativeTimer += Time.deltaTime;
+
+    //             if (negativeTimer >= maxDirectionDuration)
+    //             {
+    //                 PlutoComm.setControlType("NONE");
+    //                 reachedNegative = true;
+    //                 minAngle = currentAngle;
+    //                 torque = 0f;
+    //                 redoButton.SetActive(true);
+    //                 Debug.Log("Timed out after 20s. MinAngle: " + minAngle);
+
+    //                 inst.text = $"APROM Reached both ends min : {_tmin},max :{_tmax}. Press PLUTO button to move next scene";
+    //                 return;
+    //             }
+
+    //             if (currentAngle > targetNegativeEnd + endpointTolerance)
+    //                 {
+    //                     float revSmoothTorque = -Mathf.SmoothStep(0f, 1f, timeFraction);
+
+    //                     if (!onceReached)
+    //                         torque = revSmoothTorque;
+
+    //                     if (stuckTimer > stuckThresholdTime && torque <= -0.85f)
+    //                     {
+    //                         stuckTimer = 0f;
+    //                         negativeStuckAttempts++;
+    //                         onceReached = true;
+    //                     }
+
+    //                     if (negativeStuckAttempts >= maxStuckAttempts)
+    //                     {
+    //                         PlutoComm.setControlType("NONE");
+    //                         reachedNegative = true;
+    //                         minAngle = currentAngle;
+    //                         torque = 0f;
+    //                         redoButton.SetActive(true);
+    //                         Debug.Log("Reached Negative End. MinAngle: " + minAngle);
+
+    //                         inst.text = $"APROM Reached both ends min : {_tmin},max :{_tmax}. Press PLUTO button to move next scene";
+
+    //                         return;
+    //                     }
+
+    //                     if (onceReached && currentAngle < previousAngle)
+    //                         torque += Time.deltaTime * 0.05f;
+
+    //                     PlutoComm.setControlTarget(torque);
+    //                 }
+    //                 else
+    //                 {
+    //                     PlutoComm.setControlType("NONE");
+    //                     reachedNegative = true;
+    //                     minAngle = currentAngle;
+    //                     torque = 0f;
+    //                     inst.text = $"APROM Reached both ends min : {_tmin},max :{_tmax}. Press PLUTO button to move next scene";
+
+    //                     redoButton.SetActive(true);
+    //                 }
+    //         }
+    //     }
+    //     }
+    //     previousAngle = currentAngle;
+
+    //     if (reachedNegative && reachedPositive && isButtonPressed)
+    //     {
+    //         AppData.Instance.selectedMechanism.SetNewAPromValues(_tmin, _tmax);
+    //         PlutoComm.setControlType("NONE");
+    //         AppData.Instance.selectedMechanism.SaveAssessmentData();
+    //         OnSaveClick();
+    //         isButtonPressed = false;
+    //         Debug.Log("Assessment complete.");
+    //         Debug.Log($"Final Limits => MinAngle: {minAngle}, MaxAngle: {maxAngle}");
+
+    //         if (AppData.Instance.selectedMechanism.apromCompleted)
+    //             SceneManager.LoadScene("CHGAME");
+    //     }
+    // }
+
 
 
     void runAssessment()
+{
+    stopClock -= Time.deltaTime;
+    stopClock = Mathf.Max(0, stopClock); // Clamp to 0
+
+    float deltaAngle = Mathf.Abs(currentAngle - previousAngle);
+    bool movingTowardTarget = (goingPositive && !AppData.Instance.selectedMechanism.IsMechanism("HOC")) 
+                                ? (currentAngle > previousAngle) 
+                                : (currentAngle < previousAngle);
+
+    // Stuck detection
+    if (!movingTowardTarget || deltaAngle < 3f)
+        stuckTimer += Time.deltaTime;
+    else
+        stuckTimer = 0f;
+
+    float timeFraction = Mathf.Clamp01((trailDuration - stopClock) / trailDuration);
+    float smoothTorque = Mathf.SmoothStep(0f, 1f, timeFraction);
+
+    if (!reachedPositive || !reachedNegative)
     {
-        stopClock -= Time.deltaTime;
-        stopClock = Mathf.Max(0, stopClock); // Clamp to 0
-
-        float deltaAngle = Mathf.Abs(currentAngle - previousAngle);
-        bool movingTowardTarget = (goingPositive && !AppData.Instance.selectedMechanism.IsMechanism("HOC")) 
-                                    ? (currentAngle > previousAngle) 
-                                    : (currentAngle < previousAngle);
-
-        // Stuck detection
-        if (!movingTowardTarget || deltaAngle < 3f)
-            stuckTimer += Time.deltaTime;
-        else
-            stuckTimer = 0f;
-
-        float timeFraction = Mathf.Clamp01((trailDuration - stopClock) / trailDuration); // 0 to 1
-        float smoothTorque = Mathf.SmoothStep(0f, 1f, timeFraction); // smooth ramp
-
-            if (!reachedPositive || !reachedNegative)
-            {
-            if (goingPositive)
+        if (goingPositive)
         {
             if (!reachedPositive)
             {
                 if (!reachedPositive && firstPositiveStart)
                 {
-                    trailDuration = 4f;
+                    trailDuration = 3.5f;
                     stopClock = trailDuration;
                     torque = 0f;
                     onceReached = false;
                     firstPositiveStart = false;
+                    positiveTimer = 0f;
+                }
+
+                if (movingTowardTarget && deltaAngle >= 3f)
+                    positiveMovementTime += Time.deltaTime;
+
+                positiveTimer += Time.deltaTime;
+
+                if (positiveTimer >= maxDirectionDuration)
+                {
+                    reachedPositive = true;
+                    maxAngle = currentAngle;
+                    torque = 0f;
+                    PlutoComm.setControlTarget(0);
+                    goingPositive = false;
+                    Debug.Log("Timed out after 20s. MaxAngle: " + maxAngle);
+                    Debug.Log("Positive movement time: " + positiveMovementTime);
+                    return;
                 }
 
                 if (currentAngle < targetPositiveEnd - endpointTolerance)
+                {
+                    if (!onceReached)
+                        torque = smoothTorque;
+
+                    if (stuckTimer > stuckThresholdTime && torque >= 0.85f)
                     {
-                        // Set smooth torque ramp
-                        if (!onceReached)
-                            torque = smoothTorque;
-
-                        // Stuck at max torque
-                        if (stuckTimer > stuckThresholdTime && torque >= 0.95f)
-                        {
-                            stuckTimer = 0f;
-                            positiveStuckAttempts++;
-                            onceReached = true; // Mark that we reached or got stuck
-                        }
-
-                        // If stuck too many times, stop
-                        if (positiveStuckAttempts >= maxStuckAttempts)
-                        {
-                            reachedPositive = true;
-                            maxAngle = currentAngle;
-                            torque = 0f;
-                            PlutoComm.setControlTarget(0);
-                            goingPositive = false;
-                            Debug.Log("Max torque attempts reached. MaxAngle: " + maxAngle);
-                            return;
-                        }
-
-                        // Decay torque if direction flips
-                        if (onceReached && currentAngle > previousAngle)
-                            torque -= Time.deltaTime * 0.05f;
-
-                        PlutoComm.setControlTarget(torque);
+                        stuckTimer = 0f;
+                        positiveStuckAttempts++;
+                        onceReached = true;
                     }
-                    else
+
+                    if (positiveStuckAttempts >= maxStuckAttempts)
                     {
                         reachedPositive = true;
                         maxAngle = currentAngle;
                         torque = 0f;
                         PlutoComm.setControlTarget(0);
                         goingPositive = false;
-                        Debug.Log("Reached Positive End. MaxAngle: " + maxAngle);
+                        Debug.Log("Max torque attempts reached. MaxAngle: " + maxAngle);
+                        Debug.Log("Positive movement time: " + positiveMovementTime);
+                        return;
                     }
+
+                    if (onceReached && currentAngle > previousAngle)
+                        torque -= Time.deltaTime * 0.05f;
+
+                    PlutoComm.setControlTarget(torque);
+                }
+                else
+                {
+                    reachedPositive = true;
+                    maxAngle = currentAngle;
+                    torque = 0f;
+                    PlutoComm.setControlTarget(0);
+                    goingPositive = false;
+                    Debug.Log("Reached Positive End. MaxAngle: " + maxAngle);
+                    Debug.Log("Positive movement time: " + positiveMovementTime);
+                }
             }
         }
         else
         {
             if (!reachedNegative)
             {
-                
                 if (!reachedNegative && firstNegativeStart)
                 {
-                    trailDuration = 4f;
+                    trailDuration = 3.5f;
                     stopClock = trailDuration;
                     torque = 0f;
                     onceReached = false;
                     firstNegativeStart = false;
+                    negativeTimer = 0f;
+                }
+
+                if (movingTowardTarget && deltaAngle >= 3f)
+                    negativeMovementTime += Time.deltaTime;
+
+                negativeTimer += Time.deltaTime;
+
+                if (negativeTimer >= maxDirectionDuration)
+                {
+                    PlutoComm.setControlType("NONE");
+                    reachedNegative = true;
+                    minAngle = currentAngle;
+                    torque = 0f;
+                    redoButton.SetActive(true);
+                    Debug.Log("Timed out after 20s. MinAngle: " + minAngle);
+                    Debug.Log("Negative movement time: " + negativeMovementTime);
+
+                    inst.text = $"APROM Reached both ends min : {_tmin},max :{_tmax}. Press PLUTO button to move next scene";
+                    return;
                 }
 
                 if (currentAngle > targetNegativeEnd + endpointTolerance)
+                {
+                    float revSmoothTorque = -Mathf.SmoothStep(0f, 1f, timeFraction);
+
+                    if (!onceReached)
+                        torque = revSmoothTorque;
+
+                    if (stuckTimer > stuckThresholdTime && torque <= -0.85f)
                     {
-                        float revSmoothTorque = -Mathf.SmoothStep(0f, 1f, timeFraction);
-
-                        if (!onceReached)
-                            torque = revSmoothTorque;
-
-                        if (stuckTimer > stuckThresholdTime && torque <= -0.95f)
-                        {
-                            stuckTimer = 0f;
-                            negativeStuckAttempts++;
-                            onceReached = true;
-                        }
-
-                        if (negativeStuckAttempts >= maxStuckAttempts)
-                        {
-                            PlutoComm.setControlType("NONE");
-                            reachedNegative = true;
-                            minAngle = currentAngle;
-                            torque = 0f;
-                            redoButton.SetActive(true);
-                            inst.text = $"APROM Reached both ends min : {_tmin},max :{_tmax}. Press PLUTO button to move next scene";
-                          
-                            return;
-                        }
-
-                        if (onceReached && currentAngle < previousAngle)
-                            torque += Time.deltaTime * 0.05f;
-
-                        PlutoComm.setControlTarget(torque);
+                        stuckTimer = 0f;
+                        negativeStuckAttempts++;
+                        onceReached = true;
                     }
-                    else
+
+                    if (negativeStuckAttempts >= maxStuckAttempts)
                     {
                         PlutoComm.setControlType("NONE");
                         reachedNegative = true;
                         minAngle = currentAngle;
                         torque = 0f;
-                        inst.text = $"APROM Reached both ends min : {_tmin},max :{_tmax}. Press PLUTO button to move next scene";
-                        
                         redoButton.SetActive(true);
+                        Debug.Log("Reached Negative End. MinAngle: " + minAngle);
+                        Debug.Log("Negative movement time: " + negativeMovementTime);
+
+                        inst.text = $"APROM Reached both ends min : {_tmin},max :{_tmax}. Press PLUTO button to move next scene";
+                        return;
                     }
+
+                    if (onceReached && currentAngle < previousAngle)
+                        torque += Time.deltaTime * 0.05f;
+
+                    PlutoComm.setControlTarget(torque);
+                }
+                else
+                {
+                    PlutoComm.setControlType("NONE");
+                    reachedNegative = true;
+                    minAngle = currentAngle;
+                    torque = 0f;
+                    redoButton.SetActive(true);
+                    Debug.Log("Reached Negative End. MinAngle: " + minAngle);
+                    Debug.Log("Negative movement time: " + negativeMovementTime);
+
+                    inst.text = $"APROM Reached both ends min : {_tmin},max :{_tmax}. Press PLUTO button to move next scene";
+                }
             }
         }
-        }
-        previousAngle = currentAngle;
-
-        if (reachedNegative && reachedPositive && isButtonPressed)
-        {
-            AppData.Instance.selectedMechanism.SetNewAPromValues(_tmin, _tmax);
-            PlutoComm.setControlType("NONE");
-            AppData.Instance.selectedMechanism.SaveAssessmentData();
-            OnSaveClick();
-            isButtonPressed = false;
-            Debug.Log("Assessment complete.");
-            Debug.Log($"Final Limits => MinAngle: {minAngle}, MaxAngle: {maxAngle}");
-
-            if (AppData.Instance.selectedMechanism.apromCompleted)
-                SceneManager.LoadScene("CHGAME");
-        }
     }
+
+    previousAngle = currentAngle;
+
+    if (reachedNegative && reachedPositive && isButtonPressed)
+    {
+        AppData.Instance.selectedMechanism.SetNewAPromValues(_tmin, _tmax);
+        PlutoComm.setControlType("NONE");
+        AppData.Instance.selectedMechanism.SaveAssessmentData();
+        OnSaveClick();
+        isButtonPressed = false;
+        Debug.Log("Assessment complete.");
+        Debug.Log($"Final Limits => MinAngle: {minAngle}, MaxAngle: {maxAngle}");
+        Debug.Log($"Positive movement time: {positiveMovementTime}, Negative movement time: {negativeMovementTime}");
+
+        if (AppData.Instance.selectedMechanism.apromCompleted)
+            SceneManager.LoadScene("CHGAME");
+    }
+}
 
     public void OnExit()
     {
@@ -343,20 +581,6 @@ float stopClock;
     public void OnRedoPromClick()
     {
         InitializeAssessment();
-        // _state = AssessStates.INIT;
-        // isButtonPressed = false;
-
-        // // Reinitialize the assessment process
-        // InitializeAssessment();
-        // negativeStuckAttempts = positiveStuckAttempts = 0;
-        // firstNegativeStart = true;
-        // firstPositiveStart=true;
-        // goingPositive = true;
-        // trailDuration = 4f;
-        // UpdateStatusText();
-        // redoButton.SetActive(false);
-        // SceneManager.LoadScene(SceneManager.GetActiveScene().name);
-        //  AppData.Instance.selectedMechanism.ResetAromValues();
         Debug.Log("Redo PROM: Reset to INIT state.");
     }
 

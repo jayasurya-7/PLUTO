@@ -102,9 +102,13 @@ public class FlappyGameControl : MonoBehaviour
     private GameObject targetTemp;
     public GameObject HSC; //HighScoreCanvas
     public TextMeshProUGUI score1;
-    private float lastHighScore, eventDelayTimer = 0f;
+    private float lastHighScore, eventDelayTimer = 0f, gameSpeed;
     private bool runOnce = false;
     public Image loadingImage;
+    
+    public GameObject increaseSpeed, decreaseSpeed;
+    bool speedControlsVisible = false;
+
 
     void Awake()
     {
@@ -144,6 +148,8 @@ public class FlappyGameControl : MonoBehaviour
         prom = AppData.Instance.selectedMechanism.CurrentProm;
         aprom = AppData.Instance.selectedMechanism.CurrentAProm;
 
+        //gameSpeed = AppData.Instance.speedData.gameSpeed;
+        gameSpeed = 20.0f; //temp
         // Attach PLUTO button event.
         PlutoComm.OnButtonReleased += onPlutoButtonReleased;
     }
@@ -182,6 +188,15 @@ public class FlappyGameControl : MonoBehaviour
 
         if (isGamePaused && gameState != GameStates.PAUSED) PauseGame();
         else if (!isGamePaused && gameState == GameStates.PAUSED) ResumeGame();
+        if (Input.GetKey(KeyCode.LeftControl) && Input.GetKeyDown(KeyCode.G))
+        {
+            speedControlsVisible = !speedControlsVisible;
+
+            increaseSpeed.SetActive(speedControlsVisible);
+            decreaseSpeed.SetActive(speedControlsVisible);
+
+            Debug.Log("Speed controls " + (speedControlsVisible ? "enabled" : "disabled"));
+        }
 
         if (!setup)
         {
@@ -225,6 +240,24 @@ public class FlappyGameControl : MonoBehaviour
         }
         backgrounds[_state].SetActive(true);
     }
+    
+    public void increaseGameSpeed()
+    {
+        if (gameSpeed < 40.0f)
+        {
+            gameSpeed = gameSpeed + 2.0f;
+            scrollSpeed = -2 - 1 * (0.02f * gameSpeed);
+        }
+        Debug.Log($" gs- {AppData.Instance.speedData.gameSpeed}+{gameSpeed}");
+    }
+    public void decreaseGameSpeed()
+    {
+        if (gameSpeed > 10f)
+        {
+            gameSpeed = gameSpeed - 2.0f;
+            scrollSpeed = -2 - 1 * (0.02f * gameSpeed);
+        }
+    }
 
     public void spawnColumn()
     {
@@ -232,9 +265,9 @@ public class FlappyGameControl : MonoBehaviour
         {
             prevSpawnTime = 0;
             nTargets++;
-            columns[CurrentColumn].transform.position = new Vector3(BirdControl.rb2d.transform.position.x + spawnXposition,targetPosition, 0);
+            columns[CurrentColumn].transform.position = new Vector3(BirdControl.rb2d.transform.position.x + spawnXposition, targetPosition, 0);
             columns[CurrentColumn].tag = "Target";
-            Debug.Log($"{(BirdControl.rb2d.transform.position.x + spawnXposition,targetPosition, 0)}");
+            Debug.Log($"{(BirdControl.rb2d.transform.position.x + spawnXposition, targetPosition, 0)}");
             if (CurrentColumn == 0)
             {
                 columns[columnPoolSize - 1].tag = "Untagged";
@@ -469,7 +502,7 @@ public class FlappyGameControl : MonoBehaviour
                     MOVEDURATION = MoveDuration();
                     Debug.Log($"mm :{MOVEDURATION}");
                     // Set new trial in the AAN controller.
-                    AppData.Instance.aanController.SetNewTrialDetails(PlutoComm.angle, targetAngle, MOVEDURATION);
+                    AppData.Instance.aanController.SetNewTrialDetails(PlutoComm.angle, targetAngle, MOVEDURATION, gameSpeed);
                     runOnce = true;
                     eventDelayTimer = 0.05f;
 

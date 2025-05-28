@@ -175,17 +175,18 @@ public class HatGameController : MonoBehaviour
         else if (!isGamePaused && gameState == GameStates.PAUSED) ResumeGame();
 
         // Magic key cobmination for doing the speed control.
-    
-    if (Input.GetKey(KeyCode.LeftControl) && Input.GetKeyDown(KeyCode.G))
-    {
-        speedControlsVisible = !speedControlsVisible;
 
-        increaseSpeed.SetActive(speedControlsVisible);
-        decreaseSpeed.SetActive(speedControlsVisible);
+        if (Input.GetKey(KeyCode.LeftControl) && Input.GetKeyDown(KeyCode.G))
+        {
+            speedControlsVisible = !speedControlsVisible;
 
-        Debug.Log("Speed controls " + (speedControlsVisible ? "enabled" : "disabled"));
-    }
+            increaseSpeed.SetActive(speedControlsVisible);
+            decreaseSpeed.SetActive(speedControlsVisible);
 
+            Debug.Log("Speed controls " + (speedControlsVisible ? "enabled" : "disabled"));
+        }
+
+        Debug.Log($" ball speed : {BALLSPEED}");
         
 
     }
@@ -223,10 +224,11 @@ public class HatGameController : MonoBehaviour
 
     public void increaseGameSpeed()
     {
-        if (gameSpeed < 20f)
+        if (gameSpeed < 40.0f)
         {
             gameSpeed = gameSpeed + 2.0f;
-            BALLSPEED = 1f + 0.3f * (1 + (0.2f * gameSpeed));
+            BALLSPEED =  1.0f + ((gameSpeed - 10f) / 30f) * 1.3f;
+            //BALLSPEED = 1f + 0.3f * (1 + (0.2f * gameSpeed));
             MOVEDURATION = 0.5f * (BALLSTARTY - BALLENDY) / BALLSPEED;
         }
         Debug.Log($" gs- {AppData.Instance.speedData.gameSpeed}+{gameSpeed}");
@@ -236,7 +238,8 @@ public class HatGameController : MonoBehaviour
         if (gameSpeed > 10f)
         {
             gameSpeed = gameSpeed - 2.0f;
-            BALLSPEED = 1f + 0.3f * (1 + (0.2f * gameSpeed));
+            BALLSPEED =  1.0f + ((gameSpeed - 10f) / 30f) * 1.3f;
+            // BALLSPEED = 1f + 0.3f * (1 + (0.2f * gameSpeed));
             MOVEDURATION = 0.5f * (BALLSTARTY - BALLENDY) / BALLSPEED;
         }
     }
@@ -271,7 +274,7 @@ public class HatGameController : MonoBehaviour
         StartButton.SetActive(false);
         PauseButton.SetActive(true);
         ResumeButton.SetActive(false);
-        gameSpeed = AppData.Instance.speedData.gameSpeed;
+      //  gameSpeed = AppData.Instance.speedData.gameSpeed;
     }
 
     public void PauseGame()
@@ -354,7 +357,7 @@ public class HatGameController : MonoBehaviour
                     targetPosition = AngleToScreen(targetAngle);
                     SpawnTarget();
                     // Set new trial in the AAN controller.
-                    AppData.Instance.aanController.SetNewTrialDetails(PlutoComm.angle, targetAngle, MOVEDURATION);
+                    AppData.Instance.aanController.SetNewTrialDetails(PlutoComm.angle, targetAngle, MOVEDURATION, AppData.Instance.speedData.gameSpeed);
                     eventDelayTimer = 0.05f;
                     runOnce = true;
                 }
@@ -533,7 +536,13 @@ public class HatGameController : MonoBehaviour
         // Attach PLUTO button event.
         PlutoComm.OnButtonReleased += onPlutoButtonReleased;
 
-        BALLSPEED = 1f + 0.3f * (1 + (0.2f * AppData.Instance.speedData.gameSpeed));
+        gameSpeed = AppData.Instance.speedData.gameSpeed; // degrees/sec
+        if (gameSpeed < 10.0f) gameSpeed = 10.0f;
+        float ballSpeed = 1f + ((gameSpeed - 10f) / 30f) * 1.3f;
+        Debug.Log($"bc:{ballSpeed}");
+        BALLSPEED = Mathf.Clamp(ballSpeed, 0.7f, 2.4f); // safety clamp
+
+        //BALLSPEED = 1f + 0.3f * (1 + (0.2f * AppData.Instance.speedData.gameSpeed));
         Debug.Log(AppData.Instance.speedData.gameSpeed);
         MOVEDURATION = 0.5f * (BALLSTARTY - BALLENDY) / BALLSPEED;
     }

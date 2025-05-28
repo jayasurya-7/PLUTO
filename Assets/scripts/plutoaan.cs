@@ -25,13 +25,15 @@ public class PlutoAANController
     public static readonly float DEFAULTCONTROLBOUND = 0.6f;    // Default control bound value.
     public static readonly float MAXCONTROLBOUND = 1f;       // Maximum control bound value.
     public static readonly float MINCONTROLBOUND = 0.16f;       // Minimum control bound value.
+    public static float MAX_SPEED = 40.0f;
+    public float MECH_SPEED = 0f;
 
     public static readonly string[] ADAPTFILEHEADER = new string[] {
-        "SessionNumber", "TrialNumberSession", "TrialNumberDay", 
-        "SuccessRate", "DesiredSuccessRate", 
+        "SessionNumber", "TrialNumberSession", "TrialNumberDay",
+        "SuccessRate", "DesiredSuccessRate",
         "ControlBound", "AanExecFileName"
     };
-    
+
     public enum TargetType
     {
         InAromFromArom,
@@ -41,7 +43,7 @@ public class PlutoAANController
         InPromFromPromNoCrossArom,
         None
     }
-    
+
     public enum PlutoAANState
     {
         None = 0,           // None state. The AAN is not engaged.
@@ -54,8 +56,9 @@ public class PlutoAANController
 
     // Mechanism details
     private PlutoMechanism mechanism;
-    public string mechanismName { 
-        get => mechanism.name ;
+    public string mechanismName
+    {
+        get => mechanism.name;
     }
 
     // AAN real-time execution related variables.
@@ -91,9 +94,9 @@ public class PlutoAANController
     private string _execFileName;
     private StreamWriter _execFileHandler = null;
     public string execFileName
-    { 
+    {
         get => _execFileName;
-        private set 
+        private set
         {
             _execFileName = value;
             _execFileHandler?.Dispose();
@@ -104,21 +107,21 @@ public class PlutoAANController
     }
 
     public string adaptFileName { private set; get; }
-    
+
     public PlutoAANController(PlutoMechanism mechanism, DataTable sessionData, int sessionNo)
     {
-        if (mechanism == null) 
+        if (mechanism == null)
         {
             // Throw null exception.
             throw new ArgumentNullException();
         }
         // Initialize controller
         this.mechanism = mechanism;
-        
+
         // Logging files
         execFileName = null;
         adaptFileName = DataManager.GetAanAdaptFileName(mechanismName);
-        
+
         // Execution related variables
         initialPosition = 0;
         targetPosition = 0;
@@ -130,7 +133,7 @@ public class PlutoAANController
         trialTime = 0;
         _newAanTarget = new float[5];
         _newAanTarget[0] = 999; // Invalid target.
-        
+
         // Adaptation related variables.
         ReadUpdateAdaptionParameters(sessionData, sessionNo);
     }
@@ -151,7 +154,7 @@ public class PlutoAANController
         else
         {
             // // Now order the selRows by the trailNumberDay in increasing order and get the last row.
-             DataRow lastRow = selRows.LastOrDefault();
+            DataRow lastRow = selRows.LastOrDefault();
 
             //     string nextBoundStr = lastRow?.Field<string>("NextControlBound");
             //     if (string.IsNullOrWhiteSpace(nextBoundStr) || !float.TryParse(nextBoundStr, out currentCtrlBound))
@@ -160,7 +163,7 @@ public class PlutoAANController
             //     }
 
             // //currentCtrlBound = Convert.ToSingle(lastRow.Field<string>("NextControlBound"));
-        
+
             float tempBound;
             string nextBoundStr = lastRow?.Field<string>("NextControlBound");
 
@@ -283,13 +286,14 @@ public class PlutoAANController
         PlutoAanLogger.LogInfo($"Reset | {state} | [{_newAanTarget[0]}, {_newAanTarget[1]}, {_newAanTarget[2]}, {_newAanTarget[3]}, {_newAanTarget[4]}]");
     }
 
-    public void SetNewTrialDetails(float actual, float target, float maxDur)
+    public void SetNewTrialDetails(float actual, float target, float maxDur, float mechSpeed)
     {
         // Set the initial and target position for the trial.
         initialPosition = actual;
         targetPosition = target;
         maxDuration = maxDur;
         trialRunning = true;
+        MECH_SPEED = mechSpeed;
         // Initialize the queues to keep track of the recent movement trajectory.
         positionQ.Enqueue(actual);
         timeQ.Enqueue(trialTime);
@@ -310,7 +314,7 @@ public class PlutoAANController
 
     public TargetType GetTargetType()
     {
-       // UnityEngine.Debug.Log($"arom min : {aRom[0]}, max :{aRom[1]}");
+        // UnityEngine.Debug.Log($"arom min : {aRom[0]}, max :{aRom[1]}");
         bool _initInArom = (initialPosition >= aRom[0] && initialPosition <= aRom[1]);
         if (trialRunning == false) return TargetType.None;
         // Check if target is in aRom
@@ -377,7 +381,40 @@ public class PlutoAANController
         timeQ.Enqueue(tTime);
     }
 
-    private void GenerateRelaxToAromAanTarget(float actual)
+    // private void GenerateRelaxToAromAanTarget(float actual)
+    // {
+    //     // Find the nearest AROM edge.
+    //     float _nearestAromEdge = GetNearestAromEdge(actual);
+    //     // There is valid target
+    //     _newAanTarget[0] = 0;
+    //     // Initial Position
+    //     _newAanTarget[1] = actual;
+    //     // Initial Time
+    //     _newAanTarget[2] = 0;
+    //     // Target Position
+    //     _newAanTarget[3] = _nearestAromEdge;
+    //     // Reach Duration
+    //     _newAanTarget[4] = Math.Min(maxDuration, Math.Max(MIN_REACH_TIME, Math.Abs(_nearestAromEdge - actual) / MAX_AVG_SPEED));
+    // }
+
+    // private void GenerateAssistToTargetAanTarget(float actual, bool fromArom)
+    // {
+    //     // Reach Duration
+    //     float _maxAvgSpeed =Math.Min(MAX_SPEED ,Math.Max(MIN_AVG_SPEED, Math.Min(Math.Abs(actual - initialPosition) / trialTime, MAX_AVG_SPEED)));
+    //     float _maxDur = Math.Min(maxDuration, Math.Max(MIN_REACH_TIME, Math.Abs(targetPosition - actual) / _maxAvgSpeed));
+    //     // There is a valid target
+    //     _newAanTarget[0] = 0;
+    //     // Initial Position
+    //     _newAanTarget[1] = actual;
+    //     // Initial Time
+    //     _newAanTarget[2] = fromArom ? - 0.25f * _maxDur : 0;
+    //     // Target Position
+    //     _newAanTarget[3] = targetPosition;
+    //     // Target Time
+    //     _newAanTarget[4] = _maxDur;
+    // }
+    
+     private void GenerateRelaxToAromAanTarget(float actual)
     {
         // Find the nearest AROM edge.
         float _nearestAromEdge = GetNearestAromEdge(actual);
@@ -390,13 +427,13 @@ public class PlutoAANController
         // Target Position
         _newAanTarget[3] = _nearestAromEdge;
         // Reach Duration
-        _newAanTarget[4] = Math.Min(maxDuration, Math.Max(MIN_REACH_TIME, Math.Abs(_nearestAromEdge - actual) / MAX_AVG_SPEED));
+        _newAanTarget[4] = Math.Min(maxDuration, Math.Max(MIN_REACH_TIME, Math.Abs(_nearestAromEdge - actual) / MECH_SPEED));
     }
 
     private void GenerateAssistToTargetAanTarget(float actual, bool fromArom)
     {
         // Reach Duration
-        float _maxAvgSpeed = Math.Max(MIN_AVG_SPEED, Math.Min(Math.Abs(actual - initialPosition) / trialTime, MAX_AVG_SPEED));
+        float _maxAvgSpeed =Math.Min(MAX_SPEED ,Math.Max(MIN_AVG_SPEED, Math.Min(Math.Abs(actual - initialPosition) / trialTime, MECH_SPEED)));
         float _maxDur = Math.Min(maxDuration, Math.Max(MIN_REACH_TIME, Math.Abs(targetPosition - actual) / _maxAvgSpeed));
         // There is a valid target
         _newAanTarget[0] = 0;

@@ -123,6 +123,7 @@ public class HatGameControllerCV : MonoBehaviour
     private float playerPosition, gain = 1f;
     private GameObject targetTemp;
     public GameObject increaseCG, decreaseCG;
+    private float gameSpeed;
 
 
     private void Awake()
@@ -353,7 +354,7 @@ public class HatGameControllerCV : MonoBehaviour
                 targetPosition = AngleToScreen(targetAngle);
                 SpawnTarget();
                 // Set new trial in the AAN controller.
-                AppData.Instance.aanController.SetNewTrialDetails(PlutoComm.angle, targetAngle, MOVEDURATION);
+                AppData.Instance.aanController.SetNewTrialDetails(PlutoComm.angle, targetAngle, MOVEDURATION, gameSpeed);
                 gameState = GameStates.MOVE;
                 break;
             case GameStates.MOVE:
@@ -442,7 +443,7 @@ public class HatGameControllerCV : MonoBehaviour
         scale = new Vector3(1f, 1f, 1f);
         player.transform.localScale = scale;
 
-
+        gameSpeed = AppData.Instance.speedData.gameSpeed;
         // Enable the buttons
         StartButton.SetActive(true);
         PauseButton.SetActive(false);
@@ -469,7 +470,7 @@ public class HatGameControllerCV : MonoBehaviour
         // Attach PLUTO button event.
         PlutoComm.OnButtonReleased += onPlutoButtonReleased;
 
-        BALLSPEED = 1f + 0.3f * (1 + (0.2f * AppData.Instance.speedData.gameSpeed));
+        BALLSPEED = 1f * (1 + (0.2f * AppData.Instance.speedData.gameSpeed));
         Debug.Log(AppData.Instance.speedData.gameSpeed);
         MOVEDURATION = 0.5f * (BALLSTARTY - BALLENDY) / BALLSPEED;
     }

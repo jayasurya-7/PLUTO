@@ -87,8 +87,10 @@ public class PongGameController : MonoBehaviour
     public int nSuccess = 0;
     public int nFailure = 0;
 
-    private float MOVEDURATION, eventDelayTimer = 0f;
+    private float MOVEDURATION, eventDelayTimer = 0f, gameSpeed;
     public Image loadingImage;
+     public GameObject increaseSpeed, decreaseSpeed;
+    bool speedControlsVisible = false;
     private void Awake()
     {
         if (Instance == null)
@@ -135,7 +137,18 @@ public class PongGameController : MonoBehaviour
         pointCounter.text = enemyScore + "\t\t" +
             playerScore;
 
-         //if (isGamePaused && gameState != GameStates.PAUSED) 
+        //if (isGamePaused && gameState != GameStates.PAUSED) 
+         
+          if (Input.GetKey(KeyCode.LeftControl) && Input.GetKeyDown(KeyCode.G))
+        {
+            speedControlsVisible = !speedControlsVisible;
+
+            increaseSpeed.SetActive(speedControlsVisible);
+            decreaseSpeed.SetActive(speedControlsVisible);
+
+            Debug.Log("Speed controls " + (speedControlsVisible ? "enabled" : "disabled"));
+        }
+
 
         //Ball Spawn
         if (transform.childCount == 0)
@@ -394,7 +407,7 @@ public class PongGameController : MonoBehaviour
                 MOVEDURATION = timeToReach();
                 //setTarget();
                 // Set new trial in the AAN controller.
-                AppData.Instance.aanController.SetNewTrialDetails(PlutoComm.angle, targetAngle, MOVEDURATION);
+                AppData.Instance.aanController.SetNewTrialDetails(PlutoComm.angle, targetAngle, MOVEDURATION, gameSpeed);
                 gameState = GameStates.MOVE;
                 break;
             case GameStates.MOVE:
@@ -514,8 +527,8 @@ public class PongGameController : MonoBehaviour
         arom = AppData.Instance.selectedMechanism.CurrentArom;
         prom = AppData.Instance.selectedMechanism.CurrentProm;
         aprom = AppData.Instance.selectedMechanism.CurrentAProm;
-
-
+        // gameSpeed = AppData.Instance.speedData.gameSpeed;
+            gameSpeed = 20.0f; //temp
         // Attach PLUTO button event.
         PlutoComm.OnButtonReleased += onPlutoButtonReleased;
     }
