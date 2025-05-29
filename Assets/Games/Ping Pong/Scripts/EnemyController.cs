@@ -27,8 +27,7 @@ public class EnemyController : MonoBehaviour
     void Start()
     {
         InvokeRepeating("Move", .02F, .02F);
-        
-        speedDefault = speedDefault + (0.1f * AppData.Instance.speedData.gameSpeed);
+        //speedDefault = speedDefault + (0.1f * AppData.Instance.speedData.gameSpeed);
     }
 
     private void Update()

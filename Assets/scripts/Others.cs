@@ -160,6 +160,10 @@ public class MechanismSpeed
         this.mechParamsCsvPath = DataManager.GetMechFileName(AppData.Instance.selectedMechanism.name);
     }
 
+    public void setGameSpeed(float gs)
+    {
+        gameSpeed = gs;
+}
     public void EvaluateAndUpdateGameSpeed()
     {
         if (!File.Exists(mechParamsCsvPath))

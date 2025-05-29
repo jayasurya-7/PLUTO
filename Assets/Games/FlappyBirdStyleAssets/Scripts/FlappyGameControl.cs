@@ -63,7 +63,7 @@ public class FlappyGameControl : MonoBehaviour
     public int nSuccess = 0;
     public int nFailure = 0;
     private string prevScene = "CHGAME";
-     public Text timeLeftText, status;
+     public Text timeLeftText, status, gameSpeedViewer;
     public enum GameStates
     {
         WAITING = 0,
@@ -148,8 +148,8 @@ public class FlappyGameControl : MonoBehaviour
         prom = AppData.Instance.selectedMechanism.CurrentProm;
         aprom = AppData.Instance.selectedMechanism.CurrentAProm;
 
-        //gameSpeed = AppData.Instance.speedData.gameSpeed;
-        gameSpeed = 20.0f; //temp
+        gameSpeed = AppData.Instance.speedData.gameSpeed;
+        //gameSpeed = 20.0f; //temp
         // Attach PLUTO button event.
         PlutoComm.OnButtonReleased += onPlutoButtonReleased;
     }
@@ -166,7 +166,7 @@ public class FlappyGameControl : MonoBehaviour
             AngleToScreen(AppData.Instance.selectedMechanism.currRom.aromMin),
             aromLeft.transform.position.z
         );
-        Debug.Log($" aromMin :{ AngleToScreen(AppData.Instance.selectedMechanism.currRom.aromMin)},aromMax :{ AngleToScreen(AppData.Instance.selectedMechanism.currRom.aromMax)}, promMin :{ AngleToScreen(AppData.Instance.selectedMechanism.currRom.promMin)}, promMax :{ AngleToScreen(AppData.Instance.selectedMechanism.currRom.promMax)}");
+        //Debug.Log($" aromMin :{ AngleToScreen(AppData.Instance.selectedMechanism.currRom.aromMin)},aromMax :{ AngleToScreen(AppData.Instance.selectedMechanism.currRom.aromMax)}, promMin :{ AngleToScreen(AppData.Instance.selectedMechanism.currRom.promMin)}, promMax :{ AngleToScreen(AppData.Instance.selectedMechanism.currRom.promMax)}");
        
         aromRight.transform.position = new Vector3(
             aromRight.transform.position.x,
@@ -176,10 +176,7 @@ public class FlappyGameControl : MonoBehaviour
      HS.text = $" BEST :{ Others.highestSuccessRate:F0} %";
      status.text = $"s.no: {AppData.Instance.currentSessionNumber}\n" +
               $"trialNo: {AppData.Instance.selectedMechanism.trialNumberSession}\n" +
-              $"CB: {AppData.Instance.CurrentControlBound}";
-   
-
-        
+              $"CB: {AppData.Instance.CurrentControlBound}";        
     }
 
     void Update()
@@ -220,7 +217,7 @@ public class FlappyGameControl : MonoBehaviour
         if (isGameStarted)
         { UpdateGameTimerUI(); }
         // Send PLUTO heartbeat
-       // PlutoComm.sendHeartbeat();
+        // PlutoComm.sendHeartbeat();
 
         // Handle the current game state.
         RunGameStateMachine();
@@ -228,8 +225,9 @@ public class FlappyGameControl : MonoBehaviour
         // Update player and target positions
         PlayerPosition = GameObject.FindGameObjectWithTag("Player").transform.position;
         targetTemp = GameObject.FindGameObjectWithTag("Target");
-        TargetPosition = targetTemp != null ? targetTemp.transform.position : null;  
+        TargetPosition = targetTemp != null ? targetTemp.transform.position : null;
         prevSpawnTime += Time.deltaTime;
+        Debug.Log(scrollSpeed);
     }
 
     public void chooseBackground()
@@ -243,21 +241,30 @@ public class FlappyGameControl : MonoBehaviour
     
     public void increaseGameSpeed()
     {
-        if (gameSpeed < 40.0f)
-        {
-            gameSpeed = gameSpeed + 2.0f;
-            scrollSpeed = -2 - 1 * (0.02f * gameSpeed);
-        }
-        Debug.Log($" gs- {AppData.Instance.speedData.gameSpeed}+{gameSpeed}");
+         if (gameSpeed >= 40.0f) return;
+
+        gameSpeed += 2.0f;
+        UpdateScrollSpeed();
+        Debug.Log($"gs - {AppData.Instance.speedData.gameSpeed} + {gameSpeed}");
     }
     public void decreaseGameSpeed()
     {
-        if (gameSpeed > 10f)
-        {
-            gameSpeed = gameSpeed - 2.0f;
-            scrollSpeed = -2 - 1 * (0.02f * gameSpeed);
-        }
+
+            string mech = PlutoComm.MECHANISMS[PlutoComm.mechanism];
+            bool isFME = mech == "FME1" || mech == "FME2";
+
+            if ((isFME && gameSpeed <= 1.0f) || (!isFME && gameSpeed <= 10.0f)) return;
+
+            gameSpeed -= 1.0f;
+            UpdateScrollSpeed();
+
     }
+    private void UpdateScrollSpeed()
+{
+    // Use finer scaling for scroll speed at lower increments
+    float scrollFactor = (gameSpeed >= 40.0f) ? 0.04f : 0.02f;
+    scrollSpeed = -2f - (scrollFactor * gameSpeed);
+}
 
     public void spawnColumn()
     {
@@ -267,7 +274,7 @@ public class FlappyGameControl : MonoBehaviour
             nTargets++;
             columns[CurrentColumn].transform.position = new Vector3(BirdControl.rb2d.transform.position.x + spawnXposition, targetPosition, 0);
             columns[CurrentColumn].tag = "Target";
-            Debug.Log($"{(BirdControl.rb2d.transform.position.x + spawnXposition, targetPosition, 0)}");
+            // Debug.Log($"{(BirdControl.rb2d.transform.position.x + spawnXposition, targetPosition, 0)}");
             if (CurrentColumn == 0)
             {
                 columns[columnPoolSize - 1].tag = "Untagged";
@@ -441,7 +448,7 @@ public class FlappyGameControl : MonoBehaviour
         
         // Initialize game variables.
         triaTimeLeft = HomerTherapy.TrialDuration;
-        Debug.Log($"trial time left :{triaTimeLeft}");
+      //  Debug.Log($"trial time left :{triaTimeLeft}");
         // Reset score related variables.
         nTargets = 0;
         nSuccess = 0;
@@ -466,13 +473,13 @@ public class FlappyGameControl : MonoBehaviour
     private void RunGameStateMachine()
     {
         // Check if the game is to be paused or unpaused.
-        Debug.Log($"Game Update : {gameState}");
+       // Debug.Log($"Game Update : {gameState}");
         if (isGamePaused) PauseGame();
         else if (gameState == GameStates.PAUSED) ResumeGame();
 
         // Run the game timer
         if (IsGamePlaying()) triaTimeLeft -= Time.deltaTime;
-        Debug.Log(isGameStarted);
+        // Debug.Log(isGameStarted);
         // Act according to the current game state.
         bool isTimeUp = triaTimeLeft <= 0;
         switch (gameState)
@@ -500,9 +507,10 @@ public class FlappyGameControl : MonoBehaviour
                     targetPosition = AngleToScreen(targetAngle);
                     spawnColumn();
                     MOVEDURATION = MoveDuration();
-                    Debug.Log($"mm :{MOVEDURATION}");
+                  //  Debug.Log($"mm :{MOVEDURATION}");
                     // Set new trial in the AAN controller.
-                    AppData.Instance.aanController.SetNewTrialDetails(PlutoComm.angle, targetAngle, MOVEDURATION, gameSpeed);
+                    float checkFME = ((PlutoComm.MECHANISMS[PlutoComm.mechanism] != "FME1") && (PlutoComm.MECHANISMS[PlutoComm.mechanism] != "FME2")) ? gameSpeed : 20.0f;
+                    AppData.Instance.aanController.SetNewTrialDetails(PlutoComm.angle, targetAngle, MOVEDURATION, checkFME);
                     runOnce = true;
                     eventDelayTimer = 0.05f;
 
@@ -548,7 +556,7 @@ public class FlappyGameControl : MonoBehaviour
              
                 break;
             case GameStates.PAUSED:
-                Debug.Log(isGamePaused);
+                //Debug.Log(isGamePaused);
                 break;
             case GameStates.STOP:
                 // Trial complete.
@@ -557,6 +565,12 @@ public class FlappyGameControl : MonoBehaviour
                 // Set AAN target if needed.
                 isGameFinished = true;
                 AppData.Instance.previousSuccessRates =null;
+                if (AppData.Instance.speedData.gameSpeed != gameSpeed)
+                {
+                    AppData.Instance.speedData.updateGameSpeedfromGame(gameSpeed);
+                    AppData.Instance.speedData.setGameSpeed(gameSpeed);
+                }
+                
                 if (AppData.Instance.aanController.stateChange) UpdatePlutoAANTarget();
                 // Change to done only when the AAN Controller is AromMoving or Idle state.
                 if (AppData.Instance.aanController.state == PlutoAANController.PlutoAANState.AromMoving
@@ -585,10 +599,11 @@ public class FlappyGameControl : MonoBehaviour
         }
         UpdateText();
     }
-     private void UpdateText()
+    private void UpdateText()
     {
         timeLeftText.text = $": {(int)triaTimeLeft}";
         ScoreText.text = $"Score: {nSuccess}";
+        gameSpeedViewer.text = $" GS : {(int)gameSpeed}";
     }
 
     private void UpdatePlutoAANTarget()

@@ -12,6 +12,9 @@ public class PongGameController : MonoBehaviour
     GameObject[] pauseObjects, finishObjects;
     public BoundController rightBound;
     public BoundController leftBound;
+
+    public EnemyController enemy;
+    public BallController ballSpeed;
     public GameObject ball;
     public Text pointCounter, gameOverText;
     public bool isFinished;
@@ -71,7 +74,7 @@ public class PongGameController : MonoBehaviour
     public GameObject HSC; //HighScoreCanvas
     public TextMeshProUGUI score;
     private float lastHighScore;
-    public Text timeLeftText;
+    public Text timeLeftText, gameSpeedViewer;
     static float playSize;
     // static float topBound = 5.5F;
     static float topBound = 6F;
@@ -101,6 +104,8 @@ public class PongGameController : MonoBehaviour
         {
             Destroy(gameObject);
         }
+        enemy.speedDefault = 3.0f+ (0.02f * AppData.Instance.speedData.gameSpeed);
+        ballSpeed.speed = 1.5f + (0.02f * AppData.Instance.speedData.gameSpeed);
     }
     void Start()
     {
@@ -115,7 +120,7 @@ public class PongGameController : MonoBehaviour
         ballClone.transform.SetParent(this.transform);
 
         //arom
-                 aromLeft.transform.position = new Vector3(
+        aromLeft.transform.position = new Vector3(
             aromLeft.transform.position.x,
             AngleToScreen(AppData.Instance.selectedMechanism.currRom.aromMin),
             aromLeft.transform.position.z
@@ -133,20 +138,19 @@ public class PongGameController : MonoBehaviour
     }
     void Update()
     {
-        
+
         pointCounter.text = enemyScore + "\t\t" +
             playerScore;
 
         //if (isGamePaused && gameState != GameStates.PAUSED) 
-         
-          if (Input.GetKey(KeyCode.LeftControl) && Input.GetKeyDown(KeyCode.G))
+
+        if (Input.GetKey(KeyCode.LeftControl) && Input.GetKeyDown(KeyCode.G))
         {
             speedControlsVisible = !speedControlsVisible;
 
             increaseSpeed.SetActive(speedControlsVisible);
             decreaseSpeed.SetActive(speedControlsVisible);
 
-            Debug.Log("Speed controls " + (speedControlsVisible ? "enabled" : "disabled"));
         }
 
 
@@ -158,7 +162,7 @@ public class PongGameController : MonoBehaviour
             ballClone.transform.SetParent(this.transform);
             EnemyController.stopWatch = 0;
         }
-        
+
         if (isFinished)
         {
             //showFinished();
@@ -171,29 +175,30 @@ public class PongGameController : MonoBehaviour
             }
         }
 
-        if ((Input.GetKeyDown(KeyCode.P) && !isFinished) ||(isButtonPressed && !isFinished))
+        if ((Input.GetKeyDown(KeyCode.P) && !isFinished) || (isButtonPressed && !isFinished))
         {
             if (!isPaused)
-            { 
+            {
                 pauseGame();
             }
             else
             {
                 resumeGame();
                 isGameStarted = true;
-            } 
+            }
             isButtonPressed = false;
         }
         // if (isGamePaused && gameState != GameStates.PAUSED) pauseGame();
         // else if (!isGamePaused && gameState == GameStates.PAUSED) resumeGame();
-        if((isFinished && Input.GetKeyDown(KeyCode.P)) || (isFinished && isButtonPressed) ){
+        if ((isFinished && Input.GetKeyDown(KeyCode.P)) || (isFinished && isButtonPressed))
+        {
 
             if (AppData.Instance.aanController.state == PlutoAANController.PlutoAANState.AromMoving
-                    || AppData.Instance.aanController.state == PlutoAANController.PlutoAANState.Idle) 
-                {
-             Reload();
-                }
-             isButtonPressed = false;
+                    || AppData.Instance.aanController.state == PlutoAANController.PlutoAANState.Idle)
+            {
+                Reload();
+            }
+            isButtonPressed = false;
         }
 
     }
@@ -223,6 +228,59 @@ public class PongGameController : MonoBehaviour
         Time.timeScale = 0;
     }
 
+    public void increaseGameSpeed()
+    {
+        if (gameSpeed >= 40.0f) return;
+
+        gameSpeed += 1.0f;
+        UpdateGameSpeeds();
+    }
+    public void decreaseGameSpeed()
+    {
+        bool isFME = PlutoComm.MECHANISMS[PlutoComm.mechanism] == "FME1" || PlutoComm.MECHANISMS[PlutoComm.mechanism] == "FME2";
+
+        if (isFME && gameSpeed <= 1.0f) return;
+        if (!isFME && gameSpeed <= 10.0f) return;
+
+        gameSpeed -= 1.0f;
+        UpdateGameSpeeds();
+
+        // if ((PlutoComm.MECHANISMS[PlutoComm.mechanism] != "FME1") && (PlutoComm.MECHANISMS[PlutoComm.mechanism] != "FME2"))
+        // {
+
+        //     if (gameSpeed > 10f)
+        //     {
+        //         gameSpeed = gameSpeed - 1.0f;
+        //         float speed = 3.0f + (0.02f * gameSpeed);
+        //         enemy.speedDefault = Mathf.Clamp(speed, 3.0f, 6.0f);
+        //         float ballSpd = 1.5f + (0.02f * gameSpeed);    
+        //         ballSpeed.speed = Mathf.Clamp(ballSpd, 1.5f, 4.5f);
+        //     }
+        // }
+        // else
+        // {
+        //     if (gameSpeed > 1.0f)
+        //     {
+        //         gameSpeed = gameSpeed - 1.0f;
+        //         float speed = 3.0f + (0.02f * gameSpeed);
+        //         enemy.speedDefault = Mathf.Clamp(speed, 2.0f, 6.0f);
+        //         float ballSpd = 1.5f + (0.02f * gameSpeed);    
+        //         ballSpeed.speed = Mathf.Clamp(ballSpd, 0.9f, 4.5f);
+        //     }
+        // }
+
+    }
+    private void UpdateGameSpeeds()
+    {
+        float speed = 3.0f + (0.02f * gameSpeed);
+        float ballSpd = 1.5f + (0.02f * gameSpeed);
+
+        bool isFME = PlutoComm.MECHANISMS[PlutoComm.mechanism] == "FME1" || PlutoComm.MECHANISMS[PlutoComm.mechanism] == "FME2";
+
+        enemy.speedDefault = Mathf.Clamp(speed, isFME ? 2.0f : 3.0f, 6.0f);
+        ballSpeed.speed = Mathf.Clamp(ballSpd, isFME ? 0.9f : 1.5f, 4.5f);
+    }
+
  private void pauseGame()
     {
         _prevGameState = gameState;
@@ -236,7 +294,6 @@ public class PongGameController : MonoBehaviour
 
     private void resumeGame()
     {
-
         gameState = _prevGameState;
         Time.timeScale = 1;
         isGamePaused = false;
@@ -309,6 +366,10 @@ public class PongGameController : MonoBehaviour
     public void Reload()
     {
         playerScore = enemyScore = 0;
+       /// enemy.speedDefault = enemy.changedSpeed;
+        //ballSpeed.speed = ;
+        //Debug.Log($"reload enemy -{enemy.speedDefault}, ball -{ballSpeed.speed}, gamespeed :{gameSpeed}");
+
         SceneManager.LoadScene(SceneManager.GetActiveScene().name);
     }
 
@@ -371,13 +432,13 @@ public class PongGameController : MonoBehaviour
     private void RunGameStateMachine()
     {
         // Check if the game is to be paused or unpaused.
-        Debug.Log("Game Update");
+       // Debug.Log("Game Update");
         if (isGamePaused) pauseGame();
         else if (gameState == GameStates.PAUSED) resumeGame();
 
         // Run the game timer
         if (IsGamePlaying()) triaTimeLeft -= Time.deltaTime;
-        Debug.Log(isGameStarted);
+       // Debug.Log(isGameStarted);
         UpdateText();
         // Act according to the current game state.
         bool isTimeUp = triaTimeLeft <= 0;
@@ -407,7 +468,8 @@ public class PongGameController : MonoBehaviour
                 MOVEDURATION = timeToReach();
                 //setTarget();
                 // Set new trial in the AAN controller.
-                AppData.Instance.aanController.SetNewTrialDetails(PlutoComm.angle, targetAngle, MOVEDURATION, gameSpeed);
+                float checkFME = ((PlutoComm.MECHANISMS[PlutoComm.mechanism] != "FME1") && (PlutoComm.MECHANISMS[PlutoComm.mechanism] != "FME2")) ? gameSpeed : 20.0f;
+                AppData.Instance.aanController.SetNewTrialDetails(PlutoComm.angle, targetAngle, MOVEDURATION, checkFME);
                 gameState = GameStates.MOVE;
                 break;
             case GameStates.MOVE:
@@ -431,7 +493,7 @@ public class PongGameController : MonoBehaviour
                     eventDelayTimer -= Time.deltaTime;
                     if (eventDelayTimer <= 0f)
                     {
-                        Debug.Log(gameState);
+                       // Debug.Log(gameState);
                         // Wait for the user to score.
                         gameState = isTimeUp ? GameStates.STOP : GameStates.SPAWNBALL;
 
@@ -445,7 +507,7 @@ public class PongGameController : MonoBehaviour
                 
                 break;
             case GameStates.PAUSED:
-                Debug.Log(isGamePaused);
+                //Debug.Log(isGamePaused);
                 break;
             case GameStates.STOP:
                 // Trial complete.
@@ -455,6 +517,12 @@ public class PongGameController : MonoBehaviour
                 // Set AAN target if needed.
 
                 AppData.Instance.previousSuccessRates =null;
+                if (AppData.Instance.speedData.gameSpeed != gameSpeed)
+                {
+                    AppData.Instance.speedData.updateGameSpeedfromGame(gameSpeed);
+                    AppData.Instance.speedData.setGameSpeed(gameSpeed);
+                }
+                
 
                 if (AppData.Instance.aanController.stateChange) UpdatePlutoAANTarget();
                 // Change to done only when the AAN Controller is AromMoving or Idle state.
@@ -523,12 +591,13 @@ public class PongGameController : MonoBehaviour
         isBallHitted = false;
         isBallMissed = false;
 
+        
         // Set current AROM and PROM.
         arom = AppData.Instance.selectedMechanism.CurrentArom;
         prom = AppData.Instance.selectedMechanism.CurrentProm;
         aprom = AppData.Instance.selectedMechanism.CurrentAProm;
-        // gameSpeed = AppData.Instance.speedData.gameSpeed;
-            gameSpeed = 20.0f; //temp
+        gameSpeed = AppData.Instance.speedData.gameSpeed;
+           // gameSpeed = 20.0f; //temp
         // Attach PLUTO button event.
         PlutoComm.OnButtonReleased += onPlutoButtonReleased;
     }
@@ -593,6 +662,7 @@ public class PongGameController : MonoBehaviour
     private void UpdateText()
     {
         timeLeftText.text = $"Time Left: {(int)triaTimeLeft}";
+        gameSpeedViewer.text = $"GS :{(int)gameSpeed}";
         //core.text = $"Score: {nSuccess}";
     }
 }

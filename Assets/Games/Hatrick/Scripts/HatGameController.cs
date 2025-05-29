@@ -224,26 +224,54 @@ public class HatGameController : MonoBehaviour
 
     public void increaseGameSpeed()
     {
-        if (gameSpeed < 40.0f)
-        {
-            gameSpeed = gameSpeed + 2.0f;
-            BALLSPEED =  1.0f + ((gameSpeed - 10f) / 30f) * 1.3f;
-            //BALLSPEED = 1f + 0.3f * (1 + (0.2f * gameSpeed));
-            MOVEDURATION = 0.5f * (BALLSTARTY - BALLENDY) / BALLSPEED;
-        }
-        Debug.Log($" gs- {AppData.Instance.speedData.gameSpeed}+{gameSpeed}");
+           if (gameSpeed >= 40.0f) return;
+
+            gameSpeed += 2.0f;
+            UpdateBallSpeedAndDuration();
+            Debug.Log($"gs - {AppData.Instance.speedData.gameSpeed} + {gameSpeed}");
     }
     public void decreaseGameSpeed()
     {
-        if (gameSpeed > 10f)
-        {
-            gameSpeed = gameSpeed - 2.0f;
-            BALLSPEED =  1.0f + ((gameSpeed - 10f) / 30f) * 1.3f;
-            // BALLSPEED = 1f + 0.3f * (1 + (0.2f * gameSpeed));
-            MOVEDURATION = 0.5f * (BALLSTARTY - BALLENDY) / BALLSPEED;
-        }
+         string mech = PlutoComm.MECHANISMS[PlutoComm.mechanism];
+
+    if ((mech != "FME1" && mech != "FME2" && gameSpeed <= 10.0f) ||
+        ((mech == "FME1" || mech == "FME2") && gameSpeed <= 1.0f))
+        return;
+
+    gameSpeed -= (mech == "FME1" || mech == "FME2") ? 1.0f : 2.0f;
+    UpdateBallSpeedAndDuration();
+        // if ((PlutoComm.MECHANISMS[PlutoComm.mechanism] != "FME1") && (PlutoComm.MECHANISMS[PlutoComm.mechanism] != "FME2"))
+        // {
+
+        //     if (gameSpeed > 10f)
+        //     {
+        //         gameSpeed = gameSpeed - 2.0f;
+        //         BALLSPEED = 1.0f + ((gameSpeed - 10f) / 30f) * 1.3f;
+        //         // BALLSPEED = 1f + 0.3f * (1 + (0.2f * gameSpeed));
+        //         MOVEDURATION = 0.5f * (BALLSTARTY - BALLENDY) / BALLSPEED;
+        //     }
+        // }
+        // else
+        // {
+        //     if (gameSpeed > 1.0f)
+        //     {
+        //         gameSpeed = gameSpeed - 1.0f;
+        //         BALLSPEED = 0.7f + ((gameSpeed - 10f) / 30f) * 1.3f;
+        //         MOVEDURATION = 0.5f * (BALLSTARTY - BALLENDY) / BALLSPEED;
+
+        //     }
+        // }
+
     }
 
+private void UpdateBallSpeedAndDuration()
+{
+    string mech = PlutoComm.MECHANISMS[PlutoComm.mechanism];
+    bool isFME = mech == "FME1" || mech == "FME2";
+
+    BALLSPEED = (isFME ? 0.7f : 1.0f) + ((gameSpeed - 10f) / 30f) * 1.3f;
+    MOVEDURATION = 0.5f * (BALLSTARTY - BALLENDY) / BALLSPEED;
+}
     public void StartGame()
     {
         // Start new trial.
@@ -274,7 +302,7 @@ public class HatGameController : MonoBehaviour
         StartButton.SetActive(false);
         PauseButton.SetActive(true);
         ResumeButton.SetActive(false);
-      //  gameSpeed = AppData.Instance.speedData.gameSpeed;
+        //  gameSpeed = AppData.Instance.speedData.gameSpeed;
     }
 
     public void PauseGame()
@@ -357,7 +385,9 @@ public class HatGameController : MonoBehaviour
                     targetPosition = AngleToScreen(targetAngle);
                     SpawnTarget();
                     // Set new trial in the AAN controller.
-                    AppData.Instance.aanController.SetNewTrialDetails(PlutoComm.angle, targetAngle, MOVEDURATION, AppData.Instance.speedData.gameSpeed);
+                    float checkFME = ((PlutoComm.MECHANISMS[PlutoComm.mechanism] != "FME1") && (PlutoComm.MECHANISMS[PlutoComm.mechanism] != "FME2")) ? gameSpeed : 20.0f;
+                    AppData.Instance.aanController.SetNewTrialDetails(PlutoComm.angle, targetAngle, MOVEDURATION, checkFME);
+                    //AppData.Instance.aanController.SetNewTrialDetails(PlutoComm.angle, targetAngle, MOVEDURATION, AppData.Instance.speedData.gameSpeed);
                     eventDelayTimer = 0.05f;
                     runOnce = true;
                 }
@@ -411,7 +441,11 @@ public class HatGameController : MonoBehaviour
                 // Set AAN target if needed.
 
                 AppData.Instance.previousSuccessRates =null;
-                if (AppData.Instance.speedData.gameSpeed != gameSpeed) AppData.Instance.speedData.updateGameSpeedfromGame(gameSpeed);
+                if (AppData.Instance.speedData.gameSpeed != gameSpeed)
+                {
+                    AppData.Instance.speedData.updateGameSpeedfromGame(gameSpeed);
+                    AppData.Instance.speedData.setGameSpeed(gameSpeed);
+                }
                 
                 if (AppData.Instance.aanController.stateChange) UpdatePlutoAANTarget();
                 // Change to done only when the AAN Controller is AromMoving or Idle state.

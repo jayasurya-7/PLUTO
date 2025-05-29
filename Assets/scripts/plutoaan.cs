@@ -23,7 +23,7 @@ public class PlutoAANController
     public static readonly float FORGETINGFACTOR = 0.9f;        // Forgetting factor for the control bound.
     public static readonly float ASSISTFACTOR = 0.01f;          // Assistance factor for the control bound.
     public static readonly float DEFAULTCONTROLBOUND = 0.6f;    // Default control bound value.
-    public static readonly float MAXCONTROLBOUND = 1f;       // Maximum control bound value.
+    public static readonly float MAXCONTROLBOUND = 1f;          // Maximum control bound value.
     public static readonly float MINCONTROLBOUND = 0.16f;       // Minimum control bound value.
     public static float MAX_SPEED = 40.0f;
     public float MECH_SPEED = 0f;
@@ -380,40 +380,6 @@ public class PlutoAANController
         positionQ.Enqueue(actPos);
         timeQ.Enqueue(tTime);
     }
-
-    // private void GenerateRelaxToAromAanTarget(float actual)
-    // {
-    //     // Find the nearest AROM edge.
-    //     float _nearestAromEdge = GetNearestAromEdge(actual);
-    //     // There is valid target
-    //     _newAanTarget[0] = 0;
-    //     // Initial Position
-    //     _newAanTarget[1] = actual;
-    //     // Initial Time
-    //     _newAanTarget[2] = 0;
-    //     // Target Position
-    //     _newAanTarget[3] = _nearestAromEdge;
-    //     // Reach Duration
-    //     _newAanTarget[4] = Math.Min(maxDuration, Math.Max(MIN_REACH_TIME, Math.Abs(_nearestAromEdge - actual) / MAX_AVG_SPEED));
-    // }
-
-    // private void GenerateAssistToTargetAanTarget(float actual, bool fromArom)
-    // {
-    //     // Reach Duration
-    //     float _maxAvgSpeed =Math.Min(MAX_SPEED ,Math.Max(MIN_AVG_SPEED, Math.Min(Math.Abs(actual - initialPosition) / trialTime, MAX_AVG_SPEED)));
-    //     float _maxDur = Math.Min(maxDuration, Math.Max(MIN_REACH_TIME, Math.Abs(targetPosition - actual) / _maxAvgSpeed));
-    //     // There is a valid target
-    //     _newAanTarget[0] = 0;
-    //     // Initial Position
-    //     _newAanTarget[1] = actual;
-    //     // Initial Time
-    //     _newAanTarget[2] = fromArom ? - 0.25f * _maxDur : 0;
-    //     // Target Position
-    //     _newAanTarget[3] = targetPosition;
-    //     // Target Time
-    //     _newAanTarget[4] = _maxDur;
-    // }
-    
      private void GenerateRelaxToAromAanTarget(float actual)
     {
         // Find the nearest AROM edge.
