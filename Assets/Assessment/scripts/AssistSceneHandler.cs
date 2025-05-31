@@ -86,10 +86,17 @@ float fadeOutDuration = 2f;
 float fadeOutTimer = 0f;
     bool fadingOut = false;
 float positiveMovementTime = 0f;
-float negativeMovementTime = 0f;
+    float negativeMovementTime = 0f;
+
+float directionSwitchDuration = 0.5f; // smooth transition time (in seconds)
+float directionSwitchTimer = 0f;
+bool isSwitchingDirection = false;
+float torqueStart = 0f;
+float torqueTarget = 0f;
 
 
-//torque = Mathf.Min(torque + Time.deltaTime * torqueRampSpeed, 1f); // for positive
+
+    //torque = Mathf.Min(torque + Time.deltaTime * torqueRampSpeed, 1f); // for positive
 
     void Start()
     {
@@ -369,7 +376,7 @@ float negativeMovementTime = 0f;
             {
                 if (!reachedPositive && firstPositiveStart)
                 {
-                    trailDuration = 3.5f;
+                    trailDuration = 7f;
                     stopClock = trailDuration;
                     torque = 0f;
                     onceReached = false;
@@ -441,7 +448,7 @@ float negativeMovementTime = 0f;
             {
                 if (!reachedNegative && firstNegativeStart)
                 {
-                    trailDuration = 6f;
+                    trailDuration = 7f;
                     stopClock = trailDuration;
                     torque = 0f;
                     onceReached = false;
