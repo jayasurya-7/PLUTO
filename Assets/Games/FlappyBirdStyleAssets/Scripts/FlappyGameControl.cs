@@ -250,21 +250,21 @@ public class FlappyGameControl : MonoBehaviour
     public void decreaseGameSpeed()
     {
 
-            string mech = PlutoComm.MECHANISMS[PlutoComm.mechanism];
-            bool isFME = mech == "FME1" || mech == "FME2";
+        string mech = PlutoComm.MECHANISMS[PlutoComm.mechanism];
+        bool isFME = mech == "FME1" || mech == "FME2";
 
-            if ((isFME && gameSpeed <= 1.0f) || (!isFME && gameSpeed <= 10.0f)) return;
+        if ((isFME && gameSpeed <= 1.0f) || (!isFME && gameSpeed <= 10.0f)) return;
 
-            gameSpeed -= 1.0f;
-            UpdateScrollSpeed();
+        gameSpeed -= 1.0f;
+        UpdateScrollSpeed();
 
     }
     private void UpdateScrollSpeed()
-{
-    // Use finer scaling for scroll speed at lower increments
-    float scrollFactor = (gameSpeed >= 40.0f) ? 0.04f : 0.02f;
-    scrollSpeed = -2f - (scrollFactor * gameSpeed);
-}
+    {
+        // Use finer scaling for scroll speed at lower increments
+        float scrollFactor = (gameSpeed >= 40.0f) ? 0.04f : 0.02f;
+        scrollSpeed = -2f - (scrollFactor * gameSpeed);
+    }
 
     public void spawnColumn()
     {
@@ -586,7 +586,7 @@ public class FlappyGameControl : MonoBehaviour
                         score1.text = $"{(int)lastHighScore}";
                         if (lastHighScore > Others.highestSuccessRate)
                         {
-                            StartCoroutine(ShowForSeconds(HSC, 5f));
+                            StartCoroutine(ShowForSeconds(HSC, 1.3f));
                         }
                         else
                         {
@@ -599,6 +599,7 @@ public class FlappyGameControl : MonoBehaviour
         }
         UpdateText();
     }
+
     private void UpdateText()
     {
         timeLeftText.text = $": {(int)triaTimeLeft}";
@@ -632,7 +633,6 @@ public class FlappyGameControl : MonoBehaviour
     {
         isGameStarted = true;
     }
-
  
     public void exitGame()
     {

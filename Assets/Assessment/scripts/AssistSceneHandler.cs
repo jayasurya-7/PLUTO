@@ -419,7 +419,7 @@ float negativeMovementTime = 0f;
                     }
 
                     if (onceReached && currentAngle > previousAngle)
-                        torque -= Time.deltaTime * 0.05f;
+                        torque -= Time.deltaTime * 0.02f;
 
                     PlutoComm.setControlTarget(torque);
                 }
@@ -441,7 +441,7 @@ float negativeMovementTime = 0f;
             {
                 if (!reachedNegative && firstNegativeStart)
                 {
-                    trailDuration = 3.5f;
+                    trailDuration = 6f;
                     stopClock = trailDuration;
                     torque = 0f;
                     onceReached = false;
@@ -497,7 +497,7 @@ float negativeMovementTime = 0f;
                     }
 
                     if (onceReached && currentAngle < previousAngle)
-                        torque += Time.deltaTime * 0.05f;
+                        torque += Time.deltaTime * 0.02f;
 
                     PlutoComm.setControlTarget(torque);
                 }

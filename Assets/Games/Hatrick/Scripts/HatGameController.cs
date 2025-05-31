@@ -232,46 +232,27 @@ public class HatGameController : MonoBehaviour
     }
     public void decreaseGameSpeed()
     {
-         string mech = PlutoComm.MECHANISMS[PlutoComm.mechanism];
+        string mech = PlutoComm.MECHANISMS[PlutoComm.mechanism];
 
-    if ((mech != "FME1" && mech != "FME2" && gameSpeed <= 10.0f) ||
-        ((mech == "FME1" || mech == "FME2") && gameSpeed <= 1.0f))
-        return;
+        if ((mech != "FME1" && mech != "FME2" && gameSpeed <= 10.0f) ||
+            ((mech == "FME1" || mech == "FME2") && gameSpeed <= 1.0f))
+            return;
 
-    gameSpeed -= (mech == "FME1" || mech == "FME2") ? 1.0f : 2.0f;
-    UpdateBallSpeedAndDuration();
-        // if ((PlutoComm.MECHANISMS[PlutoComm.mechanism] != "FME1") && (PlutoComm.MECHANISMS[PlutoComm.mechanism] != "FME2"))
-        // {
-
-        //     if (gameSpeed > 10f)
-        //     {
-        //         gameSpeed = gameSpeed - 2.0f;
-        //         BALLSPEED = 1.0f + ((gameSpeed - 10f) / 30f) * 1.3f;
-        //         // BALLSPEED = 1f + 0.3f * (1 + (0.2f * gameSpeed));
-        //         MOVEDURATION = 0.5f * (BALLSTARTY - BALLENDY) / BALLSPEED;
-        //     }
-        // }
-        // else
-        // {
-        //     if (gameSpeed > 1.0f)
-        //     {
-        //         gameSpeed = gameSpeed - 1.0f;
-        //         BALLSPEED = 0.7f + ((gameSpeed - 10f) / 30f) * 1.3f;
-        //         MOVEDURATION = 0.5f * (BALLSTARTY - BALLENDY) / BALLSPEED;
-
-        //     }
-        // }
+        gameSpeed -= (mech == "FME1" || mech == "FME2") ? 1.0f : 2.0f;
+        UpdateBallSpeedAndDuration();
+        
 
     }
 
-private void UpdateBallSpeedAndDuration()
-{
-    string mech = PlutoComm.MECHANISMS[PlutoComm.mechanism];
-    bool isFME = mech == "FME1" || mech == "FME2";
+    private void UpdateBallSpeedAndDuration()
+    {
+        string mech = PlutoComm.MECHANISMS[PlutoComm.mechanism];
+        bool isFME = mech == "FME1" || mech == "FME2";
 
-    BALLSPEED = (isFME ? 0.7f : 1.0f) + ((gameSpeed - 10f) / 30f) * 1.3f;
-    MOVEDURATION = 0.5f * (BALLSTARTY - BALLENDY) / BALLSPEED;
-}
+        BALLSPEED = (isFME ? 0.7f : 1.0f) + ((gameSpeed - 10f) / 30f) * 1.3f;
+        MOVEDURATION = 0.5f * (BALLSTARTY - BALLENDY) / BALLSPEED;
+    }
+
     public void StartGame()
     {
         // Start new trial.
@@ -462,7 +443,7 @@ private void UpdateBallSpeedAndDuration()
                         score.text = $"{(int)lastHighScore}";
                         if (lastHighScore > Others.highestSuccessRate)
                         {
-                            StartCoroutine(ShowForSeconds(HSC, 5f));
+                            StartCoroutine(ShowForSeconds(HSC, 1.3f));
                         }
                         else
                         {

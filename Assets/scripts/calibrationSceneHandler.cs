@@ -44,10 +44,7 @@ public class calibrationSceneHandler : MonoBehaviour
         PlutoComm.sendHeartbeat();
         angText.text = $" {PlutoComm.angle.ToString("F3")}";
         Debug.Log(PlutoComm.MECHANISMS[PlutoComm.mechanism] == "HOC");
-        // if (PlutoComm.MECHANISMS[PlutoComm.mechanism] == "FME1" || PlutoComm.MECHANISMS[PlutoComm.mechanism] == "FME2")
-        // {
-        //     LoadNextScene();   
-        // }
+        
         // Check of calibration is started.
         if (!isCalibrating && startCalibration)
         {

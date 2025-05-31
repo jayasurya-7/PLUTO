@@ -245,30 +245,6 @@ public class PongGameController : MonoBehaviour
         gameSpeed -= 1.0f;
         UpdateGameSpeeds();
 
-        // if ((PlutoComm.MECHANISMS[PlutoComm.mechanism] != "FME1") && (PlutoComm.MECHANISMS[PlutoComm.mechanism] != "FME2"))
-        // {
-
-        //     if (gameSpeed > 10f)
-        //     {
-        //         gameSpeed = gameSpeed - 1.0f;
-        //         float speed = 3.0f + (0.02f * gameSpeed);
-        //         enemy.speedDefault = Mathf.Clamp(speed, 3.0f, 6.0f);
-        //         float ballSpd = 1.5f + (0.02f * gameSpeed);    
-        //         ballSpeed.speed = Mathf.Clamp(ballSpd, 1.5f, 4.5f);
-        //     }
-        // }
-        // else
-        // {
-        //     if (gameSpeed > 1.0f)
-        //     {
-        //         gameSpeed = gameSpeed - 1.0f;
-        //         float speed = 3.0f + (0.02f * gameSpeed);
-        //         enemy.speedDefault = Mathf.Clamp(speed, 2.0f, 6.0f);
-        //         float ballSpd = 1.5f + (0.02f * gameSpeed);    
-        //         ballSpeed.speed = Mathf.Clamp(ballSpd, 0.9f, 4.5f);
-        //     }
-        // }
-
     }
     private void UpdateGameSpeeds()
     {
@@ -281,7 +257,7 @@ public class PongGameController : MonoBehaviour
         ballSpeed.speed = Mathf.Clamp(ballSpd, isFME ? 0.9f : 1.5f, 4.5f);
     }
 
- private void pauseGame()
+    private void pauseGame()
     {
         _prevGameState = gameState;
         gameState = GameStates.PAUSED;
@@ -366,10 +342,6 @@ public class PongGameController : MonoBehaviour
     public void Reload()
     {
         playerScore = enemyScore = 0;
-       /// enemy.speedDefault = enemy.changedSpeed;
-        //ballSpeed.speed = ;
-        //Debug.Log($"reload enemy -{enemy.speedDefault}, ball -{ballSpeed.speed}, gamespeed :{gameSpeed}");
-
         SceneManager.LoadScene(SceneManager.GetActiveScene().name);
     }
 
@@ -539,7 +511,7 @@ public class PongGameController : MonoBehaviour
                         score.text = $"{(int)lastHighScore}";
                         if (lastHighScore > Others.highestSuccessRate)
                         {
-                            StartCoroutine(ShowForSeconds(HSC, 5f));
+                            StartCoroutine(ShowForSeconds(HSC, 1.3f));
                         }
                         else
                         {
@@ -601,14 +573,14 @@ public class PongGameController : MonoBehaviour
         // Attach PLUTO button event.
         PlutoComm.OnButtonReleased += onPlutoButtonReleased;
     }
-  private void onPlutoButtonReleased()
+    private void onPlutoButtonReleased()
     {
         isButtonPressed = true;
     }
 
     public float AngleToScreen(float angle) => Mathf.Clamp(-playSize + (angle - aprom[0]) * (2 * playSize) / (aprom[1] - aprom[0]), bottomBound, topBound);
 
-        public void StartGame()
+    public void StartGame()
     {
         // Start new trial.
         AppData.Instance.StartNewTrial();
