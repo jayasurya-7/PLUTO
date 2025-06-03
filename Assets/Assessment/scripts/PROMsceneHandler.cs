@@ -64,14 +64,15 @@ public class PROMsceneHandler : MonoBehaviour
     private void InitializeAssessment()
     {
         // Set control to NONE.
-        PlutoComm.setControlType("TORQUE");
+      //  PlutoComm.setControlType("TORQUE");
 
         promSlider.UpdateMinMaxvalues = false;
         nextButton.SetActive(false);
 
         angLimit = AppData.Instance.selectedMechanism.IsMechanism("HOC") ? PlutoComm.CALIBANGLE[PlutoComm.mechanism] : PlutoComm.MECHOFFSETVALUE[PlutoComm.mechanism];
         promSlider.Setup(-angLimit, angLimit, AppData.Instance.selectedMechanism.oldRom.promMin, AppData.Instance.selectedMechanism.oldRom.promMax);
-        promSlider.minAng = promSlider.maxAng = 0;
+        promSlider.minAng = 0;
+        promSlider.maxAng = 0;
 
         // Handle HOC and other mechanisms differently.
         cText.gameObject.SetActive(AppData.Instance.selectedMechanism.IsMechanism("HOC"));
@@ -150,6 +151,7 @@ public class PROMsceneHandler : MonoBehaviour
                 startButton.SetActive(false);
                 _tmin = promSlider.minAng;
                 _tmax = promSlider.maxAng;
+                Debug.Log("max angle :" + _tmax);
                 relaxText.color= Color.white;
                 relaxText.text = FormatRelaxText(AppData.Instance.selectedMechanism.oldRom.promMin, AppData.Instance.selectedMechanism.oldRom.promMax);
                 nextButton.SetActive(true);
@@ -171,8 +173,8 @@ public class PROMsceneHandler : MonoBehaviour
         bool condition = _tmin > AppData.Instance.selectedMechanism.newRom.aromMin || _tmax < AppData.Instance.selectedMechanism.newRom.aromMax;
         if (condition)
         {
-             Debug.Log($" min :{_tmin}, arom { AppData.Instance.selectedMechanism.newRom.aromMin},,{_tmin < AppData.Instance.selectedMechanism.newRom.aromMin}");
-            Debug.Log($" max :{_tmax}, arom { AppData.Instance.selectedMechanism.newRom.aromMax},,{_tmax> AppData.Instance.selectedMechanism.newRom.aromMax}");
+             Debug.Log($"prom min :{_tmin}, arom { AppData.Instance.selectedMechanism.newRom.aromMin},,{_tmin < AppData.Instance.selectedMechanism.newRom.aromMin}");
+            Debug.Log($" prom max :{_tmax}, arom { AppData.Instance.selectedMechanism.newRom.aromMax},,{_tmax> AppData.Instance.selectedMechanism.newRom.aromMax}");
             
             promSlider.UpdateMinMaxvalues = false;
             RestartAssessment();

@@ -75,20 +75,20 @@ public class LoginHandler : MonoBehaviour
         hospitalID = selectedFolder;
         currentUserPath = Path.Combine(baseDataPath, selectedFolder, "data");
         string csvPath = Path.Combine(currentUserPath, configFileName);
-        Debug.Log(csvPath);
+        //Debug.Log(csvPath);
 
         string[] requiredFields = new string[] { "WFE", "WURD", "FPS", "HOC", "FME1", "FME2" };
 
         string[] lines = File.ReadAllLines(csvPath);
         if (lines.Length < 2)
         {
-            Debug.LogWarning("Config file is empty or invalid.");
+           // Debug.LogWarning("Config file is empty or invalid.");
             return;
         }
 
         headers = lines[0].Split(',');
-        Debug.Log(headers != null);
-        Debug.Log(headers[6]);
+        //Debug.Log(headers != null);
+        //Debug.Log(headers[6]);
         string[] lastLine = lines[lines.Length - 1].Split(',');
         originalValues = lines[lines.Length - 1].Split(',');
 
@@ -99,7 +99,7 @@ public class LoginHandler : MonoBehaviour
             if (requiredFields.Contains(headers[i]))
             {
                 fieldValueMap[headers[i]] = i < lastLine.Length ? lastLine[i] : "";
-                Debug.Log(lastLine[i]);
+               // Debug.Log(lastLine[i]);
             }
         }
 

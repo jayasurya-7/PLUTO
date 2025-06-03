@@ -207,8 +207,10 @@ public class AROMsceneHandler : MonoBehaviour
 
     public void OnSaveClick()
     {
+        _tmin = (aromSlider.minAng < -angLimit) ? -angLimit : aromSlider.minAng;
+        _tmax = (aromSlider.maxAng > angLimit) ? angLimit : aromSlider.maxAng;
         // Update new PROM
-        AppData.Instance.selectedMechanism.SetNewAromValues(aromSlider.minAng, aromSlider.maxAng);
+        AppData.Instance.selectedMechanism.SetNewAromValues(_tmin, _tmax);
         nextButton.SetActive(false);
         aromSlider.UpdateMinMaxvalues = false;
         CurrPositioncursor.SetActive(false);
