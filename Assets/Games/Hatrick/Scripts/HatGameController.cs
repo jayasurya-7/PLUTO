@@ -249,7 +249,8 @@ public class HatGameController : MonoBehaviour
         string mech = PlutoComm.MECHANISMS[PlutoComm.mechanism];
         bool isFME = mech == "FME1" || mech == "FME2";
 
-        BALLSPEED = (isFME ? 0.7f : 1.0f) + ((gameSpeed - 10f) / 30f) * 1.3f;
+        BALLSPEED = (isFME ? 0.7f : 1.2f) + ((gameSpeed - 10f) / 30f) * 1.3f;
+        BALLSPEED = Mathf.Clamp(BALLSPEED, 0.7f, 3.5f); // safety clamp
         MOVEDURATION = 0.5f * (BALLSTARTY - BALLENDY) / BALLSPEED;
     }
 
@@ -553,7 +554,7 @@ public class HatGameController : MonoBehaviour
 
         gameSpeed = AppData.Instance.speedData.gameSpeed; // degrees/sec
         if (gameSpeed < 10.0f) gameSpeed = 10.0f;
-        float ballSpeed = 1f + ((gameSpeed - 10f) / 30f) * 1.3f;
+        float ballSpeed = 1.2f + ((gameSpeed - 10f) / 30f) * 1.3f;
         Debug.Log($"bc:{ballSpeed}");
         BALLSPEED = Mathf.Clamp(ballSpeed, 0.7f, 2.4f); // safety clamp
 

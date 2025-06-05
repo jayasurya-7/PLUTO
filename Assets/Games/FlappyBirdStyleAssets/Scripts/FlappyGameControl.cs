@@ -262,7 +262,7 @@ public class FlappyGameControl : MonoBehaviour
     private void UpdateScrollSpeed()
     {
         // Use finer scaling for scroll speed at lower increments
-        float scrollFactor = (gameSpeed >= 40.0f) ? 0.04f : 0.02f;
+        float scrollFactor =  0.04f;
         scrollSpeed = -2f - (scrollFactor * gameSpeed);
     }
 

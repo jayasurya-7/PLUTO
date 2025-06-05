@@ -104,8 +104,8 @@ public class PongGameController : MonoBehaviour
         {
             Destroy(gameObject);
         }
-        enemy.speedDefault = 3.0f+ (0.02f * AppData.Instance.speedData.gameSpeed);
-        ballSpeed.speed = 1.5f + (0.02f * AppData.Instance.speedData.gameSpeed);
+        enemy.speedDefault = 3.0f+ (0.04f * AppData.Instance.speedData.gameSpeed);
+        ballSpeed.speed = 1.5f + (0.04f * AppData.Instance.speedData.gameSpeed);
     }
     void Start()
     {
@@ -248,13 +248,13 @@ public class PongGameController : MonoBehaviour
     }
     private void UpdateGameSpeeds()
     {
-        float speed = 3.0f + (0.02f * gameSpeed);
-        float ballSpd = 1.5f + (0.02f * gameSpeed);
+        float speed = 3.0f + (0.04f * gameSpeed);
+        float ballSpd = 1.5f + (0.04f * gameSpeed);
 
         bool isFME = PlutoComm.MECHANISMS[PlutoComm.mechanism] == "FME1" || PlutoComm.MECHANISMS[PlutoComm.mechanism] == "FME2";
 
         enemy.speedDefault = Mathf.Clamp(speed, isFME ? 2.0f : 3.0f, 6.0f);
-        ballSpeed.speed = Mathf.Clamp(ballSpd, isFME ? 0.9f : 1.5f, 4.5f);
+        ballSpeed.speed = Mathf.Clamp(ballSpd, isFME ? 0.9f : 1.5f, 5.0f);
     }
 
     private void pauseGame()

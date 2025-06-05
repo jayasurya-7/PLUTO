@@ -88,12 +88,7 @@ float fadeOutTimer = 0f;
 float positiveMovementTime = 0f;
     float negativeMovementTime = 0f;
 
-float directionSwitchDuration = 0.5f; // smooth transition time (in seconds)
-float directionSwitchTimer = 0f;
-bool isSwitchingDirection = false;
-float torqueStart = 0f;
-float torqueTarget = 0f;
-
+    bool runOnce = false;
 
 
     //torque = Mathf.Min(torque + Time.deltaTime * torqueRampSpeed, 1f); // for positive
@@ -106,27 +101,28 @@ float torqueTarget = 0f;
         InitializeAssessment();
     }
     void ResetAssessment()
-{
-   // PlutoComm.setControlType("NONE");
-    torque = 0f;
-    goingPositive = true;
-    reachedPositive = false;
-    reachedNegative = false;
-    onceReached = false;
-    firstPositiveStart = true;
-    firstNegativeStart = true;
-    stuckTimer = 0f;
-    positiveStuckAttempts = 0;
-    negativeStuckAttempts = 0;
-    minAngle = 0f;
-    maxAngle = 0f;
-    _tmin = 0f;
-    _tmax = 0f;
-    stopClock = 0f;
-    apromSlider.minAng = 0;
-    apromSlider.maxAng = 0;
-    inst.text = "";
-    redoButton.SetActive(false);
+    {
+        // PlutoComm.setControlType("NONE");
+        torque = 0f;
+        goingPositive = true;
+        reachedPositive = false;
+        reachedNegative = false;
+        onceReached = false;
+        firstPositiveStart = true;
+        firstNegativeStart = true;
+        stuckTimer = 0f;
+        positiveStuckAttempts = 0;
+        negativeStuckAttempts = 0;
+        minAngle = 0f;
+        maxAngle = 0f;
+        _tmin = 0f;
+        _tmax = 0f;
+        stopClock = 0f;
+        apromSlider.minAng = 0;
+        apromSlider.maxAng = 0;
+        inst.text = "";
+        redoButton.SetActive(false);
+        runOnce = false;
 }
 
 
@@ -525,7 +521,11 @@ float torqueTarget = 0f;
     }
 
     previousAngle = currentAngle;
-
+    if (reachedNegative && reachedPositive && !runOnce)
+    {
+        PlutoComm.setControlType("NONE");
+        runOnce = true;
+    }
     if (reachedNegative && reachedPositive && isButtonPressed)
     {
         AppData.Instance.selectedMechanism.SetNewAPromValues(_tmin, _tmax);
