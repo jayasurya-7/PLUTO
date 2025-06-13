@@ -94,16 +94,16 @@ public class OneTimeConfig : MonoBehaviour
         string endDate = endDateField.text;
         
         // Set null to "0".
-        string wfe = string.IsNullOrEmpty(wfeField.text) ? "0" : wfeField.text;
-        string wurd = string.IsNullOrEmpty(wurdField.text) ? "0" : wurdField.text;
-        string fps = string.IsNullOrEmpty(fpsField.text) ? "0" : fpsField.text;
-        string hoc = string.IsNullOrEmpty(hocField.text) ? "0" : hocField.text;
-        string fme1 = string.IsNullOrEmpty(fme1Field.text) ? "0" : fme1Field.text;
-        string fme2 = string.IsNullOrEmpty(fme2Field.text) ? "0" : fme2Field.text;
+        string wfe = string.IsNullOrEmpty(wfeField.text) ? "10" : wfeField.text;
+        string wurd = string.IsNullOrEmpty(wurdField.text) ? "10" : wurdField.text;
+        string fps = string.IsNullOrEmpty(fpsField.text) ? "10" : fpsField.text;
+        string hoc = string.IsNullOrEmpty(hocField.text) ? "10" : hocField.text;
+        string fme1 = string.IsNullOrEmpty(fme1Field.text) ? "10" : fme1Field.text;
+        string fme2 = string.IsNullOrEmpty(fme2Field.text) ? "10" : fme2Field.text;
         //temp
         string Location = "CMC";
-        string totalDuration = totalDurationText.text;
-
+        //string totalDuration = totalDurationText.text;
+        string totalDuration = "60";
         string trainingSide = affectedSideDropdown.options[affectedSideDropdown.value].text;
         Location = location.options[location.value].text;
 

@@ -40,7 +40,7 @@ public static class DataManager
     public static string configFile = basePath + "/configdata.csv";
     public static string sessionFile { get; private set; }
 
-    public static string deviceLocation {  get; private set; }
+    
 
     // Sessions file definitions.
     public static string[] SESSIONFILEHEADER = new string[] {
@@ -164,7 +164,7 @@ public static class DataManager
     // Create session file
     public static void CreateSessionFile(string device, string location, string[] header = null)
     {
-        deviceLocation = location;
+       
         // Ensure the Sessions.csv file has headers if it doesn't exist
         if (!File.Exists(DataManager.sessionFile))
         {

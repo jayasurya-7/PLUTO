@@ -65,7 +65,7 @@ public static void RunAWSpythonScript()
     public static void changeUploadStatus(string status){
         string uploadFilePath = Path.Combine(filePathUploadStatus, "uploadStatus.txt");
             // You don't need `File.Create(...).Dispose()` manually � File.WriteAllText will create/write directly.
-            File.WriteAllText(uploadFilePath, $"{Path.Combine(Application.dataPath,"data", AppData.Instance.userID)},{status},{DeviceName},{AppData.Instance.userData.hospNumber},{DataManager.deviceLocation}");
+            File.WriteAllText(uploadFilePath, $"{Path.Combine(Application.dataPath,"data", AppData.Instance.userID)},{status},{DeviceName},{AppData.Instance.userData.hospNumber},{AppData.Instance.userData.GetDeviceLocation()}");
         
     }
 
@@ -78,7 +78,7 @@ public static void RunAWSpythonScript()
 
         string uploadFilePath = Path.Combine(filePathUploadStatus, "uploadStatus.txt");
 
-        File.WriteAllText(uploadFilePath, $"{Path.Combine(Application.dataPath,"data", AppData.Instance.userID)},{status[0]},{DeviceName},{userID},{DataManager.deviceLocation}");
+        File.WriteAllText(uploadFilePath, $"{Path.Combine(Application.dataPath,"data", AppData.Instance.userID)},{status[0]},{DeviceName},{userID},{AppData.Instance.userData.GetDeviceLocation()}");
 
     }
     // Method to check if the task is already scheduled

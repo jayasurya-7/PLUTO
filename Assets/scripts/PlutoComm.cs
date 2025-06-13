@@ -446,6 +446,7 @@ public static class PlutoComm
     public static void setControlTarget(float target)
     {
         PlutoComLogger.LogInfo($"Setting Control Target | Target: {target:F2}");
+        Debug.Log($"Setting Control Target | Target: {target:F2}");
         byte[] targetBytes = BitConverter.GetBytes(target);
         JediComm.SendMessage(
             new byte[] {
