@@ -469,9 +469,13 @@ public class HatGameControllerCV : MonoBehaviour
 
         // Attach PLUTO button event.
         PlutoComm.OnButtonReleased += onPlutoButtonReleased;
-
+        
+        //if (gameSpeed < 10.0f) gameSpeed = 10.0f;
+        float ballSpeed = 1.2f + ((gameSpeed - 10f) / 30f) * 1.3f;
+        Debug.Log($"bc:{ballSpeed}");
+        BALLSPEED = Mathf.Clamp(ballSpeed, 0.7f, 2.5f); 
     
-        BALLSPEED = 1f * (1 + (0.2f * AppData.Instance.speedData.gameSpeed));
+       // BALLSPEED = 1f * (1 + (0.2f * AppData.Instance.speedData.gameSpeed));
         Debug.Log(AppData.Instance.speedData.gameSpeed);
         MOVEDURATION = 0.5f * (BALLSTARTY - BALLENDY) / BALLSPEED;
     }

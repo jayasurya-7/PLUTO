@@ -553,12 +553,10 @@ public class HatGameController : MonoBehaviour
         PlutoComm.OnButtonReleased += onPlutoButtonReleased;
 
         gameSpeed = AppData.Instance.speedData.gameSpeed; // degrees/sec
-        if (gameSpeed < 10.0f) gameSpeed = 10.0f;
+        //if (gameSpeed < 10.0f) gameSpeed = 10.0f;
         float ballSpeed = 1.2f + ((gameSpeed - 10f) / 30f) * 1.3f;
         Debug.Log($"bc:{ballSpeed}");
-        BALLSPEED = Mathf.Clamp(ballSpeed, 0.7f, 2.4f); // safety clamp
-
-        //BALLSPEED = 1f + 0.3f * (1 + (0.2f * AppData.Instance.speedData.gameSpeed));
+        BALLSPEED = Mathf.Clamp(ballSpeed, 0.7f, 2.5f); 
         Debug.Log(AppData.Instance.speedData.gameSpeed);
         MOVEDURATION = 0.5f * (BALLSTARTY - BALLENDY) / BALLSPEED;
     }

@@ -262,7 +262,7 @@ public class FlappyGameControl : MonoBehaviour
     private void UpdateScrollSpeed()
     {
         // Use finer scaling for scroll speed at lower increments
-        float scrollFactor =  0.04f;
+        float scrollFactor =  0.05f;
         scrollSpeed = -2f - (scrollFactor * gameSpeed);
     }
 
@@ -427,7 +427,9 @@ public class FlappyGameControl : MonoBehaviour
 
     public void StartGame()
     {
-        scrollSpeed = -2 - 1 * (0.02f * AppData.Instance.speedData.gameSpeed);
+        // scrollSpeed = -2 - 1 * (0.02f * AppData.Instance.speedData.gameSpeed);
+        scrollSpeed = -2f - (0.05f * AppData.Instance.speedData.gameSpeed);
+
             hidePaused();
         // Start new trial.
         AppData.Instance.StartNewTrial();
