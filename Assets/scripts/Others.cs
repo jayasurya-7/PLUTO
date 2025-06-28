@@ -572,7 +572,7 @@ public class PlutoUserData
         hospNumber = lastRow.Field<string>("HospitalNumber");
         rightHand = lastRow.Field<string>("TrainingSide") == "right";
         //AppData.trainingSide = ; // lastRow.Field<string>("TrainingSide");
-        startDate = DateTime.ParseExact(lastRow.Field<string>("startdate"), "dd-MM-yyyy", CultureInfo.InvariantCulture);
+        startDate = DateTime.ParseExact(lastRow.Field<string>("Startdate"), "dd-MM-yyyy", CultureInfo.InvariantCulture);
         mechMoveTimePrsc = createMoveTimeDictionary();//prescribed time
         for (int i = 0; i < PlutoDefs.Mechanisms.Length; i++)
         {

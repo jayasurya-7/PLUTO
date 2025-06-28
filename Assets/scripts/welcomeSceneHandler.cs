@@ -29,10 +29,10 @@ public class welcomSceneHandler : MonoBehaviour
 
     void Start()
     {
-
+        Debug.Log(DataManager.basePath);
         if (!Directory.Exists(DataManager.basePath)) 
         {
-            SceneManager.LoadScene("CONFIG");
+            SceneManager.LoadScene("GETCONFIG");
             return;
         }
 
@@ -42,7 +42,7 @@ public class welcomSceneHandler : MonoBehaviour
         .Where(name => !name.ToLower().Contains("meta"))
         .ToList();
 
-
+        
         if (validUserDirs.Count == 1) 
         {
             AppData.Instance.setUser(validUserDirs[0]);
@@ -51,7 +51,7 @@ public class welcomSceneHandler : MonoBehaviour
 
         if (!File.Exists(DataManager.configFile)) 
         {
-            SceneManager.LoadScene("CONFIG");
+            SceneManager.LoadScene("GETCONFIG");
             return;
         }
         
