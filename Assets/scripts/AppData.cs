@@ -19,7 +19,7 @@ public partial class AppData
      * CONSTANT FIXED VARIABLES.
      */
     // COM Port for the device
-    public const string COMPort = "COM9";
+    public const string COMPort = "COM11";
 
 
     // What is this used for?
