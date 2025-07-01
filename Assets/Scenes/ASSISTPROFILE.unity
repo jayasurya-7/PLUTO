@@ -12095,14 +12095,14 @@ MonoBehaviour:
   m_Name: 
   m_EditorClassIdentifier: 
   m_Material: {fileID: 0}
-  m_Color: {r: 0.2627451, g: 0.62352943, b: 0.6039216, a: 1}
+  m_Color: {r: 0.99215686, g: 1, b: 0, a: 0.74509805}
   m_RaycastTarget: 1
   m_RaycastPadding: {x: 0, y: 0, z: 0, w: 0}
   m_Maskable: 1
   m_OnCullStateChanged:
     m_PersistentCalls:
       m_Calls: []
-  m_Sprite: {fileID: 10905, guid: 0000000000000000f000000000000000, type: 0}
+  m_Sprite: {fileID: 0}
   m_Type: 1
   m_PreserveAspect: 0
   m_FillCenter: 1
@@ -12156,7 +12156,7 @@ RectTransform:
   m_AnchorMin: {x: 0, y: 0}
   m_AnchorMax: {x: 1, y: 1}
   m_AnchoredPosition: {x: 0, y: 0}
-  m_SizeDelta: {x: 30, y: 30.000004}
+  m_SizeDelta: {x: 15.399963, y: 15.400007}
   m_Pivot: {x: 0.5, y: 0.5}
 --- !u!1 &8209750394461808004
 GameObject:
@@ -12171,7 +12171,6 @@ GameObject:
   - component: {fileID: 8209750394461808006}
   - component: {fileID: 8209750394461808009}
   - component: {fileID: 8209750394461808015}
-  - component: {fileID: 8209750394461808014}
   - component: {fileID: 8209750394461808019}
   - component: {fileID: 8209750394461808016}
   - component: {fileID: 8209750394461808017}
@@ -12268,18 +12267,6 @@ Animator:
   m_AllowConstantClipSamplingOptimization: 1
   m_KeepAnimatorStateOnDisable: 0
   m_WriteDefaultValuesOnDisable: 0
---- !u!114 &8209750394461808014
-MonoBehaviour:
-  m_ObjectHideFlags: 0
-  m_CorrespondingSourceObject: {fileID: 0}
-  m_PrefabInstance: {fileID: 0}
-  m_PrefabAsset: {fileID: 0}
-  m_GameObject: {fileID: 8209750394461808004}
-  m_Enabled: 0
-  m_EditorHideFlags: 0
-  m_Script: {fileID: 11500000, guid: 9a2e82b06c2ed1847bd32d353cd674c8, type: 3}
-  m_Name: 
-  m_EditorClassIdentifier: 
 --- !u!114 &8209750394461808015
 MonoBehaviour:
   m_ObjectHideFlags: 0
@@ -12422,6 +12409,7 @@ MonoBehaviour:
   redoButton: {fileID: 894119480}
   apromSlider: {fileID: 2870106807345754064}
   isSelected: 0
+  shadow: {fileID: 8209750394438654337}
 --- !u!1 &8209750395483232820
 GameObject:
   m_ObjectHideFlags: 0

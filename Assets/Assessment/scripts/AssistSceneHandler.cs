@@ -36,6 +36,7 @@ public class AssistsceneHandler : MonoBehaviour
     private float angLimit;
     public DoubleSlider apromSlider;
     public bool isSelected = false;
+    public Image shadow;
 
     //public assessmentSceneHandler panelControl;
 
@@ -379,11 +380,11 @@ public class AssistsceneHandler : MonoBehaviour
         currentAngle = PlutoComm.angle;
         jointAngle.text = $"{((int)PlutoComm.angle).ToString()} + Torque :{PlutoComm.target}";
         jointAngleHoc.text = ((int)PlutoComm.getHOCDisplay(PlutoComm.angle)).ToString();
-        runaAssessmentStateMachine();
+        runAssessmentStateMachine();
         // Debug.Log($" ct: {PlutoComm.CONTROLTYPE[PlutoComm.controlType]} + tor :{PlutoComm.target}");
     }
 
-    void runaAssessmentStateMachine()
+    void runAssessmentStateMachine()
     {
         Debug.Log($"state : {_state}");
         CurrPositioncursor.SetActive(true);
@@ -405,6 +406,7 @@ public class AssistsceneHandler : MonoBehaviour
                 // runAssessment();
                 if (!runOnce1)
                 {
+                    shadow.color = new Color(1f, 0.5f, 0f, 0.5f); // Orange with 70% opacity
                StartCoroutine(RunAssessment());
                     runOnce1 = true;
                 }
