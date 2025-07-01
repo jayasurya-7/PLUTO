@@ -243,7 +243,7 @@ public class FlappyGameControl : MonoBehaviour
     {
          if (gameSpeed >= 40.0f) return;
 
-        gameSpeed += 2.0f;
+        gameSpeed += 1.0f;
         UpdateScrollSpeed();
         Debug.Log($"gs - {AppData.Instance.speedData.gameSpeed} + {gameSpeed}");
     }
@@ -268,7 +268,9 @@ public class FlappyGameControl : MonoBehaviour
 
     public void spawnColumn()
     {
-        if (!gameOver && prevSpawnTime > 2)
+        float spawnInterval = Mathf.Max(0.5f, 2f - (gameSpeed - 10f) * 0.05f);
+
+        if (!gameOver && prevSpawnTime > spawnInterval)
         {
             prevSpawnTime = 0;
             nTargets++;
@@ -428,7 +430,8 @@ public class FlappyGameControl : MonoBehaviour
     public void StartGame()
     {
         // scrollSpeed = -2 - 1 * (0.02f * AppData.Instance.speedData.gameSpeed);
-        scrollSpeed = -2f - (0.05f * AppData.Instance.speedData.gameSpeed);
+        //if (AppData.Instance.speedData.gameSpeed > 38f) gameSpeed = 38.0f;
+        scrollSpeed = -2f - (0.05f * gameSpeed);
 
             hidePaused();
         // Start new trial.
