@@ -19,7 +19,7 @@ public partial class AppData
      * CONSTANT FIXED VARIABLES.
      */
     // COM Port for the device
-    public const string COMPort = "COM4";
+    public const string COMPort = "COM4"; //pluto cmc 1 com 24 /JS device
 
 
     // What is this used for?
@@ -178,33 +178,7 @@ public partial class AppData
     {
         selectedGame = gameName;
         previousSuccessRates =AppData.Instance.userData.GetLastTwoSuccessRates(selectedMechanism.name , selectedGame);
-        // // Cannot set game before selecting mechanism.
-        // if (selectedMechanism == null) 
-        // {
-        //     AppLogger.LogError($"Setting game before mechanism not possible.");
-        //     throw new ArgumentNullException(nameof(selectedMechanism));
-        // }
-
-        // // Set game to null when gameName is empty or null.
-        // if (string.IsNullOrEmpty(gameName))
-        // {
-        //     AppLogger.SetCurrentGame("");
-        //     selectedGame = null;
-        //     return;
-        // }
-        
-        // // Set the game object appropriately.
-        // switch (gameName)
-        // {
-        //     case "HAT":
-        //         selectedGame = new HatTrickGame(selectedMechanism);
-        //         break;
-        //     default:
-        //         AppLogger.LogError($"Unknow game selected '{gameName}'.");
-        //         AppLogger.SetCurrentGame("");
-        //         selectedGame = null;
-        //         return;
-        // }
+       
         // Set selected game.
         AppLogger.LogInfo($"Selected game '{selectedGame}'.");
         AppLogger.SetCurrentGame(selectedGame);

@@ -66,7 +66,7 @@ public static class PlutoComm
         "MCURRSENSERR",
         "NOHEARTBEAT"
     };
-    public static readonly int[] CALIBANGLE = new int[] { 0, 136, 136, 180, 93, 180, 270 }; // The first zero value is a dummy value.
+    public static readonly int[] CALIBANGLE = new int[] { 0, 136, 136, 180, 103, 180, 270 }; // The first zero value is a dummy value.
     public static readonly float[] MECHOFFSETVALUE = new float[] {
         0,    // Dummy. No mechanism 
         68,   // Wrist Flexion/Extension     
