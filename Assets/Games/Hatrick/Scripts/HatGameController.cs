@@ -226,7 +226,7 @@ public class HatGameController : MonoBehaviour
     {
            if (gameSpeed >= 40.0f) return;
 
-            gameSpeed += 2.0f;
+            gameSpeed += 1.0f;
             UpdateBallSpeedAndDuration();
             Debug.Log($"gs - {AppData.Instance.speedData.gameSpeed} + {gameSpeed}");
     }
@@ -238,7 +238,7 @@ public class HatGameController : MonoBehaviour
             ((mech == "FME1" || mech == "FME2") && gameSpeed <= 1.0f))
             return;
 
-        gameSpeed -= (mech == "FME1" || mech == "FME2") ? 1.0f : 2.0f;
+        gameSpeed -= 1.0f;
         UpdateBallSpeedAndDuration();
         
 

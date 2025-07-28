@@ -634,7 +634,29 @@ TextureImporter:
     edges: []
     weights: []
     secondaryTextures: []
-    nameFileIdTable: {}
+    nameFileIdTable:
+      celebrationPong_0: -7128450804926355440
+      celebrationPong_1: -3935298696200844493
+      celebrationPong_10: -5631536764185502297
+      celebrationPong_11: 4641969314631894972
+      celebrationPong_12: 4961017503659893900
+      celebrationPong_13: -8642154123452771719
+      celebrationPong_14: -207115573967261677
+      celebrationPong_15: -2119310572217205338
+      celebrationPong_16: -3003587136553550667
+      celebrationPong_17: 8373236829251990540
+      celebrationPong_18: -2706740174158942219
+      celebrationPong_19: 4470290711163634664
+      celebrationPong_2: -8426467991778961608
+      celebrationPong_20: -7992394000947523427
+      celebrationPong_21: -780032415859986670
+      celebrationPong_3: -6859417169257486441
+      celebrationPong_4: 1779064705532987743
+      celebrationPong_5: 5747502555730577108
+      celebrationPong_6: 5221273177576997723
+      celebrationPong_7: 2133584530427090262
+      celebrationPong_8: 6179608529966747291
+      celebrationPong_9: -5660215932716534147
   mipmapLimitGroupName: 
   pSDRemoveMatte: 0
   userData: 

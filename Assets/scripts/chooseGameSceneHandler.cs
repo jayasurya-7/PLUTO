@@ -5,6 +5,7 @@ using System.Collections.Generic;
 using TMPro;
 using System.IO;
 using System.Data;
+using System.Collections;
 
 public class ChooseGameSceneHandler : MonoBehaviour
 {
@@ -123,6 +124,13 @@ public class ChooseGameSceneHandler : MonoBehaviour
         // PLUTO Button
         PlutoComm.OnButtonReleased += OnPlutoButtonReleased;
     }
+    IEnumerator AutoLoadSelectedGame()
+    {
+        yield return new WaitForSeconds(0.15f);
+        LoadSelectedGameScene(gameSelected);
+        toggleSelected = false;
+        loadgame = false;
+    }
 
     void AttachToggleListeners()
     {
@@ -145,6 +153,8 @@ public class ChooseGameSceneHandler : MonoBehaviour
             {
                 gameSelected = toggleComponent.name;
                 toggleSelected = true;
+
+                StartCoroutine(AutoLoadSelectedGame());
                 break;
             }
         }

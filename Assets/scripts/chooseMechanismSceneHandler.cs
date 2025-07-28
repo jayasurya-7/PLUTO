@@ -139,11 +139,18 @@ public class MechanismSceneHandler : MonoBehaviour
             {
                 mechSelected = child.name;
                 AppData.Instance.SetMechanism(mechSelected);
+                StartCoroutine(MoveToNextScene());
                 return;
             }
         }
         mechSelected = null;
         AppData.Instance.SetMechanism(mechSelected);
+    }
+    IEnumerator MoveToNextScene()
+    {
+        yield return new WaitForSeconds(0.15f); 
+        LoadNextScene();
+        mechSelected = null;
     }
 
     private void OnPlutoButtonReleased()

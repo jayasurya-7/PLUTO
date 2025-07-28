@@ -130,7 +130,8 @@ TextureImporter:
     edges: []
     weights: []
     secondaryTextures: []
-    nameFileIdTable: {}
+    nameFileIdTable:
+      cartoon-blast-1_0: 1181346057585376083
   mipmapLimitGroupName: 
   pSDRemoveMatte: 0
   userData: 
