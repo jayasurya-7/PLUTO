@@ -164,18 +164,32 @@ public class PROMsceneHandler : MonoBehaviour
                 break;
         }
     }
+
+
     private void checkPromLimits()
     {
         bool isHOC=AppData.Instance.selectedMechanism.IsMechanism("HOC");
-        // bool condition = isHOC? (_tmin > AppData.Instance.selectedMechanism.newRom.aromMin || 
-        //     _tmax < AppData.Instance.selectedMechanism.newRom.aromMax) : (_tmin >= AppData.Instance.selectedMechanism.newRom.aromMin || 
-        //     _tmax <= AppData.Instance.selectedMechanism.newRom.aromMax);
-        bool condition = _tmin > AppData.Instance.selectedMechanism.newRom.aromMin || _tmax < AppData.Instance.selectedMechanism.newRom.aromMax;
+        bool FME = AppData.Instance.selectedMechanism.IsMechanism("FME1") || AppData.Instance.selectedMechanism.IsMechanism("FME2");
+        bool condition;
+
+        if (isHOC)
+        {
+            Debug.Log($"prom min: {_tmin},{_tmax},  arom :{AppData.Instance.selectedMechanism.newRom.aromMin}, {AppData.Instance.selectedMechanism.newRom.aromMax}");
+            condition = _tmax > AppData.Instance.selectedMechanism.newRom.aromMax;
+        }
+        else if (FME)
+        {
+            condition = _tmin >= (AppData.Instance.selectedMechanism.newRom.aromMin + 5.0f) || _tmax <= (AppData.Instance.selectedMechanism.newRom.aromMax - 5.0f);
+        }
+        else
+        {
+            condition = _tmin >= AppData.Instance.selectedMechanism.newRom.aromMin || _tmax <= AppData.Instance.selectedMechanism.newRom.aromMax;
+        }
         if (condition)
         {
              Debug.Log($"prom min :{_tmin}, arom { AppData.Instance.selectedMechanism.newRom.aromMin},,{_tmin < AppData.Instance.selectedMechanism.newRom.aromMin}");
             Debug.Log($" prom max :{_tmax}, arom { AppData.Instance.selectedMechanism.newRom.aromMax},,{_tmax> AppData.Instance.selectedMechanism.newRom.aromMax}");
-            
+
             promSlider.UpdateMinMaxvalues = false;
             RestartAssessment();
             isButtonPressed = false;

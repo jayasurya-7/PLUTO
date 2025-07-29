@@ -66,7 +66,7 @@ public static class PlutoComm
         "MCURRSENSERR",
         "NOHEARTBEAT"
     };
-    public static readonly int[] CALIBANGLE = new int[] { 0, 136, 136, 180, 103, 180, 270 }; // The first zero value is a dummy value.
+    public static readonly int[] CALIBANGLE = new int[] { 0, 136, 136, 180, 93, 180, 180 }; // The first zero value is a dummy value.
     public static readonly float[] MECHOFFSETVALUE = new float[] {
         0,    // Dummy. No mechanism 
         68,   // Wrist Flexion/Extension     
@@ -74,7 +74,7 @@ public static class PlutoComm
         90,   // Forearm Prono/Sunpination
         0,    // Hand Opening/Closing
         90,    // Functional mechanism 1
-        135,    // Functional mechanism 2
+        90,    // Functional mechanism 2
     };
     public static readonly double[] TORQUE = new double[] { -MAXTORQUE, MAXTORQUE };
     public static readonly double[] POSITION = new double[] { -135, 0 };

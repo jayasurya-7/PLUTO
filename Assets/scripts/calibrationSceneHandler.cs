@@ -105,19 +105,19 @@ public class calibrationSceneHandler : MonoBehaviour
         AppLogger.LogError($"Calibration was successful for '{AppData.Instance.selectedMechanism.name}'.");
 
         //HOC assessment UI  works based on closed position,
-        if((PlutoComm.MECHANISMS[PlutoComm.mechanism] != "HOC")&& (PlutoComm.MECHANISMS[PlutoComm.mechanism] != "FME1")&& (PlutoComm.MECHANISMS[PlutoComm.mechanism] != "FME2")) {
-            // Move the robot to the neutral position.
-            PlutoComm.setControlType("POSITION");
-            // Set the target to zero slowly.
-            float _initAngle = PlutoComm.angle;
-            int N = 20;
-            for (int i = 0; i < N; i++)
-            {
-                PlutoComm.setControlBound(PlutoAANController.MINCONTROLBOUND);
-                PlutoComm.setControlTarget((N - i) * _initAngle / N);
-                yield return new WaitForSeconds(0.1f);
-            }
-        }
+        // if((PlutoComm.MECHANISMS[PlutoComm.mechanism] != "HOC")&& (PlutoComm.MECHANISMS[PlutoComm.mechanism] != "FME1")&& (PlutoComm.MECHANISMS[PlutoComm.mechanism] != "FME2")) {
+        //     // Move the robot to the neutral position.
+        //     PlutoComm.setControlType("POSITION");
+        //     // Set the target to zero slowly.
+        //     float _initAngle = PlutoComm.angle;
+        //     int N = 20;
+        //     for (int i = 0; i < N; i++)
+        //     {
+        //         PlutoComm.setControlBound(PlutoAANController.MINCONTROLBOUND);
+        //         PlutoComm.setControlTarget((N - i) * _initAngle / N);
+        //         yield return new WaitForSeconds(0.1f);
+        //     }
+        // }
         if (PlutoComm.MECHANISMS[PlutoComm.mechanism] == "HOC") PlutoComm.calibrate(AppData.Instance.selectedMechanism.name);
 
         PlutoComm.setControlTarget(0.0f);
@@ -144,13 +144,20 @@ public class calibrationSceneHandler : MonoBehaviour
 
         // Check make sure the current ROM is not null. If it is, then we need to 
         // go do the assessment.
-        if (AppData.Instance.selectedMechanism.currRom == null)
+        if (AppData.Instance.selectedMechanism.currRom == null && AppData.Instance.selectedMechanism.name != "FME1" && AppData.Instance.selectedMechanism.name != "FME2" )
         {
             AppLogger.LogInfo("Current ROM is null. Going to assessment scene.");
             SceneManager.LoadScene("ASSESS");
             return;
-        } 
+        }
 
+        if (AppData.Instance.selectedMechanism.currRom == null && (AppData.Instance.selectedMechanism.name == "FME1" || AppData.Instance.selectedMechanism.name == "FME2"))
+        {
+            AppData.Instance.selectedMechanism.SetNewPromValues(-90.0f, 90.0f);
+            AppData.Instance.selectedMechanism.SetNewAromValues(-90.0f, 90.0f);
+            AppData.Instance.selectedMechanism.SetNewAPromValues(-90.0f, 90.0f);
+            AppData.Instance.selectedMechanism.SaveAssessmentData();
+        }
         // Load the next scene.
         AppLogger.LogInfo($"Switching scene to '{nextScene}'.");
         SceneManager.LoadScene(nextScene);
@@ -158,14 +165,14 @@ public class calibrationSceneHandler : MonoBehaviour
 
     private void ApplyCounterClockwiseTorque()
     {
-        float torqueValue = (PlutoComm.MECHANISMS[PlutoComm.mechanism] == "HOC" || PlutoComm.MECHANISMS[PlutoComm.mechanism] == "FME2") ? -0.15f : -0.07f;
+        float torqueValue = (PlutoComm.MECHANISMS[PlutoComm.mechanism] == "HOC") ? -0.15f : -0.07f;
         PlutoComm.setControlType("TORQUE");
         PlutoComm.setControlTarget(torqueValue);
     }
 
     private void ApplyClockwiseTorque()
     {
-        float torqueValue = (PlutoComm.MECHANISMS[PlutoComm.mechanism] == "HOC" || PlutoComm.MECHANISMS[PlutoComm.mechanism] == "FME2") ? 0.15f : 0.07f;
+        float torqueValue = (PlutoComm.MECHANISMS[PlutoComm.mechanism] == "HOC") ? 0.15f : 0.07f;
         PlutoComm.setControlType("TORQUE");
         PlutoComm.setControlTarget(torqueValue);
     }

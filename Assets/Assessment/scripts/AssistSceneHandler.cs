@@ -18,7 +18,7 @@ public class AssistsceneHandler : MonoBehaviour
     public TMP_Text lText;
     public TMP_Text rText;
     public TMP_Text insText;
-    public TMP_Text cText, inst, inst1;
+    public TMP_Text cText, inst, inst1, ins3;
     public TMP_Text relaxText;
     
     public TMP_Text jointAngle;
@@ -113,7 +113,7 @@ public class AssistsceneHandler : MonoBehaviour
         apromSlider.maxAng = 0;
         inst.text = "";
         inst1.text = "";
-
+        ins3.text = "Press pluto button to restart the assist profile";
         redoButton.SetActive(false);
         runOnce = false;
 }
@@ -129,7 +129,7 @@ public class AssistsceneHandler : MonoBehaviour
         targetNegativeEnd = AppData.Instance.selectedMechanism.IsMechanism("HOC") ? AppData.Instance.selectedMechanism.newRom.promMin : AppData.Instance.selectedMechanism.newRom.promMin;
         targetPositiveEnd = AppData.Instance.selectedMechanism.IsMechanism("HOC") ? 0.0f: AppData.Instance.selectedMechanism.newRom.promMax;
 
-
+        ins3.text = "Press PLUTO button to start the Assist profile";
         float sliderPE = AppData.Instance.selectedMechanism.IsMechanism("HOC") ? -AppData.Instance.selectedMechanism.newRom.promMin : AppData.Instance.selectedMechanism.newRom.promMax;
         float sliderNE = AppData.Instance.selectedMechanism.IsMechanism("HOC") ? AppData.Instance.selectedMechanism.newRom.promMin : AppData.Instance.selectedMechanism.newRom.promMin;
 
@@ -184,6 +184,7 @@ public class AssistsceneHandler : MonoBehaviour
             {
                 if (firstPositiveStart)
                 {
+                    ins3.text = "";
                     trailDuration = 7f;
                     stopClock = 0f;
                     torque = 0f;
@@ -195,6 +196,7 @@ public class AssistsceneHandler : MonoBehaviour
                 positiveTimer += 0.05f;
                 if (isButtonPressed && !reachedPositive)
                 {
+                    
                     isButtonPressed = false;
                     reachedPositive = true;
                     maxAngle = currentAngle;
@@ -352,7 +354,7 @@ public class AssistsceneHandler : MonoBehaviour
                     redoButton.SetActive(true);
                     inst.text = $"APROM Reached both ends min : {_tmin},max :{_tmax}.";
                     inst1.text ="Press PLUTO button to move next scene";
-                    
+                    ins3.text = "press redo to re-start the assist profile";
                 }
             }
 

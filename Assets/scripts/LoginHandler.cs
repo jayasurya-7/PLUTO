@@ -222,6 +222,7 @@ public class LoginHandler : MonoBehaviour
         }
         Debug.Log(hospitalID);
         AppData.Instance.setUser(hospitalID);
+        
         SceneManager.LoadScene("MAIN");
     }
 

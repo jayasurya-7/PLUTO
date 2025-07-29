@@ -19,7 +19,7 @@ public struct DaySummary
 public static class DataManager
 {
 
-    public static readonly string userIdPath = 
+    public static string userIdPath = 
         AppData.Instance.userID != null 
         ? Path.Combine(Application.dataPath, "data", AppData.Instance.userID) 
         : Application.dataPath;
@@ -37,7 +37,7 @@ public static class DataManager
     public static string logPath { get; private set; }
     public static string controlGainPath{ get; private set; }
 
-    public static string configFile = basePath + "/configdata.csv";
+    public static string configFile = Path.Combine(basePath, "configdata.csv");
     public static string sessionFile { get; private set; }
 
     
@@ -120,6 +120,23 @@ public static class DataManager
         Directory.CreateDirectory(logPath);
         Directory.CreateDirectory(controlGainPath);
     }
+    public static void ResetPaths()
+    {
+        basePath = null;
+        configFile = null;
+        sessionFile = null;
+
+        sessionPath = null;
+        gamePath = null;
+        mechPath = null;
+        aanAdaptPath = null;
+        aanExecPath = null;
+        rawPath = null;
+        romPath = null;
+        logPath = null;
+        controlGainPath = null;
+    }
+
 
     public static DataTable loadCSV(string filePath)
     {

@@ -29,8 +29,20 @@ public class welcomSceneHandler : MonoBehaviour
 
     void Start()
     {
+        if (string.IsNullOrEmpty(DataManager.basePath))
+        {
+            Debug.Log(DataManager.userIdPath);
+            Debug.Log("basePath: " + DataManager.basePath);
+Debug.Log("userID: " + AppData.Instance.userID);
+Debug.Log("configFile path: " + DataManager.configFile);
 
-        if (!Directory.Exists(DataManager.basePath)) 
+            DataManager.basePath = DataManager.FixPath(Path.Combine(DataManager.userIdPath, "data"));
+            Debug.LogWarning("basePath was empty. Setting fallback path: " + DataManager.basePath);
+        }
+
+
+        Debug.Log("path:" + DataManager.basePath);
+        if (!Directory.Exists(DataManager.basePath))
         {
             SceneManager.LoadScene("CONFIG");
             return;
@@ -51,6 +63,7 @@ public class welcomSceneHandler : MonoBehaviour
 
         if (!File.Exists(DataManager.configFile)) 
         {
+            Debug.Log("running");
             SceneManager.LoadScene("CONFIG");
             return;
         }

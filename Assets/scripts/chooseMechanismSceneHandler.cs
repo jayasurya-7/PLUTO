@@ -126,6 +126,7 @@ public class MechanismSceneHandler : MonoBehaviour
             {
                 // Update toggleSelected whenever a toggle's value changes
                 toggleComponent.onValueChanged.AddListener(delegate { CheckToggleStates(); });
+
             }
         }
     }
@@ -139,11 +140,13 @@ public class MechanismSceneHandler : MonoBehaviour
             {
                 mechSelected = child.name;
                 AppData.Instance.SetMechanism(mechSelected);
+                StartCoroutine(MoveToNextScene());
                 return;
             }
         }
         mechSelected = null;
         AppData.Instance.SetMechanism(mechSelected);
+    
     }
 
     private void OnPlutoButtonReleased()
@@ -165,6 +168,13 @@ public class MechanismSceneHandler : MonoBehaviour
         // Set the mechanism.
         AppLogger.LogInfo($"Switching scene to '{nextScene}'.");
         SceneManager.LoadScene(nextScene);
+    }
+
+    IEnumerator MoveToNextScene()
+    {
+        yield return new WaitForSeconds(0.15f); 
+        LoadNextScene();
+        mechSelected = null;
     }
 
     IEnumerator LoadSummaryScene()
@@ -207,6 +217,10 @@ public class MechanismSceneHandler : MonoBehaviour
         }
     }
 
+    public void moveNextScene()
+    {
+      //  LoadNextScene();   
+    }
     private void OnDestroy()
     {
         if (ConnectToRobot.isPLUTO)
