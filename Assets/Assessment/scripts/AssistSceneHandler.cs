@@ -372,7 +372,12 @@ public class AssistsceneHandler : MonoBehaviour
     public void OnExit()
     {
         PlutoComm.setControlType("NONE");
-        SceneManager.LoadScene("CHGAME");
+        AppData.Instance.selectedMechanism.ResetAromValues();
+        AppData.Instance.selectedMechanism.ResetPromValues();
+        AppData.Instance.selectedMechanism.ResetAPromValues();
+        // SceneManager.LoadScene("CHGAME");
+        SceneManager.LoadScene("ASSESS");
+
     }
 
     void Update()

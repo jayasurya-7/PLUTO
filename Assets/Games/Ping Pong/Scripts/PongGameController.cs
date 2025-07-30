@@ -94,6 +94,8 @@ public class PongGameController : MonoBehaviour
     public Image loadingImage;
      public GameObject increaseSpeed, decreaseSpeed;
     bool speedControlsVisible = false;
+    private GameObject[] detailObjects;
+    private bool isVisible = false;
     private void Awake()
     {
         if (Instance == null)
@@ -104,12 +106,17 @@ public class PongGameController : MonoBehaviour
         {
             Destroy(gameObject);
         }
-        enemy.speedDefault = 3.0f+ (0.04f * AppData.Instance.speedData.gameSpeed);
+        enemy.speedDefault = 3.0f + (0.04f * AppData.Instance.speedData.gameSpeed);
         ballSpeed.speed = 1.5f + (0.04f * AppData.Instance.speedData.gameSpeed);
     }
     void Start()
     {
         InitializeGame();
+        // Find all GameObjects with the "detailViewer" tag
+        detailObjects = GameObject.FindGameObjectsWithTag("detailViewer");
+
+        // Hide them at the start
+        SetVisibility(false);
         pauseObjects = GameObject.FindGameObjectsWithTag("ShowOnPause");
         finishObjects = GameObject.FindGameObjectsWithTag("ShowOnFinish");
         targetPosition = new Vector2(5.95f, 0f);
@@ -150,6 +157,9 @@ public class PongGameController : MonoBehaviour
 
             increaseSpeed.SetActive(speedControlsVisible);
             decreaseSpeed.SetActive(speedControlsVisible);
+
+            isVisible = !isVisible;
+            SetVisibility(isVisible);
 
         }
 
@@ -227,7 +237,14 @@ public class PongGameController : MonoBehaviour
         //showFinished();
         Time.timeScale = 0;
     }
-
+    private void SetVisibility(bool state)
+    {
+        foreach (GameObject obj in detailObjects)
+        {
+            if (obj != null)
+                obj.SetActive(state);
+        }
+    }
     public void increaseGameSpeed()
     {
         if (gameSpeed >= 40.0f) return;

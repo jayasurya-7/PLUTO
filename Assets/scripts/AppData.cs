@@ -19,7 +19,7 @@ public partial class AppData
      * CONSTANT FIXED VARIABLES.
      */
     // COM Port for the device
-    public const string COMPort = "COM24"; //pluto cmc 1 com 24 /JS device
+    public const string COMPort = "COM4"; //pluto cmc 1 com 24 /JS device
 
 
     // What is this used for?

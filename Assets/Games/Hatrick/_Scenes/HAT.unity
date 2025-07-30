@@ -3881,7 +3881,7 @@ GameObject:
   - component: {fileID: 1057131368}
   m_Layer: 5
   m_Name: aromLeft
-  m_TagString: Untagged
+  m_TagString: detailViewer
   m_Icon: {fileID: 0}
   m_NavMeshLayer: 0
   m_StaticEditorFlags: 0
@@ -4446,7 +4446,7 @@ GameObject:
   - component: {fileID: 1464396598}
   m_Layer: 5
   m_Name: aromRight
-  m_TagString: Untagged
+  m_TagString: detailViewer
   m_Icon: {fileID: 0}
   m_NavMeshLayer: 0
   m_StaticEditorFlags: 0
@@ -5351,7 +5351,7 @@ GameObject:
   - component: {fileID: 1755640105}
   m_Layer: 5
   m_Name: GS
-  m_TagString: ScoreText
+  m_TagString: detailViewer
   m_Icon: {fileID: 0}
   m_NavMeshLayer: 0
   m_StaticEditorFlags: 0
@@ -5724,7 +5724,7 @@ GameObject:
   - component: {fileID: 1992378749}
   m_Layer: 5
   m_Name: status
-  m_TagString: Untagged
+  m_TagString: detailViewer
   m_Icon: {fileID: 0}
   m_NavMeshLayer: 0
   m_StaticEditorFlags: 0

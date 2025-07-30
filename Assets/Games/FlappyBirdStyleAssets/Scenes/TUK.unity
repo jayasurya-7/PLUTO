@@ -644,7 +644,7 @@ RectTransform:
   m_LocalEulerAnglesHint: {x: 0, y: 0, z: 0}
   m_AnchorMin: {x: 1, y: 0}
   m_AnchorMax: {x: 1, y: 0}
-  m_AnchoredPosition: {x: 333, y: -169}
+  m_AnchoredPosition: {x: 280, y: -169}
   m_SizeDelta: {x: 100, y: 30}
   m_Pivot: {x: 0.5, y: 0.5}
 --- !u!114 &105824663
@@ -4406,7 +4406,7 @@ GameObject:
   - component: {fileID: 1015480410}
   m_Layer: 5
   m_Name: GS
-  m_TagString: Untagged
+  m_TagString: detailViewer
   m_Icon: {fileID: 0}
   m_NavMeshLayer: 0
   m_StaticEditorFlags: 0
@@ -4427,7 +4427,7 @@ RectTransform:
   m_LocalEulerAnglesHint: {x: 0, y: 0, z: 0}
   m_AnchorMin: {x: 1, y: 1}
   m_AnchorMax: {x: 1, y: 1}
-  m_AnchoredPosition: {x: -52.30002, y: -182.4841}
+  m_AnchoredPosition: {x: -52.2, y: -158.4}
   m_SizeDelta: {x: 79.889, y: 25.7682}
   m_Pivot: {x: 0.5, y: 0.5}
 --- !u!114 &1015480410
@@ -6097,7 +6097,7 @@ GameObject:
   - component: {fileID: 1244232089}
   m_Layer: 0
   m_Name: aromRight
-  m_TagString: Untagged
+  m_TagString: detailViewer
   m_Icon: {fileID: 0}
   m_NavMeshLayer: 0
   m_StaticEditorFlags: 0
@@ -11365,7 +11365,7 @@ GameObject:
   - component: {fileID: 1361749541}
   m_Layer: 5
   m_Name: hs (1)
-  m_TagString: Untagged
+  m_TagString: detailViewer
   m_Icon: {fileID: 0}
   m_NavMeshLayer: 0
   m_StaticEditorFlags: 0
@@ -13077,7 +13077,7 @@ GameObject:
   - component: {fileID: 1715348512}
   m_Layer: 0
   m_Name: aromLeft
-  m_TagString: Untagged
+  m_TagString: detailViewer
   m_Icon: {fileID: 0}
   m_NavMeshLayer: 0
   m_StaticEditorFlags: 0
@@ -13869,7 +13869,7 @@ RectTransform:
   m_LocalEulerAnglesHint: {x: 0, y: 0, z: 0}
   m_AnchorMin: {x: 1, y: 0}
   m_AnchorMax: {x: 1, y: 0}
-  m_AnchoredPosition: {x: 333, y: -169}
+  m_AnchoredPosition: {x: 289, y: -169}
   m_SizeDelta: {x: 100, y: 30}
   m_Pivot: {x: 0.5, y: 0.5}
 --- !u!114 &2121302990

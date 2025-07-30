@@ -127,7 +127,7 @@ public class HatGameController : MonoBehaviour
     private bool runOnce = false;
     public GameObject increaseSpeed, decreaseSpeed;
     bool speedControlsVisible = false;
-
+    private GameObject[] detailObjects;
 
     private void Awake()
     {
@@ -146,6 +146,11 @@ public class HatGameController : MonoBehaviour
     { 
         InitializeGame();
         // Initialize the game objects.
+         // Find all GameObjects with the "detailViewer" tag
+        detailObjects = GameObject.FindGameObjectsWithTag("detailViewer");
+
+        // Hide them at the start
+        SetVisibility(false);
         pauseObjects = GameObject.FindGameObjectsWithTag("ShowOnPause");
         finishObjects = GameObject.FindGameObjectsWithTag("ShowOnFinish");
         // Do not show the paused and finished objects at the start.
@@ -182,6 +187,7 @@ public class HatGameController : MonoBehaviour
 
             increaseSpeed.SetActive(speedControlsVisible);
             decreaseSpeed.SetActive(speedControlsVisible);
+            SetVisibility(speedControlsVisible);
 
             Debug.Log("Speed controls " + (speedControlsVisible ? "enabled" : "disabled"));
         }
@@ -299,6 +305,14 @@ public class HatGameController : MonoBehaviour
         ExitButton.SetActive(false);
     }
 
+    private void SetVisibility(bool state)
+    {
+        foreach (GameObject obj in detailObjects)
+        {
+            if (obj != null)
+                obj.SetActive(state);
+        }
+    }
     public void ResumeGame()
     {
 
@@ -312,14 +326,14 @@ public class HatGameController : MonoBehaviour
         ExitButton.SetActive(true);
         // Send PLUTO heartbeat
         PlutoComm.sendHeartbeat();
-        
-         if ((PlutoComm.MECHANISMS[PlutoComm.mechanism] != "FME1") && (PlutoComm.MECHANISMS[PlutoComm.mechanism] != "FME2"))
+
+        if ((PlutoComm.MECHANISMS[PlutoComm.mechanism] != "FME1") && (PlutoComm.MECHANISMS[PlutoComm.mechanism] != "FME2"))
         {
             PlutoComm.setControlType("POSITIONAAN");
             PlutoComm.setControlBound(AppData.Instance.CurrentControlBound);
             PlutoComm.setControlDir(0);
         }
-        
+
     }
 
     public bool IsGamePlaying()

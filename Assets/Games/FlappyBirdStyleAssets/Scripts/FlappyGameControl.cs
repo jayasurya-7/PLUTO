@@ -27,6 +27,7 @@ public class FlappyGameControl : MonoBehaviour
     public float scrollSpeed = 0f;
     private int score;
     public BirdControl bc;
+    private GameObject[] detailObjects;
 
     enum AssessStates
     {
@@ -109,7 +110,6 @@ public class FlappyGameControl : MonoBehaviour
     public GameObject increaseSpeed, decreaseSpeed;
     bool speedControlsVisible = false;
 
-
     void Awake()
     {
         if (Instance == null)
@@ -158,6 +158,10 @@ public class FlappyGameControl : MonoBehaviour
     void Start()
     {
         InitializeGame();
+        detailObjects = GameObject.FindGameObjectsWithTag("detailViewer");
+
+        // Hide them at the start
+        SetVisibility(false);
         pauseObjects = GameObject.FindGameObjectsWithTag("ShowOnPause");
         setup = false;
 
@@ -191,6 +195,7 @@ public class FlappyGameControl : MonoBehaviour
 
             increaseSpeed.SetActive(speedControlsVisible);
             decreaseSpeed.SetActive(speedControlsVisible);
+            SetVisibility(speedControlsVisible);
 
             Debug.Log("Speed controls " + (speedControlsVisible ? "enabled" : "disabled"));
         }
@@ -229,7 +234,14 @@ public class FlappyGameControl : MonoBehaviour
         prevSpawnTime += Time.deltaTime;
         Debug.Log(scrollSpeed);
     }
-
+    private void SetVisibility(bool state)
+    {
+        foreach (GameObject obj in detailObjects)
+        {
+            if (obj != null)
+                obj.SetActive(state);
+        }
+    }
     public void chooseBackground()
     {
         foreach (GameObject obj in backgrounds)
