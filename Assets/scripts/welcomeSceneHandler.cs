@@ -47,6 +47,14 @@ Debug.Log("configFile path: " + DataManager.configFile);
             SceneManager.LoadScene("CONFIG");
             return;
         }
+          string filePath = @"C:/comport.txt";
+
+        // Optional: Create a default file if it doesn't exist
+        if (File.Exists(filePath))
+        {
+            string com = File.ReadAllText(filePath);
+            AppData.Instance.setComport(com);
+        }
 
         // Get all subdirectories excluding metadata
         var validUserDirs = Directory.GetDirectories(DataManager.basePath)
@@ -80,15 +88,15 @@ Debug.Log("configFile path: " + DataManager.configFile);
             UpdateUserData();
             UpdatePieChart();
         }
-        Task.Run(() =>  // Run in a background task
-            {
-            if (!awsManager.IsTaskScheduled(awsManager.taskName))
-            {
-                awsManager.ScheduleTask();
-            }
-            awsManager.RunAWSpythonScript();
+        // Task.Run(() =>  // Run in a background task
+        //     {
+        //     if (!awsManager.IsTaskScheduled(awsManager.taskName))
+        //     {
+        //         awsManager.ScheduleTask();
+        //     }
+        //     awsManager.RunAWSpythonScript();
 
-            });
+        //     });
        
     }
 

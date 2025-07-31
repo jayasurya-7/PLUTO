@@ -60,12 +60,22 @@ public class Pluto_SceneHandler : MonoBehaviour
         // Ensure the application continues running even when in the background
         Application.runInBackground = true;
 
+        string filePath = @"C:/comport.txt";
+
+        // Optional: Create a default file if it doesn't exist
+        if (File.Exists(filePath))
+        {
+            string com = File.ReadAllText(filePath);
+            AppData.Instance.setComport(com);
+        }
+
+
         // Initialize UI
         InitializeUI();
         // Attach callbacks
         AttachControlCallbacks();
         // Connect to the robot.
-        ConnectToRobot.Connect(AppData.COMPort);
+        ConnectToRobot.Connect(AppData.Instance.COMPort);
         // Set to diagnostics mode.
         PlutoComm.setDiagnosticMode();
         // Get device version.

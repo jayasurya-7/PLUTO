@@ -106,7 +106,7 @@ public class Homer_AAN_SceneHandler : MonoBehaviour
         AttachControlCallbacks();
         // Connect to the robot.
         if (JediComm.serPort.IsOpen == false) { 
-            ConnectToRobot.Connect(AppData.COMPort);
+            ConnectToRobot.Connect(AppData.Instance.COMPort);
         }
         // Get device version.
         PlutoComm.getVersion();

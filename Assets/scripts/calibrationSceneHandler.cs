@@ -89,6 +89,7 @@ public class calibrationSceneHandler : MonoBehaviour
         if (Math.Abs(_angval) < 0.9 * PlutoComm.CALIBANGLE[mechInx]
             || Math.Abs(_angval) > 1.1 * PlutoComm.CALIBANGLE[mechInx])
         {
+            
             // Error in calibration
             PlutoComm.setControlType("NONE");
             // PlutoComm.calibrate("NOMECH");
@@ -139,8 +140,8 @@ public class calibrationSceneHandler : MonoBehaviour
     {
         // Updat game speed for the chosen mechanism.
        // AppData.Instance.selectedMechanism.UpdateSpeed();
-        Debug.Log(AppData.Instance.selectedMechanism.IsSpeedUpdated());
-        AppLogger.LogInfo($"Game speed set to {AppData.Instance.selectedMechanism.currSpeed} deg/sec.");
+        Debug.Log($" is speed updated: {AppData.Instance.selectedMechanism.IsSpeedUpdated()}");
+        AppLogger.LogInfo($"Game speed set to {AppData.Instance.selectedMechanism.currSpeed} deg/sec. and updated speed: {AppData.Instance.selectedMechanism.IsSpeedUpdated()}");
 
         // Check make sure the current ROM is not null. If it is, then we need to 
         // go do the assessment.
@@ -165,14 +166,14 @@ public class calibrationSceneHandler : MonoBehaviour
 
     private void ApplyCounterClockwiseTorque()
     {
-        float torqueValue = (PlutoComm.MECHANISMS[PlutoComm.mechanism] == "HOC") ? -0.15f : -0.07f;
+        float torqueValue = (PlutoComm.MECHANISMS[PlutoComm.mechanism] == "HOC") ? -0.1f : -0.07f;
         PlutoComm.setControlType("TORQUE");
         PlutoComm.setControlTarget(torqueValue);
     }
 
     private void ApplyClockwiseTorque()
     {
-        float torqueValue = (PlutoComm.MECHANISMS[PlutoComm.mechanism] == "HOC") ? 0.15f : 0.07f;
+        float torqueValue = (PlutoComm.MECHANISMS[PlutoComm.mechanism] == "HOC") ? 0.1f : 0.07f;
         PlutoComm.setControlType("TORQUE");
         PlutoComm.setControlTarget(torqueValue);
     }

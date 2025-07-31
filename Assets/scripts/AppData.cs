@@ -19,8 +19,9 @@ public partial class AppData
      * CONSTANT FIXED VARIABLES.
      */
     // COM Port for the device
-    public const string COMPort = "COM4"; //pluto cmc 1 com 24 /JS device
+    // public const string COMPort = "COM13"; //pluto cmc 1 com 24 /JS device
 
+    public string COMPort{ get; private set; }
 
     // What is this used for?
     public string _dataLogDir = null;
@@ -77,6 +78,10 @@ public partial class AppData
     {
     }
 
+    public void setComport(string comport)
+    {
+        COMPort = comport;
+    }
     public void Initialize(string scene, bool doNotResetMech = true)
     {
         UnityEngine.Debug.Log(Application.persistentDataPath);
