@@ -3,7 +3,6 @@ using UnityEngine.UI;
 using TMPro;
 using UnityEngine.SceneManagement;
 using System.Collections;
-using System.Data;
 
 public class MechanismSceneHandler : MonoBehaviour
 {
@@ -30,8 +29,6 @@ public class MechanismSceneHandler : MonoBehaviour
     {
         // Reset mechanisms.
         PlutoComm.sendHeartbeat();
-        AppData.Instance.userData =  new PlutoUserData(DataManager.configFile, DataManager.sessionFile);
-
         PlutoComm.calibrate("NOMECH");
         PlutoComm.setControlGain(1.0f);
         AppData.Instance.SetMechanism(null);
@@ -86,12 +83,10 @@ public class MechanismSceneHandler : MonoBehaviour
         {
             Toggle toggleComponent = child.GetComponent<Toggle>();
             bool isPrescribed = AppData.Instance.userData.mechMoveTimePrsc[toggleComponent.name] > 0;
-            bool isDone = AppData.Instance.userData.getTodayMoveTimeForMechanism(toggleComponent.name)>= AppData.Instance.userData.mechMoveTimePrsc[toggleComponent.name];
-            Debug.Log($" done : {isDone}, x-{AppData.Instance.userData.getTodayMoveTimeForMechanism(toggleComponent.name)} y-{AppData.Instance.userData.mechMoveTimePrsc[toggleComponent.name]} ");
+
             // Hide the component if it has no prescribed time.
-            toggleComponent.interactable = (isPrescribed && !isDone);
-            Debug.Log(isPrescribed && !isDone);
-            toggleComponent.gameObject.SetActive(isPrescribed && !isDone);
+            toggleComponent.interactable = isPrescribed;
+            toggleComponent.gameObject.SetActive(isPrescribed);
 
             // Update the time trained in the timeLeft component of toggleCompoent.
             Transform timeLeftTransform = toggleComponent.transform.Find("timeLeft");
@@ -144,7 +139,6 @@ public class MechanismSceneHandler : MonoBehaviour
             if (toggleComponent != null && toggleComponent.isOn)
             {
                 mechSelected = child.name;
-                //AppData.Instance.userData.mechMoveTimePrsc[mechSelected];
                 AppData.Instance.SetMechanism(mechSelected);
                 StartCoroutine(MoveToNextScene());
                 return;

@@ -21,7 +21,7 @@ public partial class AppData
     // COM Port for the device
     // public const string COMPort = "COM13"; //pluto cmc 1 com 24 /JS device
 
-    public string COMPort { get; private set; }
+    public string COMPort{ get; private set; }
 
     // What is this used for?
     public string _dataLogDir = null;
@@ -220,8 +220,4 @@ public partial class AppData
         DataManager.ResetPaths();
     }
 
-    public void setRawDataStringtoNull()
-    {
-        rawDataString = null;
-    }
 }

@@ -112,14 +112,6 @@ public class PongGameController : MonoBehaviour
     void Start()
     {
         InitializeGame();
-        
-        // if (AppData.Instance.selectedMechanism.trialNumberSession > AppData.Instance.userData.mechMoveTimePrsc[AppData.Instance.selectedMechanism.name])
-        // {
-        //     SceneManager.LoadScene("CHMECH");
-        //     AppData.Instance.SetMechanism(null);
-        //     AppData.Instance.setRawDataStringtoNull();
-        //     return;
-        // }
         // Find all GameObjects with the "detailViewer" tag
         detailObjects = GameObject.FindGameObjectsWithTag("detailViewer");
 
@@ -155,13 +147,7 @@ public class PongGameController : MonoBehaviour
     {
 
         pointCounter.text = enemyScore + "\t\t" +
-        playerScore;
-        // if (AppData.Instance.selectedMechanism.trialNumberSession > AppData.Instance.userData.mechMoveTimePrsc[AppData.Instance.selectedMechanism.name])
-        // {
-        //     SceneManager.LoadScene("CHMECH");
-        //     AppData.Instance.SetMechanism(null);
-        //     return;
-        // }
+            playerScore;
 
         //if (isGamePaused && gameState != GameStates.PAUSED) 
 
@@ -530,14 +516,14 @@ public class PongGameController : MonoBehaviour
                 if (AppData.Instance.aanController.stateChange) UpdatePlutoAANTarget();
                 // Change to done only when the AAN Controller is AromMoving or Idle state.
                 if (AppData.Instance.aanController.state == PlutoAANController.PlutoAANState.AromMoving
-                    || AppData.Instance.aanController.state == PlutoAANController.PlutoAANState.Idle)
+                    || AppData.Instance.aanController.state == PlutoAANController.PlutoAANState.Idle) 
                 {
                     float gameTime = HomerTherapy.TrialDuration - triaTimeLeft;
                     Others.gameTime = (gameTime < HomerTherapy.TrialDuration) ? gameTime : HomerTherapy.TrialDuration;
                     AppData.Instance.StopTrial(nTargets, nSuccess, nFailure);
                     gameState = GameStates.DONE;
                     lastHighScore = AppData.Instance.successRate * (PlutoAANController.MAXCONTROLBOUND - AppData.Instance.CurrentControlBound);
-                    if (AppData.Instance.previousSuccessRates == null)
+                   if (AppData.Instance.previousSuccessRates == null)
                     {
                         score.text = $"{(int)lastHighScore}";
                         if (lastHighScore > Others.highestSuccessRate)
@@ -550,16 +536,8 @@ public class PongGameController : MonoBehaviour
                             showFinished();
                             gameEnd();
                         }
-
-
-                    }
-                    
-                    if (AppData.Instance.selectedMechanism.trialNumberSession >= AppData.Instance.userData.mechMoveTimePrsc[AppData.Instance.selectedMechanism.name])
-                    {
-                        SceneManager.LoadScene("CHMECH");
-                        // AppData.Instance.SetMechanism(null);
-                        // AppData.Instance.setRawDataStringtoNull();
-                        return;
+                        
+                        
                     }
                    
                 }

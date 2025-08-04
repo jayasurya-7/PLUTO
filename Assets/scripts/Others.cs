@@ -457,18 +457,6 @@ public class PlutoUserData
         this.rightHand = dTableConfig.Rows[0]["TrainingSide"].ToString().ToUpper() == "RIGHT";
     }
 
-    //implemented to load session data on the mechanism screen
-    public PlutoUserData(string sessionData)
-    {
-        dTableSession = DataManager.loadCSV(sessionData);
-        mechMoveTimeCurr = createMoveTimeDictionary();
-
-        if (File.Exists(DataManager.sessionFile))
-        {
-            parseMechanismMoveTimePrev();
-        }
-    }
-
     public string GetDeviceLocation() => dTableConfig.Rows[dTableConfig.Rows.Count - 1].Field<string>("Location");
 
     private Dictionary<string, float> createMoveTimeDictionary()
@@ -828,7 +816,6 @@ public class PlutoMechanism
     // Trial details for the mechanism.
     public int trialNumberDay { get; private set; }
     public int trialNumberSession { get; private set; }
-    public int totalTrialNumber { get; private set; }
     
 
     public PlutoMechanism(string name, string side, int sessno)
@@ -850,7 +837,6 @@ public class PlutoMechanism
     public bool IsSide(string sideName) => string.Equals(side, sideName, StringComparison.OrdinalIgnoreCase);
 
     public bool IsSpeedUpdated() => currSpeed > 0;
-    
 
     public void NextTrail()
     {
