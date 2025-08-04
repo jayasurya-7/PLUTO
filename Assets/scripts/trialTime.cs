@@ -14,6 +14,6 @@ public class trialTime : MonoBehaviour
     // Update is called once per frame
     void Update()
     {
-        trialNo.text =$"{AppData.Instance.selectedMechanism.trialNumberSession}";
+        trialNo.text =$"{AppData.Instance.selectedMechanism.trialNumberSession}/ {AppData.Instance.userData.mechMoveTimePrsc[AppData.Instance.selectedMechanism.name]}";
     }
 }

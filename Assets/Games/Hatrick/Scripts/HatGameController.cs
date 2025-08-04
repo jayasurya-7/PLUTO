@@ -145,8 +145,17 @@ public class HatGameController : MonoBehaviour
     void Start()
     { 
         InitializeGame();
+
+        // if (AppData.Instance.selectedMechanism.trialNumberSession > AppData.Instance.userData.mechMoveTimePrsc[AppData.Instance.selectedMechanism.name])
+        // {
+        //     SceneManager.LoadScene("CHMECH");
+        //     AppData.Instance.SetMechanism(null);
+        //     AppData.Instance.setRawDataStringtoNull();
+        //     return;
+        // }
+        
         // Initialize the game objects.
-         // Find all GameObjects with the "detailViewer" tag
+        // Find all GameObjects with the "detailViewer" tag
         detailObjects = GameObject.FindGameObjectsWithTag("detailViewer");
 
         // Hide them at the start
@@ -178,6 +187,14 @@ public class HatGameController : MonoBehaviour
     {
         if (isGamePaused && gameState != GameStates.PAUSED) PauseGame();
         else if (!isGamePaused && gameState == GameStates.PAUSED) ResumeGame();
+
+        if (AppData.Instance.selectedMechanism.trialNumberSession > AppData.Instance.userData.mechMoveTimePrsc[AppData.Instance.selectedMechanism.name])
+        {
+            SceneManager.LoadScene("CHMECH");
+            AppData.Instance.SetMechanism(null);
+
+            return;
+        }
 
         // Magic key cobmination for doing the speed control.
 
@@ -446,14 +463,14 @@ public class HatGameController : MonoBehaviour
                 if (AppData.Instance.aanController.stateChange) UpdatePlutoAANTarget();
                 // Change to done only when the AAN Controller is AromMoving or Idle state.
                 if (AppData.Instance.aanController.state == PlutoAANController.PlutoAANState.AromMoving
-                    || AppData.Instance.aanController.state == PlutoAANController.PlutoAANState.Idle) 
+                    || AppData.Instance.aanController.state == PlutoAANController.PlutoAANState.Idle)
                 {
                     float gameTime = HomerTherapy.TrialDuration - triaTimeLeft;
                     Others.gameTime = (gameTime < HomerTherapy.TrialDuration) ? gameTime : HomerTherapy.TrialDuration;
                     AppData.Instance.StopTrial(nTargets, nSuccess, nFailure);
                     gameState = GameStates.DONE;
                     lastHighScore = AppData.Instance.successRate * (PlutoAANController.MAXCONTROLBOUND - AppData.Instance.CurrentControlBound);
-                   if (AppData.Instance.previousSuccessRates == null)
+                    if (AppData.Instance.previousSuccessRates == null)
                     {
                         score.text = $"{(int)lastHighScore}";
                         if (lastHighScore > Others.highestSuccessRate)
@@ -465,8 +482,15 @@ public class HatGameController : MonoBehaviour
                             AppData.Instance.previousSuccessRates = AppData.Instance.userData.GetLastTwoSuccessRates(AppData.Instance.selectedMechanism.name, AppData.Instance.selectedGame);
                             SceneManager.LoadScene(SceneManager.GetActiveScene().name);
                         }
-                        
-                        
+
+
+                    }
+                    if (AppData.Instance.selectedMechanism.trialNumberSession >= AppData.Instance.userData.mechMoveTimePrsc[AppData.Instance.selectedMechanism.name])
+                    {
+                        SceneManager.LoadScene("CHMECH");
+                        // AppData.Instance.SetMechanism(null);
+                        // AppData.Instance.setRawDataStringtoNull();
+                        return;
                     }
                 }
                 break;
