@@ -16,6 +16,7 @@ public class PongGameController : MonoBehaviour
     public EnemyController enemy;
     public BallController ballSpeed;
     public GameObject ball;
+    private GameObject reminderPanel;
     public Text pointCounter, gameOverText;
     public bool isFinished;
     private bool isButtonPressed = false;
@@ -112,7 +113,7 @@ public class PongGameController : MonoBehaviour
     void Start()
     {
         InitializeGame();
-        
+
         // if (AppData.Instance.selectedMechanism.trialNumberSession > AppData.Instance.userData.mechMoveTimePrsc[AppData.Instance.selectedMechanism.name])
         // {
         //     SceneManager.LoadScene("CHMECH");
@@ -122,7 +123,7 @@ public class PongGameController : MonoBehaviour
         // }
         // Find all GameObjects with the "detailViewer" tag
         detailObjects = GameObject.FindGameObjectsWithTag("detailViewer");
-
+        reminderPanel = GameObject.FindGameObjectWithTag("ReminderPanel");
         // Hide them at the start
         SetVisibility(false);
         pauseObjects = GameObject.FindGameObjectsWithTag("ShowOnPause");
@@ -145,10 +146,11 @@ public class PongGameController : MonoBehaviour
             AngleToScreen(AppData.Instance.selectedMechanism.currRom.aromMax),
             aromRight.transform.position.z
         );
-        HS.text = $" BEST :{ Others.highestSuccessRate:F0} %";
-         status.text = $"s.no: {AppData.Instance.currentSessionNumber}\n" +
-              $"trialNo: {AppData.Instance.selectedMechanism.trialNumberSession}\n" +
-              $"CB: {AppData.Instance.CurrentControlBound}";
+        HS.text = $" BEST :{Others.highestSuccessRate:F0} %";
+        status.text = $"s.no: {AppData.Instance.currentSessionNumber}\n" +
+             $"trialNo: {AppData.Instance.selectedMechanism.trialNumberSession}\n" +
+             $"CB: {AppData.Instance.CurrentControlBound}";
+        reminderPanel.SetActive(false);
 
     }
     void Update()
@@ -248,6 +250,16 @@ public class PongGameController : MonoBehaviour
     {
         Camera.main.GetComponent<AudioSource>().Stop();
         playAudio(enemyScore>playerScore ? 1 : 0);
+         if (AppData.Instance.selectedMechanism.trialNumberDay >= AppData.Instance.userData.mechMoveTimePrsc[AppData.Instance.selectedMechanism.name])
+        {
+              reminderPanel.SetActive(true);
+            
+        }
+        else
+        {
+            reminderPanel.SetActive(false);
+
+        }
         //showFinished();
         Time.timeScale = 0;
     }
@@ -297,10 +309,22 @@ public class PongGameController : MonoBehaviour
         isPaused = true;
         showPaused();
         ExitButton.SetActive(false);
+        //  if (AppData.Instance.selectedMechanism.trialNumberDay >= AppData.Instance.userData.mechMoveTimePrsc[AppData.Instance.selectedMechanism.name])
+        // {
+        //       reminderPanel.SetActive(true);
+            
+        // }
+        // else
+        // {
+        //     reminderPanel.SetActive(false);
+
+        // }
+        
     }
 
     private void resumeGame()
     {
+        reminderPanel.SetActive(false);
         gameState = _prevGameState;
         Time.timeScale = 1;
         isGamePaused = false;
@@ -554,13 +578,16 @@ public class PongGameController : MonoBehaviour
 
                     }
                     
-                    if (AppData.Instance.selectedMechanism.trialNumberSession >= AppData.Instance.userData.mechMoveTimePrsc[AppData.Instance.selectedMechanism.name])
-                    {
-                        SceneManager.LoadScene("CHMECH");
-                        // AppData.Instance.SetMechanism(null);
-                        // AppData.Instance.setRawDataStringtoNull();
-                        return;
-                    }
+                    // if (AppData.Instance.selectedMechanism.trialNumberSession >= AppData.Instance.userData.mechMoveTimePrsc[AppData.Instance.selectedMechanism.name])
+                    // {
+                    //     // reminderPanel.SetActive(true);
+                    //         StartCoroutine(ShowForSeconds(reminderPanel, 1.3f));
+
+                    //     // SceneManager.LoadScene("CHMECH");
+                    //     // AppData.Instance.SetMechanism(null);
+                    //     // AppData.Instance.setRawDataStringtoNull();
+                    
+                    // }
                    
                 }
                 break;

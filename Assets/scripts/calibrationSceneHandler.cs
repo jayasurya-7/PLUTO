@@ -39,9 +39,9 @@ public class calibrationSceneHandler : MonoBehaviour
         exit.onClick.AddListener(OnExitButtonClicked);
     }
 
-    void Update()
+    void FixedUpdate()
     {
-        PlutoComm.sendHeartbeat();
+         PlutoComm.sendHeartbeat();
         angText.text = $" {PlutoComm.angle.ToString("F3")}";
         Debug.Log(PlutoComm.MECHANISMS[PlutoComm.mechanism] == "HOC");
         

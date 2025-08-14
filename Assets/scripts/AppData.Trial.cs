@@ -134,6 +134,8 @@ public partial class AppData
             Others.gameTime.ToString()
         };
 
+        UnityEngine.Debug.Log($" array.length{trialRow.Length}");
+
         // Write the trial row to the session file.
         using (StreamWriter sw = new StreamWriter(DataManager.sessionFile, true, Encoding.UTF8))
         {

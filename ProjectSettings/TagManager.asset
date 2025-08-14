@@ -18,6 +18,7 @@ TagManager:
   - PlayerBound
   - targetPointer
   - detailViewer
+  - ReminderPanel
   layers:
   - Default
   - TransparentFX

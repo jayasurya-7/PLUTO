@@ -110,13 +110,13 @@ public class ChooseGameSceneHandler : MonoBehaviour
             loadgame = false;
         }
 
-        if (AppData.Instance.selectedMechanism.trialNumberSession >= AppData.Instance.userData.mechMoveTimePrsc[AppData.Instance.selectedMechanism.name])
-        {
-            SceneManager.LoadScene("CHMECH");
-            // AppData.Instance.setRawDataStringtoNull();
-            // AppData.Instance.SetMechanism(null);
-            return;
-        }
+        // if (AppData.Instance.selectedMechanism.trialNumberSession >= AppData.Instance.userData.mechMoveTimePrsc[AppData.Instance.selectedMechanism.name])
+        // {
+        //     SceneManager.LoadScene("CHMECH");
+        //     // AppData.Instance.setRawDataStringtoNull();
+        //     // AppData.Instance.SetMechanism(null);
+        //     return;
+        // }
         
         if ((PlutoComm.MECHANISMS[PlutoComm.mechanism] != "FME1") && (PlutoComm.MECHANISMS[PlutoComm.mechanism] != "FME2"))
         {

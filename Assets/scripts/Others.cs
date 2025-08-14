@@ -457,17 +457,7 @@ public class PlutoUserData
         this.rightHand = dTableConfig.Rows[0]["TrainingSide"].ToString().ToUpper() == "RIGHT";
     }
 
-    //implemented to load session data on the mechanism screen
-    public PlutoUserData(string sessionData)
-    {
-        dTableSession = DataManager.loadCSV(sessionData);
-        mechMoveTimeCurr = createMoveTimeDictionary();
-
-        if (File.Exists(DataManager.sessionFile))
-        {
-            parseMechanismMoveTimePrev();
-        }
-    }
+ 
 
     public string GetDeviceLocation() => dTableConfig.Rows[dTableConfig.Rows.Count - 1].Field<string>("Location");
 

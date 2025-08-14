@@ -105,6 +105,7 @@ public class FlappyGameControl : MonoBehaviour
     public TextMeshProUGUI score1;
     private float lastHighScore, eventDelayTimer = 0f, gameSpeed;
     private bool runOnce = false;
+    private GameObject reminderPanel;
     public Image loadingImage;
     
     public GameObject increaseSpeed, decreaseSpeed;
@@ -149,6 +150,7 @@ public class FlappyGameControl : MonoBehaviour
         aprom = AppData.Instance.selectedMechanism.CurrentAProm;
 
         gameSpeed = AppData.Instance.speedData.gameSpeed;
+        
         //gameSpeed = 20.0f; //temp
         // Attach PLUTO button event.
         PlutoComm.OnButtonReleased += onPlutoButtonReleased;
@@ -159,7 +161,7 @@ public class FlappyGameControl : MonoBehaviour
     {
         InitializeGame();
         detailObjects = GameObject.FindGameObjectsWithTag("detailViewer");
-        
+        reminderPanel = GameObject.FindGameObjectWithTag("ReminderPanel");
         // if (AppData.Instance.selectedMechanism.trialNumberSession > AppData.Instance.userData.mechMoveTimePrsc[AppData.Instance.selectedMechanism.name])
         // {
         //     SceneManager.LoadScene("CHMECH");
@@ -173,22 +175,33 @@ public class FlappyGameControl : MonoBehaviour
         pauseObjects = GameObject.FindGameObjectsWithTag("ShowOnPause");
         setup = false;
 
-         aromLeft.transform.position = new Vector3(
-            aromLeft.transform.position.x,
-            AngleToScreen(AppData.Instance.selectedMechanism.currRom.aromMin),
-            aromLeft.transform.position.z
-        );
+        aromLeft.transform.position = new Vector3(
+           aromLeft.transform.position.x,
+           AngleToScreen(AppData.Instance.selectedMechanism.currRom.aromMin),
+           aromLeft.transform.position.z
+       );
         //Debug.Log($" aromMin :{ AngleToScreen(AppData.Instance.selectedMechanism.currRom.aromMin)},aromMax :{ AngleToScreen(AppData.Instance.selectedMechanism.currRom.aromMax)}, promMin :{ AngleToScreen(AppData.Instance.selectedMechanism.currRom.promMin)}, promMax :{ AngleToScreen(AppData.Instance.selectedMechanism.currRom.promMax)}");
-       
+
         aromRight.transform.position = new Vector3(
             aromRight.transform.position.x,
             AngleToScreen(AppData.Instance.selectedMechanism.currRom.aromMax),
             aromRight.transform.position.z
         );
-     HS.text = $" BEST :{ Others.highestSuccessRate:F0} %";
-     status.text = $"s.no: {AppData.Instance.currentSessionNumber}\n" +
-              $"trialNo: {AppData.Instance.selectedMechanism.trialNumberSession}\n" +
-              $"CB: {AppData.Instance.CurrentControlBound}";        
+        HS.text = $" BEST :{Others.highestSuccessRate:F0} %";
+        status.text = $"s.no: {AppData.Instance.currentSessionNumber}\n" +
+                 $"trialNo: {AppData.Instance.selectedMechanism.trialNumberSession}\n" +
+                 $"CB: {AppData.Instance.CurrentControlBound}"; 
+              if (AppData.Instance.selectedMechanism.trialNumberDay >= AppData.Instance.userData.mechMoveTimePrsc[AppData.Instance.selectedMechanism.name])
+        {
+              reminderPanel.SetActive(true);
+            
+        }
+        else
+        {
+            reminderPanel.SetActive(false);
+
+        }
+              
     }
 
     void Update()
@@ -208,12 +221,12 @@ public class FlappyGameControl : MonoBehaviour
             Debug.Log("Speed controls " + (speedControlsVisible ? "enabled" : "disabled"));
         }
 
-        if (AppData.Instance.selectedMechanism.trialNumberSession > AppData.Instance.userData.mechMoveTimePrsc[AppData.Instance.selectedMechanism.name])
-        {
-            SceneManager.LoadScene("CHMECH");
-            AppData.Instance.SetMechanism(null);
-            return;
-        }
+        // if (AppData.Instance.selectedMechanism.trialNumberSession > AppData.Instance.userData.mechMoveTimePrsc[AppData.Instance.selectedMechanism.name])
+        // {
+        //     SceneManager.LoadScene("CHMECH");
+        //     AppData.Instance.SetMechanism(null);
+        //     return;
+        // }
         if (!setup)
         {
             int y = UnityEngine.Random.Range(0, 3);
@@ -458,6 +471,7 @@ public class FlappyGameControl : MonoBehaviour
         // scrollSpeed = -2 - 1 * (0.02f * AppData.Instance.speedData.gameSpeed);
         //if (AppData.Instance.speedData.gameSpeed > 38f) gameSpeed = 38.0f;
         scrollSpeed = -2f - (0.05f * gameSpeed);
+            reminderPanel.SetActive(false);
 
             hidePaused();
         // Start new trial.
@@ -625,13 +639,15 @@ public class FlappyGameControl : MonoBehaviour
                             SceneManager.LoadScene(SceneManager.GetActiveScene().name);
                         }
                     }
-                     if (AppData.Instance.selectedMechanism.trialNumberSession >= AppData.Instance.userData.mechMoveTimePrsc[AppData.Instance.selectedMechanism.name])
-                    {
-                        SceneManager.LoadScene("CHMECH");
-                        // AppData.Instance.SetMechanism(null);
-                        // AppData.Instance.setRawDataStringtoNull();
-                        return;
-                    }
+                    //  if (AppData.Instance.selectedMechanism.trialNumberSession >= AppData.Instance.userData.mechMoveTimePrsc[AppData.Instance.selectedMechanism.name])
+                    // {
+                    //         StartCoroutine(ShowForSeconds(reminderPanel, 1.3f));
+                        
+                    //     //SceneManager.LoadScene("CHMECH");
+                    //     // AppData.Instance.SetMechanism(null);
+                    //     // AppData.Instance.setRawDataStringtoNull();
+                    //     //return;
+                    // }
                 }
                 break;
         }

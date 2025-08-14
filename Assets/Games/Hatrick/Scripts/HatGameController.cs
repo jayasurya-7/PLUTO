@@ -128,6 +128,7 @@ public class HatGameController : MonoBehaviour
     public GameObject increaseSpeed, decreaseSpeed;
     bool speedControlsVisible = false;
     private GameObject[] detailObjects;
+    private GameObject reminderPanel;
 
     private void Awake()
     {
@@ -143,7 +144,7 @@ public class HatGameController : MonoBehaviour
     }
 
     void Start()
-    { 
+    {
         InitializeGame();
 
         // if (AppData.Instance.selectedMechanism.trialNumberSession > AppData.Instance.userData.mechMoveTimePrsc[AppData.Instance.selectedMechanism.name])
@@ -153,11 +154,11 @@ public class HatGameController : MonoBehaviour
         //     AppData.Instance.setRawDataStringtoNull();
         //     return;
         // }
-        
+
         // Initialize the game objects.
         // Find all GameObjects with the "detailViewer" tag
         detailObjects = GameObject.FindGameObjectsWithTag("detailViewer");
-
+        reminderPanel = GameObject.FindGameObjectWithTag("ReminderPanel");
         // Hide them at the start
         SetVisibility(false);
         pauseObjects = GameObject.FindGameObjectsWithTag("ShowOnPause");
@@ -176,10 +177,20 @@ public class HatGameController : MonoBehaviour
             aromRight.transform.position.y,
             aromRight.transform.position.z
         );
-         HS.text = $"{(int) Others.highestSuccessRate:F0} %";
-         status.text = $"s.no: {AppData.Instance.currentSessionNumber}\n" +
-              $"trialNo: {AppData.Instance.selectedMechanism.trialNumberSession}\n" +
-              $"CB: {AppData.Instance.CurrentControlBound}";
+        HS.text = $"{(int)Others.highestSuccessRate:F0} %";
+        status.text = $"s.no: {AppData.Instance.currentSessionNumber}\n" +
+             $"trialNo: {AppData.Instance.selectedMechanism.trialNumberSession}\n" +
+             $"CB: {AppData.Instance.CurrentControlBound}";
+        if (AppData.Instance.selectedMechanism.trialNumberDay >= AppData.Instance.userData.mechMoveTimePrsc[AppData.Instance.selectedMechanism.name])
+        {
+              reminderPanel.SetActive(true);
+            
+        }
+        else
+        {
+            reminderPanel.SetActive(false);
+
+        }
         
     }
 
@@ -188,13 +199,13 @@ public class HatGameController : MonoBehaviour
         if (isGamePaused && gameState != GameStates.PAUSED) PauseGame();
         else if (!isGamePaused && gameState == GameStates.PAUSED) ResumeGame();
 
-        if (AppData.Instance.selectedMechanism.trialNumberSession > AppData.Instance.userData.mechMoveTimePrsc[AppData.Instance.selectedMechanism.name])
-        {
-            SceneManager.LoadScene("CHMECH");
-            AppData.Instance.SetMechanism(null);
+        // if (AppData.Instance.selectedMechanism.trialNumberSession > AppData.Instance.userData.mechMoveTimePrsc[AppData.Instance.selectedMechanism.name])
+        // {
+        //     SceneManager.LoadScene("CHMECH");
+        //     AppData.Instance.SetMechanism(null);
 
-            return;
-        }
+        //     return;
+        // }
 
         // Magic key cobmination for doing the speed control.
 
@@ -241,8 +252,10 @@ public class HatGameController : MonoBehaviour
         nFailure++;
     }
 
-    public void OnStartButtonClick() {
+    public void OnStartButtonClick()
+    {
         isGameStarted = true;
+        
     }
 
     public void increaseGameSpeed()
@@ -280,11 +293,14 @@ public class HatGameController : MonoBehaviour
     public void StartGame()
     {
         // Start new trial.
-        AppData.Instance.StartNewTrial();
+       
+        AppData.Instance.StartNewTrial();        
+            reminderPanel.SetActive(false);
 
         status.text = $"s.no: {AppData.Instance.currentSessionNumber}\n" +
               $"trialNo: {AppData.Instance.selectedMechanism.trialNumberSession}\n" +
               $"CB: {AppData.Instance.CurrentControlBound}";
+        Debug.Log($"mech:{PlutoComm.MECHANISMS[PlutoComm.mechanism]}");
         // Put PLUTO in the AAN mode.
         if ((PlutoComm.MECHANISMS[PlutoComm.mechanism] != "FME1") && (PlutoComm.MECHANISMS[PlutoComm.mechanism] != "FME2"))
         {
@@ -485,13 +501,15 @@ public class HatGameController : MonoBehaviour
 
 
                     }
-                    if (AppData.Instance.selectedMechanism.trialNumberSession >= AppData.Instance.userData.mechMoveTimePrsc[AppData.Instance.selectedMechanism.name])
-                    {
-                        SceneManager.LoadScene("CHMECH");
-                        // AppData.Instance.SetMechanism(null);
-                        // AppData.Instance.setRawDataStringtoNull();
-                        return;
-                    }
+                    // if (AppData.Instance.selectedMechanism.trialNumberSession >= AppData.Instance.userData.mechMoveTimePrsc[AppData.Instance.selectedMechanism.name])
+                    // {
+                    //         StartCoroutine(ShowForSeconds(reminderPanel, 1.3f));
+
+                    //     // SceneManager.LoadScene("CHMECH");
+                    //     // AppData.Instance.SetMechanism(null);
+                    //     // AppData.Instance.setRawDataStringtoNull();
+                    //     //return;
+                    // }
                 }
                 break;
         }
