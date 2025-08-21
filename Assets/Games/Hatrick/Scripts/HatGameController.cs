@@ -43,6 +43,8 @@ public class HatGameController : MonoBehaviour
     public AudioClip loose;
     public TextMeshProUGUI score;
     public GameObject HSC; //HighScoreCanvas
+    private GameObject reminderPanel;
+
 
 
     // Target and player positions
@@ -143,7 +145,7 @@ public class HatGameController : MonoBehaviour
     }
 
     void Start()
-    { 
+    {
         InitializeGame();
         // Initialize the game objects.
         pauseObjects = GameObject.FindGameObjectsWithTag("ShowOnPause");
@@ -162,10 +164,20 @@ public class HatGameController : MonoBehaviour
             aromRight.transform.position.y,
             aromRight.transform.position.z
         );
-         HS.text = $"{(int) Others.highestSuccessRate:F0} %";
-         status.text = $"s.no: {AppData.Instance.currentSessionNumber}\n" +
-              $"trialNo: {AppData.Instance.selectedMechanism.trialNumberSession}\n" +
-              $"CB: {AppData.Instance.CurrentControlBound}";
+        HS.text = $"{(int)Others.highestSuccessRate:F0} %";
+        status.text = $"s.no: {AppData.Instance.currentSessionNumber}\n" +
+             $"trialNo: {AppData.Instance.selectedMechanism.trialNumberSession}\n" +
+             $"CB: {AppData.Instance.CurrentControlBound}";
+        if (AppData.Instance.selectedMechanism.trialNumberDay >= AppData.Instance.userData.mechMoveTimePrsc[AppData.Instance.selectedMechanism.name])
+        {
+              reminderPanel.SetActive(true);
+            
+        }
+        else
+        {
+            reminderPanel.SetActive(false);
+
+        }
         
     }
 
@@ -258,6 +270,7 @@ public class HatGameController : MonoBehaviour
     {
         // Start new trial.
         AppData.Instance.StartNewTrial();
+        reminderPanel.SetActive(false);
 
         status.text = $"s.no: {AppData.Instance.currentSessionNumber}\n" +
               $"trialNo: {AppData.Instance.selectedMechanism.trialNumberSession}\n" +
@@ -432,14 +445,14 @@ public class HatGameController : MonoBehaviour
                 if (AppData.Instance.aanController.stateChange) UpdatePlutoAANTarget();
                 // Change to done only when the AAN Controller is AromMoving or Idle state.
                 if (AppData.Instance.aanController.state == PlutoAANController.PlutoAANState.AromMoving
-                    || AppData.Instance.aanController.state == PlutoAANController.PlutoAANState.Idle) 
+                    || AppData.Instance.aanController.state == PlutoAANController.PlutoAANState.Idle)
                 {
                     float gameTime = HomerTherapy.TrialDuration - triaTimeLeft;
                     Others.gameTime = (gameTime < HomerTherapy.TrialDuration) ? gameTime : HomerTherapy.TrialDuration;
                     AppData.Instance.StopTrial(nTargets, nSuccess, nFailure);
                     gameState = GameStates.DONE;
                     lastHighScore = AppData.Instance.successRate * (PlutoAANController.MAXCONTROLBOUND - AppData.Instance.CurrentControlBound);
-                   if (AppData.Instance.previousSuccessRates == null)
+                    if (AppData.Instance.previousSuccessRates == null)
                     {
                         score.text = $"{(int)lastHighScore}";
                         if (lastHighScore > Others.highestSuccessRate)
@@ -451,8 +464,12 @@ public class HatGameController : MonoBehaviour
                             AppData.Instance.previousSuccessRates = AppData.Instance.userData.GetLastTwoSuccessRates(AppData.Instance.selectedMechanism.name, AppData.Instance.selectedGame);
                             SceneManager.LoadScene(SceneManager.GetActiveScene().name);
                         }
-                        
-                        
+
+
+                    }
+                    if (AppData.Instance.selectedMechanism.trialNumberDay == AppData.Instance.userData.mechMoveTimePrsc[AppData.Instance.selectedMechanism.name])
+                    {
+                        SceneManager.LoadScene("CHMECH");
                     }
                 }
                 break;
@@ -522,6 +539,7 @@ public class HatGameController : MonoBehaviour
         // Intialize text
         timeLeftText = GameObject.FindGameObjectWithTag("TimeLeftText").GetComponent<Text>();
         ScoreText = GameObject.FindGameObjectWithTag("ScoreText").GetComponent<Text>();
+        reminderPanel = GameObject.FindGameObjectWithTag("ReminderPanel");
 
 
         // Enable the buttons

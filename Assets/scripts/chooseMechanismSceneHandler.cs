@@ -29,6 +29,8 @@ public class MechanismSceneHandler : MonoBehaviour
     {
         // Reset mechanisms.
         PlutoComm.sendHeartbeat();
+        AppData.Instance.userData =  new PlutoUserData(DataManager.configFile, DataManager.sessionFile);
+
         PlutoComm.calibrate("NOMECH");
         PlutoComm.setControlGain(1.0f);
         AppData.Instance.SetMechanism(null);
@@ -83,10 +85,20 @@ public class MechanismSceneHandler : MonoBehaviour
         {
             Toggle toggleComponent = child.GetComponent<Toggle>();
             bool isPrescribed = AppData.Instance.userData.mechMoveTimePrsc[toggleComponent.name] > 0;
-
+            
+            bool isDone = AppData.Instance.userData.getTodayMoveTimeForMechanism(toggleComponent.name)>= AppData.Instance.userData.mechMoveTimePrsc[toggleComponent.name];
+            // Debug.Log($" done : {isDone}, x-{AppData.Instance.userData.getTodayMoveTimeForMechanism(toggleComponent.name)} y-{AppData.Instance.userData.mechMoveTimePrsc[toggleComponent.name]} ");
+            
             // Hide the component if it has no prescribed time.
-            toggleComponent.interactable = isPrescribed;
-            toggleComponent.gameObject.SetActive(isPrescribed);
+            toggleComponent.interactable = (isPrescribed);
+            toggleComponent.gameObject.SetActive(isPrescribed );
+
+            // Change the toggle's background color
+            Image bgImage = toggleComponent.targetGraphic as Image; // Usually the Background Image
+            if (bgImage != null)
+            {
+              if (isDone) bgImage.color = Color.green; // completed  
+            }
 
             // Update the time trained in the timeLeft component of toggleCompoent.
             Transform timeLeftTransform = toggleComponent.transform.Find("timeLeft");

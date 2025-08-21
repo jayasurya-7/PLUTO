@@ -86,12 +86,21 @@ public class PlutoAANController
     public Queue<float> timeQ { private set; get; }
     public float trialTime { private set; get; }
     private float[] _newAanTarget;
+    private float lastCheckedPosition = float.NaN;
+    private bool volGateCleared = false;         // armed only after ≥25% movement
+    private const float POSITION_EPSILON = 0.1f; // jitter deadband (adjust to your sensor)
+
+    private Stopwatch positionStopwatch = new Stopwatch();
+    private const int NO_MOVEMENT_THRESHOLD = 1000; // 1.5 seconds in ms
+    private float distToMax, distToMin, availableMovement;
 
     // AAN control bound adaptation related variables.
     public float currentCtrlBound { private set; get; }
 
     // Logging variables
     private string _execFileName;
+    private bool setARInitPos = false;
+    private float activeRangeInitPos;
     private StreamWriter _execFileHandler = null;
     public string execFileName
     {
@@ -133,6 +142,8 @@ public class PlutoAANController
         trialTime = 0;
         _newAanTarget = new float[5];
         _newAanTarget[0] = 999; // Invalid target.
+        activeRangeInitPos = 0;
+        setARInitPos = false;
 
         // Adaptation related variables.
         ReadUpdateAdaptionParameters(sessionData, sessionNo);
@@ -180,10 +191,73 @@ public class PlutoAANController
         PlutoAanLogger.LogInfo($"Currrent Control Bound: {currentCtrlBound}");
     }
 
+
+private bool CheckNoMovement(float actual, float aromInitPos)
+{
+    float aromRange = aRom[1] - aRom[0];
+    if (aromRange <= 1e-6f) return false; // avoid divide-by-zero / degenerate range
+
+    float gateDistance = 0.25f * aromRange;   
+    float movedFromInit = Math.Abs(actual - aromInitPos);
+
+    if (!volGateCleared)
+    {
+        if (movedFromInit + POSITION_EPSILON >= gateDistance)
+        {
+            volGateCleared = true;               // gate satisfied
+            positionStopwatch.Reset();           // start fresh stall timing after gate
+            lastCheckedPosition = actual;
+        }
+        else
+        {
+            // Not enough voluntary movement yet → never arm assist
+            positionStopwatch.Reset();
+            lastCheckedPosition = actual;
+            return false;
+        }
+    }
+
+    // ---- Stall detection AFTER gate has been cleared
+    if (float.IsNaN(lastCheckedPosition))
+        lastCheckedPosition = actual;
+
+    if (Math.Abs(actual - lastCheckedPosition) <= POSITION_EPSILON)
+    {
+        if (!positionStopwatch.IsRunning)
+            positionStopwatch.Start();
+
+        if (positionStopwatch.ElapsedMilliseconds >= NO_MOVEMENT_THRESHOLD)
+        {
+            state = PlutoAANState.AssistToTarget;
+            GenerateAssistToTargetAanTarget(actual, true);
+            UnityEngine.Debug.Log("Assist triggered after stall post ≥25% gate");
+            PlutoAanLogger.LogInfo(
+                $"Assist: stall {NO_MOVEMENT_THRESHOLD}ms after ≥25% gate | " +
+                $"Init={aromInitPos}, Gate={gateDistance}, Last={lastCheckedPosition}, Actual={actual}"
+            );
+            volGateCleared = false;
+            positionStopwatch.Reset();
+            return true;
+        }
+    }
+    else
+    {
+        // if there was movement,reset stall timer and update reference
+        positionStopwatch.Reset();
+        lastCheckedPosition = actual;
+    }
+
+    return false;
+}
+
+
+
     public void Update(float actual, float delT, bool trialDone)
     {
         // Reset state change.
         stateChange = false;
+
+        UnityEngine.Debug.Log($"state : {state}");
 
         // Do nothing if the state is None.
         if (state == PlutoAANState.None) return;
@@ -202,6 +276,10 @@ public class PlutoAANController
         switch (state)
         {
             case PlutoAANState.NewTrialTargetSet:
+
+                volGateCleared = false;
+                lastCheckedPosition = float.NaN;
+                positionStopwatch.Reset();
                 // Set the state of the AAN.
                 switch (GetTargetType())
                 {
@@ -226,14 +304,29 @@ public class PlutoAANController
                 }
                 break;
             case PlutoAANState.AromMoving:
+                UnityEngine.Debug.Log($"y state : {state}");
+
                 // Check if the trial is done.
                 if (trialDone)
                 {
                     state = PlutoAANState.Idle;
                     return;
                 }
-                // Check if the target is reached.
-                if (IsTargetInArom()) return;
+                if (!setARInitPos)
+                {
+                    activeRangeInitPos = actual;
+                    volGateCleared = false;
+                    lastCheckedPosition = float.NaN;
+                    positionStopwatch.Reset();
+                    UnityEngine.Debug.Log($"y state : {activeRangeInitPos}");
+
+                    setARInitPos = true;
+                }
+                
+
+                if (CheckNoMovement(actual, activeRangeInitPos)) return;
+
+
                 // Check if the AROM boundary is reached.
                 int _dir = Math.Sign(targetPosition - initialPosition);
                 float _arompos = (actual - aRom[0]) / (aRom[1] - aRom[0]);
@@ -246,7 +339,19 @@ public class PlutoAANController
                 }
                 break;
             case PlutoAANState.RelaxToArom:
+                UnityEngine.Debug.Log($"y state : {state}");
+
                 // Check if AROM has not been reached.
+                //   if (CheckNoMovement(actual)) return;
+
+                if (setARInitPos)
+                {
+                    volGateCleared = false;
+                    positionStopwatch.Reset();
+                    lastCheckedPosition = float.NaN;
+                    setARInitPos = false;
+                }
+
                 if (IsActualInArom(actual))
                 {
                     // AROM reached.
@@ -279,6 +384,12 @@ public class PlutoAANController
         trialRunning = false;
         state = PlutoAANState.None;
         _newAanTarget[0] = 999;
+        setARInitPos = false;
+        activeRangeInitPos = 0;
+         distToMax = distToMin = availableMovement = 0;
+        volGateCleared = false;
+        positionStopwatch.Reset();
+        lastCheckedPosition = float.NaN;
         // Empty the queues.
         positionQ.Clear();
         timeQ.Clear();

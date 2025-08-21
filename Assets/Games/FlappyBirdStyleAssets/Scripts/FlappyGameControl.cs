@@ -105,6 +105,8 @@ public class FlappyGameControl : MonoBehaviour
     private float lastHighScore, eventDelayTimer = 0f, gameSpeed;
     private bool runOnce = false;
     public Image loadingImage;
+    private GameObject reminderPanel;
+
     
     public GameObject increaseSpeed, decreaseSpeed;
     bool speedControlsVisible = false;
@@ -132,6 +134,7 @@ public class FlappyGameControl : MonoBehaviour
         StartButton.SetActive(true);
         PauseButton.SetActive(false);
         ResumeButton.SetActive(false);
+        reminderPanel = GameObject.FindGameObjectWithTag("ReminderPanel");
 
         // Intialize game logic variables
         gameState = GameStates.WAITING;
@@ -161,22 +164,33 @@ public class FlappyGameControl : MonoBehaviour
         pauseObjects = GameObject.FindGameObjectsWithTag("ShowOnPause");
         setup = false;
 
-         aromLeft.transform.position = new Vector3(
-            aromLeft.transform.position.x,
-            AngleToScreen(AppData.Instance.selectedMechanism.currRom.aromMin),
-            aromLeft.transform.position.z
-        );
+        aromLeft.transform.position = new Vector3(
+           aromLeft.transform.position.x,
+           AngleToScreen(AppData.Instance.selectedMechanism.currRom.aromMin),
+           aromLeft.transform.position.z
+       );
         //Debug.Log($" aromMin :{ AngleToScreen(AppData.Instance.selectedMechanism.currRom.aromMin)},aromMax :{ AngleToScreen(AppData.Instance.selectedMechanism.currRom.aromMax)}, promMin :{ AngleToScreen(AppData.Instance.selectedMechanism.currRom.promMin)}, promMax :{ AngleToScreen(AppData.Instance.selectedMechanism.currRom.promMax)}");
-       
+
         aromRight.transform.position = new Vector3(
             aromRight.transform.position.x,
             AngleToScreen(AppData.Instance.selectedMechanism.currRom.aromMax),
             aromRight.transform.position.z
         );
-     HS.text = $" BEST :{ Others.highestSuccessRate:F0} %";
-     status.text = $"s.no: {AppData.Instance.currentSessionNumber}\n" +
-              $"trialNo: {AppData.Instance.selectedMechanism.trialNumberSession}\n" +
-              $"CB: {AppData.Instance.CurrentControlBound}";        
+        HS.text = $" BEST :{Others.highestSuccessRate:F0} %";
+        status.text = $"s.no: {AppData.Instance.currentSessionNumber}\n" +
+                 $"trialNo: {AppData.Instance.selectedMechanism.trialNumberSession}\n" +
+                 $"CB: {AppData.Instance.CurrentControlBound}";
+
+        if (AppData.Instance.selectedMechanism.trialNumberDay >= AppData.Instance.userData.mechMoveTimePrsc[AppData.Instance.selectedMechanism.name])
+        {
+            reminderPanel.SetActive(true);
+
+        }
+        else
+        {
+            reminderPanel.SetActive(false);
+        }
+    
     }
 
     void Update()
@@ -436,6 +450,7 @@ public class FlappyGameControl : MonoBehaviour
             hidePaused();
         // Start new trial.
         AppData.Instance.StartNewTrial();
+        reminderPanel.SetActive(false);
          status.text = $"s.no: {AppData.Instance.currentSessionNumber}\n" +
               $"trialNo: {AppData.Instance.selectedMechanism.trialNumberSession}\n" +
               $"CB: {AppData.Instance.CurrentControlBound}";
@@ -579,14 +594,14 @@ public class FlappyGameControl : MonoBehaviour
                 if (AppData.Instance.aanController.stateChange) UpdatePlutoAANTarget();
                 // Change to done only when the AAN Controller is AromMoving or Idle state.
                 if (AppData.Instance.aanController.state == PlutoAANController.PlutoAANState.AromMoving
-                    || AppData.Instance.aanController.state == PlutoAANController.PlutoAANState.Idle) 
+                    || AppData.Instance.aanController.state == PlutoAANController.PlutoAANState.Idle)
                 {
                     float gameTime = HomerTherapy.TrialDuration - triaTimeLeft;
                     Others.gameTime = (gameTime < HomerTherapy.TrialDuration) ? gameTime : HomerTherapy.TrialDuration;
                     AppData.Instance.StopTrial(nTargets, nSuccess, nFailure);
                     gameState = GameStates.DONE;
-                   lastHighScore = AppData.Instance.successRate * (PlutoAANController.MAXCONTROLBOUND - AppData.Instance.CurrentControlBound);
-                   if (AppData.Instance.previousSuccessRates == null)
+                    lastHighScore = AppData.Instance.successRate * (PlutoAANController.MAXCONTROLBOUND - AppData.Instance.CurrentControlBound);
+                    if (AppData.Instance.previousSuccessRates == null)
                     {
                         score1.text = $"{(int)lastHighScore}";
                         if (lastHighScore > Others.highestSuccessRate)
@@ -598,6 +613,10 @@ public class FlappyGameControl : MonoBehaviour
                             AppData.Instance.previousSuccessRates = AppData.Instance.userData.GetLastTwoSuccessRates(AppData.Instance.selectedMechanism.name, AppData.Instance.selectedGame);
                             SceneManager.LoadScene(SceneManager.GetActiveScene().name);
                         }
+                    }
+                    if (AppData.Instance.selectedMechanism.trialNumberDay == AppData.Instance.userData.mechMoveTimePrsc[AppData.Instance.selectedMechanism.name])
+                    {
+                        SceneManager.LoadScene("CHMECH");
                     }
                 }
                 break;

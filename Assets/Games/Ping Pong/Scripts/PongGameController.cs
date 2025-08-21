@@ -24,6 +24,7 @@ public class PongGameController : MonoBehaviour
     public int enemyScore, playerScore;
     public Vector2 targetPosition;
     public float targetPositiony;
+    private GameObject reminderPanel;
 
     private bool isPaused = true;
     private int winningScore = 3;
@@ -223,6 +224,16 @@ public class PongGameController : MonoBehaviour
     private void gameEnd()
     {
         Camera.main.GetComponent<AudioSource>().Stop();
+        if (AppData.Instance.selectedMechanism.trialNumberDay >= AppData.Instance.userData.mechMoveTimePrsc[AppData.Instance.selectedMechanism.name])
+        {
+              reminderPanel.SetActive(true);
+            
+        }
+        else
+        {
+            reminderPanel.SetActive(false);
+
+        }
         playAudio(enemyScore>playerScore ? 1 : 0);
         //showFinished();
         Time.timeScale = 0;
@@ -271,6 +282,8 @@ public class PongGameController : MonoBehaviour
     private void resumeGame()
     {
         gameState = _prevGameState;
+        reminderPanel.SetActive(false);
+
         Time.timeScale = 1;
         isGamePaused = false;
         isPaused = false;
@@ -506,6 +519,11 @@ public class PongGameController : MonoBehaviour
                     AppData.Instance.StopTrial(nTargets, nSuccess, nFailure);
                     gameState = GameStates.DONE;
                     lastHighScore = AppData.Instance.successRate * (PlutoAANController.MAXCONTROLBOUND - AppData.Instance.CurrentControlBound);
+                     if (AppData.Instance.selectedMechanism.trialNumberDay == AppData.Instance.userData.mechMoveTimePrsc[AppData.Instance.selectedMechanism.name])
+                    {
+                        SceneManager.LoadScene("CHMECH");
+                    }
+                    
                    if (AppData.Instance.previousSuccessRates == null)
                     {
                         score.text = $"{(int)lastHighScore}";
@@ -519,8 +537,8 @@ public class PongGameController : MonoBehaviour
                             showFinished();
                             gameEnd();
                         }
-                        
-                        
+
+
                     }
                    
                 }
@@ -563,15 +581,18 @@ public class PongGameController : MonoBehaviour
         isBallHitted = false;
         isBallMissed = false;
 
-        
+        reminderPanel = GameObject.FindGameObjectWithTag("ReminderPanel");
+
         // Set current AROM and PROM.
         arom = AppData.Instance.selectedMechanism.CurrentArom;
         prom = AppData.Instance.selectedMechanism.CurrentProm;
         aprom = AppData.Instance.selectedMechanism.CurrentAProm;
         gameSpeed = AppData.Instance.speedData.gameSpeed;
-           // gameSpeed = 20.0f; //temp
+        // gameSpeed = 20.0f; //temp
         // Attach PLUTO button event.
         PlutoComm.OnButtonReleased += onPlutoButtonReleased;
+        reminderPanel.SetActive(false);
+        
     }
     private void onPlutoButtonReleased()
     {
