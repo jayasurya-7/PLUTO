@@ -29,6 +29,8 @@ public class HatGameController : MonoBehaviour
     public GameObject player;
     public Camera cam;
     public GameObject[] ball;
+    private GameObject[] detailObjects;
+
     public GameObject aromLeft;
     public GameObject aromRight;
     private GameObject PlayerObj;
@@ -150,6 +152,8 @@ public class HatGameController : MonoBehaviour
         // Initialize the game objects.
         pauseObjects = GameObject.FindGameObjectsWithTag("ShowOnPause");
         finishObjects = GameObject.FindGameObjectsWithTag("ShowOnFinish");
+        detailObjects = GameObject.FindGameObjectsWithTag("detailViewer");
+
         // Do not show the paused and finished objects at the start.
         HidePaused();
         HideFinished();
@@ -164,6 +168,7 @@ public class HatGameController : MonoBehaviour
             aromRight.transform.position.y,
             aromRight.transform.position.z
         );
+        SetVisibility(false);
         HS.text = $"{(int)Others.highestSuccessRate:F0} %";
         status.text = $"s.no: {AppData.Instance.currentSessionNumber}\n" +
              $"trialNo: {AppData.Instance.selectedMechanism.trialNumberSession}\n" +
@@ -194,7 +199,7 @@ public class HatGameController : MonoBehaviour
 
             increaseSpeed.SetActive(speedControlsVisible);
             decreaseSpeed.SetActive(speedControlsVisible);
-
+            SetVisibility(speedControlsVisible);
             Debug.Log("Speed controls " + (speedControlsVisible ? "enabled" : "disabled"));
         }
 
@@ -254,6 +259,14 @@ public class HatGameController : MonoBehaviour
         UpdateBallSpeedAndDuration();
         
 
+    }
+    private void SetVisibility(bool state)
+    {
+        foreach (GameObject obj in detailObjects)
+        {
+            if (obj != null)
+                obj.SetActive(state);
+        }
     }
 
     private void UpdateBallSpeedAndDuration()

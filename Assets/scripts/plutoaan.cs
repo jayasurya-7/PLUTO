@@ -87,11 +87,10 @@ public class PlutoAANController
     public float trialTime { private set; get; }
     private float[] _newAanTarget;
     private float lastCheckedPosition = float.NaN;
-    private bool volGateCleared = false;         // armed only after ≥25% movement
-    private const float POSITION_EPSILON = 0.1f; // jitter deadband (adjust to your sensor)
-
+    private bool volGateCleared = false;         // voluntry movement check
+    private const float POSITION_TOLERANCE = 0.1f; 
     private Stopwatch positionStopwatch = new Stopwatch();
-    private const int NO_MOVEMENT_THRESHOLD = 1000; // 1.5 seconds in ms
+    private const int NO_MOVEMENT_THRESHOLD = 1500; // 1.5 seconds in ms
     private float distToMax, distToMin, availableMovement;
 
     // AAN control bound adaptation related variables.
@@ -195,33 +194,33 @@ public class PlutoAANController
 private bool CheckNoMovement(float actual, float aromInitPos)
 {
     float aromRange = aRom[1] - aRom[0];
-    if (aromRange <= 1e-6f) return false; // avoid divide-by-zero / degenerate range
+
+    if (aromRange <= 0f) return false;
 
     float gateDistance = 0.25f * aromRange;   
     float movedFromInit = Math.Abs(actual - aromInitPos);
 
     if (!volGateCleared)
     {
-        if (movedFromInit + POSITION_EPSILON >= gateDistance)
+        if (movedFromInit + POSITION_TOLERANCE >= gateDistance)
         {
-            volGateCleared = true;               // gate satisfied
-            positionStopwatch.Reset();           // start fresh stall timing after gate
+            volGateCleared = true;              
+            positionStopwatch.Reset();        
             lastCheckedPosition = actual;
         }
         else
         {
-            // Not enough voluntary movement yet → never arm assist
+
             positionStopwatch.Reset();
             lastCheckedPosition = actual;
             return false;
         }
     }
 
-    // ---- Stall detection AFTER gate has been cleared
     if (float.IsNaN(lastCheckedPosition))
         lastCheckedPosition = actual;
 
-    if (Math.Abs(actual - lastCheckedPosition) <= POSITION_EPSILON)
+    if (Math.Abs(actual - lastCheckedPosition) <= POSITION_TOLERANCE)
     {
         if (!positionStopwatch.IsRunning)
             positionStopwatch.Start();
@@ -230,10 +229,10 @@ private bool CheckNoMovement(float actual, float aromInitPos)
         {
             state = PlutoAANState.AssistToTarget;
             GenerateAssistToTargetAanTarget(actual, true);
-            UnityEngine.Debug.Log("Assist triggered after stall post ≥25% gate");
+            UnityEngine.Debug.Log("Assist triggered");
             PlutoAanLogger.LogInfo(
-                $"Assist: stall {NO_MOVEMENT_THRESHOLD}ms after ≥25% gate | " +
-                $"Init={aromInitPos}, Gate={gateDistance}, Last={lastCheckedPosition}, Actual={actual}"
+                $"Assist due to no movement in active range for 2 sec | {state} | " +
+                $"[{_newAanTarget[0]}, {_newAanTarget[1]}, {_newAanTarget[2]}, {_newAanTarget[3]}, {_newAanTarget[4]}]"
             );
             volGateCleared = false;
             positionStopwatch.Reset();
@@ -242,7 +241,7 @@ private bool CheckNoMovement(float actual, float aromInitPos)
     }
     else
     {
-        // if there was movement,reset stall timer and update reference
+        // if there was movement,reset stall timer and update 
         positionStopwatch.Reset();
         lastCheckedPosition = actual;
     }
@@ -318,8 +317,6 @@ private bool CheckNoMovement(float actual, float aromInitPos)
                     volGateCleared = false;
                     lastCheckedPosition = float.NaN;
                     positionStopwatch.Reset();
-                    UnityEngine.Debug.Log($"y state : {activeRangeInitPos}");
-
                     setARInitPos = true;
                 }
                 
@@ -339,7 +336,6 @@ private bool CheckNoMovement(float actual, float aromInitPos)
                 }
                 break;
             case PlutoAANState.RelaxToArom:
-                UnityEngine.Debug.Log($"y state : {state}");
 
                 // Check if AROM has not been reached.
                 //   if (CheckNoMovement(actual)) return;

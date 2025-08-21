@@ -34,6 +34,7 @@ public class FlappyGameControl : MonoBehaviour
         EVE = 2,
         NIGHT = 3
     };
+    private GameObject[] detailObjects;
 
     public int _state;
     public int columnPoolSize = 5;
@@ -161,6 +162,7 @@ public class FlappyGameControl : MonoBehaviour
     void Start()
     {
         InitializeGame();
+        detailObjects = GameObject.FindGameObjectsWithTag("detailViewer");
         pauseObjects = GameObject.FindGameObjectsWithTag("ShowOnPause");
         setup = false;
 
@@ -176,6 +178,7 @@ public class FlappyGameControl : MonoBehaviour
             AngleToScreen(AppData.Instance.selectedMechanism.currRom.aromMax),
             aromRight.transform.position.z
         );
+        SetVisibility(false);
         HS.text = $" BEST :{Others.highestSuccessRate:F0} %";
         status.text = $"s.no: {AppData.Instance.currentSessionNumber}\n" +
                  $"trialNo: {AppData.Instance.selectedMechanism.trialNumberSession}\n" +
@@ -205,7 +208,7 @@ public class FlappyGameControl : MonoBehaviour
 
             increaseSpeed.SetActive(speedControlsVisible);
             decreaseSpeed.SetActive(speedControlsVisible);
-
+            SetVisibility(speedControlsVisible);
             Debug.Log("Speed controls " + (speedControlsVisible ? "enabled" : "disabled"));
         }
 
@@ -252,7 +255,14 @@ public class FlappyGameControl : MonoBehaviour
         }
         backgrounds[_state].SetActive(true);
     }
-    
+    private void SetVisibility(bool state)
+    {
+        foreach (GameObject obj in detailObjects)
+        {
+            if (obj != null)
+                obj.SetActive(state);
+        }
+    }
     public void increaseGameSpeed()
     {
          if (gameSpeed >= 40.0f) return;

@@ -79,7 +79,7 @@ public class PongGameController : MonoBehaviour
     static float playSize;
     // static float topBound = 5.5F;
     static float topBound = 6F;
-
+    private GameObject[] detailObjects;
     static float bottomBound = -6F;
     public GameObject aromLeft;
     public GameObject aromRight;
@@ -113,8 +113,10 @@ public class PongGameController : MonoBehaviour
         InitializeGame();
         pauseObjects = GameObject.FindGameObjectsWithTag("ShowOnPause");
         finishObjects = GameObject.FindGameObjectsWithTag("ShowOnFinish");
+        detailObjects = GameObject.FindGameObjectsWithTag("detailViewer");
         targetPosition = new Vector2(5.95f, 0f);
         hideFinished();
+        SetVisibility(false);
         playSize = Camera.main.orthographicSize;
         GameObject ballClone;
         ballClone = Instantiate(ball, this.transform.position, this.transform.rotation) as GameObject;
@@ -151,6 +153,7 @@ public class PongGameController : MonoBehaviour
 
             increaseSpeed.SetActive(speedControlsVisible);
             decreaseSpeed.SetActive(speedControlsVisible);
+        SetVisibility(speedControlsVisible);
 
         }
 
@@ -219,7 +222,14 @@ public class PongGameController : MonoBehaviour
         TargetPosition = targetTemp != null ? targetTemp.transform.position : null;   
     }
 
-  
+    private void SetVisibility(bool state)
+    {
+        foreach (GameObject obj in detailObjects)
+        {
+            if (obj != null)
+                obj.SetActive(state);
+        }
+    }
 
     private void gameEnd()
     {
