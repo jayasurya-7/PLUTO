@@ -650,7 +650,8 @@ public class FlappyGameControl : MonoBehaviour
                 PlutoComm.ResetAANTarget();
                 break;
             case PlutoAANController.PlutoAANState.RelaxToArom:
-            case PlutoAANController.PlutoAANState.AssistToTarget:
+            case PlutoAANController.PlutoAANState.AssistToTargetAtBoundary:
+            case PlutoAANController.PlutoAANState.AssistToTargetInBoundary:
                 // Set AAN Target to the nearest AROM edge.
                 float[] _newAanTarget = AppData.Instance.aanController.GetNewAanTarget();
                 PlutoComm.setAANTarget(_newAanTarget[0], _newAanTarget[1], _newAanTarget[2], _newAanTarget[3]);
