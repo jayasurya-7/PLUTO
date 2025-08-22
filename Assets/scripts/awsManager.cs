@@ -9,13 +9,16 @@ using System.Threading.Tasks;
 public static class awsManager
 {
     public static string pythonScriptPath = @"C:/pythonscripts/uploadToAWS.pyw";
+         
     public static  string pythonExecutionPath = @"C:/Program Files/Python312/pythonw.exe";
     public static string filePathUploadStatus = @"C:/DeviceSetups/Pluto"; //change according to the device
+    public static string filePathAppsetups = @"C:/AppSetups/Pluto"; //change according to the device
+
     public static string[] status = new string[] {"upload_needed","no_upload"};
     public static  string taskName ="AWSUploaderPlutoTask"; //change according to the device
     public static string DeviceName = "Pluto";//change according to the device
     public static string fullTaskAction = $"\\\"{pythonExecutionPath}\\\"\\\"{pythonScriptPath}\\\"";
-
+    public static string message="";
     // Method to schedule the task using SCHTASKS
     public static void ScheduleTask()
     {
@@ -54,6 +57,10 @@ public static void RunAWSpythonScript()
             string output = process.StandardOutput.ReadToEnd();
             string error = process.StandardError.ReadToEnd();
             process.WaitForExit();
+            Debug.Log(output);
+            Debug.Log(error);
+           message = output;
+            
         }
         catch (System.Exception ex)
         {
@@ -61,6 +68,10 @@ public static void RunAWSpythonScript()
         }
     
 }
+    public static string getmessage()
+    {
+        return message;
+    }
 
     public static void changeUploadStatus(string status){
         string uploadFilePath = Path.Combine(filePathUploadStatus, "uploadStatus.txt");
@@ -68,7 +79,12 @@ public static void RunAWSpythonScript()
             File.WriteAllText(uploadFilePath, $"{Path.Combine(Application.dataPath,"data", AppData.Instance.userID)},{status},{DeviceName},{AppData.Instance.userData.hospNumber},{AppData.Instance.userData.GetDeviceLocation()}");
         
     }
-
+    public static void AppSetups(string hospitalId, string location)
+    {
+        Directory.CreateDirectory(filePathAppsetups);
+        string appInfoFilePath = Path.Combine(filePathAppsetups, "appInfo.txt");
+        File.WriteAllText(appInfoFilePath, $"{Path.Combine(Application.dataPath, "data")},{hospitalId},{location},{DeviceName}");
+    }
 
     //To create the uploadStatusFile
     public  static void createFile(string userID)

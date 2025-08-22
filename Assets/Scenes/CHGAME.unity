@@ -2439,6 +2439,8 @@ MonoBehaviour:
   playButton: {fileID: 735278275}
   changeMech: {fileID: 241951478}
   result: {fileID: 1559022499}
+  ImgBanner1: {fileID: 469314042}
+  ImgBanner2: {fileID: 1013971444}
 --- !u!1 &1124636844
 GameObject:
   m_ObjectHideFlags: 0

@@ -13,7 +13,7 @@ public class ChooseGameSceneHandler : MonoBehaviour
     public Button playButton;
     public Button changeMech;
     public TMP_Text result;
-
+    public GameObject ImgBanner1, ImgBanner2;
     private bool toggleSelected = false;
     private string gameSelected;
     private string changeScene = "CHMECH";
@@ -40,6 +40,15 @@ public class ChooseGameSceneHandler : MonoBehaviour
             sessionData: AppData.Instance.userData.dTableSession,
             sessionNo: AppData.Instance.currentSessionNumber
         );
+        Debug.Log(AppData.Instance.selectedMechanism.IsMechanism("FME1") || AppData.Instance.selectedMechanism.IsMechanism("FME2"));
+        Debug.Log(!AppData.Instance.selectedMechanism.IsMechanism("FME1"));
+        Debug.Log(!AppData.Instance.selectedMechanism.IsMechanism("FME2"));
+        bool isFME = AppData.Instance.selectedMechanism.IsMechanism("FME1") || AppData.Instance.selectedMechanism.IsMechanism("FME2");
+        Debug.Log($" isFME :{isFME}");
+
+        ImgBanner1.SetActive(!isFME);
+        ImgBanner2.SetActive(!isFME);
+        
         // If no mechanism is selected, got to the scene to choose mechanism.
         if (AppData.Instance.selectedMechanism == null)
         {
@@ -47,7 +56,8 @@ public class ChooseGameSceneHandler : MonoBehaviour
             if (PlutoComm.CALIBRATION[PlutoComm.calibration] == "YESCALIB")
             {
                 AppData.Instance.SetMechanism(PlutoComm.MECHANISMS[PlutoComm.mechanism]);
-            } else
+            }
+            else
             {
                 SceneManager.LoadScene("CHMECH");
                 return;
@@ -100,13 +110,23 @@ public class ChooseGameSceneHandler : MonoBehaviour
             loadgame = false;
         }
 
-        // Magic key cobmination for doing the assessment.
-        if (Input.GetKey(KeyCode.LeftControl) && Input.GetKeyDown(KeyCode.R))
-        {
-            SceneManager.LoadScene("ASSESS");
-        }
+        // if (AppData.Instance.selectedMechanism.trialNumberSession >= AppData.Instance.userData.mechMoveTimePrsc[AppData.Instance.selectedMechanism.name])
+        // {
+        //     SceneManager.LoadScene("CHMECH");
+        //     // AppData.Instance.setRawDataStringtoNull();
+        //     // AppData.Instance.SetMechanism(null);
+        //     return;
+        // }
+        
         if ((PlutoComm.MECHANISMS[PlutoComm.mechanism] != "FME1") && (PlutoComm.MECHANISMS[PlutoComm.mechanism] != "FME2"))
         {
+            // Magic key cobmination for doing the assessment.
+            if (Input.GetKey(KeyCode.LeftControl) && Input.GetKeyDown(KeyCode.R))
+            {
+                SceneManager.LoadScene("ASSESS");
+            }
+
+            //Magic Key combination for control gain.
             if (Input.GetKey(KeyCode.LeftControl) && Input.GetKeyDown(KeyCode.G))
             {
                 SceneManager.LoadScene("HATCV");
@@ -123,13 +143,6 @@ public class ChooseGameSceneHandler : MonoBehaviour
         changeMech.onClick.AddListener(OnMechButtonClicked);
         // PLUTO Button
         PlutoComm.OnButtonReleased += OnPlutoButtonReleased;
-    }
-    IEnumerator AutoLoadSelectedGame()
-    {
-        yield return new WaitForSeconds(0.15f);
-        LoadSelectedGameScene(gameSelected);
-        toggleSelected = false;
-        loadgame = false;
     }
 
     void AttachToggleListeners()
@@ -174,6 +187,14 @@ public class ChooseGameSceneHandler : MonoBehaviour
         AppData.Instance.userData = new PlutoUserData(DataManager.configFile, DataManager.sessionFile);
         SceneManager.LoadScene(changeScene);
     }
+    IEnumerator AutoLoadSelectedGame()
+    {
+        yield return new WaitForSeconds(0.15f);
+        LoadSelectedGameScene(gameSelected);
+        toggleSelected = false;
+        loadgame = false;
+    }
+
 
     private void LoadSelectedGameScene(string game)
     {
@@ -191,11 +212,11 @@ public class ChooseGameSceneHandler : MonoBehaviour
                 $" | APROM: [{AppData.Instance.selectedMechanism.newRom.apromMin:F2}, {AppData.Instance.selectedMechanism.newRom.apromMax:F2}]");
             AppLogger.LogInfo(
                 $"Curr PROM: [{AppData.Instance.selectedMechanism.currRom.promMin:F2}, {AppData.Instance.selectedMechanism.currRom.promMax:F2}]" +
-                $" | AROM: [{AppData.Instance.selectedMechanism.currRom.aromMin:F2}, {AppData.Instance.selectedMechanism.currRom.aromMax:F2}]"+
+                $" | AROM: [{AppData.Instance.selectedMechanism.currRom.aromMin:F2}, {AppData.Instance.selectedMechanism.currRom.aromMax:F2}]" +
                 $" | APROM: [{AppData.Instance.selectedMechanism.currRom.apromMin:F2}, {AppData.Instance.selectedMechanism.currRom.apromMax:F2}]");
             // Instantitate the game object and load the appropriate scene.
             AppData.Instance.SetGame(game);
-            
+
             SceneManager.LoadScene(sceneName);
         }
     }

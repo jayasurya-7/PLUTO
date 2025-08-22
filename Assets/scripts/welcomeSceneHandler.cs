@@ -32,7 +32,7 @@ public class welcomSceneHandler : MonoBehaviour
 
         if (!Directory.Exists(DataManager.basePath)) 
         {
-            SceneManager.LoadScene("CONFIG");
+            SceneManager.LoadScene("GETCONFIG");
             return;
         }
 
@@ -51,7 +51,7 @@ public class welcomSceneHandler : MonoBehaviour
 
         if (!File.Exists(DataManager.configFile)) 
         {
-            SceneManager.LoadScene("CONFIG");
+            SceneManager.LoadScene("GETCONFIG");
             return;
         }
         

@@ -87,11 +87,10 @@ public class PlutoAANController
     public float trialTime { private set; get; }
     private float[] _newAanTarget;
     private float lastCheckedPosition = float.NaN;
-    private bool volGateCleared = false;         // voluntry movement check
-    private const float POSITION_TOLERANCE = 0.1f; 
+    private bool checkVolMov = false;         // voluntry movement check
+    private const float POS_TOLERANCE = 0.1f; 
     private Stopwatch positionStopwatch = new Stopwatch();
     private const int NO_MOVEMENT_THRESHOLD = 1500; // 1.5 seconds in ms
-    private float distToMax, distToMin, availableMovement;
 
     // AAN control bound adaptation related variables.
     public float currentCtrlBound { private set; get; }
@@ -200,11 +199,11 @@ private bool CheckNoMovement(float actual, float aromInitPos)
     float gateDistance = 0.25f * aromRange;   
     float movedFromInit = Math.Abs(actual - aromInitPos);
 
-    if (!volGateCleared)
+    if (!checkVolMov)
     {
-        if (movedFromInit + POSITION_TOLERANCE >= gateDistance)
+        if (movedFromInit + POS_TOLERANCE >= gateDistance)
         {
-            volGateCleared = true;              
+            checkVolMov = true;              
             positionStopwatch.Reset();        
             lastCheckedPosition = actual;
         }
@@ -220,7 +219,7 @@ private bool CheckNoMovement(float actual, float aromInitPos)
     if (float.IsNaN(lastCheckedPosition))
         lastCheckedPosition = actual;
 
-    if (Math.Abs(actual - lastCheckedPosition) <= POSITION_TOLERANCE)
+    if (Math.Abs(actual - lastCheckedPosition) <= POS_TOLERANCE)
     {
         if (!positionStopwatch.IsRunning)
             positionStopwatch.Start();
@@ -234,7 +233,7 @@ private bool CheckNoMovement(float actual, float aromInitPos)
                 $"Assist due to no movement in active range for 2 sec | {state} | " +
                 $"[{_newAanTarget[0]}, {_newAanTarget[1]}, {_newAanTarget[2]}, {_newAanTarget[3]}, {_newAanTarget[4]}]"
             );
-            volGateCleared = false;
+            checkVolMov = false;
             positionStopwatch.Reset();
             return true;
         }
@@ -256,7 +255,7 @@ private bool CheckNoMovement(float actual, float aromInitPos)
         // Reset state change.
         stateChange = false;
 
-        UnityEngine.Debug.Log($"state : {state}");
+        // UnityEngine.Debug.Log($"state : {state}");
 
         // Do nothing if the state is None.
         if (state == PlutoAANState.None) return;
@@ -276,7 +275,7 @@ private bool CheckNoMovement(float actual, float aromInitPos)
         {
             case PlutoAANState.NewTrialTargetSet:
 
-                volGateCleared = false;
+                checkVolMov = false;
                 lastCheckedPosition = float.NaN;
                 positionStopwatch.Reset();
                 // Set the state of the AAN.
@@ -303,7 +302,7 @@ private bool CheckNoMovement(float actual, float aromInitPos)
                 }
                 break;
             case PlutoAANState.AromMoving:
-                UnityEngine.Debug.Log($"y state : {state}");
+                // UnityEngine.Debug.Log($"y state : {state}");
 
                 // Check if the trial is done.
                 if (trialDone)
@@ -314,7 +313,7 @@ private bool CheckNoMovement(float actual, float aromInitPos)
                 if (!setARInitPos)
                 {
                     activeRangeInitPos = actual;
-                    volGateCleared = false;
+                    checkVolMov = false;
                     lastCheckedPosition = float.NaN;
                     positionStopwatch.Reset();
                     setARInitPos = true;
@@ -342,7 +341,7 @@ private bool CheckNoMovement(float actual, float aromInitPos)
 
                 if (setARInitPos)
                 {
-                    volGateCleared = false;
+                    checkVolMov = false;
                     positionStopwatch.Reset();
                     lastCheckedPosition = float.NaN;
                     setARInitPos = false;
@@ -382,8 +381,7 @@ private bool CheckNoMovement(float actual, float aromInitPos)
         _newAanTarget[0] = 999;
         setARInitPos = false;
         activeRangeInitPos = 0;
-         distToMax = distToMin = availableMovement = 0;
-        volGateCleared = false;
+        checkVolMov = false;
         positionStopwatch.Reset();
         lastCheckedPosition = float.NaN;
         // Empty the queues.
