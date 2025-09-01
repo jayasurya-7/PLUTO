@@ -39,7 +39,7 @@ public class calibrationSceneHandler : MonoBehaviour
         exit.onClick.AddListener(OnExitButtonClicked);
     }
 
-    void FixedUpdate()
+    void Update()
     {
          PlutoComm.sendHeartbeat();
         angText.text = $" {PlutoComm.angle.ToString("F3")}";
@@ -76,7 +76,7 @@ public class calibrationSceneHandler : MonoBehaviour
 
         // Send the calibration command.
         PlutoComm.calibrate(AppData.Instance.selectedMechanism.name);
-        yield return new WaitForSeconds(0.5f);
+        yield return new WaitForSeconds(1.5f);
 
         //ApplyTorqueToSep(PlutoComm.angle, separationAngle);
         ApplyClockwiseTorque();
@@ -100,6 +100,7 @@ public class calibrationSceneHandler : MonoBehaviour
             doneCalibration = false;
             yield break;
         }
+        
         // All good.
         textMessage.text = "Calibration Done";
         textMessage.color = new Color32(62, 214, 111, 255);
@@ -119,7 +120,24 @@ public class calibrationSceneHandler : MonoBehaviour
         //         yield return new WaitForSeconds(0.1f);
         //     }
         // }
+
+        // if (PlutoComm.MECHANISMS[PlutoComm.mechanism] != "HOC")
+        // {
+        //     ApplyCounterClockwiseTorque();
+        //     yield return new WaitForSeconds(1.5f); 
+            
+        //      // Send the calibration command.
+        //     PlutoComm.calibrate(AppData.Instance.selectedMechanism.name);
+        //     yield return new WaitForSeconds(1.5f);
+        // }
+        
+
+       
+
+
         if (PlutoComm.MECHANISMS[PlutoComm.mechanism] == "HOC") PlutoComm.calibrate(AppData.Instance.selectedMechanism.name);
+
+        // PlutoComm.calibrate(AppData.Instance.selectedMechanism.name);
 
         PlutoComm.setControlTarget(0.0f);
         PlutoComm.setControlType("NONE");

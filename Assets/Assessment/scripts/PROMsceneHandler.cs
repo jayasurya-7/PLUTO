@@ -69,7 +69,7 @@ public class PROMsceneHandler : MonoBehaviour
         promSlider.UpdateMinMaxvalues = false;
         nextButton.SetActive(false);
 
-        angLimit = AppData.Instance.selectedMechanism.IsMechanism("HOC") ? PlutoComm.CALIBANGLE[PlutoComm.mechanism] : PlutoComm.MECHOFFSETVALUE[PlutoComm.mechanism];
+        angLimit = AppData.Instance.selectedMechanism.IsMechanism("HOC") ? PlutoComm.CALIBANGLE[PlutoComm.mechanism] + 10.0f : PlutoComm.MECHOFFSETVALUE[PlutoComm.mechanism] + 10.0f;
         promSlider.Setup(-angLimit, angLimit, AppData.Instance.selectedMechanism.oldRom.promMin, AppData.Instance.selectedMechanism.oldRom.promMax);
         promSlider.minAng = 0;
         promSlider.maxAng = 0;

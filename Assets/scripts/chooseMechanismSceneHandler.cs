@@ -3,6 +3,7 @@ using UnityEngine.UI;
 using TMPro;
 using UnityEngine.SceneManagement;
 using System.Collections;
+using System;
 
 public class MechanismSceneHandler : MonoBehaviour
 {
@@ -29,7 +30,7 @@ public class MechanismSceneHandler : MonoBehaviour
     {
         // Reset mechanisms.
         PlutoComm.sendHeartbeat();
-        AppData.Instance.userData =  new PlutoUserData(DataManager.configFile, DataManager.sessionFile);
+        AppData.Instance.userData = new PlutoUserData(DataManager.configFile, DataManager.sessionFile);
 
         PlutoComm.calibrate("NOMECH");
         PlutoComm.setControlGain(1.0f);
@@ -85,19 +86,19 @@ public class MechanismSceneHandler : MonoBehaviour
         {
             Toggle toggleComponent = child.GetComponent<Toggle>();
             bool isPrescribed = AppData.Instance.userData.mechMoveTimePrsc[toggleComponent.name] > 0;
-            
-            bool isDone = AppData.Instance.userData.getTodayMoveTimeForMechanism(toggleComponent.name)>= AppData.Instance.userData.mechMoveTimePrsc[toggleComponent.name];
+
+            bool isDone = AppData.Instance.userData.getTodayMoveTimeForMechanism(toggleComponent.name) >= AppData.Instance.userData.mechMoveTimePrsc[toggleComponent.name];
             // Debug.Log($" done : {isDone}, x-{AppData.Instance.userData.getTodayMoveTimeForMechanism(toggleComponent.name)} y-{AppData.Instance.userData.mechMoveTimePrsc[toggleComponent.name]} ");
-            
+
             // Hide the component if it has no prescribed time.
             toggleComponent.interactable = (isPrescribed);
-            toggleComponent.gameObject.SetActive(isPrescribed );
+            toggleComponent.gameObject.SetActive(isPrescribed);
 
             // Change the toggle's background color
             Image bgImage = toggleComponent.targetGraphic as Image; // Usually the Background Image
             if (bgImage != null)
             {
-              if (isDone) bgImage.color = Color.green; // completed  
+                if (isDone) bgImage.color = Color.green; // completed  
             }
 
             // Update the time trained in the timeLeft component of toggleCompoent.
@@ -160,7 +161,7 @@ public class MechanismSceneHandler : MonoBehaviour
     }
     IEnumerator MoveToNextScene()
     {
-        yield return new WaitForSeconds(0.15f); 
+        yield return new WaitForSeconds(0.15f);
         LoadNextScene();
         mechSelected = null;
     }
@@ -177,8 +178,8 @@ public class MechanismSceneHandler : MonoBehaviour
     void LoadNextScene()
     {
         AppData.Instance.speedData = new MechanismSpeed();
-        AppData.Instance.speedData .EvaluateAndUpdateGameSpeed();
-      
+        AppData.Instance.speedData.EvaluateAndUpdateGameSpeed();
+
         AppLogger.LogInfo($"New AAN controller created for '{AppData.Instance.selectedMechanism.name}'.");
         //PlutoComm.setControlGain(1.0f);
         // Set the mechanism.
@@ -210,11 +211,11 @@ public class MechanismSceneHandler : MonoBehaviour
             ConnectToRobot.disconnect();
             Application.Quit();
 
-        #if UNITY_EDITOR
+#if UNITY_EDITOR
             UnityEditor.EditorApplication.isPlaying = false;
-        #endif
+#endif
         }
-        
+
     }
 
     private void OnNextButtonClicked()
@@ -233,4 +234,5 @@ public class MechanismSceneHandler : MonoBehaviour
             PlutoComm.OnButtonReleased -= OnPlutoButtonReleased;
         }
     }
+
 }

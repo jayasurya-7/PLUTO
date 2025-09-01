@@ -870,6 +870,7 @@ public class PlutoMechanism
     {
         newRom.SetProm(pmin, pmax);
         if (pmin != 0 || pmax != 0) promCompleted = true;
+        Debug.Log($"prom : {pmin}  --- {pmax}");
         // Cehck if newRom's mechanism needs to be set.
         if (newRom.mechanism == null)
         {

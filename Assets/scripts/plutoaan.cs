@@ -322,6 +322,7 @@ private bool CheckNoMovement(float actual, float aromInitPos)
                     positionStopwatch.Reset();
                     setARInitPos = true;
                 }
+                if (isFuncMech()) return;
 
 
                 if (CheckNoMovement(actual, activeRangeInitPos)) return;
@@ -429,6 +430,11 @@ private bool CheckNoMovement(float actual, float aromInitPos)
     {
         return (actual >= aRom[0] && actual <= aRom[1]);
     }
+
+    public bool isFuncMech() {
+        return (mechanismName == "FME1" || mechanismName == "FME2");
+    }
+
 
     public TargetType GetTargetType()
     {
