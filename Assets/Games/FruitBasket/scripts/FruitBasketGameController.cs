@@ -126,7 +126,7 @@ public class FruitBasketGameController : MonoBehaviour
         preSuccRate.text = $"PrevSuccessRate:{AppData.Instance.previousSuccessRates[0].ToString("F0")}";
                 currSuccRate.text = $"currSuccessRate:{AppData.Instance.previousSuccessRates[1].ToString("F0")}";
         gameSpeed = AppData.Instance.speedData.gameSpeed;
-
+        Debug.Log("gamespeed");
         FRUITSPEED = 70f + ((gameSpeed - 10f) / 30f) * 120f;
        
         FRUITSPEED = Mathf.Clamp(FRUITSPEED, 70f, 250f);
@@ -264,6 +264,9 @@ public class FruitBasketGameController : MonoBehaviour
                 {
 
                     lastHighScore = AppData.Instance.successRate * (PlutoAANController.MAXCONTROLBOUND - AppData.Instance.CurrentControlBound);
+                    float gameTime = HomerTherapy.TrialDuration - trialTimeLeft;
+                    Others.gameTime = (gameTime < HomerTherapy.TrialDuration) ? gameTime : HomerTherapy.TrialDuration;
+                    AppData.Instance.StopTrial(nTargets, nSuccess, nFailure);
                     if (AppData.Instance.previousSuccessRates == null)
                     {
                         Debug.Log($" LHS : {lastHighScore} -- {Others.highestSuccessRate}");
@@ -279,7 +282,7 @@ public class FruitBasketGameController : MonoBehaviour
 
 
                     }
-                    if (HSC.gameObject.activeSelf) return;
+                    // if (HSC.gameObject.activeSelf) return;
                     endGame();
 
                    
@@ -418,6 +421,9 @@ public class FruitBasketGameController : MonoBehaviour
     {
         setupBasketsForTrial();
         AppData.Instance.StartNewTrial();
+        preSuccRate.gameObject.SetActive(false);
+        currSuccRate.gameObject.SetActive(false);
+
         // Put PLUTO in the AAN mode.
         if ((PlutoComm.MECHANISMS[PlutoComm.mechanism] != "FME1") && (PlutoComm.MECHANISMS[PlutoComm.mechanism] != "FME2"))
         {
@@ -440,9 +446,7 @@ public class FruitBasketGameController : MonoBehaviour
     public void endGame()
     {
         isGameFinished = true;
-        float gameTime = HomerTherapy.TrialDuration - trialTimeLeft;
-        Others.gameTime = (gameTime < HomerTherapy.TrialDuration) ? gameTime : HomerTherapy.TrialDuration;
-        AppData.Instance.StopTrial(nTargets, nSuccess, nFailure);
+        
         gameState = GameStates.DONE;
 
     }
@@ -543,8 +547,6 @@ public class FruitBasketGameController : MonoBehaviour
 
         onPause.gameObject.SetActive(isGamePaused);
         gameOver.gameObject.SetActive(gameState == GameStates.DONE);
-        currSuccRate.gameObject.SetActive(gameState == GameStates.DONE);
-        preSuccRate.gameObject.SetActive(gameState == GameStates.DONE);
         restartBtn.gameObject.SetActive(gameState == GameStates.DONE);
        
         messageTxt.text = (gameState == GameStates.WAITFORSTART)

@@ -678,7 +678,6 @@ public class PlutoUserData
                 {
                     float successRate = float.Parse(row.Field<string>("SuccessRate"), CultureInfo.InvariantCulture);
                     float controlBound = float.Parse(row.Field<string>("CurrentControlBound"), CultureInfo.InvariantCulture);
-                    Debug.Log($" inside :{successRate} ///{controlBound}");
                     return successRate * (PlutoAANController.MAXCONTROLBOUND - controlBound);
                 });
         }
