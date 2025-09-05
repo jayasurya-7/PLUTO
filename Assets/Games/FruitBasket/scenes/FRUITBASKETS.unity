@@ -1022,8 +1022,8 @@ MonoBehaviour:
   messageTxt: {fileID: 688446176}
   audioSource: {fileID: 422574514}
   soundClips:
-  - {fileID: 8300000, guid: 6efb85ef86bac034bb361f49d633ba9f, type: 3}
-  - {fileID: 8300000, guid: 7cb91cd92c04cf742b9d85750c7eceba, type: 3}
+  - {fileID: 8300000, guid: 3289c5a69b7cb3046839e1c27801a5dd, type: 3}
+  - {fileID: 8300000, guid: 3289c5a69b7cb3046839e1c27801a5dd, type: 3}
   aromLeft: {fileID: 8359927}
   aromRight: {fileID: 967930708}
   HSC: {fileID: 641727553}
@@ -1074,7 +1074,7 @@ AudioSource:
   Mute: 0
   Spatialize: 0
   SpatializePostEffects: 0
-  Priority: 189
+  Priority: 156
   DopplerLevel: 1
   MinDistance: 1
   MaxDistance: 500
@@ -2184,7 +2184,7 @@ RectTransform:
   m_LocalEulerAnglesHint: {x: 0, y: 0, z: 0}
   m_AnchorMin: {x: 0.5, y: 0.5}
   m_AnchorMax: {x: 0.5, y: 0.5}
-  m_AnchoredPosition: {x: 2.8254, y: 257}
+  m_AnchoredPosition: {x: 0.000021696, y: 167.67}
   m_SizeDelta: {x: 1691.5035, y: 124.7651}
   m_Pivot: {x: 0.5, y: 0.5}
 --- !u!114 &688446176

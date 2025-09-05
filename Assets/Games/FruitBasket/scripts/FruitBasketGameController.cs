@@ -263,10 +263,12 @@ public class FruitBasketGameController : MonoBehaviour
                     || AppData.Instance.aanController.state == PlutoAANController.PlutoAANState.IDLE)
                 {
 
-                    lastHighScore = AppData.Instance.successRate * (PlutoAANController.MAXCONTROLBOUND - AppData.Instance.CurrentControlBound);
+                   
                     float gameTime = HomerTherapy.TrialDuration - trialTimeLeft;
                     Others.gameTime = (gameTime < HomerTherapy.TrialDuration) ? gameTime : HomerTherapy.TrialDuration;
+
                     AppData.Instance.StopTrial(nTargets, nSuccess, nFailure);
+                     lastHighScore = AppData.Instance.successRate * (PlutoAANController.MAXCONTROLBOUND - AppData.Instance.CurrentControlBound);
                     if (AppData.Instance.previousSuccessRates == null)
                     {
                         Debug.Log($" LHS : {lastHighScore} -- {Others.highestSuccessRate}");
@@ -291,7 +293,7 @@ public class FruitBasketGameController : MonoBehaviour
             case GameStates.DONE:
             //  bestScore.text = $"BEST:{(int)lastHighScore}%";
                 
-                if (!gardener.instance.IsGardenerCollecting)
+                if (!gardener.instance.IsGardenerCollecting && !HSC.gameObject.activeSelf)
                 {
                     //make the gardener visible and start collect the missed fruits
 

@@ -30,7 +30,7 @@ public static class PlutoDefs
 public static class HomerTherapy
 {
     public static readonly float SuccessRateThForSpeedIncrement = 0.9f;
-    public static readonly float TrialDuration = 20.0f;
+    public static readonly float TrialDuration = 60.0f;
     public static readonly Dictionary<string, float> GameSpeedIncrements = new Dictionary<string, float>  {
         { "PING-PONG", 0.5f },
         { "TUK-TUK", 0.2f },
