@@ -31,7 +31,7 @@ public class MechanismSceneHandler : MonoBehaviour
         PlutoComm.sendHeartbeat();
         AppData.Instance.userData =  new PlutoUserData(DataManager.configFile, DataManager.sessionFile);
 
-        PlutoComm.calibrate("NOMECH");
+        PlutoComm.calibrateStart("NOMECH");
         PlutoComm.setControlGain(1.0f);
         AppData.Instance.SetMechanism(null);
 

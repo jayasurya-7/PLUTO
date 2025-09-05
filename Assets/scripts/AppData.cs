@@ -143,7 +143,7 @@ public partial class AppData
         // without having to go through the calibration scene.
         if (!doNotResetMech)
         {
-            PlutoComm.calibrate("NOMECH");
+            PlutoComm.calibrateStart("NOMECH");
         }
         PlutoComm.getVersion();
         // Start sensorstream.
@@ -192,7 +192,7 @@ public partial class AppData
         //     selectedGame = null;
         //     return;
         // }
-        
+
         // // Set the game object appropriately.
         // switch (gameName)
         // {

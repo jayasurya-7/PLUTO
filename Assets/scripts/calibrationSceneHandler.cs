@@ -24,8 +24,8 @@ public class calibrationSceneHandler : MonoBehaviour
         // Set mechanism to NOMECH.
         PlutoComm.sendHeartbeat();
         // Set mechanism to the selected mechanism.
-        PlutoComm.calibrate(AppData.Instance.selectedMechanism.name);
-        
+        PlutoComm.calibrateStart(AppData.Instance.selectedMechanism.name);
+        PlutoComm.calibrateEnd(AppData.Instance.selectedMechanism.name);
         AppLogger.SetCurrentScene(SceneManager.GetActiveScene().name);
         AppLogger.LogInfo($"'{SceneManager.GetActiveScene().name}' scene started.");
         Debug.Log("Mechanism: " + AppData.Instance.selectedMechanism.name);
@@ -75,7 +75,7 @@ public class calibrationSceneHandler : MonoBehaviour
         yield return new WaitForSeconds(1.5f);
 
         // Send the calibration command.
-        PlutoComm.calibrate(AppData.Instance.selectedMechanism.name);
+        PlutoComm.calibrateStart(AppData.Instance.selectedMechanism.name);
         yield return new WaitForSeconds(0.5f);
 
         //ApplyTorqueToSep(PlutoComm.angle, separationAngle);
@@ -100,6 +100,9 @@ public class calibrationSceneHandler : MonoBehaviour
             doneCalibration = false;
             yield break;
         }
+        PlutoComm.calibrateEnd(AppData.Instance.selectedMechanism.name);
+        yield return new WaitForSeconds(0.5f);
+
         // All good.
         textMessage.text = "Calibration Done";
         textMessage.color = new Color32(62, 214, 111, 255);
@@ -119,7 +122,16 @@ public class calibrationSceneHandler : MonoBehaviour
         //         yield return new WaitForSeconds(0.1f);
         //     }
         // }
-        if (PlutoComm.MECHANISMS[PlutoComm.mechanism] == "HOC") PlutoComm.calibrate(AppData.Instance.selectedMechanism.name);
+
+
+
+        if (PlutoComm.MECHANISMS[PlutoComm.mechanism] == "HOC")
+        {
+            PlutoComm.calibrateStart(AppData.Instance.selectedMechanism.name);
+            yield return new WaitForSeconds(0.5f);
+
+            PlutoComm.calibrateEnd(AppData.Instance.selectedMechanism.name);
+         }
 
         PlutoComm.setControlTarget(0.0f);
         PlutoComm.setControlType("NONE");

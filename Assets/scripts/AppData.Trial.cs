@@ -55,7 +55,7 @@ public partial class AppData
         trialStopTime = DateTime.Now;
         nTargets =(nTargets == 0)? 1 : nTargets;
         successRate = 100 * nSuccess / nTargets;
-
+        UnityEngine.Debug.Log($" SR : s-{nSuccess}, nTargets{nTargets}");
         // Update the control bound if needed.
         if (trialType  != HomerTherapy.TrialType.SR85PCCATCH)
         {
@@ -251,6 +251,14 @@ public partial class AppData
          else if(selectedGame == "TUK"){
             return $"{FlappyGameControl.Instance.PlayerPosition.x:F3},{FlappyGameControl.Instance.PlayerPosition.y:F3}";
         }
+        else if(selectedGame == "RNR"){
+            return $"{GameManager.Instance.PlayerPosition.x:F3},{GameManager.Instance.PlayerPosition.y:F3}";
+        }
+         else if(selectedGame == "FRUITCH"){
+           if (FruitBasketGameController.Instance.PlayerPosition.HasValue) return $"{FruitBasketGameController.Instance.PlayerPosition.Value.x:F3},{FruitBasketGameController.Instance.PlayerPosition.Value.y:F3}";
+        }
+        
+        
         return ",";
     }
 
@@ -270,6 +278,12 @@ public partial class AppData
         else if(selectedGame == "TUK"){
            if (FlappyGameControl.Instance.TargetPosition.HasValue) return $"{FlappyGameControl.Instance.TargetPosition.Value.x:F3},{FlappyGameControl.Instance.TargetPosition.Value.y:F3}";
         }
+        else if(selectedGame == "RNR"){
+           if (GameManager.Instance.TargetPosition.HasValue) return $"{GameManager.Instance.TargetPosition.Value.x:F3},{GameManager.Instance.TargetPosition.Value.y:F3}";
+        }
+        else if(selectedGame == "FRUITCH"){
+           if (FruitBasketGameController.Instance.TargetPosition.HasValue) return $"{FruitBasketGameController.Instance.TargetPosition.Value.x:F3},{FruitBasketGameController.Instance.TargetPosition.Value.y:F3}";
+        }
         return ",";
     }
 
@@ -285,6 +299,12 @@ public partial class AppData
         }
         else if(selectedGame == "TUK"){
             return $"{FlappyGameControl.Instance.gameState}";
+        }
+        else if(selectedGame == "RNR"){
+            return $"{GameManager.Instance.gameState}";
+        }
+        else if(selectedGame == "FRUITCH"){
+            return $"{FruitBasketGameController.Instance.gameState}";
         }
         return "";
     }

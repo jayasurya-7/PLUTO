@@ -30,11 +30,13 @@ public static class PlutoDefs
 public static class HomerTherapy
 {
     public static readonly float SuccessRateThForSpeedIncrement = 0.9f;
-    public static readonly float TrialDuration = 60.0f;
+    public static readonly float TrialDuration = 20.0f;
     public static readonly Dictionary<string, float> GameSpeedIncrements = new Dictionary<string, float>  {
         { "PING-PONG", 0.5f },
         { "TUK-TUK", 0.2f },
-        { "HAT-Trick", 1f }
+        { "HAT-Trick", 1f },
+        { "FRUITCH", 1f },
+        { "RNR", 1f }
     };
     
     private static float? lastTarget = null;
@@ -143,7 +145,7 @@ public class MechanismSpeed
 
     private DataTable sessionTable;
     private string mechParamsCsvPath;
-    private static readonly string[] speedChMode = new string[] { "manual", "automatic" };
+    private static readonly string[] speedChMode = new string[] { "MANUAL", "AUTO" };
     public static readonly Dictionary<string, float> DefaultMechanismSpeeds = new Dictionary<string, float>
     {
         { "WFE", 10.0f },
@@ -668,7 +670,7 @@ public class PlutoUserData
             !string.IsNullOrWhiteSpace(row.Field<string>("SuccessRate")) &&
             !string.IsNullOrWhiteSpace(row.Field<string>("CurrentControlBound")))
         .ToList();
-
+        
         if (successRows.Any())
         {
             Others.highestSuccessRate = successRows
@@ -676,10 +678,9 @@ public class PlutoUserData
                 {
                     float successRate = float.Parse(row.Field<string>("SuccessRate"), CultureInfo.InvariantCulture);
                     float controlBound = float.Parse(row.Field<string>("CurrentControlBound"), CultureInfo.InvariantCulture);
+                    Debug.Log($" inside :{successRate} ///{controlBound}");
                     return successRate * (PlutoAANController.MAXCONTROLBOUND - controlBound);
                 });
-
-            Debug.Log(Others.highestSuccessRate);
         }
         else
         {

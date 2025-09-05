@@ -10,7 +10,7 @@ public static class awsManager
 {
     public static string pythonScriptPath = @"C:/pythonscripts/uploadToAWS.pyw";
          
-    public static  string pythonExecutionPath = @"C:/Program Files/Python312/pythonw.exe";
+    public static  string pythonExecutionPath = @"C:/Program Files/Python313/pythonw.exe";
     public static string filePathUploadStatus = @"C:/DeviceSetups/Pluto"; //change according to the device
     public static string filePathAppsetups = @"C:/AppSetups/Pluto"; //change according to the device
 

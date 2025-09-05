@@ -21,7 +21,9 @@ public class ChooseGameSceneHandler : MonoBehaviour
     {
         { "PONG", "PONGMENU" },
         { "TUK", "TUK" },
-        { "HAT", "HAT" }
+        { "HAT", "HAT" },
+        {"RNR","RNRMENU"},
+        {"FRUITCH","FRUITBASKETS"}
     };
     private bool loadgame = false;
 
@@ -109,6 +111,12 @@ public class ChooseGameSceneHandler : MonoBehaviour
             LoadSelectedGameScene(gameSelected);
             loadgame = false;
         }
+    //    if( Input.GetKeyDown(KeyCode.S))
+    //         {
+    //         AppData.Instance.SetGame("RNR");
+
+    //             SceneManager.LoadScene("RNRMENU");
+    //         }
 
         // if (AppData.Instance.selectedMechanism.trialNumberSession >= AppData.Instance.userData.mechMoveTimePrsc[AppData.Instance.selectedMechanism.name])
         // {
@@ -117,7 +125,7 @@ public class ChooseGameSceneHandler : MonoBehaviour
         //     // AppData.Instance.SetMechanism(null);
         //     return;
         // }
-        
+
         if ((PlutoComm.MECHANISMS[PlutoComm.mechanism] != "FME1") && (PlutoComm.MECHANISMS[PlutoComm.mechanism] != "FME2"))
         {
             // Magic key cobmination for doing the assessment.

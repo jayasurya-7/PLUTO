@@ -457,8 +457,8 @@ public class HatGameController : MonoBehaviour
                 
                 if (AppData.Instance.aanController.stateChange) UpdatePlutoAANTarget();
                 // Change to done only when the AAN Controller is AromMoving or Idle state.
-                if (AppData.Instance.aanController.state == PlutoAANController.PlutoAANState.AromMoving
-                    || AppData.Instance.aanController.state == PlutoAANController.PlutoAANState.Idle)
+                if (AppData.Instance.aanController.state == PlutoAANController.PlutoAANState.AROMMOVING
+                    || AppData.Instance.aanController.state == PlutoAANController.PlutoAANState.IDLE)
                 {
                     float gameTime = HomerTherapy.TrialDuration - triaTimeLeft;
                     Others.gameTime = (gameTime < HomerTherapy.TrialDuration) ? gameTime : HomerTherapy.TrialDuration;
@@ -514,13 +514,13 @@ public class HatGameController : MonoBehaviour
     {
         switch (AppData.Instance.aanController.state)
         {
-            case PlutoAANController.PlutoAANState.AromMoving:
+            case PlutoAANController.PlutoAANState.AROMMOVING:
                 // Reset AAN Target
                 PlutoComm.ResetAANTarget();
                 break;
-            case PlutoAANController.PlutoAANState.RelaxToArom:
-            case PlutoAANController.PlutoAANState.AssistToTargetAtBoundary:
-            case PlutoAANController.PlutoAANState.AssistToTargetInBoundary:
+            case PlutoAANController.PlutoAANState.RELAXTOAROM:
+            case PlutoAANController.PlutoAANState.ASSISTTOTARGETATBOUNDARY:
+            case PlutoAANController.PlutoAANState.ASSISTTOTARGETINBOUNDARY:
                 // Set AAN Target to the nearest AROM edge.
                 float[] _newAanTarget = AppData.Instance.aanController.GetNewAanTarget();
                 PlutoComm.setAANTarget(_newAanTarget[0], _newAanTarget[1], _newAanTarget[2], _newAanTarget[3]);
@@ -675,5 +675,6 @@ public class HatGameController : MonoBehaviour
         // This can mean different things depending on the game state.
         if (gameState == GameStates.WAITING) isGameStarted = true;
         else if (gameState != GameStates.STOP) isGamePaused = !isGamePaused;
+
     }
 }
