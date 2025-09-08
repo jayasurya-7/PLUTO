@@ -165,7 +165,7 @@ public class MechanismSpeed
     public void setGameSpeed(float gs)
     {
         gameSpeed = gs;
-}
+    }
     public void EvaluateAndUpdateGameSpeed()
     {
         if (!File.Exists(mechParamsCsvPath))
