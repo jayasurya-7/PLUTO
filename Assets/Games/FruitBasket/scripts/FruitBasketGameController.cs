@@ -34,6 +34,7 @@ public class FruitBasketGameController : MonoBehaviour
     public Text newRecordTxt;
     public Text preSuccRate;
     public Text currSuccRate;
+    public GameObject reminderPanel;
 
     private float PLAYSIZE;
     private float trialTimeLeft;
@@ -122,9 +123,13 @@ public class FruitBasketGameController : MonoBehaviour
             aromRight.transform.localPosition.y,
             aromRight.transform.localPosition.z
         );
-        bestScore.text = $"BEST:{(int)Others.highestSuccessRate:F0}%";
-        preSuccRate.text = $"PrevSuccessRate:{AppData.Instance.previousSuccessRates[0].ToString("F0")}";
-                currSuccRate.text = $"currSuccessRate:{AppData.Instance.previousSuccessRates[1].ToString("F0")}";
+        if (AppData.Instance.previousSuccessRates != null)
+        {
+            bestScore.text = $"BEST:{(int)Others.highestSuccessRate:F0}%";
+            preSuccRate.text = $"PrevSuccessRate:{AppData.Instance.previousSuccessRates[0].ToString("F0")}";
+            currSuccRate.text = $"currSuccessRate:{AppData.Instance.previousSuccessRates[1].ToString("F0")}";
+        }
+      
         gameSpeed = AppData.Instance.speedData.gameSpeed;
         Debug.Log("gamespeed");
         FRUITSPEED = 70f + ((gameSpeed - 10f) / 30f) * 120f;
@@ -132,6 +137,16 @@ public class FruitBasketGameController : MonoBehaviour
         FRUITSPEED = Mathf.Clamp(FRUITSPEED, 70f, 250f);
        
         MOVEDURATION = 0.5f * (FRUITSTARTY - FRUITENDY) / FRUITSPEED;
+        if (AppData.Instance.selectedMechanism.trialNumberDay >= AppData.Instance.userData.mechMoveTimePrsc[AppData.Instance.selectedMechanism.name])
+        {
+            reminderPanel.SetActive(true);
+
+        }
+        else
+        {
+            reminderPanel.SetActive(false);
+
+        }
 
     }
 
@@ -180,6 +195,8 @@ public class FruitBasketGameController : MonoBehaviour
             case GameStates.SPAWNFRUIT:
                 if (eventDelayTimer <= 0f && !runOnce)
                 {
+                    // Reset AAN Controller
+                    AppData.Instance.aanController.ResetTrial();
 
                     //Get random Target Angle
                     float targetAngle = HomerTherapy.GetNewTargetPositionUniformFull(arom, aprom);
@@ -279,20 +296,25 @@ public class FruitBasketGameController : MonoBehaviour
                         else
                         {
                             AppData.Instance.previousSuccessRates = AppData.Instance.userData.GetLastTwoSuccessRates(AppData.Instance.selectedMechanism.name, AppData.Instance.selectedGame);
+                            if (AppData.Instance.selectedMechanism.trialNumberDay == AppData.Instance.userData.mechMoveTimePrsc[AppData.Instance.selectedMechanism.name])
+                            {
+                                SceneManager.LoadScene("CHMECH");
+                                return;
+                            }
+                            
                             SceneManager.LoadScene(SceneManager.GetActiveScene().name);
                         }
-
+                       
 
                     }
-                    // if (HSC.gameObject.activeSelf) return;
+                    
                     endGame();
 
                    
                 }
                 break;
             case GameStates.DONE:
-            //  bestScore.text = $"BEST:{(int)lastHighScore}%";
-                
+           
                 if (!gardener.instance.IsGardenerCollecting && !HSC.gameObject.activeSelf)
                 {
                     //make the gardener visible and start collect the missed fruits
@@ -365,7 +387,16 @@ public class FruitBasketGameController : MonoBehaviour
         obj.SetActive(false);
         //loadingImage.gameObject.SetActive(false);
         AppData.Instance.previousSuccessRates = AppData.Instance.userData.GetLastTwoSuccessRates(AppData.Instance.selectedMechanism.name, AppData.Instance.selectedGame);
-        SceneManager.LoadScene(SceneManager.GetActiveScene().name);
+        if (AppData.Instance.selectedMechanism.trialNumberDay == AppData.Instance.userData.mechMoveTimePrsc[AppData.Instance.selectedMechanism.name])
+        {
+            SceneManager.LoadScene("CHMECH");
+            
+        }
+        else
+        {
+            SceneManager.LoadScene(SceneManager.GetActiveScene().name);
+        }
+           
     }
     public bool isGamePlaying()
     {
@@ -421,6 +452,7 @@ public class FruitBasketGameController : MonoBehaviour
 
     public void startGame()
     {
+        reminderPanel.SetActive(false);
         setupBasketsForTrial();
         AppData.Instance.StartNewTrial();
         preSuccRate.gameObject.SetActive(false);
