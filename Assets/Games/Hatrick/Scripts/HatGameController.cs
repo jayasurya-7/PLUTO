@@ -307,9 +307,9 @@ public class HatGameController : MonoBehaviour
         nFailure = 0;
 
         // Disable buttons except the pause button.
-        StartButton.SetActive(false);
-        PauseButton.SetActive(true);
-        ResumeButton.SetActive(false);
+        // StartButton.SetActive(false);
+        // PauseButton.SetActive(true);
+        // ResumeButton.SetActive(false);
         //  gameSpeed = AppData.Instance.speedData.gameSpeed;
     }
 
@@ -320,9 +320,9 @@ public class HatGameController : MonoBehaviour
         isGamePaused = true;
         Time.timeScale = 0;
         ShowPaused();
-        PauseButton.SetActive(false);
-        ResumeButton.SetActive(true);
-        ExitButton.SetActive(false);
+        // PauseButton.SetActive(false);
+        // ResumeButton.SetActive(true);
+       // ExitButton.SetActive(false);
     }
 
     public void ResumeGame()
@@ -333,8 +333,8 @@ public class HatGameController : MonoBehaviour
         isGamePaused = false;
         gameState = _prevGameState;
         Time.timeScale = 1;
-        PauseButton.SetActive(true);
-        ResumeButton.SetActive(false);
+        // PauseButton.SetActive(true);
+        // ResumeButton.SetActive(false);
         ExitButton.SetActive(true);
         // Send PLUTO heartbeat
         PlutoComm.sendHeartbeat();
@@ -557,9 +557,9 @@ public class HatGameController : MonoBehaviour
 
 
         // Enable the buttons
-        StartButton.SetActive(true);
-        PauseButton.SetActive(false);
-        ResumeButton.SetActive(false);
+        // StartButton.SetActive(true);
+        // PauseButton.SetActive(false);
+        // ResumeButton.SetActive(false);
 
         // Initailize camera
         maxwidth = Camera.main.ScreenToWorldPoint(new Vector3(Screen.width, Screen.height, 0)).x - 0.5f;

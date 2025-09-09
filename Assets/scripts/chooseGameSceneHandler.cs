@@ -36,6 +36,8 @@ public class ChooseGameSceneHandler : MonoBehaviour
             // Inialize the logger
             AppData.Instance.Initialize(SceneManager.GetActiveScene().name, doNotResetMech: false);
         }
+
+        if (Time.timeScale == 0) Time.timeScale = 1;
         // Create a new AAN controller.
         AppData.Instance.aanController = new PlutoAANController(
             mechanism: AppData.Instance.selectedMechanism,
@@ -98,7 +100,7 @@ public class ChooseGameSceneHandler : MonoBehaviour
 
         // Make sure No control is set
         PlutoComm.setControlType("NONE");
-
+        Debug.Log(Time.timeScale);
         Debug.Log($"Curr APROM: {AppData.Instance.selectedMechanism.currRom.apromMin:F2}, {AppData.Instance.selectedMechanism.currRom.apromMax:F2}, Curr ROM: {AppData.Instance.selectedMechanism.currRom.promMin:F2}, {AppData.Instance.selectedMechanism.currRom.promMax:F2},{AppData.Instance.selectedMechanism.currRom.aromMin:F2}, {AppData.Instance.selectedMechanism.currRom.aromMax:F2}");
     }
 

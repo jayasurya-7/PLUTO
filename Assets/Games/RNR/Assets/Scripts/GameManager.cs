@@ -177,11 +177,11 @@ public class GameManager : MonoBehaviour
         nFailure = 0;
 
         HidePaused();
-        StartButton.SetActive(false);
-        RestartButton.SetActive(false);
+        //StartButton.SetActive(false);
+        //RestartButton.SetActive(false);
 
-        PauseButton.SetActive(true);
-        ResumeButton.SetActive(false);
+       // PauseButton.SetActive(true);
+       // ResumeButton.SetActive(false);
     }
     private float CalculateHighlightDuration(float mechanismSpeed)
     {
@@ -312,9 +312,9 @@ public class GameManager : MonoBehaviour
     void initializeGame()
     {
         // Time.timeScale = 0;
-        StartButton.SetActive(true);
-        PauseButton.SetActive(false);
-        ResumeButton.SetActive(false);
+        // StartButton.SetActive(true);
+        // PauseButton.SetActive(false);
+        // ResumeButton.SetActive(false);
         reminderPanel = GameObject.FindGameObjectWithTag("ReminderPanel");
 
         gameState = GameStates.WAITING;
@@ -430,7 +430,7 @@ public class GameManager : MonoBehaviour
             case GameStates.FAILURE:
             if (eventDelayTimer <= 0f)
                 {
-                    eventDelayTimer = 0.05f;
+                    eventDelayTimer = 0.07f;
                 }
                 else
                 {
@@ -593,7 +593,7 @@ private IEnumerator ShowForSeconds(GameObject obj, float seconds)
     public void ShowFinished()
     {
         Time.timeScale = 0;
-        RestartButton.SetActive(true);
+        // RestartButton.SetActive(true);
         foreach (GameObject g in finishObjects) g.SetActive(true);
     }
 
@@ -610,9 +610,9 @@ private IEnumerator ShowForSeconds(GameObject obj, float seconds)
         isPaused = true;
         Time.timeScale = 0;
         showPaused();
-        PauseButton.SetActive(false);
-        ResumeButton.SetActive(true);
-        ExitButton.SetActive(false);
+        // PauseButton.SetActive(false);
+        // ResumeButton.SetActive(true);
+        // ExitButton.SetActive(false);
     }
 
     public void EndGame()
@@ -640,8 +640,8 @@ private IEnumerator ShowForSeconds(GameObject obj, float seconds)
         isPaused = false;
         gameState = _prevGameState;
         Time.timeScale = 1;
-        PauseButton.SetActive(true);
-        ResumeButton.SetActive(false);
+        // PauseButton.SetActive(true);
+        // ResumeButton.SetActive(false);
         ExitButton.SetActive(true);
             reminderPanel.SetActive(false);
 
@@ -733,7 +733,7 @@ private IEnumerator ShowForSeconds(GameObject obj, float seconds)
 
     public void Exit()
     {
-        if(gameState == GameStates.DONE || gameState == GameStates.WAITING){
+        if(gameState == GameStates.DONE || gameState == GameStates.WAITING ){
             Time.timeScale = 1f;
             SceneManager.LoadScene(exitScene);
         }

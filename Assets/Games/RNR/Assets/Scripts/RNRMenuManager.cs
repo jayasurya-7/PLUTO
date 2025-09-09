@@ -54,7 +54,7 @@ public class RNRMenuManager : MonoBehaviour
     }
     private IEnumerator AutoPlayAfterDelay()
     {
-        yield return new WaitForSeconds(0.75f);
+        yield return new WaitForSeconds(0.5f);
         SceneManager.LoadScene(gameScene);
         AppLogger.LogInfo("Switching scene to RNR_game.");
     }

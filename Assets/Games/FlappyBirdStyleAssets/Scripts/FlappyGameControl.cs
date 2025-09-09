@@ -132,9 +132,9 @@ public class FlappyGameControl : MonoBehaviour
     private void InitializeGame()
     {
         // Enable the buttons
-        StartButton.SetActive(true);
-        PauseButton.SetActive(false);
-        ResumeButton.SetActive(false);
+        // StartButton.SetActive(true);
+        // PauseButton.SetActive(false);
+        // ResumeButton.SetActive(false);
         reminderPanel = GameObject.FindGameObjectWithTag("ReminderPanel");
 
         // Intialize game logic variables
@@ -328,9 +328,9 @@ public class FlappyGameControl : MonoBehaviour
         isGamePaused = true;
         Time.timeScale = 0;
         showPaused();
-        PauseButton.SetActive(false);
-        ResumeButton.SetActive(true);
-        ExitButton.SetActive(false);
+        // PauseButton.SetActive(false);
+        // ResumeButton.SetActive(true);
+        // ExitButton.SetActive(false);
     }
 
     public void ResumeGame()
@@ -339,8 +339,8 @@ public class FlappyGameControl : MonoBehaviour
         isGamePaused = false;
         gameState = _prevGameState;
         Time.timeScale = 1;
-        PauseButton.SetActive(true);
-        ResumeButton.SetActive(false);
+        // PauseButton.SetActive(true);
+        // ResumeButton.SetActive(false);
         ExitButton.SetActive(true);
         // Send PLUTO heartbeat
         PlutoComm.sendHeartbeat();
@@ -488,9 +488,9 @@ public class FlappyGameControl : MonoBehaviour
         timerObject.enabled = true;
 
         // Disable buttons except the pause button.
-        StartButton.SetActive(false);
-        PauseButton.SetActive(true);
-        ResumeButton.SetActive(false);
+        // StartButton.SetActive(false);
+        // PauseButton.SetActive(true);
+        // ResumeButton.SetActive(false);
     }
 
     public bool IsGamePlaying()

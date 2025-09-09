@@ -286,7 +286,7 @@ public class PongGameController : MonoBehaviour
         isGamePaused = true;
         isPaused = true;
         showPaused();
-        ExitButton.SetActive(false);
+        // ExitButton.SetActive(false);
     }
 
     private void resumeGame()

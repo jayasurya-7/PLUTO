@@ -524,7 +524,7 @@ public class FruitBasketGameController : MonoBehaviour
         SceneManager.LoadScene(SceneManager.GetActiveScene().name);
     }
     public void exitGame()
-    {if(gameState == GameStates.DONE || gameState == GameStates.WAITFORSTART){
+    {if(gameState == GameStates.DONE || gameState == GameStates.WAITFORSTART || gameState == GameStates.PAUSE){
             Time.timeScale = 1f;
             SceneManager.LoadScene(prevScene);
         }
