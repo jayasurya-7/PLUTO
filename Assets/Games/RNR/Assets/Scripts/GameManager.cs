@@ -36,6 +36,7 @@ public class GameManager : MonoBehaviour
     public GameObject aromRight;
     public GameObject increaseSpeed, decreaseSpeed;
     bool speedControlsVisible = false;
+    private string exitScene = "CHGAME";
 
     public enum GameStates
     {
@@ -734,7 +735,7 @@ private IEnumerator ShowForSeconds(GameObject obj, float seconds)
     {
         if(gameState == GameStates.DONE || gameState == GameStates.WAITING){
             Time.timeScale = 1f;
-            SceneManager.LoadScene("RNRMENU");
+            SceneManager.LoadScene(exitScene);
         }
         else
         {
@@ -745,7 +746,7 @@ private IEnumerator ShowForSeconds(GameObject obj, float seconds)
             AppData.Instance.StopTrial(nTargets, nSuccess, nFailure);
             gameState = GameStates.DONE;
             Time.timeScale = 1f;
-            SceneManager.LoadScene("RNRMENU");
+            SceneManager.LoadScene(exitScene);
         }
     
     }

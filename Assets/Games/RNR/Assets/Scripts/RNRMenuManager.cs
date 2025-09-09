@@ -15,6 +15,7 @@ public class RNRMenuManager : MonoBehaviour
         AppLogger.LogInfo($"{SceneManager.GetActiveScene().name} scene started.");
         isButtonPressed = false;
 
+        StartCoroutine(AutoPlayAfterDelay());
     }
 
     // Update is called once per frame
@@ -44,11 +45,17 @@ public class RNRMenuManager : MonoBehaviour
     {
         isButtonPressed = true;
     }
-     private void OnDestroy()
+    private void OnDestroy()
     {
         if (ConnectToRobot.isPLUTO)
         {
             PlutoComm.OnButtonReleased -= onPlutoButtonReleased;
         }
+    }
+    private IEnumerator AutoPlayAfterDelay()
+    {
+        yield return new WaitForSeconds(0.75f);
+        SceneManager.LoadScene(gameScene);
+        AppLogger.LogInfo("Switching scene to RNR_game.");
     }
 }

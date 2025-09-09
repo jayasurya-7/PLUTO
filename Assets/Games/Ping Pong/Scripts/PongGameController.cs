@@ -63,7 +63,7 @@ public class PongGameController : MonoBehaviour
     public bool enemyHit = false;
     // Target and player positions.
     //scene
-    private static string prevScene = "PONGMENU";
+    private static string prevScene = "CHGAME";
     private float[] arom;
     private float[] prom, aprom;
     private float targetAngle;
