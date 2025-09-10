@@ -123,9 +123,10 @@ public class FruitBasketGameController : MonoBehaviour
             aromRight.transform.localPosition.y,
             aromRight.transform.localPosition.z
         );
+            bestScore.text = $"BEST:{(int)Others.highestSuccessRate:F0}%";
+
         if (AppData.Instance.previousSuccessRates != null)
         {
-            bestScore.text = $"BEST:{(int)Others.highestSuccessRate:F0}%";
             preSuccRate.text = $"PrevSuccessRate:{AppData.Instance.previousSuccessRates[0].ToString("F0")}";
             currSuccRate.text = $"currSuccessRate:{AppData.Instance.previousSuccessRates[1].ToString("F0")}";
         }

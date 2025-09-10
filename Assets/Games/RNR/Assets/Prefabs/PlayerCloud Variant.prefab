@@ -223,7 +223,7 @@ ParticleSystem:
       serializedVersion: 2
       minMaxState: 0
       minColor: {r: 1, g: 1, b: 1, a: 1}
-      maxColor: {r: 0.6, g: 0.8980392, b: 0.85882354, a: 1}
+      maxColor: {r: 0, g: 1, b: 0.87058824, a: 1}
       maxGradient:
         serializedVersion: 2
         key0: {r: 1, g: 1, b: 1, a: 1}
@@ -287,7 +287,7 @@ ParticleSystem:
     startSize:
       serializedVersion: 2
       minMaxState: 0
-      scalar: 0.05
+      scalar: 0.07
       minScalar: 1
       maxCurve:
         serializedVersion: 2
@@ -870,7 +870,7 @@ ParticleSystem:
     rateOverTime:
       serializedVersion: 2
       minMaxState: 0
-      scalar: 20
+      scalar: 40
       minScalar: 10
       maxCurve:
         serializedVersion: 2
@@ -4844,6 +4844,18 @@ PrefabInstance:
       propertyPath: m_Name
       value: PlayerCloud Variant
       objectReference: {fileID: 0}
+    - target: {fileID: 2565116469403670429, guid: 7f19fde5d5fb58c429e4fc471efb4a2a, type: 3}
+      propertyPath: m_Color.b
+      value: 1
+      objectReference: {fileID: 0}
+    - target: {fileID: 2565116469403670429, guid: 7f19fde5d5fb58c429e4fc471efb4a2a, type: 3}
+      propertyPath: m_Color.g
+      value: 1
+      objectReference: {fileID: 0}
+    - target: {fileID: 2565116469403670429, guid: 7f19fde5d5fb58c429e4fc471efb4a2a, type: 3}
+      propertyPath: m_Color.r
+      value: 1
+      objectReference: {fileID: 0}
     - target: {fileID: 4863755571799914580, guid: 7f19fde5d5fb58c429e4fc471efb4a2a, type: 3}
       propertyPath: m_LocalPosition.x
       value: 0
@@ -4887,6 +4899,18 @@ PrefabInstance:
     - target: {fileID: 5920948689684289979, guid: 7f19fde5d5fb58c429e4fc471efb4a2a, type: 3}
       propertyPath: EmissionModule.rateOverTime.scalar
       value: 20
+      objectReference: {fileID: 0}
+    - target: {fileID: 5920948689684289979, guid: 7f19fde5d5fb58c429e4fc471efb4a2a, type: 3}
+      propertyPath: InitialModule.startColor.maxColor.b
+      value: 0.8684211
+      objectReference: {fileID: 0}
+    - target: {fileID: 5920948689684289979, guid: 7f19fde5d5fb58c429e4fc471efb4a2a, type: 3}
+      propertyPath: InitialModule.startColor.maxColor.g
+      value: 1
+      objectReference: {fileID: 0}
+    - target: {fileID: 5920948689684289979, guid: 7f19fde5d5fb58c429e4fc471efb4a2a, type: 3}
+      propertyPath: InitialModule.startColor.maxColor.r
+      value: 0
       objectReference: {fileID: 0}
     m_RemovedComponents: []
     m_RemovedGameObjects: []

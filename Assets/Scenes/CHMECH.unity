@@ -1266,9 +1266,9 @@ MonoBehaviour:
   onValueChanged:
     m_PersistentCalls:
       m_Calls:
-      - m_Target: {fileID: 0}
-        m_TargetAssemblyTypeName: MechSceneHandler, Assembly-CSharp
-        m_MethodName: OnToggleClick
+      - m_Target: {fileID: 1092639108}
+        m_TargetAssemblyTypeName: MechanismSceneHandler, Assembly-CSharp
+        m_MethodName: moveNextScene
         m_Mode: 1
         m_Arguments:
           m_ObjectArgument: {fileID: 0}
@@ -3150,9 +3150,9 @@ MonoBehaviour:
   onValueChanged:
     m_PersistentCalls:
       m_Calls:
-      - m_Target: {fileID: 0}
-        m_TargetAssemblyTypeName: MechSceneHandler, Assembly-CSharp
-        m_MethodName: OnToggleClick
+      - m_Target: {fileID: 1092639108}
+        m_TargetAssemblyTypeName: MechanismSceneHandler, Assembly-CSharp
+        m_MethodName: moveNextScene
         m_Mode: 1
         m_Arguments:
           m_ObjectArgument: {fileID: 0}
@@ -3931,9 +3931,9 @@ MonoBehaviour:
   onValueChanged:
     m_PersistentCalls:
       m_Calls:
-      - m_Target: {fileID: 0}
-        m_TargetAssemblyTypeName: MechSceneHandler, Assembly-CSharp
-        m_MethodName: OnToggleClick
+      - m_Target: {fileID: 1092639108}
+        m_TargetAssemblyTypeName: MechanismSceneHandler, Assembly-CSharp
+        m_MethodName: moveNextScene
         m_Mode: 1
         m_Arguments:
           m_ObjectArgument: {fileID: 0}
@@ -4145,9 +4145,9 @@ MonoBehaviour:
   onValueChanged:
     m_PersistentCalls:
       m_Calls:
-      - m_Target: {fileID: 0}
-        m_TargetAssemblyTypeName: MechSceneHandler, Assembly-CSharp
-        m_MethodName: OnToggleClick
+      - m_Target: {fileID: 1092639108}
+        m_TargetAssemblyTypeName: MechanismSceneHandler, Assembly-CSharp
+        m_MethodName: moveNextScene
         m_Mode: 1
         m_Arguments:
           m_ObjectArgument: {fileID: 0}
@@ -5215,9 +5215,9 @@ MonoBehaviour:
   onValueChanged:
     m_PersistentCalls:
       m_Calls:
-      - m_Target: {fileID: 0}
-        m_TargetAssemblyTypeName: MechSceneHandler, Assembly-CSharp
-        m_MethodName: OnToggleClick
+      - m_Target: {fileID: 1092639108}
+        m_TargetAssemblyTypeName: MechanismSceneHandler, Assembly-CSharp
+        m_MethodName: moveNextScene
         m_Mode: 1
         m_Arguments:
           m_ObjectArgument: {fileID: 0}
@@ -6450,9 +6450,9 @@ MonoBehaviour:
   onValueChanged:
     m_PersistentCalls:
       m_Calls:
-      - m_Target: {fileID: 0}
-        m_TargetAssemblyTypeName: MechSceneHandler, Assembly-CSharp
-        m_MethodName: OnToggleClick
+      - m_Target: {fileID: 1092639108}
+        m_TargetAssemblyTypeName: MechanismSceneHandler, Assembly-CSharp
+        m_MethodName: moveNextScene
         m_Mode: 1
         m_Arguments:
           m_ObjectArgument: {fileID: 0}

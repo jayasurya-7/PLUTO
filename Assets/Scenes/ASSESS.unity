@@ -35837,6 +35837,7 @@ MonoBehaviour:
   m_EditorClassIdentifier: 
   promButton: {fileID: 8209750394461808017}
   RedoARom: {fileID: 0}
+  exitButton: {fileID: 241951478}
   aromButton: {fileID: 413374363}
   mechName: {fileID: 1095993573}
   promHandler: {fileID: 8209750394461808011}

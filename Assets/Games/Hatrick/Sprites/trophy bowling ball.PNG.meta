@@ -202,11 +202,7 @@ TextureImporter:
     edges: []
     weights: []
     secondaryTextures: []
-    nameFileIdTable:
-      trophy bowling ball_0: 4566571338707516614
-      trophy bowling ball_1: -1472406761525727741
-      trophy bowling ball_2: -3951806168791811785
-      trophy bowling ball_3: -4557736467279055872
+    nameFileIdTable: {}
   mipmapLimitGroupName: 
   pSDRemoveMatte: 0
   userData: 

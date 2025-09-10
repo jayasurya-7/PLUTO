@@ -29,11 +29,31 @@ public class welcomSceneHandler : MonoBehaviour
 
     void Start()
     {
-
-        if (!Directory.Exists(DataManager.basePath)) 
+        if (string.IsNullOrEmpty(DataManager.basePath))
         {
-            SceneManager.LoadScene("GETCONFIG");
+            Debug.Log(DataManager.userIdPath);
+            Debug.Log("basePath: " + DataManager.basePath);
+Debug.Log("userID: " + AppData.Instance.userID);
+Debug.Log("configFile path: " + DataManager.configFile);
+
+            DataManager.basePath = DataManager.FixPath(Path.Combine(DataManager.userIdPath, "data"));
+            Debug.LogWarning("basePath was empty. Setting fallback path: " + DataManager.basePath);
+        }
+
+
+        Debug.Log("path:" + DataManager.basePath);
+        if (!Directory.Exists(DataManager.basePath))
+        {
+            SceneManager.LoadScene("CONFIG");
             return;
+        }
+          string filePath = @"C:/comport.txt";
+
+        // Optional: Create a default file if it doesn't exist
+        if (File.Exists(filePath))
+        {
+            string com = File.ReadAllText(filePath);
+            AppData.Instance.setComport(com);
         }
 
         // Get all subdirectories excluding metadata
@@ -51,7 +71,8 @@ public class welcomSceneHandler : MonoBehaviour
 
         if (!File.Exists(DataManager.configFile)) 
         {
-            SceneManager.LoadScene("GETCONFIG");
+            Debug.Log("running");
+            SceneManager.LoadScene("CONFIG");
             return;
         }
         

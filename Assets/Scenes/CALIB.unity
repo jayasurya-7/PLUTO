@@ -282,7 +282,7 @@ MonoBehaviour:
     m_SelectOnRight: {fileID: 0}
   m_Transition: 1
   m_Colors:
-    m_NormalColor: {r: 0, g: 0.37254903, b: 0.23137255, a: 1}
+    m_NormalColor: {r: 0.93333334, g: 0.96862745, b: 0.9529412, a: 1}
     m_HighlightedColor: {r: 0.07449269, g: 0.16981131, b: 0.13369055, a: 1}
     m_PressedColor: {r: 0, g: 1, b: 0.6210525, a: 1}
     m_SelectedColor: {r: 0.9607843, g: 0.9607843, b: 0.9607843, a: 1}
@@ -330,7 +330,7 @@ MonoBehaviour:
   m_Name: 
   m_EditorClassIdentifier: 
   m_Material: {fileID: 0}
-  m_Color: {r: 0, g: 0.49411765, b: 0.23137255, a: 1}
+  m_Color: {r: 0, g: 0.21960784, b: 0.20392157, a: 1}
   m_RaycastTarget: 1
   m_RaycastPadding: {x: 0, y: 0, z: 0, w: 0}
   m_Maskable: 1

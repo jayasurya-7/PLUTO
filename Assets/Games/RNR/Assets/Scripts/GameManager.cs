@@ -74,7 +74,7 @@ public class GameManager : MonoBehaviour
     private float rainTimer = 0f, convertedAngle=0f;
     private float highlightTimer = 0f;
 
-    private float rainDurationToGrow = 0.02f;    // needs 1s of rain
+    private float rainDurationToGrow = 0.0002f;    // needs 1s of rain
     private float highlightDuration;     // highlighted for 3s
     private bool hasGrownThisCycle = false, runOnce = false;
     private SeedController lastHighlighted = null; // store last seed
@@ -239,20 +239,14 @@ public class GameManager : MonoBehaviour
         // Growth logic
         if (!hasGrownThisCycle)
         {
+            AppLogger.LogError("running hasGrown this cycle");
             if (currentHighlighted.IsBeingRainedOn)
             {
-                rainTimer += Time.deltaTime;
-                if (rainTimer >= rainDurationToGrow)
-                {
-                    currentHighlighted.Grow();
-                    TargetReached();
-                    hasGrownThisCycle = true;
-                    score++;
-                }
-            }
-            else
-            {
-                rainTimer = 0f;
+                AppLogger.LogInfo("inside raining");
+                currentHighlighted.Grow();
+                TargetReached();
+                hasGrownThisCycle = true;
+                score++;
             }
         }
 
@@ -396,7 +390,6 @@ public class GameManager : MonoBehaviour
                     }
                     HighlightRandomSeed();
                     highlightTimer = 0f;
-                    rainTimer = 0f;
                     hasGrownThisCycle = false;
                     // Set new trial in the AAN controller.
                     float checkFME = ((PlutoComm.MECHANISMS[PlutoComm.mechanism] != "FME1") && (PlutoComm.MECHANISMS[PlutoComm.mechanism] != "FME2")) ? gameSpeed : 20.0f;

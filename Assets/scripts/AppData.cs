@@ -19,8 +19,9 @@ public partial class AppData
      * CONSTANT FIXED VARIABLES.
      */
     // COM Port for the device
-    public const string COMPort = "COM21";
+    // public const string COMPort = "COM13"; //pluto cmc 1 com 24 /JS device
 
+    public string COMPort { get; private set; }
 
     // What is this used for?
     public string _dataLogDir = null;
@@ -77,6 +78,10 @@ public partial class AppData
     {
     }
 
+    public void setComport(string comport)
+    {
+        COMPort = comport;
+    }
     public void Initialize(string scene, bool doNotResetMech = true)
     {
         UnityEngine.Debug.Log(Application.persistentDataPath);
@@ -102,7 +107,7 @@ public partial class AppData
 
         // Initialize the user data.
         UnityEngine.Debug.Log(DataManager.configFile);
-        UnityEngine.Debug.Log( DataManager.sessionFile);
+        UnityEngine.Debug.Log(DataManager.sessionFile);
 
         userData = new PlutoUserData(DataManager.configFile, DataManager.sessionFile);
         // Selected mechanism and game.
@@ -110,12 +115,12 @@ public partial class AppData
         selectedGame = null;
 
         // Get current session number.
-        currentSessionNumber = userData.dTableSession.Rows.Count > 0 ? 
-            Convert.ToInt32(userData.dTableSession.Rows[userData.dTableSession.Rows.Count - 1]["SessionNumber"]) + 1 : 1;        
+        currentSessionNumber = userData.dTableSession.Rows.Count > 0 ?
+            Convert.ToInt32(userData.dTableSession.Rows[userData.dTableSession.Rows.Count - 1]["SessionNumber"]) + 1 : 1;
         AppLogger.LogWarning($"Session number set to {currentSessionNumber}.");
 
         //set to upload the data to the AWS
-       // awsManager.changeUploadStatus(awsManager.status[0]);
+        // awsManager.changeUploadStatus(awsManager.status[0]);
     }
 
     private void InitializeRobotConnection(bool doNotResetMech, string datetimestr = null)
@@ -125,8 +130,9 @@ public partial class AppData
         {
             PlutoComLogger.StartLogging(datetimestr);
         }
-        
-        if(!ConnectToRobot.isPLUTO) {
+
+        if (!ConnectToRobot.isPLUTO)
+        {
             ConnectToRobot.Connect(COMPort);
         }
         // Check if the connection is successful.
@@ -169,7 +175,8 @@ public partial class AppData
         AppLogger.LogInfo($"Trial numbers for ' {selectedMechanism.name}' updated. Day: {selectedMechanism.trialNumberDay}, Session: {selectedMechanism.trialNumberSession}.");
     }
 
-    public void setUser(string user){
+    public void setUser(string user)
+    {
         userID = user;
         UnityEngine.Debug.Log($" id : {userID}");
     }
@@ -177,41 +184,44 @@ public partial class AppData
     public void SetGame(string gameName)
     {
         selectedGame = gameName;
-        previousSuccessRates =AppData.Instance.userData.GetLastTwoSuccessRates(selectedMechanism.name , selectedGame);
-        // // Cannot set game before selecting mechanism.
-        // if (selectedMechanism == null) 
-        // {
-        //     AppLogger.LogError($"Setting game before mechanism not possible.");
-        //     throw new ArgumentNullException(nameof(selectedMechanism));
-        // }
+        previousSuccessRates = AppData.Instance.userData.GetLastTwoSuccessRates(selectedMechanism.name, selectedGame);
 
-        // // Set game to null when gameName is empty or null.
-        // if (string.IsNullOrEmpty(gameName))
-        // {
-        //     AppLogger.SetCurrentGame("");
-        //     selectedGame = null;
-        //     return;
-        // }
-
-        // // Set the game object appropriately.
-        // switch (gameName)
-        // {
-        //     case "HAT":
-        //         selectedGame = new HatTrickGame(selectedMechanism);
-        //         break;
-        //     default:
-        //         AppLogger.LogError($"Unknow game selected '{gameName}'.");
-        //         AppLogger.SetCurrentGame("");
-        //         selectedGame = null;
-        //         return;
-        // }
         // Set selected game.
         AppLogger.LogInfo($"Selected game '{selectedGame}'.");
         AppLogger.SetCurrentGame(selectedGame);
     }
 
     public string trainingSide => userData?.rightHand == true ? "RIGHT" : "LEFT";
-    
+
     // Check training size.
     public bool IsTrainingSide(string side) => string.Equals(trainingSide, side, StringComparison.OrdinalIgnoreCase);
+    public void Reset()
+    {
+        userID = null;
+        userData = null;
+        speedData = null;
+        selectedMechanism = null;
+        selectedGame = null;
+
+        currentSessionNumber = 0;
+        startTime = default;
+        stopTime = null;
+        trialStartTime = default;
+        trialStopTime = null;
+
+        trialRawDataFile = null;
+        rawDataString = null;
+        aanExecDataString = null;
+
+        previousSuccessRates = null;
+        desiredSuccessRate = 0f;
+        successRate = 0f;
+        aanController = null;
+        DataManager.ResetPaths();
+    }
+
+    public void setRawDataStringtoNull()
+    {
+        rawDataString = null;
+    }
 }

@@ -34,9 +34,7 @@ public static class HomerTherapy
     public static readonly Dictionary<string, float> GameSpeedIncrements = new Dictionary<string, float>  {
         { "PING-PONG", 0.5f },
         { "TUK-TUK", 0.2f },
-        { "HAT-Trick", 1f },
-        { "FRUITCH", 1f },
-        { "RNR", 1f }
+        { "HAT-Trick", 1f }
     };
     
     private static float? lastTarget = null;
@@ -145,7 +143,7 @@ public class MechanismSpeed
 
     private DataTable sessionTable;
     private string mechParamsCsvPath;
-    private static readonly string[] speedChMode = new string[] { "MANUAL", "AUTO" };
+    private static readonly string[] speedChMode = new string[] { "manual", "automatic" };
     public static readonly Dictionary<string, float> DefaultMechanismSpeeds = new Dictionary<string, float>
     {
         { "WFE", 10.0f },
@@ -670,7 +668,7 @@ public class PlutoUserData
             !string.IsNullOrWhiteSpace(row.Field<string>("SuccessRate")) &&
             !string.IsNullOrWhiteSpace(row.Field<string>("CurrentControlBound")))
         .ToList();
-        
+
         if (successRows.Any())
         {
             Others.highestSuccessRate = successRows
@@ -680,6 +678,8 @@ public class PlutoUserData
                     float controlBound = float.Parse(row.Field<string>("CurrentControlBound"), CultureInfo.InvariantCulture);
                     return successRate * (PlutoAANController.MAXCONTROLBOUND - controlBound);
                 });
+
+            Debug.Log(Others.highestSuccessRate);
         }
         else
         {

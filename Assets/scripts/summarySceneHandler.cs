@@ -55,12 +55,16 @@ public class summarySceneHandler : MonoBehaviour
         #endif
         });
     }
-    public void LoginScene(){
-    //     AppData.Instance.userData = null;
-    //    // PlutoComm.stopSensorStream();
-
+    public void LoginScene()
+    {
+        //     AppData.Instance.userData = null;
+        //    // PlutoComm.stopSensorStream();
+        AppData.Instance.Reset();
+        SceneManager.LoadScene("LOGIN");
+        Debug.Log("id after reset:" + AppData.Instance.userID);
+        Debug.Log("id afterrrr reset :" + (AppData.Instance.userData == null));
     //    AppData.Instance.setUser(null);
-    //     if(AppData.Instance.userData == null && AppData.Instance.userID == null) SceneManager.LoadScene("LOGIN");
+        //     if(AppData.Instance.userData == null && AppData.Instance.userID == null) SceneManager.LoadScene("LOGIN");
     }
 
     //To initialize the barchart with whole data of moveTime per day

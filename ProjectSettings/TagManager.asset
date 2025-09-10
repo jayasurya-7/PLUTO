@@ -9,16 +9,16 @@ TagManager:
   - Top
   - Bottom
   - Target
-  - Enemy
   - ShowOnPause
+  - ShowOnFinish
+  - ScoreText
+  - TimeLeftText
+  - Enemy
   - hideOnFinish
   - PlayerBound
   - targetPointer
-  - ShowOnFinish
-  - ReminderPanel
   - detailViewer
-  - Rain
-  - Ground
+  - ReminderPanel
   layers:
   - Default
   - TransparentFX
