@@ -130,7 +130,8 @@ TextureImporter:
     edges: []
     weights: []
     secondaryTextures: []
-    nameFileIdTable: {}
+    nameFileIdTable:
+      CelebrationTukTuk_0: 1917665015138741474
   mipmapLimitGroupName: 
   pSDRemoveMatte: 0
   userData: 

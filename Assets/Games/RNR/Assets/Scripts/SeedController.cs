@@ -48,8 +48,6 @@ public class SeedController : MonoBehaviour
     {
         if (other.CompareTag("Rain"))
             rainingThisFrame = true;
-        AppLogger.LogInfo("triggered");
-        // Debug.Log(rainingThisFrame);
     }
 
     public void SetHighlight(bool state)
@@ -69,7 +67,6 @@ public class SeedController : MonoBehaviour
     public void Grow()
     {
         // if (IsFullyGrown) return;
-                AppLogger.LogInfo(" Planting ");
 
         growthStages[currentStage].SetActive(false);
         if (!IsFullyGrown) currentStage++;
