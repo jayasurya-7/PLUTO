@@ -89,8 +89,9 @@ public class calibrationSceneHandler : MonoBehaviour
         if (Math.Abs(_angval) < 0.9 * PlutoComm.CALIBANGLE[mechInx]
             || Math.Abs(_angval) > 1.1 * PlutoComm.CALIBANGLE[mechInx])
         {
-            
+
             // Error in calibration
+            PlutoComm.setControlTarget(0.0f);
             PlutoComm.setControlType("NONE");
             // PlutoComm.calibrate("NOMECH");
             textMessage.text = $"Try Again.";
