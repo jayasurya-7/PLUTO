@@ -312,7 +312,7 @@ public class MechanismSpeed
         using (var writer = new StreamWriter(mechParamsCsvPath, false))
         {
             writer.WriteLine("DateTime,Mode,Speed");
-            writer.WriteLine($"{DateTime.Now.ToString("yyyy-MM-dd HH:mm:ss")},Default,{gameSpeed}");
+            writer.WriteLine($"{DateTime.Now.ToString("yyyy-MM-dd HH:mm:ss")},DEFAULT,{gameSpeed}");
         }
     }
 
@@ -576,7 +576,7 @@ public class PlutoUserData
         hospNumber = lastRow.Field<string>("HospitalNumber");
         rightHand = lastRow.Field<string>("TrainingSide") == "right";
         //AppData.trainingSide = ; // lastRow.Field<string>("TrainingSide");
-        startDate = DateTime.ParseExact(lastRow.Field<string>("startdate"), "dd-MM-yyyy", CultureInfo.InvariantCulture);
+        startDate = DateTime.ParseExact(lastRow.Field<string>("StartDate"), "dd-MM-yyyy", CultureInfo.InvariantCulture);
         mechMoveTimePrsc = createMoveTimeDictionary();//prescribed time
         for (int i = 0; i < PlutoDefs.Mechanisms.Length; i++)
         {

@@ -35,13 +35,11 @@ public static class awsManager
 
 public static void RunAWSpythonScript()
 {
-    
         if (!File.Exists(pythonScriptPath))
         {
             Debug.Log("File not found: Python script");
             return;
         }
-
 
         try
         {
