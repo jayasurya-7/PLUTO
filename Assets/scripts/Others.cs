@@ -366,6 +366,8 @@ public class PlutoUserData
     public Dictionary<string, float> mechMoveTimePrsc { get; private set; } // Prescribed movement time
     public Dictionary<string, float> mechMoveTimePrev { get; private set; } // Previous movement time 
     public Dictionary<string, float> mechMoveTimeCurr { get; private set; } // Current movement time
+    public bool isExceeded{ private set; get; }
+
 
     // Total movement times.
     public float totalMoveTimePrsc
@@ -411,32 +413,84 @@ public class PlutoUserData
         }
     }
 
-    public float totalMoveTimeRemaining
-    {
-        get
-        {
-            float _total = 0f;
+    // public float totalMoveTimeRemaining
+    // {
+    //     get
+    //     {
+    //         float _total = 0f;
 
-            if (mechMoveTimePrsc != null && (mechMoveTimePrev == null || mechMoveTimeCurr == null))
-            {
-                foreach (string mech in PlutoDefs.Mechanisms)
-                {
-                    _total += mechMoveTimePrsc[mech];
-                }
-                return _total;
-            }
-            else
-            {
-                foreach (string mech in PlutoDefs.Mechanisms)
-                {
-                    _total += mechMoveTimePrsc[mech] - mechMoveTimePrev[mech] - mechMoveTimeCurr[mech];
-                }
-                return _total;
-            }
-        }
-    }
+    //         if (mechMoveTimePrsc != null && (mechMoveTimePrev == null || mechMoveTimeCurr == null))
+    //         {
+    //             foreach (string mech in PlutoDefs.Mechanisms)
+    //             {
+    //                 _total += mechMoveTimePrsc[mech];
+    //             }
+    //             return _total;
+    //         }
+    //         else
+    //         {
+    //             foreach (string mech in PlutoDefs.Mechanisms)
+    //             {
+    //                 _total += mechMoveTimePrsc[mech] - mechMoveTimePrev[mech] - mechMoveTimeCurr[mech];
+    //             }
+    //             return _total;
+    //         }
+    //     }
+    // }
 
     // Constructor
+
+        public int totalMoveTimeRemaining
+
+    {
+
+        get
+
+        {
+
+            float _total = 0f;
+
+            float _Prsc = 0f;
+
+            foreach (string mech in PlutoDefs.Mechanisms)
+
+            {
+
+                _Prsc += mechMoveTimePrsc[mech];
+
+                _total += mechMoveTimePrev[mech] - mechMoveTimeCurr[mech];
+
+            }
+
+            if (_Prsc < _total)
+
+            {
+
+                isExceeded = true;
+
+                _total = (_total - _Prsc);
+
+                return (int)_total;
+
+            }
+
+            else
+
+            {
+
+                isExceeded = false;
+
+                _total = (_Prsc - _total);
+
+                return (int)_total;
+
+            }
+
+        }
+
+    }
+    
+
     public PlutoUserData(string configData, string sessionData)
     {
         if (File.Exists(configData))

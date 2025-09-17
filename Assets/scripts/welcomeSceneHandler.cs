@@ -109,7 +109,19 @@ public class welcomSceneHandler : MonoBehaviour
     private void UpdateUserData()
     {
         userName.text = AppData.Instance.userData.hospNumber;
-        timeRemainingToday.text = $"{AppData.Instance.userData.totalMoveTimeRemaining} min";
+        // timeRemainingToday.text = $"{AppData.Instance.userData.totalMoveTimeRemaining} min";
+        
+        int movetime = AppData.Instance.userData.totalMoveTimeRemaining;
+        if (AppData.Instance.userData.isExceeded)
+        {
+            timeRemainingToday.text = $"Done +{movetime}[min]";
+            timeRemainingToday.color = Color.green;
+        }
+        else
+        {
+            timeRemainingToday.text = $"{movetime} min";
+        }
+        
         todaysDay.text = AppData.Instance.userData.getCurrentDayOfTraining().ToString();
         todaysDate.text = DateTime.Now.ToString("ddd, dd-MM-yyyy");
         if (!File.Exists(awsManager.filePathUploadStatus))
