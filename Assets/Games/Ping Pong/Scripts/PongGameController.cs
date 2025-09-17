@@ -85,6 +85,7 @@ public class PongGameController : MonoBehaviour
     public GameObject aromRight;
     private float triaTimeLeft;
     private float moveTimeLeft;
+    public float gs;
 
     // Game score related variables.
     public int nTargets = 0;
@@ -276,6 +277,7 @@ public class PongGameController : MonoBehaviour
 
         enemy.speedDefault = Mathf.Clamp(speed, isFME ? 2.0f : 3.0f, 6.0f);
         ballSpeed.speed = Mathf.Clamp(ballSpd, isFME ? 0.9f : 1.5f, 5.0f);
+        gs = ballSpeed.speed;
     }
 
     private void pauseGame()
