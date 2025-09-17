@@ -224,7 +224,8 @@ public class MechanismSpeed
 
             if ((DateTime.Today - lastUpdate.Value).Days >= 3 && sessionDatesBetween.Count >= 2)
             {
-                UpdateGameSpeed();
+                if (gameSpeed < 40.0f) UpdateGameSpeed();
+                else GetLastDateFromMechParams();
             }
             else
             {
@@ -320,16 +321,18 @@ public class MechanismSpeed
         {
             gameSpeed = DefaultMechanismSpeeds[mechanismToCheck];
         }
+            
+            string chMode = speedChMode[mode];
+            gameSpeed = gameSpeed * 1.1f;
 
-        string chMode = speedChMode[mode];
-        gameSpeed = gameSpeed * 1.1f;
+            using (var writer = new StreamWriter(mechParamsCsvPath, true))
+            {
+                writer.WriteLine($"{DateTime.Now:yyyy-MM-dd HH:mm:ss},{chMode},{gameSpeed}");
+            }
 
-        using (var writer = new StreamWriter(mechParamsCsvPath, true))
-        {
-            writer.WriteLine($"{DateTime.Now:yyyy-MM-dd HH:mm:ss},{chMode},{gameSpeed}");
-        }
+            Debug.Log($"Game speed updated to: {gameSpeed}");
 
-        Debug.Log($"Game speed updated to: {gameSpeed}");
+        
     }
 
     public void updateGameSpeedfromGame(float gs, int mode = 0)
