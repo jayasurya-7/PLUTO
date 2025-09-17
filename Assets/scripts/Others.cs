@@ -557,15 +557,15 @@ public class PlutoUserData
             AppLogger.LogInfo($"Game speed for '{game.Key}' is set to {game.Value}.");
             if (game.Key == "PING-PONG")
             {
-               // gameData.gameSpeedPP = game.Value;
+                // gameData.gameSpeedPP = game.Value;
             }
             else if (game.Key == "TUK-TUK")
             {
-               // gameData.gameSpeedTT = game.Value;
+                // gameData.gameSpeedTT = game.Value;
             }
             else if (game.Key == "HAT-Trick")
             {
-               // gameData.gameSpeedHT = game.Value;
+                // gameData.gameSpeedHT = game.Value;
             }
         }
     }
@@ -670,7 +670,7 @@ public class PlutoUserData
             !string.IsNullOrWhiteSpace(row.Field<string>("SuccessRate")) &&
             !string.IsNullOrWhiteSpace(row.Field<string>("CurrentControlBound")))
         .ToList();
-        
+
         if (successRows.Any())
         {
             Others.highestSuccessRate = successRows
@@ -731,7 +731,6 @@ public class PlutoUserData
 
         return lastTwoSuccessRates;
     }
-
 
 
 }

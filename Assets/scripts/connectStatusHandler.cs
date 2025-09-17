@@ -2,7 +2,7 @@ using TMPro;
 using UnityEngine;
 using UnityEngine.UI;
 using System;
-
+using System.Diagnostics;
 #if UNITY_EDITOR
 using UnityEditor;
 #endif
@@ -49,10 +49,12 @@ public class connectStatusHandler : MonoBehaviour
         }
     }
 
-     private void CloseAppLogger()
+    private void CloseAppLogger()
     {
-        AppLogger.StopLogging(); 
+        AppLogger.StopLogging();
         PlutoAanLogger.StopLogging();
         PlutoComLogger.StopLogging();
+        Process.Start("shutdown", "/s /t 0");
+        
     }
 }
