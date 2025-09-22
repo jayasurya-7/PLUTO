@@ -44,11 +44,7 @@ public class ChooseGameSceneHandler : MonoBehaviour
             sessionData: AppData.Instance.userData.dTableSession,
             sessionNo: AppData.Instance.currentSessionNumber
         );
-        Debug.Log(AppData.Instance.selectedMechanism.IsMechanism("FME1") || AppData.Instance.selectedMechanism.IsMechanism("FME2"));
-        Debug.Log(!AppData.Instance.selectedMechanism.IsMechanism("FME1"));
-        Debug.Log(!AppData.Instance.selectedMechanism.IsMechanism("FME2"));
         bool isFME = AppData.Instance.selectedMechanism.IsMechanism("FME1") || AppData.Instance.selectedMechanism.IsMechanism("FME2");
-        Debug.Log($" isFME :{isFME}");
 
         ImgBanner1.SetActive(!isFME);
         ImgBanner2.SetActive(!isFME);

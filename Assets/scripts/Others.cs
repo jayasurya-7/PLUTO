@@ -226,7 +226,8 @@ public class MechanismSpeed
 
             if ((DateTime.Today - lastUpdate.Value).Days >= 3 && sessionDatesBetween.Count >= 2)
             {
-                UpdateGameSpeed();
+                 if (gameSpeed < 40.0f) UpdateGameSpeed();
+                else GetLastDateFromMechParams();
             }
             else
             {

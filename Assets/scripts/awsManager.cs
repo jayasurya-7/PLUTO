@@ -16,14 +16,12 @@ public static class awsManager
 
     public static string[] status = new string[] {"upload_needed","no_upload"};
     public static  string taskName ="AWSUploaderPlutoTask"; //change according to the device
-    public static string DeviceName = "Pluto";//change according to the device
+    public static string DeviceName = "Pluto"; //change according to the device
     public static string fullTaskAction = $"\\\"{pythonExecutionPath}\\\"\\\"{pythonScriptPath}\\\"";
     public static string message="";
     // Method to schedule the task using SCHTASKS
     public static void ScheduleTask()
     {
-        
-       
         string commandArguments = $"\"{pythonScriptPath}\"";
         string scheduleFrequency = "/SC MINUTE /MO 30";
         string command = $"schtasks /Create {scheduleFrequency} /TN \"{taskName}\" " +
@@ -73,8 +71,7 @@ public static void RunAWSpythonScript()
 
     public static void changeUploadStatus(string status){
         string uploadFilePath = Path.Combine(filePathUploadStatus, "uploadStatus.txt");
-            // You don't need `File.Create(...).Dispose()` manually � File.WriteAllText will create/write directly.
-            File.WriteAllText(uploadFilePath, $"{Path.Combine(Application.dataPath,"data", AppData.Instance.userID)},{status},{DeviceName},{AppData.Instance.userData.hospNumber},{AppData.Instance.userData.GetDeviceLocation()}");
+        File.WriteAllText(uploadFilePath, $"{Path.Combine(Application.dataPath,"data", AppData.Instance.userID)},{status},{DeviceName},{AppData.Instance.userData.hospNumber},{AppData.Instance.userData.GetDeviceLocation()}");
         
     }
     public static void AppSetups(string hospitalId, string location)

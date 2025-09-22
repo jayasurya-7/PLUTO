@@ -12,7 +12,9 @@ public class connectStatusHandler : MonoBehaviour
     private Image connectStatus;
     private GameObject loading;
     private TextMeshProUGUI statusText;
-
+    
+    private float disconnectTimer = 0f;
+    private const float shutdownDelay = 5f;
     void Awake()
     {
         // Subscribe to shutdown events once per instance
@@ -40,12 +42,21 @@ public class connectStatusHandler : MonoBehaviour
             connectStatus.color = Color.green;
             loading.SetActive(false);
             statusText.text = $"{PlutoComm.version}\n[{PlutoComm.frameRate:F1}Hz]";
+
+             disconnectTimer = 0f; //reset when connected
         }
         else
         {
             connectStatus.color = Color.red;
             loading.SetActive(true);
             statusText.text = "Not connected";
+
+            disconnectTimer += Time.deltaTime;
+
+            if (disconnectTimer >= shutdownDelay)
+            {
+                CloseAppLogger();
+            }
         }
     }
 
