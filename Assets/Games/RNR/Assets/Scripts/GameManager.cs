@@ -241,18 +241,11 @@ public class GameManager : MonoBehaviour
         {
             if (currentHighlighted.IsBeingRainedOn)
             {
-                rainTimer += Time.deltaTime;
-                if (rainTimer >= rainDurationToGrow)
-                {
                     currentHighlighted.Grow();
                     TargetReached();
                     hasGrownThisCycle = true;
                     score++;
-                }
-            }
-            else
-            {
-                rainTimer = 0f;
+                
             }
         }
 
