@@ -51,7 +51,7 @@ public class summarySceneHandler : MonoBehaviour
 
             ConnectToRobot.disconnect();
             Application.Quit();
-            Process.Start("shutdown", "/s /t 0");
+            // Process.Start("shutdown", "/s /t 0");
         #if UNITY_EDITOR
             UnityEditor.EditorApplication.isPlaying = false; 
         #endif

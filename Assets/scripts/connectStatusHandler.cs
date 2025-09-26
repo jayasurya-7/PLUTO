@@ -65,7 +65,7 @@ public class connectStatusHandler : MonoBehaviour
         AppLogger.StopLogging();
         PlutoAanLogger.StopLogging();
         PlutoComLogger.StopLogging();
-        Process.Start("shutdown", "/s /t 0");
+        // Process.Start("shutdown", "/s /t 0");
         
     }
 }

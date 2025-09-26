@@ -24,7 +24,7 @@ public class SeedController : MonoBehaviour
     void Start()
     {
         // Decide number of stages: 3 by default, 4 if speed > 30
-        float moveSpeed = 21f;
+        // float moveSpeed = 21f;
         // if (moveSpeed > 30f)
         // {
         //     maxStages = Mathf.Min(growthStages.Length, 4);

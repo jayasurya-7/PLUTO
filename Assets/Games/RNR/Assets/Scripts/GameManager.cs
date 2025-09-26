@@ -428,9 +428,15 @@ public class GameManager : MonoBehaviour
 
             case GameStates.SUCCESS:
             case GameStates.FAILURE:
-            if (eventDelayTimer <= 0f)
+                if (eventDelayTimer <= 0f)
                 {
-                    eventDelayTimer = 0.07f;
+                    eventDelayTimer = 0.6f;
+                    if (currentHighlighted != null)
+                    {
+                        currentHighlighted.SetHighlight(false);
+                        currentHighlighted.highLighter.SetActive(false);
+                        currentHighlighted = null;
+                    }
                 }
                 else
                 {
@@ -443,7 +449,7 @@ public class GameManager : MonoBehaviour
                         isTargetMissed = false;
                         runOnce = false;
                     }
-                    
+
                 }
                 
                 break;
