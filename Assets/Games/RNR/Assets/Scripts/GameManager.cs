@@ -74,8 +74,8 @@ public class GameManager : MonoBehaviour
     private float rainTimer = 0f, convertedAngle=0f;
     private float highlightTimer = 0f;
 
-    private float rainDurationToGrow = 0.02f;    // needs 1s of rain
-    private float highlightDuration;     // highlighted for 3s
+    private float rainDurationToGrow = 0.5f;    // needs 1s of rain
+    public float highlightDuration;     // highlighted for 3s
     private bool hasGrownThisCycle = false, runOnce = false;
     private SeedController lastHighlighted = null; // store last seed
 
@@ -229,6 +229,36 @@ public class GameManager : MonoBehaviour
         if (currentHighlighted != null)
         {
             highlightTimer += Time.deltaTime;
+
+        // Calculate remaining time
+            float remainingTime = Mathf.Max(0, highlightDuration - highlightTimer);
+
+            // Fade out based on remaining time
+            if (currentHighlighted.highLighter != null)
+            {
+                Renderer highlighterRenderer = currentHighlighted.highLighter.GetComponent<Renderer>();
+                if (highlighterRenderer != null && !currentHighlighted.IsBeingRainedOn)
+                {
+                    Color originalColor = highlighterRenderer.material.color;
+                    float alpha = Mathf.Clamp01(remainingTime / highlightDuration); // 1 → 0 as time runs out
+                    originalColor.a = alpha;
+                    highlighterRenderer.material.color = originalColor;
+
+                    // When time runs out, ensure it stays invisible
+                    if (remainingTime <= 0.01f)
+                    {
+                        originalColor.a = 0f;
+                        highlighterRenderer.material.color = originalColor;
+                        currentHighlighted.highLighter.SetActive(false);
+                    }
+                }
+                else if (highlighterRenderer != null && currentHighlighted.IsBeingRainedOn)
+                {
+                    Color originalColor = highlighterRenderer.material.color;
+                    highlighterRenderer.material.color = originalColor;
+                }
+            
+            }
             if (highlightTimer >= highlightDuration && !hasGrownThisCycle)
             {
                 TargetMissed();
@@ -242,6 +272,7 @@ public class GameManager : MonoBehaviour
             if (currentHighlighted.IsBeingRainedOn)
             {
                 rainTimer += Time.deltaTime;
+                
                 if (rainTimer >= rainDurationToGrow)
                 {
                     currentHighlighted.Grow();
@@ -252,11 +283,18 @@ public class GameManager : MonoBehaviour
             }
             else
             {
-                rainTimer = 0f;
+                // rainTimer = 0f;
+                // Option 1: decay gradually
+                rainTimer = Mathf.Max(0, rainTimer - Time.deltaTime);
+                Debug.Log($"RainTimer: {rainTimer}, IsBeingRainedOn: {currentHighlighted.IsBeingRainedOn}");
+
             }
         }
 
+        // Score.text = $"Score : {score}";
         Score.text = $"Score : {score}";
+        // Score.text = $"Score : {rainTimer}";
+
         Timer.text = "Time :" + trialTimeLeft.ToString("F0");
         speed.text = $"GS :{(int)gameSpeed}";
     }

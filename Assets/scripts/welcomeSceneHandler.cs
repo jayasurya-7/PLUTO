@@ -67,15 +67,15 @@ public class welcomSceneHandler : MonoBehaviour
             UpdateUserData();
             UpdatePieChart();
         }
-        Task.Run(() =>  // Run in a background task
-            {
-            if (!awsManager.IsTaskScheduled(awsManager.taskName))
-            {
-                awsManager.ScheduleTask();
-            }
-            awsManager.RunAWSpythonScript();
+        // Task.Run(() =>  // Run in a background task
+        //     {
+        //     if (!awsManager.IsTaskScheduled(awsManager.taskName))
+        //     {
+        //         awsManager.ScheduleTask();
+        //     }
+        //     awsManager.RunAWSpythonScript();
 
-            });
+        //     });
        
     }
 

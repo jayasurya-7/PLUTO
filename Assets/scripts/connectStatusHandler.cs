@@ -3,6 +3,8 @@ using UnityEngine;
 using UnityEngine.UI;
 using System;
 using System.Diagnostics;
+using UnityEngine.SceneManagement;
+
 #if UNITY_EDITOR
 using UnityEditor;
 #endif
@@ -55,7 +57,8 @@ public class connectStatusHandler : MonoBehaviour
 
             if (disconnectTimer >= shutdownDelay)
             {
-                CloseAppLogger();
+                // CloseAppLogger();
+                SceneManager.LoadScene("DATAUPLOAD");
             }
         }
     }

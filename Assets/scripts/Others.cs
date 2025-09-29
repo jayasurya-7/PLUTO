@@ -367,7 +367,7 @@ public class PlutoUserData
     public Dictionary<string, float> mechMoveTimePrsc { get; private set; } // Prescribed movement time
     public Dictionary<string, float> mechMoveTimePrev { get; private set; } // Previous movement time 
     public Dictionary<string, float> mechMoveTimeCurr { get; private set; } // Current movement time
-    public bool isExceeded{ private set; get; }
+    public bool isExceeded { private set; get; }
 
 
     // Total movement times.
@@ -441,7 +441,7 @@ public class PlutoUserData
 
     // Constructor
 
-        public int totalMoveTimeRemaining
+    public int totalMoveTimeRemaining
 
     {
 
@@ -490,7 +490,7 @@ public class PlutoUserData
         }
 
     }
-    
+
 
     public PlutoUserData(string configData, string sessionData)
     {
@@ -785,6 +785,46 @@ public class PlutoUserData
             lastTwoSuccessRates.Add(0f);
 
         return lastTwoSuccessRates;
+    }
+    
+    public void ReadFile()
+    {
+        if (!File.Exists(DataManager.GetUploadStatusFile))
+        {
+            Debug.LogError("File not found: " + DataManager.GetUploadStatusFile);
+            return;
+        }
+
+        string[] lines = File.ReadAllLines(DataManager.GetUploadStatusFile);
+        string status;
+
+        foreach (string line in lines)
+        {
+            if (string.IsNullOrWhiteSpace(line)) continue;
+
+            string[] parts = line.Split(',');
+
+            if (parts.Length > 1)
+            {
+                status = parts[1].Trim(); // second column
+                DataManager.setStatus(status);
+
+                if (status == "upload_needed")
+                {
+                    // dataStatus.text = "Upload needed";
+                    Debug.Log("Upload is needed!");
+                }
+                else if (status == "no_upload")
+                {
+                    // dataStatus.text = "No upload required";
+                    Debug.Log("No upload required.");
+                }
+                else
+                {
+                    Debug.Log("Unknown status: " + status);
+                }
+            }
+        }
     }
 
 

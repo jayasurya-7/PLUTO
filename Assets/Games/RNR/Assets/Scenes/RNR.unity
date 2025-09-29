@@ -7961,6 +7961,7 @@ MonoBehaviour:
   - {fileID: 140763252}
   - {fileID: 1917911890}
   - {fileID: 940971099}
+  highlightDuration: 0
 --- !u!114 &776559204
 MonoBehaviour:
   m_ObjectHideFlags: 0

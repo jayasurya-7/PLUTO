@@ -45,16 +45,19 @@ public class summarySceneHandler : MonoBehaviour
     //To disconnect the Robot 
     public void onPlutoButtonReleased()
     {
+            // SceneManager.LoadScene("DATAUPLOAD");
+
         _actionQueue.Enqueue(() =>
         {
             PlutoComm.stopSensorStream();
 
             ConnectToRobot.disconnect();
-            Application.Quit();
+            SceneManager.LoadScene("DATAUPLOAD");
+            // Application.Quit();
             // Process.Start("shutdown", "/s /t 0");
-        #if UNITY_EDITOR
-            UnityEditor.EditorApplication.isPlaying = false; 
-        #endif
+            // #if UNITY_EDITOR
+            //     UnityEditor.EditorApplication.isPlaying = false; 
+            // #endif
         });
     }
     public void LoginScene(){
