@@ -11,12 +11,13 @@ public class GameManager : MonoBehaviour
     public GameObject cloudPrefab;
     public static GameManager Instance{ get; private set; }
     private CloudController playerCloud;
-    public TextMeshProUGUI Score, Timer;
+    public TextMeshProUGUI Score, Timer, rainT;
     private float gameDuration = 60f;
     private float gameTimer = 0f;
     public TextMeshProUGUI ScoreText, speed;
     private float lastHighScore;
      public Image loadingImage;
+    public Text HST;
     private float PLAYSIZE;
     public GameObject SuccessRateBanner;
 
@@ -74,7 +75,7 @@ public class GameManager : MonoBehaviour
     private float rainTimer = 0f, convertedAngle=0f;
     private float highlightTimer = 0f;
 
-    private float rainDurationToGrow = 0.5f;    // needs 1s of rain
+    private float rainDurationToGrow = 1.0f;    // needs 1s of rain
     public float highlightDuration;     // highlighted for 3s
     private bool hasGrownThisCycle = false, runOnce = false;
     private SeedController lastHighlighted = null; // store last seed
@@ -132,7 +133,7 @@ public class GameManager : MonoBehaviour
             AngleToScreen(AppData.Instance.selectedMechanism.currRom.aromMax),
             aromRight.transform.position.y,
             aromRight.transform.position.z);
-        HS.text = $" BEST :{Others.highestSuccessRate:F0} %";
+        HST.text = $"{Others.highestSuccessRate:F0} %";
         status.text = $"s.no: {AppData.Instance.currentSessionNumber}\n" +
               $"trialNo: {AppData.Instance.selectedMechanism.trialNumberSession}\n" +
               $"CB: {AppData.Instance.CurrentControlBound}";
@@ -294,7 +295,7 @@ public class GameManager : MonoBehaviour
         // Score.text = $"Score : {score}";
         Score.text = $"Score : {score}";
         // Score.text = $"Score : {rainTimer}";
-
+        rainT.text = $"t :{rainTimer}";
         Timer.text = "Time :" + trialTimeLeft.ToString("F0");
         speed.text = $"GS :{(int)gameSpeed}";
     }

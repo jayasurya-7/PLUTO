@@ -9,8 +9,9 @@ using System.Threading.Tasks;
 public static class awsManager
 {
     public static string pythonScriptPath = @"C:/pythonscripts/uploadToAWS.pyw";
-         
-    public static  string pythonExecutionPath = @"C:/Users/Homer 7/AppData/Local/Programs/Python/Python313/pythonw.exe";
+
+    public static  string pythonExecutionPath = @"C:/Users/Homer 6/AppData/Local/Programs/Python/Python313/pythonw.exe";
+    // public static string pythonExecutionPath = @"C:/Program Files/Python312/pythonw.exe";
     public static string filePathUploadStatus = @"C:/DeviceSetups/Pluto"; //change according to the device
     public static string filePathAppsetups = @"C:/AppSetups/Pluto"; //change according to the device
 
@@ -31,39 +32,39 @@ public static class awsManager
   
   
 
-// public static void RunAWSpythonScript()
-// {
-//         if (!File.Exists(pythonScriptPath))
-//         {
-//             Debug.Log("File not found: Python script");
-//             return;
-//         }
+public static void RunAWSpythonScript()
+{
+        if (!File.Exists(pythonScriptPath))
+        {
+            Debug.Log("File not found: Python script");
+            return;
+        }
 
-//         try
-//         {
-//             Process process = new Process();
-//             process.StartInfo.FileName = pythonExecutionPath;
-//             process.StartInfo.Arguments = pythonScriptPath;
-//             process.StartInfo.UseShellExecute = false;
-//             process.StartInfo.RedirectStandardOutput = true;
-//             process.StartInfo.RedirectStandardError = true;
-//             process.StartInfo.CreateNoWindow = true;
-//             process.Start();
+        try
+        {
+            Process process = new Process();
+            process.StartInfo.FileName = pythonExecutionPath;
+            process.StartInfo.Arguments = pythonScriptPath;
+            process.StartInfo.UseShellExecute = false;
+            process.StartInfo.RedirectStandardOutput = true;
+            process.StartInfo.RedirectStandardError = true;
+            process.StartInfo.CreateNoWindow = true;
+            process.Start();
 
-//             string output = process.StandardOutput.ReadToEnd();
-//             string error = process.StandardError.ReadToEnd();
-//             process.WaitForExit();
-//             Debug.Log(output);
-//             Debug.Log(error);
-//            message = output;
+            string output = process.StandardOutput.ReadToEnd();
+            string error = process.StandardError.ReadToEnd();
+            process.WaitForExit();
+            Debug.Log(output);
+            Debug.Log(error);
+           message = output;
             
-//         }
-//         catch (System.Exception ex)
-//         {
-//             Debug.Log("An error occurred while running the Python script: " + ex.Message);
-//         }
+        }
+        catch (System.Exception ex)
+        {
+            Debug.Log("An error occurred while running the Python script: " + ex.Message);
+        }
     
-// }
+}
     public static string getmessage()
     {
         return message;

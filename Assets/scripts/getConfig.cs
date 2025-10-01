@@ -34,10 +34,10 @@ public class getConfig : MonoBehaviour
         configFilePath = $"{Application.dataPath}/data/{hospitalID}/data/configdata.csv";
         string Location = location.options[location.value].text;
         awsManager.AppSetups(hospitalID,Location);
-        // Task.Run(() =>  // Run in a background task
-        // {
-        //     awsManager.RunAWSpythonScript();
-        // });
+        Task.Run(() =>  // Run in a background task
+        {
+            awsManager.RunAWSpythonScript();
+        });
     
     }
     public  void SHOWMESSAGE()

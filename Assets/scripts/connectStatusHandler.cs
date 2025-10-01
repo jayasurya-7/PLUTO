@@ -57,8 +57,20 @@ public class connectStatusHandler : MonoBehaviour
 
             if (disconnectTimer >= shutdownDelay)
             {
+                string currentScene = SceneManager.GetActiveScene().name;
+                if (currentScene == "MAIN") // replace with your scene name
+                {
+                    // Direct shutdown
+                    CloseAppLogger();
+                   Process.Start("shutdown", "/s /t 0");
+                }
+                else
+                {
+                    // Normal flow: load DataUpload
+                    SceneManager.LoadScene("DATAUPLOAD");
+                }
                 // CloseAppLogger();
-                SceneManager.LoadScene("DATAUPLOAD");
+                // SceneManager.LoadScene("DATAUPLOAD");
             }
         }
     }

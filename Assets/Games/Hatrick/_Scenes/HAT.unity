@@ -5835,9 +5835,61 @@ PrefabInstance:
     serializedVersion: 3
     m_TransformParent: {fileID: 162017152}
     m_Modifications:
+    - target: {fileID: 1740969911207886384, guid: 2c0fd784c8f15684f95bdebf1506a0e8, type: 3}
+      propertyPath: m_Text
+      value: 100
+      objectReference: {fileID: 0}
+    - target: {fileID: 1740969911207886384, guid: 2c0fd784c8f15684f95bdebf1506a0e8, type: 3}
+      propertyPath: m_Color.b
+      value: 0
+      objectReference: {fileID: 0}
+    - target: {fileID: 1740969911207886384, guid: 2c0fd784c8f15684f95bdebf1506a0e8, type: 3}
+      propertyPath: m_Color.g
+      value: 0
+      objectReference: {fileID: 0}
+    - target: {fileID: 1740969911207886384, guid: 2c0fd784c8f15684f95bdebf1506a0e8, type: 3}
+      propertyPath: m_Color.r
+      value: 0
+      objectReference: {fileID: 0}
+    - target: {fileID: 1740969911207886384, guid: 2c0fd784c8f15684f95bdebf1506a0e8, type: 3}
+      propertyPath: m_FontData.m_MaxSize
+      value: 45
+      objectReference: {fileID: 0}
+    - target: {fileID: 1740969911207886384, guid: 2c0fd784c8f15684f95bdebf1506a0e8, type: 3}
+      propertyPath: m_FontData.m_FontSize
+      value: 22
+      objectReference: {fileID: 0}
+    - target: {fileID: 1740969911207886384, guid: 2c0fd784c8f15684f95bdebf1506a0e8, type: 3}
+      propertyPath: m_FontData.m_Alignment
+      value: 4
+      objectReference: {fileID: 0}
+    - target: {fileID: 3660907207633077272, guid: 2c0fd784c8f15684f95bdebf1506a0e8, type: 3}
+      propertyPath: m_Pivot.x
+      value: 0.5
+      objectReference: {fileID: 0}
+    - target: {fileID: 3660907207633077272, guid: 2c0fd784c8f15684f95bdebf1506a0e8, type: 3}
+      propertyPath: m_SizeDelta.x
+      value: 47.7244
+      objectReference: {fileID: 0}
+    - target: {fileID: 3660907207633077272, guid: 2c0fd784c8f15684f95bdebf1506a0e8, type: 3}
+      propertyPath: m_SizeDelta.y
+      value: 34.1731
+      objectReference: {fileID: 0}
+    - target: {fileID: 3660907207633077272, guid: 2c0fd784c8f15684f95bdebf1506a0e8, type: 3}
+      propertyPath: m_AnchoredPosition.x
+      value: -0.04
+      objectReference: {fileID: 0}
+    - target: {fileID: 3660907207633077272, guid: 2c0fd784c8f15684f95bdebf1506a0e8, type: 3}
+      propertyPath: m_AnchoredPosition.y
+      value: 0.06
+      objectReference: {fileID: 0}
     - target: {fileID: 3755103448829756790, guid: 2c0fd784c8f15684f95bdebf1506a0e8, type: 3}
       propertyPath: m_Name
       value: Essens
+      objectReference: {fileID: 0}
+    - target: {fileID: 4055623845474572300, guid: 2c0fd784c8f15684f95bdebf1506a0e8, type: 3}
+      propertyPath: m_FontData.m_FontSize
+      value: 26
       objectReference: {fileID: 0}
     - target: {fileID: 6502933318317005460, guid: 2c0fd784c8f15684f95bdebf1506a0e8, type: 3}
       propertyPath: m_Pivot.x

@@ -179,14 +179,14 @@ public class calibrationSceneHandler : MonoBehaviour
 
     private void ApplyCounterClockwiseTorque()
     {
-        float torqueValue = (PlutoComm.MECHANISMS[PlutoComm.mechanism] == "HOC") ? -0.1f : -0.09f;
+        float torqueValue = (PlutoComm.MECHANISMS[PlutoComm.mechanism] == "HOC") ? -0.1f : -0.07f;
         PlutoComm.setControlType("TORQUE");
         PlutoComm.setControlTarget(torqueValue);
     }
 
     private void ApplyClockwiseTorque()
     {
-        float torqueValue = (PlutoComm.MECHANISMS[PlutoComm.mechanism] == "HOC") ? 0.1f : 0.09f;
+        float torqueValue = (PlutoComm.MECHANISMS[PlutoComm.mechanism] == "HOC") ? 0.1f : 0.07f;
         PlutoComm.setControlType("TORQUE");
         PlutoComm.setControlTarget(torqueValue);
     }

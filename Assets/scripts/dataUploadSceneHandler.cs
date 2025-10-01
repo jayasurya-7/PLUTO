@@ -16,7 +16,7 @@ public class DataUploadSceneHandler : MonoBehaviour
 
     void Start()
     {
-      
+        Debug.Log($"status : {DataManager.status}");
             // PlutoComm.stopSensorStream();
 
             // ConnectToRobot.disconnect();
@@ -27,11 +27,13 @@ public class DataUploadSceneHandler : MonoBehaviour
 
     void Update()
     {
-        if (status != "no_upload")
+        if (DataManager.status != "no_upload")
         {
-            dataStatus.text = "Data Uploading Don't shutdown";
+            dataStatus.text = "Data is Uploading...";
             dataStatus.color = Color.green;
         }
+            // dataStatus.text = $"{DataManager.status}";
+
     
     }
     IEnumerator CheckUploadStatusRoutine()
@@ -39,7 +41,7 @@ public class DataUploadSceneHandler : MonoBehaviour
         while (true)
         {
             AppData.Instance.userData.ReadFile();
-
+            // dataStatus.text = $"{DataManager.status}";
             if (DataManager.status == "upload_needed" && !hasUploaded)
             {
                 hasUploaded = true;
@@ -50,7 +52,7 @@ public class DataUploadSceneHandler : MonoBehaviour
             {
                 Debug.Log("Upload completed. Shutting down...");
                 ShutdownSystem();
-                yield break; // stop coroutine after shutdown
+                yield break;
             }
 
             yield return new WaitForSeconds(60f); // wait 1 minute
@@ -62,8 +64,8 @@ public class DataUploadSceneHandler : MonoBehaviour
     void RunPythonUploader()
     {
         string pythonScriptPath = @"C:/pythonscripts/uploadToAWS.pyw";
-        // string pythonExecutionPath = @"C:/Users/Homer 7/AppData/Local/Programs/Python/Python313/pythonw.exe";
-        string pythonExecutionPath = @"C:/Program Files/Python312/pythonw.exe";
+        string pythonExecutionPath = @"C:/Users/Homer 6/AppData/Local/Programs/Python/Python313/pythonw.exe";
+        // string pythonExecutionPath = @"C:/Program Files/Python312/pythonw.exe";
 
         if (!File.Exists(pythonScriptPath))
         {
@@ -91,7 +93,7 @@ public class DataUploadSceneHandler : MonoBehaviour
         try
         {
             Application.Quit();
-            // Process.Start("shutdown", "/s /t 0");
+            Process.Start("shutdown", "/s /t 0");
             #if UNITY_EDITOR
                 UnityEditor.EditorApplication.isPlaying = false; 
             #endif

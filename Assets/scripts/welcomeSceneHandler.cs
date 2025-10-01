@@ -54,12 +54,16 @@ public class welcomSceneHandler : MonoBehaviour
             SceneManager.LoadScene("GETCONFIG");
             return;
         }
+
         
         // Initialize.
         AppData.Instance.Initialize(SceneManager.GetActiveScene().name);
         AppLogger.SetCurrentScene(SceneManager.GetActiveScene().name);
         AppLogger.LogInfo($"'{SceneManager.GetActiveScene().name}' scene started.");
         daySummaries = AppData.Instance.userData.CalculateMoveTimePerDay();
+        AppData.Instance.userData.ReadFile();
+        Debug.Log($"status : {DataManager.status}");
+
         
         // Update summary display
         if (!piChartUpdated)
@@ -67,15 +71,15 @@ public class welcomSceneHandler : MonoBehaviour
             UpdateUserData();
             UpdatePieChart();
         }
-        // Task.Run(() =>  // Run in a background task
-        //     {
-        //     if (!awsManager.IsTaskScheduled(awsManager.taskName))
-        //     {
-        //         awsManager.ScheduleTask();
-        //     }
-        //     awsManager.RunAWSpythonScript();
+        Task.Run(() =>  // Run in a background task
+            {
+            // if (!awsManager.IsTaskScheduled(awsManager.taskName))
+            // {
+            //     awsManager.ScheduleTask();
+            // }
+            awsManager.RunAWSpythonScript();
 
-        //     });
+            });
        
     }
 
