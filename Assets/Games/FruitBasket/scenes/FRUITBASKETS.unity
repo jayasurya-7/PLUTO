@@ -1031,6 +1031,7 @@ MonoBehaviour:
   preSuccRate: {fileID: 1098791683}
   currSuccRate: {fileID: 1549135537}
   reminderPanel: {fileID: 906127262}
+  successRateBanner: {fileID: 1865096586}
   nTargets: 0
   nSuccess: 0
   nFailure: 0
@@ -3687,13 +3688,12 @@ RectTransform:
   m_LocalPosition: {x: 0, y: 0, z: 0}
   m_LocalScale: {x: 1, y: 1, z: 1}
   m_ConstrainProportionsScale: 0
-  m_Children:
-  - {fileID: 1865096587}
-  m_Father: {fileID: 1895689831}
+  m_Children: []
+  m_Father: {fileID: 1865096587}
   m_LocalEulerAnglesHint: {x: 0, y: 0, z: 0}
   m_AnchorMin: {x: 0, y: 1}
   m_AnchorMax: {x: 0, y: 1}
-  m_AnchoredPosition: {x: 313.00983, y: -312.77905}
+  m_AnchoredPosition: {x: 343.01007, y: 34.220947}
   m_SizeDelta: {x: 612.7653, y: 68.44232}
   m_Pivot: {x: 0.4878015, y: 0.4999998}
 --- !u!114 &1098791683
@@ -5473,11 +5473,12 @@ RectTransform:
   m_ConstrainProportionsScale: 0
   m_Children:
   - {fileID: 1549135536}
-  m_Father: {fileID: 1098791682}
+  - {fileID: 1098791682}
+  m_Father: {fileID: 1895689831}
   m_LocalEulerAnglesHint: {x: 0, y: 0, z: 0}
   m_AnchorMin: {x: 0.5, y: 0.5}
   m_AnchorMax: {x: 0.5, y: 0.5}
-  m_AnchoredPosition: {x: 734.8069, y: -84.22095}
+  m_AnchoredPosition: {x: 95.291504, y: 143}
   m_SizeDelta: {x: 2170.5835, y: 100}
   m_Pivot: {x: 0.5, y: 0.5}
 --- !u!114 &1865096588
@@ -5780,7 +5781,7 @@ RectTransform:
   - {fileID: 1198921621}
   - {fileID: 967930709}
   - {fileID: 8359928}
-  - {fileID: 1098791682}
+  - {fileID: 1865096587}
   - {fileID: 1214533379}
   - {fileID: 1953248306}
   - {fileID: 2005074696}

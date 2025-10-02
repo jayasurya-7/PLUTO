@@ -64,8 +64,8 @@ public class DataUploadSceneHandler : MonoBehaviour
     void RunPythonUploader()
     {
         string pythonScriptPath = @"C:/pythonscripts/uploadToAWS.pyw";
-        string pythonExecutionPath = @"C:/Users/Homer 6/AppData/Local/Programs/Python/Python313/pythonw.exe";
-        // string pythonExecutionPath = @"C:/Program Files/Python312/pythonw.exe";
+        // string pythonExecutionPath = @"C:/Users/Homer 6/AppData/Local/Programs/Python/Python313/pythonw.exe";
+        string pythonExecutionPath = @"C:/Program Files/Python312/pythonw.exe";
 
         if (!File.Exists(pythonScriptPath))
         {
@@ -93,7 +93,7 @@ public class DataUploadSceneHandler : MonoBehaviour
         try
         {
             Application.Quit();
-            Process.Start("shutdown", "/s /t 0");
+            // Process.Start("shutdown", "/s /t 0");
             #if UNITY_EDITOR
                 UnityEditor.EditorApplication.isPlaying = false; 
             #endif

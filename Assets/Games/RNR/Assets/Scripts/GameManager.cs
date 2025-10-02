@@ -9,7 +9,10 @@ using UnityEngine.UI;
 public class GameManager : MonoBehaviour
 {
     public GameObject cloudPrefab;
-    public static GameManager Instance{ get; private set; }
+    public AudioSource audioSource;
+    public AudioClip[] audioClips;
+    
+    public static GameManager Instance { get; private set; }
     private CloudController playerCloud;
     public TextMeshProUGUI Score, Timer, rainT;
     private float gameDuration = 60f;
@@ -255,8 +258,17 @@ public class GameManager : MonoBehaviour
                 }
                 else if (highlighterRenderer != null && currentHighlighted.IsBeingRainedOn)
                 {
-                    Color originalColor = highlighterRenderer.material.color;
-                    highlighterRenderer.material.color = originalColor;
+                    // Color originalColor = highlighterRenderer.material.color;
+                    // originalColor.a = 1f;
+                    // highlighterRenderer.material.color = originalColor;
+
+    //                 Color target = new Color(0f, 1f, 0f, 1f); // pure green, full alpha
+    // highlighterRenderer.material.color = Color.Lerp(
+    //     highlighterRenderer.material.color, 
+    //     target, 
+    //     Time.deltaTime * 5f // speed of transition
+    // );
+                    
                 }
             
             }
@@ -372,6 +384,7 @@ public class GameManager : MonoBehaviour
         // Attach PLUTO button event.
         PlutoComm.OnButtonReleased += onPlutoButtonReleased;
         reminderPanel.SetActive(false);
+        
         
     }
 
@@ -703,15 +716,18 @@ private IEnumerator ShowForSeconds(GameObject obj, float seconds)
 
     public void TargetReached()
     {
+        audioSource.PlayOneShot(audioClips[0]);
         isTargetReached = true;
         isTargetMissed = false;
         nSuccess++;
         Debug.Log("Target Reached");
+
     }
 
     public void TargetMissed()
     {
         if (isTargetMissed) return; // prevent double trigger
+        audioSource.PlayOneShot(audioClips[1]);
         isTargetReached = false;
         isTargetMissed = true;
         highlightTimer = 0f;
