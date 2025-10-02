@@ -5,7 +5,7 @@ public class CloudController : MonoBehaviour
     public float moveSpeed = 5f;
     public SpriteRenderer cloudRenderer;   
     public Sprite[] emotionSprites;        
-    public float emotionChangeInterval = 5f, PLAYSIZE; 
+    public float emotionChangeInterval = 12f, PLAYSIZE; 
     private float emotionTimer = 0f, position;
     private float[] aprom;
     public ParticleSystem rainEffect;
@@ -38,16 +38,16 @@ public class CloudController : MonoBehaviour
 
         Vector2 pos = new Vector2(position, this.transform.position.y);
         // Movement
-//         float moveX = Input.GetAxis("Horizontal");
-// transform.position += new Vector3(moveX, 0, 0) * moveSpeed * Time.deltaTime;
+        //         float moveX = Input.GetAxis("Horizontal");
+        // transform.position += new Vector3(moveX, 0, 0) * moveSpeed * Time.deltaTime;
 
-// Clamp to camera view
-// Vector3 pos = transform.position;
-float halfWidth = Camera.main.orthographicSize * Camera.main.aspect;
-float leftBound = -halfWidth + 0.5f;   // margin
-float rightBound = halfWidth - 0.5f;
-pos.x = Mathf.Clamp(pos.x, leftBound, rightBound);
-transform.position = pos;
+        // Clamp to camera view
+        // Vector3 pos = transform.position;
+        float halfWidth = Camera.main.orthographicSize * Camera.main.aspect;
+        float leftBound = -halfWidth + 0.5f;   // margin
+        float rightBound = halfWidth - 0.5f;
+        pos.x = Mathf.Clamp(pos.x, leftBound, rightBound);
+        transform.position = pos;
 
         // Emotion change
         emotionTimer += Time.deltaTime;

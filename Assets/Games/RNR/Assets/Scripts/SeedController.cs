@@ -21,10 +21,11 @@ public class SeedController : MonoBehaviour
     public GameObject bloomEffectPrefab;
     public GameObject scorePopupPrefab;
     public Transform bloomSpawnPoint; // where effect should appear
+    public Color baseHighlightColor;
     void Start()
     {
         // Decide number of stages: 3 by default, 4 if speed > 30
-        float moveSpeed = 21f;
+        // float moveSpeed = 21f;
         // if (moveSpeed > 30f)
         // {
         //     maxStages = Mathf.Min(growthStages.Length, 4);
@@ -36,12 +37,32 @@ public class SeedController : MonoBehaviour
         // show only stage 0
         for (int i = 0; i < growthStages.Length; i++)
             growthStages[i].SetActive(i == 0);
+    if (highlightEffect != null)
+    {
+        var renderer = highlightEffect.GetComponent<ParticleSystem>();
+        if (renderer != null)
+        {
+            baseHighlightColor = renderer.startColor; // remember original
+        }
+    }
     }
 
     void Update()
     {
         IsBeingRainedOn = rainingThisFrame;
         rainingThisFrame = false;
+     if (highlightEffect != null)
+    {
+        var main = highlightEffect.main;
+        if (IsBeingRainedOn)
+        {
+            main.startColor = Color.red;   // Blue when raining
+        }
+        else
+        {
+            main.startColor = baseHighlightColor; // Reset to original
+        }
+    }
     }
 
     private void OnTriggerStay2D(Collider2D other)

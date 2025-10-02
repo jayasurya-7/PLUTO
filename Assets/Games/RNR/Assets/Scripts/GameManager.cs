@@ -9,14 +9,18 @@ using UnityEngine.UI;
 public class GameManager : MonoBehaviour
 {
     public GameObject cloudPrefab;
-    public static GameManager Instance{ get; private set; }
+    public AudioSource audioSource;
+    public AudioClip[] audioClips;
+    
+    public static GameManager Instance { get; private set; }
     private CloudController playerCloud;
-    public TextMeshProUGUI Score, Timer;
+    public TextMeshProUGUI Score, Timer, rainT;
     private float gameDuration = 60f;
     private float gameTimer = 0f;
     public TextMeshProUGUI ScoreText, speed;
     private float lastHighScore;
      public Image loadingImage;
+    public Text HST;
     private float PLAYSIZE;
     public GameObject SuccessRateBanner;
 
@@ -74,8 +78,8 @@ public class GameManager : MonoBehaviour
     private float rainTimer = 0f, convertedAngle=0f;
     private float highlightTimer = 0f;
 
-    private float rainDurationToGrow = 0.02f;    // needs 1s of rain
-    private float highlightDuration;     // highlighted for 3s
+    private float rainDurationToGrow = 1.0f;    // needs 1s of rain
+    public float highlightDuration;     // highlighted for 3s
     private bool hasGrownThisCycle = false, runOnce = false;
     private SeedController lastHighlighted = null; // store last seed
 
@@ -132,7 +136,7 @@ public class GameManager : MonoBehaviour
             AngleToScreen(AppData.Instance.selectedMechanism.currRom.aromMax),
             aromRight.transform.position.y,
             aromRight.transform.position.z);
-        HS.text = $" BEST :{Others.highestSuccessRate:F0} %";
+        HST.text = $"{Others.highestSuccessRate:F0} %";
         status.text = $"s.no: {AppData.Instance.currentSessionNumber}\n" +
               $"trialNo: {AppData.Instance.selectedMechanism.trialNumberSession}\n" +
               $"CB: {AppData.Instance.CurrentControlBound}";
@@ -229,6 +233,45 @@ public class GameManager : MonoBehaviour
         if (currentHighlighted != null)
         {
             highlightTimer += Time.deltaTime;
+
+        // Calculate remaining time
+            float remainingTime = Mathf.Max(0, highlightDuration - highlightTimer);
+
+            // Fade out based on remaining time
+            if (currentHighlighted.highLighter != null)
+            {
+                Renderer highlighterRenderer = currentHighlighted.highLighter.GetComponent<Renderer>();
+                if (highlighterRenderer != null && !currentHighlighted.IsBeingRainedOn)
+                {
+                    Color originalColor = highlighterRenderer.material.color;
+                    float alpha = Mathf.Clamp01(remainingTime / highlightDuration); // 1 → 0 as time runs out
+                    originalColor.a = alpha;
+                    highlighterRenderer.material.color = originalColor;
+
+                    // When time runs out, ensure it stays invisible
+                    if (remainingTime <= 0.01f)
+                    {
+                        originalColor.a = 0f;
+                        highlighterRenderer.material.color = originalColor;
+                        currentHighlighted.highLighter.SetActive(false);
+                    }
+                }
+                else if (highlighterRenderer != null && currentHighlighted.IsBeingRainedOn)
+                {
+                    // Color originalColor = highlighterRenderer.material.color;
+                    // originalColor.a = 1f;
+                    // highlighterRenderer.material.color = originalColor;
+
+    //                 Color target = new Color(0f, 1f, 0f, 1f); // pure green, full alpha
+    // highlighterRenderer.material.color = Color.Lerp(
+    //     highlighterRenderer.material.color, 
+    //     target, 
+    //     Time.deltaTime * 5f // speed of transition
+    // );
+                    
+                }
+            
+            }
             if (highlightTimer >= highlightDuration && !hasGrownThisCycle)
             {
                 TargetMissed();
@@ -241,15 +284,30 @@ public class GameManager : MonoBehaviour
         {
             if (currentHighlighted.IsBeingRainedOn)
             {
+                rainTimer += Time.deltaTime;
+                
+                if (rainTimer >= rainDurationToGrow)
+                {
                     currentHighlighted.Grow();
                     TargetReached();
                     hasGrownThisCycle = true;
                     score++;
-                
+                }
+            }
+            else
+            {
+                // rainTimer = 0f;
+                // Option 1: decay gradually
+                rainTimer = Mathf.Max(0, rainTimer - Time.deltaTime);
+                Debug.Log($"RainTimer: {rainTimer}, IsBeingRainedOn: {currentHighlighted.IsBeingRainedOn}");
+
             }
         }
 
+        // Score.text = $"Score : {score}";
         Score.text = $"Score : {score}";
+        // Score.text = $"Score : {rainTimer}";
+        rainT.text = $"t :{rainTimer}";
         Timer.text = "Time :" + trialTimeLeft.ToString("F0");
         speed.text = $"GS :{(int)gameSpeed}";
     }
@@ -326,6 +384,7 @@ public class GameManager : MonoBehaviour
         // Attach PLUTO button event.
         PlutoComm.OnButtonReleased += onPlutoButtonReleased;
         reminderPanel.SetActive(false);
+        
         
     }
 
@@ -421,9 +480,15 @@ public class GameManager : MonoBehaviour
 
             case GameStates.SUCCESS:
             case GameStates.FAILURE:
-            if (eventDelayTimer <= 0f)
+                if (eventDelayTimer <= 0f)
                 {
-                    eventDelayTimer = 0.07f;
+                    eventDelayTimer = 0.6f;
+                    if (currentHighlighted != null)
+                    {
+                        currentHighlighted.SetHighlight(false);
+                        currentHighlighted.highLighter.SetActive(false);
+                        currentHighlighted = null;
+                    }
                 }
                 else
                 {
@@ -436,7 +501,7 @@ public class GameManager : MonoBehaviour
                         isTargetMissed = false;
                         runOnce = false;
                     }
-                    
+
                 }
                 
                 break;
@@ -651,15 +716,18 @@ private IEnumerator ShowForSeconds(GameObject obj, float seconds)
 
     public void TargetReached()
     {
+        audioSource.PlayOneShot(audioClips[0]);
         isTargetReached = true;
         isTargetMissed = false;
         nSuccess++;
         Debug.Log("Target Reached");
+
     }
 
     public void TargetMissed()
     {
         if (isTargetMissed) return; // prevent double trigger
+        audioSource.PlayOneShot(audioClips[1]);
         isTargetReached = false;
         isTargetMissed = true;
         highlightTimer = 0f;

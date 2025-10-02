@@ -322,7 +322,7 @@ public class HatGameController : MonoBehaviour
         ShowPaused();
         // PauseButton.SetActive(false);
         // ResumeButton.SetActive(true);
-       // ExitButton.SetActive(false);
+        // ExitButton.SetActive(false);
     }
 
     public void ResumeGame()

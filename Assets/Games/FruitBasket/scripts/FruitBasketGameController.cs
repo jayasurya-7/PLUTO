@@ -34,7 +34,7 @@ public class FruitBasketGameController : MonoBehaviour
     public Text newRecordTxt;
     public Text preSuccRate;
     public Text currSuccRate;
-    public GameObject reminderPanel;
+    public GameObject reminderPanel, successRateBanner;
 
     private float PLAYSIZE;
     private float trialTimeLeft;
@@ -123,9 +123,11 @@ public class FruitBasketGameController : MonoBehaviour
             aromRight.transform.localPosition.y,
             aromRight.transform.localPosition.z
         );
+            bestScore.text = $"{(int)Others.highestSuccessRate:F0}%";
+
         if (AppData.Instance.previousSuccessRates != null)
         {
-            bestScore.text = $"BEST:{(int)Others.highestSuccessRate:F0}%";
+            successRateBanner.SetActive(true);
             preSuccRate.text = $"PrevSuccessRate:{AppData.Instance.previousSuccessRates[0].ToString("F0")}";
             currSuccRate.text = $"currSuccessRate:{AppData.Instance.previousSuccessRates[1].ToString("F0")}";
         }
@@ -453,6 +455,7 @@ public class FruitBasketGameController : MonoBehaviour
     public void startGame()
     {
         reminderPanel.SetActive(false);
+        successRateBanner.SetActive(false);
         setupBasketsForTrial();
         AppData.Instance.StartNewTrial();
         preSuccRate.gameObject.SetActive(false);

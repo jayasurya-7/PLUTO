@@ -1,7 +1,6 @@
 ﻿using UnityEngine;
 using System.Collections;
 using System;
-using Unity.VisualScripting;
 
 
 
@@ -39,9 +38,8 @@ public class BallController : MonoBehaviour
 
     void FixedUpdate()
     {
-        if (PGC.isFinished)
-        {
-            rig2D.velocity = new Vector2(0f, 0f);
+        if(PGC.isFinished){
+            rig2D.velocity=new Vector2(0f,0f);
         }
         else preVel = rig2D.velocity;
 
@@ -84,8 +82,8 @@ public class BallController : MonoBehaviour
             Vector2 reflectedTarget = new Vector2(PGC.targetPosition.x, reflectedY);
 
             Vector2 launchDir = (reflectedTarget - (Vector2)transform.position).normalized;
-            Debug.Log($"speed : {speed} + {PGC.gs}");
             speed = (PGC.gs <= 0) ? speed : PGC.gs;
+
             initVelocity(launchDir * speed);
         }
 

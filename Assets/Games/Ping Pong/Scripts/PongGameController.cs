@@ -68,7 +68,7 @@ public class PongGameController : MonoBehaviour
     private float[] prom, aprom;
     private float targetAngle;
     
-    public float  gs;
+    private float playerPosition;
     private  GameObject targetTemp;
     public  GameObject SuccessRateBanner,ExitButton;
     public Text prevSR, currSR, HS, status;
@@ -85,6 +85,7 @@ public class PongGameController : MonoBehaviour
     public GameObject aromRight;
     private float triaTimeLeft;
     private float moveTimeLeft;
+    public float gs;
 
     // Game score related variables.
     public int nTargets = 0;
@@ -133,7 +134,7 @@ public class PongGameController : MonoBehaviour
             AngleToScreen(AppData.Instance.selectedMechanism.currRom.aromMax),
             aromRight.transform.position.z
         );
-        HS.text = $" BEST :{ Others.highestSuccessRate:F0} %";
+        HS.text = $"{ Others.highestSuccessRate:F0} %";
          status.text = $"s.no: {AppData.Instance.currentSessionNumber}\n" +
               $"trialNo: {AppData.Instance.selectedMechanism.trialNumberSession}\n" +
               $"CB: {AppData.Instance.CurrentControlBound}";
