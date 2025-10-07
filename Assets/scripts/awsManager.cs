@@ -70,9 +70,15 @@ public static void RunAWSpythonScript()
         return message;
     }
 
-    public static void changeUploadStatus(string status){
+    public static void changeUploadStatus(string status)
+    {
         string uploadFilePath = Path.Combine(filePathUploadStatus, "uploadStatus.txt");
-        File.WriteAllText(uploadFilePath, $"{Path.Combine(Application.dataPath,"data", AppData.Instance.userID)},{status},{DeviceName},{AppData.Instance.userData.hospNumber},{AppData.Instance.userData.GetDeviceLocation()}");
+        File.WriteAllText(uploadFilePath, $"{Path.Combine(Application.dataPath, "data", AppData.Instance.userID)},{status},{DeviceName},{AppData.Instance.userData.hospNumber},{AppData.Instance.userData.GetDeviceLocation()}");
+        if (!File.Exists(Path.Combine(filePathUploadStatus, "uploadProgress.txt")))
+        {
+            File.Create(Path.Combine(filePathUploadStatus, "uploadProgress.txt"));
+        }
+        
         
     }
     public static void AppSetups(string hospitalId, string location)

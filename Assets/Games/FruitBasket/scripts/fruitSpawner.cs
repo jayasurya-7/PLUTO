@@ -11,7 +11,7 @@ public class FruitSpawner : MonoBehaviour
     public static FruitSpawner instance;
     private Vector3 prevPosition = Vector3.zero;
     private int lastFruitIndex;
-    private Vector3 targetScale = Vector3.one * 1.2f;
+    private Vector3 targetScale = Vector3.one * 2.2f;
     private float scaleDuration = 0.5f; // time to scale up
     public void setPrePosition(Vector3 pos)
     {
