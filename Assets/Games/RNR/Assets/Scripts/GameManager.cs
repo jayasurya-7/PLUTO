@@ -602,14 +602,32 @@ private IEnumerator ShowForSeconds(GameObject obj, float seconds)
                 break;
         }
     }
- float GetHighlightedSeedAngle()
-{
-    if (currentHighlighted == null) return 0f;
+    float GetHighlightedSeedAngle()
+    {
+        if (currentHighlighted == null) return 0f;
 
+        float minX = float.MaxValue;
+        float maxX = float.MinValue;
+
+        // find true min/max X among all seeds
+        foreach (var seed in seeds)
+        {
+            float x = seed.transform.position.x;
+            if (x < minX) minX = x;
+            if (x > maxX) maxX = x;
+        }
+
+        float seedX = currentHighlighted.transform.position.x;
+
+        // map seedX → angle
+        return Mathf.Lerp(aprom[0], aprom[1], Mathf.InverseLerp(minX, maxX, seedX));
+    }
+float GetXPositionFromAngle(float targetAngle)
+{
     float minX = float.MaxValue;
     float maxX = float.MinValue;
 
-    // find true min/max X among all seeds
+    // find true min/max X among all seeds (same as your original function)
     foreach (var seed in seeds)
     {
         float x = seed.transform.position.x;
@@ -617,15 +635,15 @@ private IEnumerator ShowForSeconds(GameObject obj, float seconds)
         if (x > maxX) maxX = x;
     }
 
-    float seedX = currentHighlighted.transform.position.x;
-
-    // map seedX → angle
-    return Mathf.Lerp(aprom[0], aprom[1], Mathf.InverseLerp(minX, maxX, seedX));
+    // map angle → normalized position → X position
+    float normalizedPosition = Mathf.InverseLerp(aprom[0], aprom[1], targetAngle);
+    return Mathf.Lerp(minX, maxX, normalizedPosition);
 }
 
 
 
-    public float AngleToScreen(float angle) => Mathf.Lerp(-PLAYSIZE, PLAYSIZE, (angle - aprom[0]) / (aprom[1] - aprom[0]));
+    // public float AngleToScreen(float angle) => Mathf.Lerp(-PLAYSIZE, PLAYSIZE, (angle - aprom[0]) / (aprom[1] - aprom[0]));
+    public float AngleToScreen(float angle) => Mathf.Lerp(-7.5f, 7.5f, (angle - aprom[0]) / (aprom[1] - aprom[0]));
 
     private void showPaused()
     {
@@ -771,9 +789,10 @@ private IEnumerator ShowForSeconds(GameObject obj, float seconds)
             nTargets++;
             lastHighlighted = currentHighlighted;
             // Convert its X position back to angle
-    // float seedX = currentHighlighted.transform.position.x;
-     convertedAngle = GetHighlightedSeedAngle();
-            Debug.Log($"Angle {targetAngle:F1} → Highlighting Seed {bin+1} -> {convertedAngle}");
+            // float seedX = currentHighlighted.transform.position.x;
+            convertedAngle = GetHighlightedSeedAngle();
+     
+            Debug.Log($"Angle {targetAngle:F1} → Highlighting Seed {bin+1} -> {convertedAngle}-> X POSITION{GetXPositionFromAngle(convertedAngle)}");
         // if (!currentHighlighted.IsFullyGrown)
             // {
             //     currentHighlighted.SetHighlight(true);
