@@ -19,6 +19,8 @@ public class HatGameController : MonoBehaviour
     private static readonly float BALLENDY = -2.0f;
     // private static readonly float MOVEDURATION = 0.5f * (BALLSTARTY - BALLENDY) / BALLSPEED;
     private static float BALLSPEED, MOVEDURATION;
+     public GameObject gameSpeedControl;
+    private GameSpeedController gsc = null;
     // Game graphics related variables.
     public Text ScoreText, speed;
     public Text timeLeftText, status;
@@ -46,8 +48,6 @@ public class HatGameController : MonoBehaviour
     public TextMeshProUGUI score;
     public GameObject HSC; //HighScoreCanvas
     private GameObject reminderPanel;
-
-
 
     // Target and player positions
     public Vector3? TargetPosition { get; private set; }
@@ -129,9 +129,7 @@ public class HatGameController : MonoBehaviour
 
     private float eventDelayTimer = 0f , gameSpeed;
     private bool runOnce = false;
-    public GameObject increaseSpeed, decreaseSpeed;
     bool speedControlsVisible = false;
-
 
     private void Awake()
     {
@@ -149,6 +147,7 @@ public class HatGameController : MonoBehaviour
     void Start()
     {
         InitializeGame();
+        initializeGameSpeedController();
         // Initialize the game objects.
         pauseObjects = GameObject.FindGameObjectsWithTag("ShowOnPause");
         finishObjects = GameObject.FindGameObjectsWithTag("ShowOnFinish");
@@ -170,9 +169,9 @@ public class HatGameController : MonoBehaviour
         );
         SetVisibility(false);
         HS.text = $"{(int)Others.highestSuccessRate:F0} %";
-        status.text = $"s.no: {AppData.Instance.currentSessionNumber}\n" +
-             $"trialNo: {AppData.Instance.selectedMechanism.trialNumberSession}\n" +
-             $"CB: {AppData.Instance.CurrentControlBound}";
+        // status.text = $"s.no: {AppData.Instance.currentSessionNumber}\n" +
+        //      $"trialNo: {AppData.Instance.selectedMechanism.trialNumberSession}\n" +
+        //      $"CB: {AppData.Instance.CurrentControlBound}";
         if (AppData.Instance.selectedMechanism.trialNumberDay >= AppData.Instance.userData.mechMoveTimePrsc[AppData.Instance.selectedMechanism.name])
         {
               reminderPanel.SetActive(true);
@@ -185,7 +184,23 @@ public class HatGameController : MonoBehaviour
         }
         
     }
+       private void initializeGameSpeedController()
+    {
+        // Hide game speed control initially
+        // gameSpeedControl.SetActive(false);
 
+        gsc = gameSpeedControl.GetComponent<GameSpeedController>();
+        if (gsc == null) return;
+
+        // Attach the buttons
+        if (gsc.decreaseButton != null)
+            gsc.decreaseButton.onClick.AddListener(() => decreaseGameSpeed());
+        if (gsc.increaseButton != null)
+            gsc.increaseButton.onClick.AddListener(() => increaseGameSpeed());
+
+        // Set the initial game speed
+        gsc.gameSpeedText.text = $"{AppData.Instance.speedData.gameSpeed:F2}";
+    }
     private void Update()
     {
         if (isGamePaused && gameState != GameStates.PAUSED) PauseGame();
@@ -196,9 +211,6 @@ public class HatGameController : MonoBehaviour
         if (Input.GetKey(KeyCode.LeftControl) && Input.GetKeyDown(KeyCode.G))
         {
             speedControlsVisible = !speedControlsVisible;
-
-            increaseSpeed.SetActive(speedControlsVisible);
-            decreaseSpeed.SetActive(speedControlsVisible);
             SetVisibility(speedControlsVisible);
             Debug.Log("Speed controls " + (speedControlsVisible ? "enabled" : "disabled"));
         }
@@ -243,7 +255,9 @@ public class HatGameController : MonoBehaviour
     {
            if (gameSpeed >= 40.0f) return;
 
-            gameSpeed += 1.0f;
+        gameSpeed += 1.0f;
+        gsc.gameSpeedText.text = $"{(int)gameSpeed}";
+            
             UpdateBallSpeedAndDuration();
             Debug.Log($"gs - {AppData.Instance.speedData.gameSpeed} + {gameSpeed}");
     }
@@ -256,6 +270,8 @@ public class HatGameController : MonoBehaviour
             return;
 
         gameSpeed -= 1.0f;
+        gsc.gameSpeedText.text = $"{(int)gameSpeed}";
+
         UpdateBallSpeedAndDuration();
         
 
@@ -284,8 +300,7 @@ public class HatGameController : MonoBehaviour
         // Start new trial.
         AppData.Instance.StartNewTrial();
         reminderPanel.SetActive(false);
-
-        status.text = $"s.no: {AppData.Instance.currentSessionNumber}\n" +
+ gsc.sessionDetailsText.text = $"sessionNo: {AppData.Instance.currentSessionNumber}\n" +
               $"trialNo: {AppData.Instance.selectedMechanism.trialNumberSession}\n" +
               $"CB: {AppData.Instance.CurrentControlBound}";
         // Put PLUTO in the AAN mode.
@@ -451,7 +466,6 @@ public class HatGameController : MonoBehaviour
                 AppData.Instance.previousSuccessRates =null;
                 if (AppData.Instance.speedData.gameSpeed != gameSpeed)
                 {
-                    AppData.Instance.speedData.updateGameSpeedfromGame(gameSpeed);
                     AppData.Instance.speedData.setGameSpeed(gameSpeed);
                 }
                 
@@ -597,7 +611,6 @@ public class HatGameController : MonoBehaviour
     {
         timeLeftText.text = $": {(int)triaTimeLeft}";
         ScoreText.text = $"Score: {nSuccess}";
-        speed.text = $"GS: {(int) gameSpeed}";
     }
 
     public void exitGame()
@@ -612,6 +625,7 @@ public class HatGameController : MonoBehaviour
             AppData.Instance.aanController.Update(PlutoComm.angle, Time.deltaTime, true);
             float gameTime = HomerTherapy.TrialDuration - triaTimeLeft;
             Others.gameTime = (gameTime < HomerTherapy.TrialDuration) ? gameTime : HomerTherapy.TrialDuration;
+            if (AppData.Instance.speedData.gameSpeed != gameSpeed)  AppData.Instance.speedData.setGameSpeed(gameSpeed);
              AppData.Instance.StopTrial(nTargets, nSuccess, nFailure);
              gameState = GameStates.DONE;
              Time.timeScale = 1f;

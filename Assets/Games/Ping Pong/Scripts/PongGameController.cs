@@ -93,8 +93,10 @@ public class PongGameController : MonoBehaviour
     public int nFailure = 0;
 
     private float MOVEDURATION, eventDelayTimer = 0f, gameSpeed;
+     public GameObject gameSpeedControl;
+    private GameSpeedController gsc = null;
     public Image loadingImage;
-     public GameObject increaseSpeed, decreaseSpeed;
+   
     bool speedControlsVisible = false;
     private void Awake()
     {
@@ -112,6 +114,7 @@ public class PongGameController : MonoBehaviour
     void Start()
     {
         InitializeGame();
+        initializeGameSpeedController();
         pauseObjects = GameObject.FindGameObjectsWithTag("ShowOnPause");
         finishObjects = GameObject.FindGameObjectsWithTag("ShowOnFinish");
         detailObjects = GameObject.FindGameObjectsWithTag("detailViewer");
@@ -135,10 +138,24 @@ public class PongGameController : MonoBehaviour
             aromRight.transform.position.z
         );
         HS.text = $"{ Others.highestSuccessRate:F0} %";
-         status.text = $"s.no: {AppData.Instance.currentSessionNumber}\n" +
-              $"trialNo: {AppData.Instance.selectedMechanism.trialNumberSession}\n" +
-              $"CB: {AppData.Instance.CurrentControlBound}";
 
+    }
+        private void initializeGameSpeedController()
+    {
+        // Hide game speed control initially
+        // gameSpeedControl.SetActive(false);
+
+        gsc = gameSpeedControl.GetComponent<GameSpeedController>();
+        if (gsc == null) return;
+
+        // Attach the buttons
+        if (gsc.decreaseButton != null)
+            gsc.decreaseButton.onClick.AddListener(() => decreaseGameSpeed());
+        if (gsc.increaseButton != null)
+            gsc.increaseButton.onClick.AddListener(() => increaseGameSpeed());
+
+        // Set the initial game speed
+        gsc.gameSpeedText.text = $"{AppData.Instance.speedData.gameSpeed:F2}";
     }
     void Update()
     {
@@ -151,9 +168,6 @@ public class PongGameController : MonoBehaviour
         if (Input.GetKey(KeyCode.LeftControl) && Input.GetKeyDown(KeyCode.G))
         {
             speedControlsVisible = !speedControlsVisible;
-
-            increaseSpeed.SetActive(speedControlsVisible);
-            decreaseSpeed.SetActive(speedControlsVisible);
         SetVisibility(speedControlsVisible);
 
         }
@@ -208,9 +222,9 @@ public class PongGameController : MonoBehaviour
 
     }
 
-       void FixedUpdate()
+    void FixedUpdate()
     {
-        
+
         // Send PLUTO heartbeat
         PlutoComm.sendHeartbeat();
 
@@ -220,8 +234,9 @@ public class PongGameController : MonoBehaviour
         // Update player and target positions
         PlayerPosition = GameObject.FindGameObjectWithTag("Player").transform.position;
         targetTemp = GameObject.FindGameObjectWithTag("Target");
-        TargetPosition = targetTemp != null ? targetTemp.transform.position : null;   
+        TargetPosition = targetTemp != null ? targetTemp.transform.position : null;
     }
+    
 
     private void SetVisibility(bool state)
     {
@@ -255,6 +270,8 @@ public class PongGameController : MonoBehaviour
         if (gameSpeed >= 40.0f) return;
 
         gameSpeed += 1.0f;
+        gsc.gameSpeedText.text = $"{(int)gameSpeed}";
+
         UpdateGameSpeeds();
     }
     public void decreaseGameSpeed()
@@ -265,6 +282,8 @@ public class PongGameController : MonoBehaviour
         if (!isFME && gameSpeed <= 10.0f) return;
 
         gameSpeed -= 1.0f;
+        gsc.gameSpeedText.text = $"{(int)gameSpeed}";
+
         UpdateGameSpeeds();
 
     }
@@ -337,6 +356,7 @@ public class PongGameController : MonoBehaviour
             float gameTime = HomerTherapy.TrialDuration - triaTimeLeft;
             Others.gameTime = (gameTime < HomerTherapy.TrialDuration) ? gameTime : HomerTherapy.TrialDuration;
             AppData.Instance.aanController.Update(PlutoComm.angle, Time.deltaTime, true);
+            if (AppData.Instance.speedData.gameSpeed != gameSpeed)  AppData.Instance.speedData.setGameSpeed(gameSpeed);
             AppData.Instance.StopTrial(nTargets, nSuccess, nFailure);
             gameState = GameStates.DONE;
             Time.timeScale = 1f;
@@ -516,7 +536,6 @@ public class PongGameController : MonoBehaviour
                 AppData.Instance.previousSuccessRates =null;
                 if (AppData.Instance.speedData.gameSpeed != gameSpeed)
                 {
-                    AppData.Instance.speedData.updateGameSpeedfromGame(gameSpeed);
                     AppData.Instance.speedData.setGameSpeed(gameSpeed);
                 }
                 
@@ -619,7 +638,7 @@ public class PongGameController : MonoBehaviour
         // Start new trial.
         AppData.Instance.StartNewTrial();
 
-         status.text = $"s.no: {AppData.Instance.currentSessionNumber}\n" +
+          gsc.sessionDetailsText.text = $"sessionNo: {AppData.Instance.currentSessionNumber}\n" +
               $"trialNo: {AppData.Instance.selectedMechanism.trialNumberSession}\n" +
               $"CB: {AppData.Instance.CurrentControlBound}";
         // Put PLUTO in the AAN mode.
@@ -668,7 +687,7 @@ public class PongGameController : MonoBehaviour
     private void UpdateText()
     {
         timeLeftText.text = $"Time Left: {(int)triaTimeLeft}";
-        gameSpeedViewer.text = $"GS :{(int)gameSpeed}";
+        // gameSpeedViewer.text = $"GS :{(int)gameSpeed}";
         //core.text = $"Score: {nSuccess}";
     }
 }

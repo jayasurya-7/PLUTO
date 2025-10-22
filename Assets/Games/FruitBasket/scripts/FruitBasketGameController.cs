@@ -63,7 +63,8 @@ public class FruitBasketGameController : MonoBehaviour
     private  static float FRUITENDY;
     bool speedControlsVisible = false;
     public  float FRUITSPEED, MOVEDURATION;
-
+   public GameObject gameSpeedControl;
+    private GameSpeedController gsc = null;
     public Vector3? PlayerPosition;
     public Vector3? TargetPosition;
     private GameObject targetTemp;
@@ -94,10 +95,10 @@ public class FruitBasketGameController : MonoBehaviour
     }
     void Start()
     {
-    
+        initializeGameSpeedController();
         canvasRect = mainCanvas.GetComponent<RectTransform>();
-        PLAYSIZE = canvasRect.rect.width/2f;//canvasWidth
-     
+        PLAYSIZE = canvasRect.rect.width / 2f;//canvasWidth
+
         FRUITSTARTY = (canvasRect.rect.height / 2f) - 50;//just below screen start 
         FRUITENDY = -(canvasRect.rect.height / 2f) + 120f;//just above the screen end
 
@@ -112,7 +113,7 @@ public class FruitBasketGameController : MonoBehaviour
         detailObjects = GameObject.FindGameObjectsWithTag("detailViewer");
         SetVisibility(false);
 
-       // Set the position of the AROM lines.
+        // Set the position of the AROM lines.
         aromLeft.transform.localPosition = new Vector3(
         AngleToScreen(AppData.Instance.selectedMechanism.currRom.aromMin),
         aromLeft.transform.localPosition.y,
@@ -123,7 +124,7 @@ public class FruitBasketGameController : MonoBehaviour
             aromRight.transform.localPosition.y,
             aromRight.transform.localPosition.z
         );
-            bestScore.text = $"{(int)Others.highestSuccessRate:F0}%";
+        bestScore.text = $"{(int)Others.highestSuccessRate:F0}%";
 
         if (AppData.Instance.previousSuccessRates != null)
         {
@@ -131,13 +132,13 @@ public class FruitBasketGameController : MonoBehaviour
             preSuccRate.text = $"PrevSuccessRate:{AppData.Instance.previousSuccessRates[0].ToString("F0")}";
             currSuccRate.text = $"currSuccessRate:{AppData.Instance.previousSuccessRates[1].ToString("F0")}";
         }
-      
+
         gameSpeed = AppData.Instance.speedData.gameSpeed;
         Debug.Log("gamespeed");
         FRUITSPEED = 70f + ((gameSpeed - 10f) / 30f) * 120f;
-       
+
         FRUITSPEED = Mathf.Clamp(FRUITSPEED, 70f, 250f);
-       
+
         MOVEDURATION = 0.5f * (FRUITSTARTY - FRUITENDY) / FRUITSPEED;
         if (AppData.Instance.selectedMechanism.trialNumberDay >= AppData.Instance.userData.mechMoveTimePrsc[AppData.Instance.selectedMechanism.name])
         {
@@ -150,6 +151,23 @@ public class FruitBasketGameController : MonoBehaviour
 
         }
 
+    }
+        private void initializeGameSpeedController()
+    {
+        // Hide game speed control initially
+        // gameSpeedControl.SetActive(false);
+
+        gsc = gameSpeedControl.GetComponent<GameSpeedController>();
+        if (gsc == null) return;
+
+        // Attach the buttons
+        if (gsc.decreaseButton != null)
+            gsc.decreaseButton.onClick.AddListener(() => decreaseGameSpeed());
+        if (gsc.increaseButton != null)
+            gsc.increaseButton.onClick.AddListener(() => increaseGameSpeed());
+
+        // Set the initial game speed
+        gsc.gameSpeedText.text = $"{AppData.Instance.speedData.gameSpeed:F2}";
     }
 
     // Update is called once per frame
@@ -272,7 +290,6 @@ public class FruitBasketGameController : MonoBehaviour
                 AppData.Instance.previousSuccessRates = null;
                 if (AppData.Instance.speedData.gameSpeed != gameSpeed)
                 {
-                    AppData.Instance.speedData.updateGameSpeedfromGame(gameSpeed);
                     AppData.Instance.speedData.setGameSpeed(gameSpeed);
                 }
 
@@ -335,6 +352,8 @@ public class FruitBasketGameController : MonoBehaviour
         if (gameSpeed >= 40.0f) return;
 
         gameSpeed += 1.0f;
+        gsc.gameSpeedText.text = $"{(int)gameSpeed}";
+
         UpdateBallSpeedAndDuration();
         Debug.Log($"gs - {AppData.Instance.speedData.gameSpeed} + {gameSpeed}");
     }
@@ -347,6 +366,8 @@ public class FruitBasketGameController : MonoBehaviour
             return;
 
         gameSpeed -= 1.0f;
+        gsc.gameSpeedText.text = $"{(int)gameSpeed}";
+
         UpdateBallSpeedAndDuration();
 
 
@@ -458,6 +479,11 @@ public class FruitBasketGameController : MonoBehaviour
         successRateBanner.SetActive(false);
         setupBasketsForTrial();
         AppData.Instance.StartNewTrial();
+
+        gsc.sessionDetailsText.text = $"sessionNo: {AppData.Instance.currentSessionNumber}\n" +
+             $"trialNo: {AppData.Instance.selectedMechanism.trialNumberSession}\n" +
+             $"CB: {AppData.Instance.CurrentControlBound}";
+              
         preSuccRate.gameObject.SetActive(false);
         currSuccRate.gameObject.SetActive(false);
 
@@ -537,6 +563,7 @@ public class FruitBasketGameController : MonoBehaviour
             float gameTime = HomerTherapy.TrialDuration - trialTimeLeft;
             Others.gameTime = (gameTime < HomerTherapy.TrialDuration) ? gameTime : HomerTherapy.TrialDuration;
             AppData.Instance.aanController.Update(PlutoComm.angle, Time.deltaTime, true);
+            if (AppData.Instance.speedData.gameSpeed != gameSpeed)  AppData.Instance.speedData.setGameSpeed(gameSpeed);
             AppData.Instance.StopTrial(nTargets, nSuccess, nFailure);
             gameState = GameStates.DONE;
             Time.timeScale = 1f;
@@ -575,12 +602,12 @@ public class FruitBasketGameController : MonoBehaviour
     }
     public void updateGUI()
     {
-        status.text = $"s.no: {AppData.Instance.currentSessionNumber}\n" +
-                       $"trialNo: {AppData.Instance.selectedMechanism.trialNumberSession}\n" +
-                       $"CB: {AppData.Instance.CurrentControlBound}\n" +
-                       $"GS: {(int)gameSpeed}\n" +
-                       $"TG: {(int)nTargets}" +
-                       $"MD:{(int)MOVEDURATION}";
+        // status.text = $"s.no: {AppData.Instance.currentSessionNumber}\n" +
+        //                $"trialNo: {AppData.Instance.selectedMechanism.trialNumberSession}\n" +
+        //                $"CB: {AppData.Instance.CurrentControlBound}\n" +
+        //                $"GS: {(int)gameSpeed}\n" +
+        //                $"TG: {(int)nTargets}" +
+        //                $"MD:{(int)MOVEDURATION}";
 
         onPause.gameObject.SetActive(isGamePaused);
         gameOver.gameObject.SetActive(gameState == GameStates.DONE);

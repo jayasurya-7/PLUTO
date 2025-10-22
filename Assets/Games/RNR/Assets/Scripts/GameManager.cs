@@ -5,6 +5,7 @@ using UnityEngine.SceneManagement;
 using System.Collections.Generic;
 using UnityEngine.U2D.IK;
 using UnityEngine.UI;
+using UnityEditor;
 
 public class GameManager : MonoBehaviour
 {
@@ -29,7 +30,7 @@ public class GameManager : MonoBehaviour
     public int totalTargets;
     public int score = 0;
     private float triaTimeLeft;
-    public TextMeshProUGUI scorex;
+    public TextMeshProUGUI scorex, finalScore;
     public GameObject HSC; //HighScoreCanvas
     private GameObject reminderPanel;
     private GameObject[] pauseObjects, finishObjects;
@@ -38,7 +39,7 @@ public class GameManager : MonoBehaviour
 
     public GameObject aromLeft;
     public GameObject aromRight;
-    public GameObject increaseSpeed, decreaseSpeed;
+    public GameObject gameSpeedControl, gameOverPanel;
     bool speedControlsVisible = false;
     private string exitScene = "CHGAME";
 
@@ -68,6 +69,7 @@ public class GameManager : MonoBehaviour
     public bool isGamePaused { get; private set; } = false;
     public bool isTargetReached { get; private set; } = false;
     public bool isTargetMissed { get; private set; } = false;
+    private bool changeScene = false;
     public int nTargets = 0;
     public int nSuccess = 0;
     public int nFailure = 0;
@@ -82,7 +84,7 @@ public class GameManager : MonoBehaviour
     public float highlightDuration;     // highlighted for 3s
     private bool hasGrownThisCycle = false, runOnce = false;
     private SeedController lastHighlighted = null; // store last seed
-
+    private GameSpeedController gsc = null;
     private float eventDelayTimer = 0f , gameSpeed, trialTimeLeft;
      private float targetAngle;
     private float maxTargetDur;
@@ -137,14 +139,10 @@ public class GameManager : MonoBehaviour
             aromRight.transform.position.y,
             aromRight.transform.position.z);
         HST.text = $"{Others.highestSuccessRate:F0} %";
-        status.text = $"s.no: {AppData.Instance.currentSessionNumber}\n" +
-              $"trialNo: {AppData.Instance.selectedMechanism.trialNumberSession}\n" +
-              $"CB: {AppData.Instance.CurrentControlBound}";
 
          if (AppData.Instance.selectedMechanism.trialNumberDay >= AppData.Instance.userData.mechMoveTimePrsc[AppData.Instance.selectedMechanism.name])
         {
             reminderPanel.SetActive(true);
-
         }
         else
         {
@@ -158,8 +156,7 @@ public class GameManager : MonoBehaviour
          // Start new trial.
         AppData.Instance.StartNewTrial();
         reminderPanel.SetActive(false);
-
-        status.text = $"s.no: {AppData.Instance.currentSessionNumber}\n" +
+         gsc.sessionDetailsText.text = $"sessionNo: {AppData.Instance.currentSessionNumber}\n" +
               $"trialNo: {AppData.Instance.selectedMechanism.trialNumberSession}\n" +
               $"CB: {AppData.Instance.CurrentControlBound}";
         // Put PLUTO in the AAN mode.
@@ -181,11 +178,6 @@ public class GameManager : MonoBehaviour
         nFailure = 0;
 
         HidePaused();
-        //StartButton.SetActive(false);
-        //RestartButton.SetActive(false);
-
-       // PauseButton.SetActive(true);
-       // ResumeButton.SetActive(false);
     }
     private float CalculateHighlightDuration(float mechanismSpeed)
     {
@@ -199,42 +191,49 @@ public class GameManager : MonoBehaviour
     void Update()
     {
 
-        if (gameOver || currentHighlighted == null) return;
-          if (isGamePaused && gameState != GameStates.PAUSED) PauseGame();
+        // if (gameOver || currentHighlighted == null) return;
+
+        if (isGamePaused && gameState != GameStates.PAUSED) PauseGame();
         else if (!isGamePaused && gameState == GameStates.PAUSED) ResumeGame();
 
 
         if (Input.GetKey(KeyCode.LeftControl) && Input.GetKeyDown(KeyCode.G))
         {
             speedControlsVisible = !speedControlsVisible;
-
-            increaseSpeed.SetActive(speedControlsVisible);
-            decreaseSpeed.SetActive(speedControlsVisible);
             SetVisibility(speedControlsVisible);
 
         }
 
         // if (isGamePaused && gameState != GameStates.PAUSED) pauseGame();
         // else if (!isGamePaused && gameState == GameStates.PAUSED) resumeGame();
-        if ((isFinished && Input.GetKeyDown(KeyCode.P)) || (isFinished && isButtonPressed))
-        {
+        // if ((isFinished && Input.GetKeyDown(KeyCode.P)) || (isFinished && isButtonPressed))
+        // {
 
-            if (AppData.Instance.aanController.state == PlutoAANController.PlutoAANState.AROMMOVING
-                    || AppData.Instance.aanController.state == PlutoAANController.PlutoAANState.IDLE)
-            {
-                OnReStartButtonClick();
-            }
-            isButtonPressed = false;
-        }
+        //     if (AppData.Instance.aanController.state == PlutoAANController.PlutoAANState.AROMMOVING
+        //             || AppData.Instance.aanController.state == PlutoAANController.PlutoAANState.IDLE)
+        //     {
+        // OnReStartButtonClick();
+        //     }
+        //     isButtonPressed = false;
+        // }
         // PlayerPosition = GameObject.FindGameObjectWithTag("Player").transform.position;
-
+        Debug.Log($"chageScene - {changeScene && gameState == GameStates.DONE},   --{changeScene},--{gameState}");
+        if (changeScene && gameState == GameStates.DONE)
+        {
+            restartGame();
+            changeScene = false;
+        }
+        else
+        {
+            changeScene = false;
+        }
 
 
         if (currentHighlighted != null)
         {
             highlightTimer += Time.deltaTime;
 
-        // Calculate remaining time
+            // Calculate remaining time
             float remainingTime = Mathf.Max(0, highlightDuration - highlightTimer);
 
             // Fade out based on remaining time
@@ -262,15 +261,15 @@ public class GameManager : MonoBehaviour
                     // originalColor.a = 1f;
                     // highlighterRenderer.material.color = originalColor;
 
-    //                 Color target = new Color(0f, 1f, 0f, 1f); // pure green, full alpha
-    // highlighterRenderer.material.color = Color.Lerp(
-    //     highlighterRenderer.material.color, 
-    //     target, 
-    //     Time.deltaTime * 5f // speed of transition
-    // );
-                    
+                    //                 Color target = new Color(0f, 1f, 0f, 1f); // pure green, full alpha
+                    // highlighterRenderer.material.color = Color.Lerp(
+                    //     highlighterRenderer.material.color, 
+                    //     target, 
+                    //     Time.deltaTime * 5f // speed of transition
+                    // );
+
                 }
-            
+
             }
             if (highlightTimer >= highlightDuration && !hasGrownThisCycle)
             {
@@ -296,20 +295,13 @@ public class GameManager : MonoBehaviour
             }
             else
             {
-                // rainTimer = 0f;
-                // Option 1: decay gradually
                 rainTimer = Mathf.Max(0, rainTimer - Time.deltaTime);
-                Debug.Log($"RainTimer: {rainTimer}, IsBeingRainedOn: {currentHighlighted.IsBeingRainedOn}");
-
             }
         }
 
         // Score.text = $"Score : {score}";
         Score.text = $"Score : {score}";
-        // Score.text = $"Score : {rainTimer}";
-        rainT.text = $"t :{rainTimer}";
         Timer.text = "Time :" + trialTimeLeft.ToString("F0");
-        speed.text = $"GS :{(int)gameSpeed}";
     }
 
     void FixedUpdate()
@@ -326,9 +318,11 @@ public class GameManager : MonoBehaviour
     {
            if (gameSpeed >= 40.0f) return;
 
-            gameSpeed += 1.0f;
-            UpdateBallSpeedAndDuration();
-            Debug.Log($"gs - {AppData.Instance.speedData.gameSpeed} + {gameSpeed}");
+        gameSpeed += 1.0f;
+        gsc.gameSpeedText.text = $"{gameSpeed:F2}";
+        highlightDuration = CalculateHighlightDuration(gameSpeed);
+        
+        Debug.Log($"gs - {AppData.Instance.speedData.gameSpeed} + {gameSpeed}");
     }
     public void decreaseGameSpeed()
     {
@@ -339,8 +333,8 @@ public class GameManager : MonoBehaviour
             return;
 
         gameSpeed -= 1.0f;
-        UpdateBallSpeedAndDuration();
-        
+        gsc.gameSpeedText.text = $"{gameSpeed:F2}";
+        highlightDuration = CalculateHighlightDuration(gameSpeed);
 
     }
     private void SetVisibility(bool state)
@@ -352,22 +346,10 @@ public class GameManager : MonoBehaviour
         }
     }
 
-    private void UpdateBallSpeedAndDuration()
-    {
-        string mech = PlutoComm.MECHANISMS[PlutoComm.mechanism];
-        bool isFME = mech == "FME1" || mech == "FME2";
-
-        highlightDuration = CalculateHighlightDuration(gameSpeed);
-    }
 
     void initializeGame()
     {
-        // Time.timeScale = 0;
-        // StartButton.SetActive(true);
-        // PauseButton.SetActive(false);
-        // ResumeButton.SetActive(false);
         reminderPanel = GameObject.FindGameObjectWithTag("ReminderPanel");
-
         gameState = GameStates.WAITING;
         isGameStarted = false;
         isGameFinished = false;
@@ -384,24 +366,42 @@ public class GameManager : MonoBehaviour
         // Attach PLUTO button event.
         PlutoComm.OnButtonReleased += onPlutoButtonReleased;
         reminderPanel.SetActive(false);
-        
-        
+        initializeGameSpeedController();
+
+    }
+     private void initializeGameSpeedController()
+    {
+        // Hide game speed control initially
+        // gameSpeedControl.SetActive(false);
+
+        gsc = gameSpeedControl.GetComponent<GameSpeedController>();
+        if (gsc == null) return;
+
+        // Attach the buttons
+        if (gsc.decreaseButton != null)
+            gsc.decreaseButton.onClick.AddListener(() => decreaseGameSpeed());
+        if (gsc.increaseButton != null)
+            gsc.increaseButton.onClick.AddListener(() => increaseGameSpeed());
+
+        // Set the initial game speed
+        gsc.gameSpeedText.text = $"{AppData.Instance.speedData.gameSpeed:F2}";
     }
 
     private void onPlutoButtonReleased()
     {
         if (gameState == GameStates.WAITING) isGameStarted = true;
-        else if (gameState != GameStates.STOP) isGamePaused = !isGamePaused;
-    }
-    public void OnStartButtonClick()
-    {
-        isGameStarted = true;
-        // Time.timeScale = 1;
-    }
+        else if (gameState != GameStates.STOP && gameState != GameStates.DONE) isGamePaused = !isGamePaused;
+        else if (gameState == GameStates.DONE && isGameFinished) changeScene = true;
 
-    public void OnReStartButtonClick()
+    }
+  
+
+    public void restartGame()
     {
-        SceneManager.LoadScene(SceneManager.GetActiveScene().name);
+        HideFinished();
+        string currentSceneName = SceneManager.GetActiveScene().name;
+        AppLogger.LogInfo($"The Game is restarted {currentSceneName}");
+        SceneManager.LoadScene(currentSceneName);
     }
 
     public bool IsGamePlaying()
@@ -523,7 +523,6 @@ public class GameManager : MonoBehaviour
                 AppData.Instance.previousSuccessRates =null;
                 if (AppData.Instance.speedData.gameSpeed != gameSpeed)
                 {
-                    AppData.Instance.speedData.updateGameSpeedfromGame(gameSpeed);
                     AppData.Instance.speedData.setGameSpeed(gameSpeed);
                 }
                 
@@ -548,7 +547,8 @@ public class GameManager : MonoBehaviour
                         else
                         {
                             AppData.Instance.previousSuccessRates = AppData.Instance.userData.GetLastTwoSuccessRates(AppData.Instance.selectedMechanism.name, AppData.Instance.selectedGame);
-                            SceneManager.LoadScene(SceneManager.GetActiveScene().name);
+                            // SceneManager.LoadScene(SceneManager.GetActiveScene().name);
+                            ShowFinished();
                         }
 
 
@@ -668,7 +668,8 @@ float GetXPositionFromAngle(float targetAngle)
 
     public void ShowFinished()
     {
-        Time.timeScale = 0;
+        // Time.timeScale = 0;
+        finalScore.text = $"{score:D3}";
         // RestartButton.SetActive(true);
         foreach (GameObject g in finishObjects) g.SetActive(true);
     }
@@ -793,7 +794,7 @@ float GetXPositionFromAngle(float targetAngle)
             convertedAngle = GetHighlightedSeedAngle();
      
             Debug.Log($"Angle {targetAngle:F1} → Highlighting Seed {bin+1} -> {convertedAngle}-> X POSITION{GetXPositionFromAngle(convertedAngle)}");
-        // if (!currentHighlighted.IsFullyGrown)
+            // if (!currentHighlighted.IsFullyGrown)
             // {
             //     currentHighlighted.SetHighlight(true);
             //     nTargets++;
@@ -823,6 +824,7 @@ float GetXPositionFromAngle(float targetAngle)
             float gameTime = HomerTherapy.TrialDuration - trialTimeLeft;
             Others.gameTime = (gameTime < HomerTherapy.TrialDuration) ? gameTime : HomerTherapy.TrialDuration;
             AppData.Instance.aanController.Update(PlutoComm.angle, Time.deltaTime, true);
+            if (AppData.Instance.speedData.gameSpeed != gameSpeed)  AppData.Instance.speedData.setGameSpeed(gameSpeed);
             AppData.Instance.StopTrial(nTargets, nSuccess, nFailure);
             gameState = GameStates.DONE;
             Time.timeScale = 1f;

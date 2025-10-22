@@ -164,6 +164,7 @@ public partial class AppData
         }
         // Set the mechanism name.
         selectedMechanism = new PlutoMechanism(name: name, side: trainingSide, sessno: currentSessionNumber);
+        speedData = new MechanismSpeed();
         AppLogger.LogInfo($"Selected mechanism '{selectedMechanism.name}'.");
         AppLogger.SetCurrentMechanism(selectedMechanism.name);
         AppLogger.LogInfo($"Trial numbers for ' {selectedMechanism.name}' updated. Day: {selectedMechanism.trialNumberDay}, Session: {selectedMechanism.trialNumberSession}.");

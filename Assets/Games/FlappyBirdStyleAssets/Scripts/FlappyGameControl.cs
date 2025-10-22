@@ -108,8 +108,9 @@ public class FlappyGameControl : MonoBehaviour
     public Image loadingImage;
     private GameObject reminderPanel;
 
-    
-    public GameObject increaseSpeed, decreaseSpeed;
+
+    public GameObject gameSpeedControl;
+    private GameSpeedController gsc = null;
     bool speedControlsVisible = false;
 
 
@@ -162,6 +163,7 @@ public class FlappyGameControl : MonoBehaviour
     void Start()
     {
         InitializeGame();
+        initializeGameSpeedController();
         detailObjects = GameObject.FindGameObjectsWithTag("detailViewer");
         pauseObjects = GameObject.FindGameObjectsWithTag("ShowOnPause");
         setup = false;
@@ -180,9 +182,6 @@ public class FlappyGameControl : MonoBehaviour
         );
         SetVisibility(false);
         HS.text = $"{Others.highestSuccessRate:F0} %";
-        status.text = $"s.no: {AppData.Instance.currentSessionNumber}\n" +
-                 $"trialNo: {AppData.Instance.selectedMechanism.trialNumberSession}\n" +
-                 $"CB: {AppData.Instance.CurrentControlBound}";
 
         if (AppData.Instance.selectedMechanism.trialNumberDay >= AppData.Instance.userData.mechMoveTimePrsc[AppData.Instance.selectedMechanism.name])
         {
@@ -193,8 +192,26 @@ public class FlappyGameControl : MonoBehaviour
         {
             reminderPanel.SetActive(false);
         }
-    
+
     }
+        private void initializeGameSpeedController()
+    {
+        // Hide game speed control initially
+        // gameSpeedControl.SetActive(false);
+
+        gsc = gameSpeedControl.GetComponent<GameSpeedController>();
+        if (gsc == null) return;
+
+        // Attach the buttons
+        if (gsc.decreaseButton != null)
+            gsc.decreaseButton.onClick.AddListener(() => decreaseGameSpeed());
+        if (gsc.increaseButton != null)
+            gsc.increaseButton.onClick.AddListener(() => increaseGameSpeed());
+
+        // Set the initial game speed
+        gsc.gameSpeedText.text = $"{AppData.Instance.speedData.gameSpeed:F2}";
+    }
+
 
     void Update()
     {
@@ -205,9 +222,6 @@ public class FlappyGameControl : MonoBehaviour
         if (Input.GetKey(KeyCode.LeftControl) && Input.GetKeyDown(KeyCode.G))
         {
             speedControlsVisible = !speedControlsVisible;
-
-            increaseSpeed.SetActive(speedControlsVisible);
-            decreaseSpeed.SetActive(speedControlsVisible);
             SetVisibility(speedControlsVisible);
             Debug.Log("Speed controls " + (speedControlsVisible ? "enabled" : "disabled"));
         }
@@ -268,6 +282,8 @@ public class FlappyGameControl : MonoBehaviour
          if (gameSpeed >= 40.0f) return;
 
         gameSpeed += 1.0f;
+        gsc.gameSpeedText.text = $"{(int)gameSpeed}";
+
         UpdateScrollSpeed();
         Debug.Log($"gs - {AppData.Instance.speedData.gameSpeed} + {gameSpeed}");
     }
@@ -280,6 +296,8 @@ public class FlappyGameControl : MonoBehaviour
         if ((isFME && gameSpeed <= 1.0f) || (!isFME && gameSpeed <= 10.0f)) return;
 
         gameSpeed -= 1.0f;
+        gsc.gameSpeedText.text = $"{(int)gameSpeed}";
+
         UpdateScrollSpeed();
 
     }
@@ -460,8 +478,11 @@ public class FlappyGameControl : MonoBehaviour
             hidePaused();
         // Start new trial.
         AppData.Instance.StartNewTrial();
+         gsc.sessionDetailsText.text = $"sessionNo: {AppData.Instance.currentSessionNumber}\n" +
+              $"trialNo: {AppData.Instance.selectedMechanism.trialNumberSession}\n" +
+              $"CB: {AppData.Instance.CurrentControlBound}";
         reminderPanel.SetActive(false);
-         status.text = $"s.no: {AppData.Instance.currentSessionNumber}\n" +
+        gsc.sessionDetailsText.text = $"sessionNo: {AppData.Instance.currentSessionNumber}\n" +
               $"trialNo: {AppData.Instance.selectedMechanism.trialNumberSession}\n" +
               $"CB: {AppData.Instance.CurrentControlBound}";
 
@@ -638,7 +659,6 @@ public class FlappyGameControl : MonoBehaviour
     {
         timeLeftText.text = $": {(int)triaTimeLeft}";
         ScoreText.text = $"Score: {nSuccess}";
-        gameSpeedViewer.text = $" GS : {(int)gameSpeed}";
     }
 
     private void UpdatePlutoAANTarget()
@@ -681,6 +701,7 @@ public class FlappyGameControl : MonoBehaviour
             float gameTime = HomerTherapy.TrialDuration - triaTimeLeft;
             Others.gameTime = (gameTime < HomerTherapy.TrialDuration) ? gameTime : HomerTherapy.TrialDuration;
             AppData.Instance.aanController.Update(PlutoComm.angle, Time.deltaTime, true);
+            if (AppData.Instance.speedData.gameSpeed != gameSpeed)  AppData.Instance.speedData.setGameSpeed(gameSpeed);
             AppData.Instance.StopTrial(nTargets, nSuccess, nFailure);
             gameState = GameStates.DONE;
             Time.timeScale = 1f;

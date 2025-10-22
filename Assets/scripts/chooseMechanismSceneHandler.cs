@@ -176,9 +176,6 @@ public class MechanismSceneHandler : MonoBehaviour
 
     void LoadNextScene()
     {
-        AppData.Instance.speedData = new MechanismSpeed();
-        AppData.Instance.speedData .EvaluateAndUpdateGameSpeed();
-      
         AppLogger.LogInfo($"New AAN controller created for '{AppData.Instance.selectedMechanism.name}'.");
         //PlutoComm.setControlGain(1.0f);
         // Set the mechanism.
