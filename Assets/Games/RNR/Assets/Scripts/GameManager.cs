@@ -196,6 +196,17 @@ public class GameManager : MonoBehaviour
         if (isGamePaused && gameState != GameStates.PAUSED) PauseGame();
         else if (!isGamePaused && gameState == GameStates.PAUSED) ResumeGame();
 
+         if (changeScene && gameState == GameStates.DONE)
+        {
+            restartGame();
+            changeScene = false;
+        }
+        else
+        {
+            changeScene = false;
+        }
+
+        if (currentHighlighted == null) return;
 
         if (Input.GetKey(KeyCode.LeftControl) && Input.GetKeyDown(KeyCode.G))
         {
@@ -217,17 +228,8 @@ public class GameManager : MonoBehaviour
         //     isButtonPressed = false;
         // }
         // PlayerPosition = GameObject.FindGameObjectWithTag("Player").transform.position;
-        Debug.Log($"chageScene - {changeScene && gameState == GameStates.DONE},   --{changeScene},--{gameState}");
-        if (changeScene && gameState == GameStates.DONE)
-        {
-            restartGame();
-            changeScene = false;
-        }
-        else
-        {
-            changeScene = false;
-        }
-
+//        Debug.Log($"chageScene - {changeScene && gameState == GameStates.DONE},   --{changeScene},--{gameState}");
+       
 
         if (currentHighlighted != null)
         {
