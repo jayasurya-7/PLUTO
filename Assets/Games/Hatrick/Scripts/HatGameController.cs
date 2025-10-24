@@ -52,6 +52,8 @@ public class HatGameController : MonoBehaviour
     // Target and player positions
     public Vector3? TargetPosition { get; private set; }
     public Vector3 PlayerPosition { get; private set; }
+    public TextMeshProUGUI  finalScore;
+
 
 
     // Graphics variables.
@@ -129,7 +131,7 @@ public class HatGameController : MonoBehaviour
 
     private float eventDelayTimer = 0f , gameSpeed;
     private bool runOnce = false;
-    bool speedControlsVisible = false;
+    bool speedControlsVisible = false, changeScene = false;
 
     private void Awake()
     {
@@ -206,6 +208,16 @@ public class HatGameController : MonoBehaviour
         if (isGamePaused && gameState != GameStates.PAUSED) PauseGame();
         else if (!isGamePaused && gameState == GameStates.PAUSED) ResumeGame();
 
+        if (changeScene && gameState == GameStates.DONE)
+        {
+            restartGame();
+            changeScene = false;
+        }
+        else
+        {
+            changeScene = false;
+        }
+
         // Magic key cobmination for doing the speed control.
 
         if (Input.GetKey(KeyCode.LeftControl) && Input.GetKeyDown(KeyCode.G))
@@ -251,15 +263,23 @@ public class HatGameController : MonoBehaviour
         isGameStarted = true;
     }
 
+     public void restartGame()
+    {
+        HideFinished();
+        string currentSceneName = SceneManager.GetActiveScene().name;
+        AppLogger.LogInfo($"The Game is restarted {currentSceneName}");
+        SceneManager.LoadScene(currentSceneName);
+    }
+
     public void increaseGameSpeed()
     {
-           if (gameSpeed >= 40.0f) return;
+        if (gameSpeed >= 40.0f) return;
 
         gameSpeed += 1.0f;
         gsc.gameSpeedText.text = $"{(int)gameSpeed}";
-            
-            UpdateBallSpeedAndDuration();
-            Debug.Log($"gs - {AppData.Instance.speedData.gameSpeed} + {gameSpeed}");
+
+        UpdateBallSpeedAndDuration();
+        Debug.Log($"gs - {AppData.Instance.speedData.gameSpeed} + {gameSpeed}");
     }
     public void decreaseGameSpeed()
     {
@@ -489,7 +509,8 @@ public class HatGameController : MonoBehaviour
                         else
                         {
                             AppData.Instance.previousSuccessRates = AppData.Instance.userData.GetLastTwoSuccessRates(AppData.Instance.selectedMechanism.name, AppData.Instance.selectedGame);
-                            SceneManager.LoadScene(SceneManager.GetActiveScene().name);
+                            // SceneManager.LoadScene(SceneManager.GetActiveScene().name);
+                            ShowFinished();
                         }
 
 
@@ -658,6 +679,9 @@ public class HatGameController : MonoBehaviour
 
     public void ShowFinished()
     {
+        // finalScore.text = $"{score:D3}";
+        finalScore.text = $"{nSuccess:D3}";
+
         foreach (GameObject g in finishObjects)
         {
             g.SetActive(true);
@@ -686,9 +710,9 @@ public class HatGameController : MonoBehaviour
 
     private void onPlutoButtonReleased()
     {
-        // This can mean different things depending on the game state.
         if (gameState == GameStates.WAITING) isGameStarted = true;
-        else if (gameState != GameStates.STOP) isGamePaused = !isGamePaused;
+        else if (gameState != GameStates.STOP && gameState != GameStates.DONE) isGamePaused = !isGamePaused;
+        else if (gameState == GameStates.DONE && isGameFinished) changeScene = true;
 
     }
 }

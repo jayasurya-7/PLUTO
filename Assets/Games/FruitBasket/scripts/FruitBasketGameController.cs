@@ -4,6 +4,7 @@ using System.Collections.Generic;
 using UnityEngine;
 using UnityEngine.SceneManagement;
 using UnityEngine.UI;
+using TMPro;
 using static FruitBasketGameController;
 
 public class FruitBasketGameController : MonoBehaviour
@@ -48,7 +49,7 @@ public class FruitBasketGameController : MonoBehaviour
     public bool isFailure { get; private set; } = false;
 
     private float eventDelayTimer = 0f, gameSpeed;
-    private bool runOnce = false;
+    private bool runOnce = false, changeScene = false;
 
     // Game score related variables.
     public int nTargets = 0;
@@ -63,7 +64,9 @@ public class FruitBasketGameController : MonoBehaviour
     private  static float FRUITENDY;
     bool speedControlsVisible = false;
     public  float FRUITSPEED, MOVEDURATION;
-   public GameObject gameSpeedControl;
+    public GameObject gameSpeedControl, gameOverPanel;
+    public TextMeshProUGUI  finalScore;
+   
     private GameSpeedController gsc = null;
     public Vector3? PlayerPosition;
     public Vector3? TargetPosition;
@@ -112,7 +115,7 @@ public class FruitBasketGameController : MonoBehaviour
 
         detailObjects = GameObject.FindGameObjectsWithTag("detailViewer");
         SetVisibility(false);
-
+        gameOverPanel.SetActive(false);
         // Set the position of the AROM lines.
         aromLeft.transform.localPosition = new Vector3(
         AngleToScreen(AppData.Instance.selectedMechanism.currRom.aromMin),
@@ -176,6 +179,15 @@ public class FruitBasketGameController : MonoBehaviour
 
         if (isGamePaused && gameState != GameStates.PAUSE) pauseGame();
         else if (!isGamePaused && gameState == GameStates.PAUSE) resumeGame();
+          if (changeScene && gameState == GameStates.DONE)
+        {
+            restartGame();
+            changeScene = false;
+        }
+        else
+        {
+            changeScene = false;
+        }
 
         updateGUI();
         if (Input.GetKey(KeyCode.LeftControl) && Input.GetKeyDown(KeyCode.G))
@@ -189,15 +201,22 @@ public class FruitBasketGameController : MonoBehaviour
     public void FixedUpdate()
     {
         PlutoComm.sendHeartbeat();
-        
+
         runStateMachine();
-       
+
         if (!isGamePlaying()) return;
         playerTemp = GameObject.FindGameObjectWithTag("Player");
-        PlayerPosition = playerTemp!= null? playerTemp.transform.localPosition:null;
+        PlayerPosition = playerTemp != null ? playerTemp.transform.localPosition : null;
         targetTemp = GameObject.FindGameObjectWithTag("Target");
         TargetPosition = targetTemp != null ? targetTemp.transform.localPosition : null;
-        
+
+    }
+    public void restartGame()
+    {
+        gameOverPanel.SetActive(false);
+        string currentSceneName = SceneManager.GetActiveScene().name;
+        AppLogger.LogInfo($"The Game is restarted {currentSceneName}");
+        SceneManager.LoadScene(currentSceneName);
     }
     public void runStateMachine()
     {
@@ -320,8 +339,10 @@ public class FruitBasketGameController : MonoBehaviour
                                 SceneManager.LoadScene("CHMECH");
                                 return;
                             }
+                            gameOverPanel.SetActive(true);
+                            finalScore.text = $"{nSuccess:D3}";
                             
-                            SceneManager.LoadScene(SceneManager.GetActiveScene().name);
+                            // SceneManager.LoadScene(SceneManager.GetActiveScene().name);
                         }
                        
 
@@ -622,8 +643,8 @@ public class FruitBasketGameController : MonoBehaviour
     }
     private void onPlutoButtonReleased()
     {
-        // This can mean different things depending on the game state.
-        if (gameState == GameStates.WAITFORSTART) isGameStarted = true;
-        else if (gameState != GameStates.DONE) isGamePaused = !isGamePaused;
+         if (gameState == GameStates.WAITFORSTART) isGameStarted = true;
+        else if (gameState != GameStates.STOP && gameState != GameStates.DONE) isGamePaused = !isGamePaused;
+        else if (gameState == GameStates.DONE && isGameFinished) changeScene = true;
     }
 }

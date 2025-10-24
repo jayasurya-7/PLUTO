@@ -72,6 +72,8 @@ public class PongGameController : MonoBehaviour
     private  GameObject targetTemp;
     public  GameObject SuccessRateBanner,ExitButton;
     public Text prevSR, currSR, HS, status;
+    public TextMeshProUGUI finalScore;
+
     public GameObject HSC; //HighScoreCanvas
     public TextMeshProUGUI score;
     private float lastHighScore;
@@ -93,7 +95,7 @@ public class PongGameController : MonoBehaviour
     public int nFailure = 0;
 
     private float MOVEDURATION, eventDelayTimer = 0f, gameSpeed;
-     public GameObject gameSpeedControl;
+     public GameObject gameSpeedControl, gameOverPanel;
     private GameSpeedController gsc = null;
     public Image loadingImage;
    
@@ -422,10 +424,12 @@ public class PongGameController : MonoBehaviour
 
     public void showFinished()
     {
+        finalScore.text = $"{nSuccess:D3}";
         foreach (GameObject g in finishObjects)
         {
             g.SetActive(true);
         }
+        
         if(AppData.Instance.previousSuccessRates!=null)
         {
             SuccessRateBanner.SetActive(true);

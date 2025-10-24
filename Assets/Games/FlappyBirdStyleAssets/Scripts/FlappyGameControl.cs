@@ -18,7 +18,7 @@ public class FlappyGameControl : MonoBehaviour
     public Text ScoreText;
     public static FlappyGameControl Instance { get; private set; }
     public GameObject GameOverText;
-    public GameObject[] pauseObjects;
+    public GameObject[] pauseObjects, finishObjects;
     public ProgressBar timerObject;
 
     bool birdDied = false;
@@ -104,14 +104,15 @@ public class FlappyGameControl : MonoBehaviour
     public GameObject HSC; //HighScoreCanvas
     public TextMeshProUGUI score1;
     private float lastHighScore, eventDelayTimer = 0f, gameSpeed;
-    private bool runOnce = false;
+    private bool runOnce = false, changeScene = false;
     public Image loadingImage;
     private GameObject reminderPanel;
 
 
-    public GameObject gameSpeedControl;
+    public GameObject gameSpeedControl, gameOverPanel;
     private GameSpeedController gsc = null;
     bool speedControlsVisible = false;
+    public TextMeshProUGUI  finalScore;
 
 
     void Awake()
@@ -137,7 +138,7 @@ public class FlappyGameControl : MonoBehaviour
         // PauseButton.SetActive(false);
         // ResumeButton.SetActive(false);
         reminderPanel = GameObject.FindGameObjectWithTag("ReminderPanel");
-
+        gameOverPanel.SetActive(false);
         // Intialize game logic variables
         gameState = GameStates.WAITING;
         // Clear even flags.
@@ -164,8 +165,11 @@ public class FlappyGameControl : MonoBehaviour
     {
         InitializeGame();
         initializeGameSpeedController();
+        
         detailObjects = GameObject.FindGameObjectsWithTag("detailViewer");
         pauseObjects = GameObject.FindGameObjectsWithTag("ShowOnPause");
+        finishObjects = GameObject.FindGameObjectsWithTag("ShowOnFinish");
+
         setup = false;
 
         aromLeft.transform.position = new Vector3(
@@ -215,10 +219,19 @@ public class FlappyGameControl : MonoBehaviour
 
     void Update()
     {
-        
+
 
         if (isGamePaused && gameState != GameStates.PAUSED) PauseGame();
         else if (!isGamePaused && gameState == GameStates.PAUSED) ResumeGame();
+        if (changeScene && gameState == GameStates.DONE)
+        {
+            restartGame();
+            changeScene = false;
+        }
+        else
+        {
+            changeScene = false;
+        }
         if (Input.GetKey(KeyCode.LeftControl) && Input.GetKeyDown(KeyCode.G))
         {
             speedControlsVisible = !speedControlsVisible;
@@ -259,6 +272,14 @@ public class FlappyGameControl : MonoBehaviour
         TargetPosition = targetTemp != null ? targetTemp.transform.position : null;
         prevSpawnTime += Time.deltaTime;
         Debug.Log(scrollSpeed);
+    }
+     public void restartGame()
+    {
+        // HideFinished();
+        gameOverPanel.SetActive(false);
+        string currentSceneName = SceneManager.GetActiveScene().name;
+        AppLogger.LogInfo($"The Game is restarted {currentSceneName}");
+        SceneManager.LoadScene(currentSceneName);
     }
 
     public void chooseBackground()
@@ -307,7 +328,24 @@ public class FlappyGameControl : MonoBehaviour
         float scrollFactor =  0.05f;
         scrollSpeed = -2f - (scrollFactor * gameSpeed);
     }
+    //     public void ShowFinished()
+    // {
+    //     // finalScore.text = $"{score:D3}";
+    //     finalScore.text = $"{nSuccess:D3}";
 
+    //     foreach (GameObject g in finishObjects)
+    //     {
+    //         g.SetActive(true);
+    //     }
+    // }
+
+    // public void HideFinished()
+    // {
+    //     foreach (GameObject g in finishObjects)
+    //     {
+    //         g.SetActive(false);
+    //     }
+    // }
     public void spawnColumn()
     {
         float spawnInterval = Mathf.Max(0.5f, 2f - (gameSpeed - 10f) * 0.05f);
@@ -642,7 +680,11 @@ public class FlappyGameControl : MonoBehaviour
                         else
                         {
                             AppData.Instance.previousSuccessRates = AppData.Instance.userData.GetLastTwoSuccessRates(AppData.Instance.selectedMechanism.name, AppData.Instance.selectedGame);
-                            SceneManager.LoadScene(SceneManager.GetActiveScene().name);
+                            // SceneManager.LoadScene(SceneManager.GetActiveScene().name);
+                            // ShowFinished();
+                            gameOverPanel.SetActive(true);
+                            finalScore.text = $"{nSuccess:D3}";
+                            
                         }
                     }
                     if (AppData.Instance.selectedMechanism.trialNumberDay == AppData.Instance.userData.mechMoveTimePrsc[AppData.Instance.selectedMechanism.name])
@@ -711,9 +753,9 @@ public class FlappyGameControl : MonoBehaviour
 
     private void onPlutoButtonReleased()
     {
-        // This can mean different things depending on the game state.
         if (gameState == GameStates.WAITING) isGameStarted = true;
-        else if (gameState != GameStates.STOP) isGamePaused = !isGamePaused;
+        else if (gameState != GameStates.STOP && gameState != GameStates.DONE) isGamePaused = !isGamePaused;
+        else if (gameState == GameStates.DONE && isGameFinished) changeScene = true;
     }
 
 }
