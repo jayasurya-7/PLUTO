@@ -228,6 +228,8 @@ public class HatGameController : MonoBehaviour
         }
 
         Debug.Log($" ball speed : {BALLSPEED}");
+        Debug.Log($" ball speed : {gameState}--{changeScene}");
+
         
 
     }
@@ -482,7 +484,7 @@ public class HatGameController : MonoBehaviour
                 // Update AANController.
                 AppData.Instance.aanController.Update(PlutoComm.angle, Time.deltaTime, true);
                 // Set AAN target if needed.
-
+                isGameFinished = true;
                 AppData.Instance.previousSuccessRates =null;
                 if (AppData.Instance.speedData.gameSpeed != gameSpeed)
                 {

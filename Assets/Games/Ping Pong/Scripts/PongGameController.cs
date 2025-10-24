@@ -252,16 +252,7 @@ public class PongGameController : MonoBehaviour
     private void gameEnd()
     {
         Camera.main.GetComponent<AudioSource>().Stop();
-        if (AppData.Instance.selectedMechanism.trialNumberDay >= AppData.Instance.userData.mechMoveTimePrsc[AppData.Instance.selectedMechanism.name])
-        {
-              reminderPanel.SetActive(true);
-            
-        }
-        else
-        {
-            reminderPanel.SetActive(false);
 
-        }
         playAudio(enemyScore>playerScore ? 1 : 0);
         //showFinished();
         Time.timeScale = 0;
@@ -627,7 +618,16 @@ public class PongGameController : MonoBehaviour
         // gameSpeed = 20.0f; //temp
         // Attach PLUTO button event.
         PlutoComm.OnButtonReleased += onPlutoButtonReleased;
-        reminderPanel.SetActive(false);
+        // reminderPanel.SetActive(false);
+        if (AppData.Instance.selectedMechanism.trialNumberDay >= AppData.Instance.userData.mechMoveTimePrsc[AppData.Instance.selectedMechanism.name])
+        {
+            reminderPanel.SetActive(true);
+
+        }
+        else
+        {
+            reminderPanel.SetActive(false);
+        }
         
     }
     private void onPlutoButtonReleased()
@@ -642,9 +642,12 @@ public class PongGameController : MonoBehaviour
         // Start new trial.
         AppData.Instance.StartNewTrial();
 
-          gsc.sessionDetailsText.text = $"sessionNo: {AppData.Instance.currentSessionNumber}\n" +
-              $"trialNo: {AppData.Instance.selectedMechanism.trialNumberSession}\n" +
-              $"CB: {AppData.Instance.CurrentControlBound}";
+        gsc.sessionDetailsText.text = $"sessionNo: {AppData.Instance.currentSessionNumber}\n" +
+            $"trialNo: {AppData.Instance.selectedMechanism.trialNumberSession}\n" +
+            $"CB: {AppData.Instance.CurrentControlBound}";
+              
+        reminderPanel.SetActive(false);
+        
         // Put PLUTO in the AAN mode.
         if ((PlutoComm.MECHANISMS[PlutoComm.mechanism] != "FME1") && (PlutoComm.MECHANISMS[PlutoComm.mechanism] != "FME2"))
         {

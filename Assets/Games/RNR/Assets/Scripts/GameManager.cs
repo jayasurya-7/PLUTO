@@ -181,6 +181,11 @@ public class GameManager : MonoBehaviour
     }
     private float CalculateHighlightDuration(float mechanismSpeed)
     {
+        float slope = (0.2f - 1.0f) / (40f - 10f);  // (-0.8 / 30)
+        rainDurationToGrow = 1.0f + slope * (mechanismSpeed - 10f);
+
+        // Clamp to safe range
+        rainDurationToGrow = Mathf.Clamp(rainDurationToGrow, 0.2f, 1.0f);
         // Linear relation between speed (10 → 40) and duration (7s → 4.5s)
         float duration = -0.0833f * mechanismSpeed + 7.833f;
 
