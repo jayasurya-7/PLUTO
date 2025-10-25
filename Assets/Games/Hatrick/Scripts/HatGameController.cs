@@ -186,7 +186,7 @@ public class HatGameController : MonoBehaviour
         }
         
     }
-       private void initializeGameSpeedController()
+    private void initializeGameSpeedController()
     {
         // Hide game speed control initially
         // gameSpeedControl.SetActive(false);
@@ -281,6 +281,8 @@ public class HatGameController : MonoBehaviour
         gsc.gameSpeedText.text = $"{(int)gameSpeed}";
 
         UpdateBallSpeedAndDuration();
+        AppLogger.LogInfo($"{AppData.Instance.selectedGameName}'s game speed increased to {gameSpeed}, Ball speed is {BALLSPEED}");
+
         Debug.Log($"gs - {AppData.Instance.speedData.gameSpeed} + {gameSpeed}");
     }
     public void decreaseGameSpeed()
@@ -295,6 +297,8 @@ public class HatGameController : MonoBehaviour
         gsc.gameSpeedText.text = $"{(int)gameSpeed}";
 
         UpdateBallSpeedAndDuration();
+        AppLogger.LogInfo($"{AppData.Instance.selectedGameName}'s game speed decreased to {gameSpeed}, Ball speed is {BALLSPEED}");
+
         
 
     }
@@ -322,7 +326,7 @@ public class HatGameController : MonoBehaviour
         // Start new trial.
         AppData.Instance.StartNewTrial();
         reminderPanel.SetActive(false);
- gsc.sessionDetailsText.text = $"sessionNo: {AppData.Instance.currentSessionNumber}\n" +
+        gsc.sessionDetailsText.text = $"sessionNo: {AppData.Instance.currentSessionNumber}\n" +
               $"trialNo: {AppData.Instance.selectedMechanism.trialNumberSession}\n" +
               $"CB: {AppData.Instance.CurrentControlBound}";
         // Put PLUTO in the AAN mode.
@@ -342,6 +346,7 @@ public class HatGameController : MonoBehaviour
         nTargets = 0;
         nSuccess = 0;
         nFailure = 0;
+        AppLogger.LogInfo($"{AppData.Instance.selectedGameName}-- game started");
 
         // Disable buttons except the pause button.
         // StartButton.SetActive(false);
@@ -382,6 +387,7 @@ public class HatGameController : MonoBehaviour
             PlutoComm.setControlBound(AppData.Instance.CurrentControlBound);
             PlutoComm.setControlDir(0);
         }
+        AppLogger.LogInfo($"{AppData.Instance.selectedGameName}-- game resumed");
         
     }
 
@@ -477,7 +483,7 @@ public class HatGameController : MonoBehaviour
                 
                 break;
             case GameStates.PAUSED:
-                Debug.Log(isGamePaused);
+                AppLogger.LogInfo($"{AppData.Instance.selectedGameName}-- game paused");
                 break;
             case GameStates.STOP:
                 // Trial complete.
@@ -510,19 +516,18 @@ public class HatGameController : MonoBehaviour
                         }
                         else
                         {
-                            AppData.Instance.previousSuccessRates = AppData.Instance.userData.GetLastTwoSuccessRates(AppData.Instance.selectedMechanism.name, AppData.Instance.selectedGame);
+                            AppData.Instance.previousSuccessRates = AppData.Instance.userData.GetLastTwoSuccessRates(AppData.Instance.selectedMechanism.name, AppData.Instance.selectedGameName);
                             // SceneManager.LoadScene(SceneManager.GetActiveScene().name);
                             ShowFinished();
                         }
-
-
                     }
                     if (AppData.Instance.selectedMechanism.trialNumberDay == AppData.Instance.userData.mechMoveTimePrsc[AppData.Instance.selectedMechanism.name])
                     {
+                        AppLogger.LogInfo($"{AppData.Instance.selectedGameName}-- game finished and changed to Choose Mechanism scene due to allocated trials has over.");
                         SceneManager.LoadScene("CHMECH");
                     }
                 }
-                break;
+            break;
         }
         UpdateText();
     }
@@ -543,8 +548,10 @@ public class HatGameController : MonoBehaviour
 
         obj.SetActive(false);
         loadingImage.gameObject.SetActive(false);
-        AppData.Instance.previousSuccessRates = AppData.Instance.userData.GetLastTwoSuccessRates(AppData.Instance.selectedMechanism.name, AppData.Instance.selectedGame);
+        AppData.Instance.previousSuccessRates = AppData.Instance.userData.GetLastTwoSuccessRates(AppData.Instance.selectedMechanism.name, AppData.Instance.selectedGameName);
         SceneManager.LoadScene(SceneManager.GetActiveScene().name);
+        AppLogger.LogInfo($"{AppData.Instance.selectedGameName}-- game's hishest score recorded");
+
     }
 
     private void UpdatePlutoAANTarget()
@@ -652,7 +659,9 @@ public class HatGameController : MonoBehaviour
              AppData.Instance.StopTrial(nTargets, nSuccess, nFailure);
              gameState = GameStates.DONE;
              Time.timeScale = 1f;
-             SceneManager.LoadScene(prevScene);
+            SceneManager.LoadScene(prevScene);
+            AppLogger.LogInfo($"{AppData.Instance.selectedGameName}-- game exit");
+             
         }
     }
 
@@ -682,7 +691,11 @@ public class HatGameController : MonoBehaviour
     public void ShowFinished()
     {
         // finalScore.text = $"{score:D3}";
-        finalScore.text = $"{nSuccess:D3}";
+        // finalScore.text = $"{nSuccess:D3}";
+        finalScore.text = $"{AppData.Instance.selectedGame.cummulativeHits:D4}";
+
+        AppLogger.LogInfo($"{AppData.Instance.selectedGameName}-- game finished");
+
 
         foreach (GameObject g in finishObjects)
         {
@@ -715,6 +728,8 @@ public class HatGameController : MonoBehaviour
         if (gameState == GameStates.WAITING) isGameStarted = true;
         else if (gameState != GameStates.STOP && gameState != GameStates.DONE) isGamePaused = !isGamePaused;
         else if (gameState == GameStates.DONE && isGameFinished) changeScene = true;
+
+        AppLogger.LogInfo($"{AppData.Instance.selectedGameName} -- PLUTO button Pressed");
 
     }
 }

@@ -795,7 +795,7 @@ public class PlutoUserData
 
         return lastTwoSuccessRates;
     }
-    
+
     public void ReadFile()
     {
         if (!File.Exists(DataManager.GetUploadStatusFile))
@@ -836,8 +836,73 @@ public class PlutoUserData
         }
     }
 
+    public int[] readCummulativeHitsMissesForGameMovement(string gameName, string mech)
+    {
+        // Get the last row for the given game.
+        var lastGameRows = dTableSession.AsEnumerable()?
+            .Where(row => row.Field<string>("GameName") == gameName && row.Field<string>("Mechanism") == mech).LastOrDefault();
+        // If there are no rows, set the cummulative score to zero.
+        if (lastGameRows == null)
+        {
+            AppLogger.LogInfo($"No previous data found for game '{gameName}' and movement '{mech}'. Cummulative hits and misses set to zero.");
+            return new int[] { 0, 0, 0 };
+        }
+        // Get the cummulative hits and misses for the game from the last row.
+        int[] cuScores = new int[]
+        {
+            Convert.ToInt32(lastGameRows.Field<string>("CummulativeTargets")),
+            Convert.ToInt32(lastGameRows.Field<string>("CummulativeHits")),
+            Convert.ToInt32(lastGameRows.Field<string>("CummulativeMisses"))
+        };
+        AppLogger.LogInfo($"Cummulative hits and misses for game '{gameName}' and '{mech}' updated. Targets: {cuScores[0]} | Hits: {cuScores[1]} | Misses: {cuScores[2]}.");
+        return cuScores;
+    }
+
 
 }
+
+public class PlutoGame
+{
+    public string name { get; private set; } = null;
+    public string mech { get; set; } = null;
+    public float gameSpeed { get; private set; }
+    public float gameDuration { get; set; } = 0f;
+    // public MarsArom arom { get; private set; } = null;
+    public int currentTargets { get; private set; } = 0;
+    public int currentHits { get; private set; } = 0;
+    public int currentMisses { get; private set; } = 0;
+    public int cummulativeTargets { get; private set; } = 0;
+    public int cummulativeHits { get; private set; } = 0;
+    public int cummulativeMisses { get; private set; } = 0;
+
+    public PlutoGame(string gName, string mName, int gCuTargets, int gCuHits, int gCuMisses)
+    {
+        name = gName?.ToUpper() ?? string.Empty;
+        mech = mName?.ToUpper() ?? string.Empty;
+        cummulativeTargets = gCuTargets;
+        cummulativeHits = gCuHits;
+        cummulativeMisses = gCuMisses;
+    }
+
+    public void ResetCummulativeScore()
+    {
+        cummulativeTargets = 0;
+        cummulativeHits = 0;
+        cummulativeMisses = 0;
+    }
+
+    public void UpdateTargetsHitsMisses(int targets, int hits, int misses)
+    {
+        currentTargets = targets;
+        currentHits = hits;
+        currentMisses = misses;
+        cummulativeTargets += targets;
+        cummulativeHits += hits;
+        cummulativeMisses += misses;
+    }
+}
+
+
 public static class MovementTracker
 {
     private static Vector3 previousPlayerPosition;

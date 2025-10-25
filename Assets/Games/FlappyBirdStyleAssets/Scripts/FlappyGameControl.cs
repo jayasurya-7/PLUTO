@@ -127,16 +127,12 @@ public class FlappyGameControl : MonoBehaviour
         }
 
         float fullHeight = Camera.main.orthographicSize * 2f; // Full camera height in world units
-         PLAYSIZE  = fullHeight * 0.8f; // 80% of the camera height
+        PLAYSIZE  = fullHeight * 0.8f; // 80% of the camera height
 
     }
 
     private void InitializeGame()
     {
-        // Enable the buttons
-        // StartButton.SetActive(true);
-        // PauseButton.SetActive(false);
-        // ResumeButton.SetActive(false);
         reminderPanel = GameObject.FindGameObjectWithTag("ReminderPanel");
         gameOverPanel.SetActive(false);
         // Intialize game logic variables
@@ -155,7 +151,6 @@ public class FlappyGameControl : MonoBehaviour
         aprom = AppData.Instance.selectedMechanism.CurrentAProm;
 
         gameSpeed = AppData.Instance.speedData.gameSpeed;
-        //gameSpeed = 20.0f; //temp
         // Attach PLUTO button event.
         PlutoComm.OnButtonReleased += onPlutoButtonReleased;
     }
@@ -307,6 +302,8 @@ public class FlappyGameControl : MonoBehaviour
 
         UpdateScrollSpeed();
         Debug.Log($"gs - {AppData.Instance.speedData.gameSpeed} + {gameSpeed}");
+        AppLogger.LogInfo($"{AppData.Instance.selectedGameName}'s game speed increased to {gameSpeed} and the Scroll Speed is {scrollSpeed}");
+
     }
     public void decreaseGameSpeed()
     {
@@ -320,6 +317,8 @@ public class FlappyGameControl : MonoBehaviour
         gsc.gameSpeedText.text = $"{(int)gameSpeed}";
 
         UpdateScrollSpeed();
+        AppLogger.LogInfo($"{AppData.Instance.selectedGameName}'s game speed decreased to {gameSpeed} and the Scroll Speed is {scrollSpeed}");
+
 
     }
     private void UpdateScrollSpeed()
@@ -400,13 +399,15 @@ public class FlappyGameControl : MonoBehaviour
         ExitButton.SetActive(true);
         // Send PLUTO heartbeat
         PlutoComm.sendHeartbeat();
-        
-          if ((PlutoComm.MECHANISMS[PlutoComm.mechanism] != "FME1") && (PlutoComm.MECHANISMS[PlutoComm.mechanism] != "FME2"))
+
+        if ((PlutoComm.MECHANISMS[PlutoComm.mechanism] != "FME1") && (PlutoComm.MECHANISMS[PlutoComm.mechanism] != "FME2"))
         {
             PlutoComm.setControlType("POSITIONAAN");
             PlutoComm.setControlBound(AppData.Instance.CurrentControlBound);
             PlutoComm.setControlDir(0);
         }
+        AppLogger.LogInfo($"{AppData.Instance.selectedGameName} -- game resumed");
+        
     }
 
     void UpdateGameTimerUI()
@@ -426,10 +427,10 @@ public class FlappyGameControl : MonoBehaviour
             loadingImage.fillAmount = Mathf.Clamp01(elapsed / seconds);
             yield return null;
         }
-
+        AppLogger.LogInfo($"{AppData.Instance.selectedGameName}-- game's highest score recorded");
         obj.SetActive(false);
         loadingImage.gameObject.SetActive(false);
-        AppData.Instance.previousSuccessRates = AppData.Instance.userData.GetLastTwoSuccessRates(AppData.Instance.selectedMechanism.name, AppData.Instance.selectedGame);
+        AppData.Instance.previousSuccessRates = AppData.Instance.userData.GetLastTwoSuccessRates(AppData.Instance.selectedMechanism.name, AppData.Instance.selectedGameName);
         SceneManager.LoadScene(SceneManager.GetActiveScene().name);
     }
 
@@ -642,6 +643,7 @@ public class FlappyGameControl : MonoBehaviour
              
                 break;
             case GameStates.PAUSED:
+                AppLogger.LogInfo($"{AppData.Instance.selectedGameName}-- game paused");
                 //Debug.Log(isGamePaused);
                 break;
             case GameStates.STOP:
@@ -676,16 +678,20 @@ public class FlappyGameControl : MonoBehaviour
                         }
                         else
                         {
-                            AppData.Instance.previousSuccessRates = AppData.Instance.userData.GetLastTwoSuccessRates(AppData.Instance.selectedMechanism.name, AppData.Instance.selectedGame);
+                            AppData.Instance.previousSuccessRates = AppData.Instance.userData.GetLastTwoSuccessRates(AppData.Instance.selectedMechanism.name, AppData.Instance.selectedGameName);
                             // SceneManager.LoadScene(SceneManager.GetActiveScene().name);
                             // ShowFinished();
+                            AppLogger.LogInfo($"{AppData.Instance.selectedGameName}-- game finished");
+                            finalScore.text = $"{AppData.Instance.selectedGame.cummulativeHits:D4}";
+
                             gameOverPanel.SetActive(true);
-                            finalScore.text = $"{nSuccess:D3}";
+                            // finalScore.text = $"{nSuccess:D3}";
                             
                         }
                     }
                     if (AppData.Instance.selectedMechanism.trialNumberDay == AppData.Instance.userData.mechMoveTimePrsc[AppData.Instance.selectedMechanism.name])
                     {
+                        AppLogger.LogInfo($"{AppData.Instance.selectedGameName}-- game finished and changed to Choose Mechanism scene due to allocated trials has over.");
                         SceneManager.LoadScene("CHMECH");
                     }
                 }
@@ -745,6 +751,8 @@ public class FlappyGameControl : MonoBehaviour
             gameState = GameStates.DONE;
             Time.timeScale = 1f;
             SceneManager.LoadScene(prevScene);
+                AppLogger.LogInfo($"{AppData.Instance.selectedGameName}-- game exit");
+
         }
     }
 
@@ -753,6 +761,9 @@ public class FlappyGameControl : MonoBehaviour
         if (gameState == GameStates.WAITING) isGameStarted = true;
         else if (gameState != GameStates.STOP && gameState != GameStates.DONE) isGamePaused = !isGamePaused;
         else if (gameState == GameStates.DONE && isGameFinished) changeScene = true;
+
+        AppLogger.LogInfo($"{AppData.Instance.selectedGameName}-- PLUTO button pressed");
+
     }
 
 }

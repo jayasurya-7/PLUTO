@@ -328,8 +328,11 @@ public class GameManager : MonoBehaviour
         gameSpeed += 1.0f;
         gsc.gameSpeedText.text = $"{gameSpeed:F2}";
         highlightDuration = CalculateHighlightDuration(gameSpeed);
-        
+
         Debug.Log($"gs - {AppData.Instance.speedData.gameSpeed} + {gameSpeed}");
+        AppLogger.LogInfo($"{AppData.Instance.selectedGameName}'s  game speed decreased to {gameSpeed} - HightlightDuration decreased - set to {highlightDuration}");
+
+        
     }
     public void decreaseGameSpeed()
     {
@@ -342,7 +345,7 @@ public class GameManager : MonoBehaviour
         gameSpeed -= 1.0f;
         gsc.gameSpeedText.text = $"{gameSpeed:F2}";
         highlightDuration = CalculateHighlightDuration(gameSpeed);
-
+        AppLogger.LogInfo($"{AppData.Instance.selectedGameName}'s  game speed decreased to {gameSpeed} - HightlightDuration decreased - set to {highlightDuration}");
     }
     private void SetVisibility(bool state)
     {
@@ -400,6 +403,7 @@ public class GameManager : MonoBehaviour
         else if (gameState != GameStates.STOP && gameState != GameStates.DONE) isGamePaused = !isGamePaused;
         else if (gameState == GameStates.DONE && isGameFinished) changeScene = true;
 
+        AppLogger.LogInfo("PLUTO button pressed");
     }
   
 
@@ -446,7 +450,7 @@ public class GameManager : MonoBehaviour
                     // Get new target position.
                     // targetAngle = HomerTherapy.GetNewTargetPosition(arom, prom);
                     targetAngle = HomerTherapy.GetNewTargetPositionUniformFull(arom, aprom);
-                  //  targetPosition = AngleToScreen(targetAngle);
+                    //  targetPosition = AngleToScreen(targetAngle);
                     if (currentHighlighted != null)
                     {
                         currentHighlighted.SetHighlight(false);
@@ -477,7 +481,7 @@ public class GameManager : MonoBehaviour
                 break;
 
             case GameStates.MOVE:
-            // Update AANController.
+                // Update AANController.
                 AppData.Instance.aanController.Update(PlutoComm.angle, Time.deltaTime, false);
                 // Set AAN target if needed.
                 if (AppData.Instance.aanController.stateChange) UpdatePlutoAANTarget();
@@ -514,6 +518,7 @@ public class GameManager : MonoBehaviour
                 break;
 
             case GameStates.PAUSED:
+                AppLogger.LogInfo($"{AppData.Instance.selectedGameName} -- Game Paused");
                 break;
 
             case GameStates.STOP:
@@ -523,7 +528,7 @@ public class GameManager : MonoBehaviour
                  seed.highLighter.SetActive(false);
                 }
 
-             // Update AANController.
+                // Update AANController.
                 AppData.Instance.aanController.Update(PlutoComm.angle, Time.deltaTime, true);
                 // Set AAN target if needed.
                 isGameFinished = true;
@@ -553,7 +558,7 @@ public class GameManager : MonoBehaviour
                         }
                         else
                         {
-                            AppData.Instance.previousSuccessRates = AppData.Instance.userData.GetLastTwoSuccessRates(AppData.Instance.selectedMechanism.name, AppData.Instance.selectedGame);
+                            AppData.Instance.previousSuccessRates = AppData.Instance.userData.GetLastTwoSuccessRates(AppData.Instance.selectedMechanism.name, AppData.Instance.selectedGameName);
                             // SceneManager.LoadScene(SceneManager.GetActiveScene().name);
                             ShowFinished();
                         }
@@ -562,10 +567,10 @@ public class GameManager : MonoBehaviour
                     }
                     if (AppData.Instance.selectedMechanism.trialNumberDay == AppData.Instance.userData.mechMoveTimePrsc[AppData.Instance.selectedMechanism.name])
                     {
+                        AppLogger.LogInfo($"{AppData.Instance.selectedGameName}-- game finished and changed to Choose Mechanism scene due to allocated trials has over.");
                         SceneManager.LoadScene("CHMECH");
                     }
                 }
-                // SceneManager.LoadScene(SceneManager.GetActiveScene().name);
 
                 break;
         }
@@ -588,7 +593,8 @@ private IEnumerator ShowForSeconds(GameObject obj, float seconds)
 
         obj.SetActive(false);
         loadingImage.gameObject.SetActive(false);
-        AppData.Instance.previousSuccessRates = AppData.Instance.userData.GetLastTwoSuccessRates(AppData.Instance.selectedMechanism.name, AppData.Instance.selectedGame);
+        AppLogger.LogInfo($"{AppData.Instance.selectedGameName} - highest score recorded");
+        AppData.Instance.previousSuccessRates = AppData.Instance.userData.GetLastTwoSuccessRates(AppData.Instance.selectedMechanism.name, AppData.Instance.selectedGameName);
         SceneManager.LoadScene(SceneManager.GetActiveScene().name);
     }
 
@@ -676,7 +682,8 @@ float GetXPositionFromAngle(float targetAngle)
     public void ShowFinished()
     {
         // Time.timeScale = 0;
-        finalScore.text = $"{score:D3}";
+        finalScore.text = $"{AppData.Instance.selectedGame.cummulativeHits:D4}";
+        AppLogger.LogInfo($" {AppData.Instance.selectedGameName} - Game finished");
         // RestartButton.SetActive(true);
         foreach (GameObject g in finishObjects) g.SetActive(true);
     }
@@ -727,17 +734,19 @@ float GetXPositionFromAngle(float targetAngle)
         // PauseButton.SetActive(true);
         // ResumeButton.SetActive(false);
         ExitButton.SetActive(true);
-            reminderPanel.SetActive(false);
+        reminderPanel.SetActive(false);
+            
 
          // Send PLUTO heartbeat
         PlutoComm.sendHeartbeat();
-        
-         if ((PlutoComm.MECHANISMS[PlutoComm.mechanism] != "FME1") && (PlutoComm.MECHANISMS[PlutoComm.mechanism] != "FME2"))
+
+        if ((PlutoComm.MECHANISMS[PlutoComm.mechanism] != "FME1") && (PlutoComm.MECHANISMS[PlutoComm.mechanism] != "FME2"))
         {
             PlutoComm.setControlType("POSITIONAAN");
             PlutoComm.setControlBound(AppData.Instance.CurrentControlBound);
             PlutoComm.setControlDir(0);
         }
+        AppLogger.LogInfo($"{AppData.Instance.selectedGameName} -- game resumed");
     }
 
     public void TargetReached()

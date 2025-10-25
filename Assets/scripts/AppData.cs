@@ -36,7 +36,8 @@ public partial class AppData
     public PlutoUserData userData;
     public MechanismSpeed speedData;
     public PlutoMechanism selectedMechanism { get; private set; }
-    public string selectedGame { get; private set; } = null;
+    public string selectedGameName { get; private set; } = null;
+    public PlutoGame selectedGame;
 
     /*
      * SESSION DETAILS
@@ -107,7 +108,7 @@ public partial class AppData
         userData = new PlutoUserData(DataManager.configFile, DataManager.sessionFile);
         // Selected mechanism and game.
         selectedMechanism = null;
-        selectedGame = null;
+        selectedGameName = null;
 
         // Get current session number.
         currentSessionNumber = userData.dTableSession.Rows.Count > 0 ? 
@@ -177,8 +178,16 @@ public partial class AppData
 
     public void SetGame(string gameName)
     {
-        selectedGame = gameName;
-        previousSuccessRates =AppData.Instance.userData.GetLastTwoSuccessRates(selectedMechanism.name , selectedGame);
+        selectedGameName = gameName;
+        previousSuccessRates = AppData.Instance.userData.GetLastTwoSuccessRates(selectedMechanism.name, selectedGameName);
+        int[] cuScores = Instance.userData.readCummulativeHitsMissesForGameMovement(selectedGameName, selectedMechanism?.name);
+        // Set the selected game.
+        selectedGame = new PlutoGame(gName: selectedGameName,
+                                    mName: selectedMechanism?.name,
+                                    gCuTargets: cuScores[0],
+                                    gCuHits: cuScores[1],
+                                    gCuMisses: cuScores[2]);
+        
         // // Cannot set game before selecting mechanism.
         // if (selectedMechanism == null) 
         // {
@@ -207,8 +216,8 @@ public partial class AppData
         //         return;
         // }
         // Set selected game.
-        AppLogger.LogInfo($"Selected game '{selectedGame}'.");
-        AppLogger.SetCurrentGame(selectedGame);
+        AppLogger.LogInfo($"Selected game '{selectedGameName}'.");
+        AppLogger.SetCurrentGame(selectedGameName);
     }
 
     public string trainingSide => userData?.rightHand == true ? "RIGHT" : "LEFT";
