@@ -85,6 +85,7 @@ public class welcomSceneHandler : MonoBehaviour
 
     void Update()
     {
+        // PlutoComm.sendHeartbeat();
         if (!attachPlutoButtonEvent && Time.timeSinceLevelLoad > 1)
         {
             attachPlutoButtonEvent = true;
