@@ -5,6 +5,7 @@ using UnityEngine.SceneManagement;
 using System.Collections.Generic;
 using UnityEngine.U2D.IK;
 using UnityEngine.UI;
+using UnityEditor;
 
 public class GameManager : MonoBehaviour
 {
@@ -29,7 +30,7 @@ public class GameManager : MonoBehaviour
     public int totalTargets;
     public int score = 0;
     private float triaTimeLeft;
-    public TextMeshProUGUI scorex;
+    public TextMeshProUGUI scorex, finalScore;
     public GameObject HSC; //HighScoreCanvas
     private GameObject reminderPanel;
     private GameObject[] pauseObjects, finishObjects;
@@ -38,7 +39,7 @@ public class GameManager : MonoBehaviour
 
     public GameObject aromLeft;
     public GameObject aromRight;
-    public GameObject increaseSpeed, decreaseSpeed;
+    public GameObject gameSpeedControl, gameOverPanel;
     bool speedControlsVisible = false;
     private string exitScene = "CHGAME";
 
@@ -68,6 +69,7 @@ public class GameManager : MonoBehaviour
     public bool isGamePaused { get; private set; } = false;
     public bool isTargetReached { get; private set; } = false;
     public bool isTargetMissed { get; private set; } = false;
+    private bool changeScene = false;
     public int nTargets = 0;
     public int nSuccess = 0;
     public int nFailure = 0;
@@ -82,7 +84,7 @@ public class GameManager : MonoBehaviour
     public float highlightDuration;     // highlighted for 3s
     private bool hasGrownThisCycle = false, runOnce = false;
     private SeedController lastHighlighted = null; // store last seed
-
+    private GameSpeedController gsc = null;
     private float eventDelayTimer = 0f , gameSpeed, trialTimeLeft;
      private float targetAngle;
     private float maxTargetDur;
@@ -137,14 +139,10 @@ public class GameManager : MonoBehaviour
             aromRight.transform.position.y,
             aromRight.transform.position.z);
         HST.text = $"{Others.highestSuccessRate:F0} %";
-        status.text = $"s.no: {AppData.Instance.currentSessionNumber}\n" +
-              $"trialNo: {AppData.Instance.selectedMechanism.trialNumberSession}\n" +
-              $"CB: {AppData.Instance.CurrentControlBound}";
 
          if (AppData.Instance.selectedMechanism.trialNumberDay >= AppData.Instance.userData.mechMoveTimePrsc[AppData.Instance.selectedMechanism.name])
         {
             reminderPanel.SetActive(true);
-
         }
         else
         {
@@ -158,8 +156,7 @@ public class GameManager : MonoBehaviour
          // Start new trial.
         AppData.Instance.StartNewTrial();
         reminderPanel.SetActive(false);
-
-        status.text = $"s.no: {AppData.Instance.currentSessionNumber}\n" +
+         gsc.sessionDetailsText.text = $"sessionNo: {AppData.Instance.currentSessionNumber}\n" +
               $"trialNo: {AppData.Instance.selectedMechanism.trialNumberSession}\n" +
               $"CB: {AppData.Instance.CurrentControlBound}";
         // Put PLUTO in the AAN mode.
@@ -181,14 +178,14 @@ public class GameManager : MonoBehaviour
         nFailure = 0;
 
         HidePaused();
-        //StartButton.SetActive(false);
-        //RestartButton.SetActive(false);
-
-       // PauseButton.SetActive(true);
-       // ResumeButton.SetActive(false);
     }
     private float CalculateHighlightDuration(float mechanismSpeed)
     {
+        float slope = (0.2f - 1.0f) / (40f - 10f);  // (-0.8 / 30)
+        rainDurationToGrow = 1.0f + slope * (mechanismSpeed - 10f);
+
+        // Clamp to safe range
+        rainDurationToGrow = Mathf.Clamp(rainDurationToGrow, 0.2f, 1.0f);
         // Linear relation between speed (10 → 40) and duration (7s → 4.5s)
         float duration = -0.0833f * mechanismSpeed + 7.833f;
 
@@ -199,42 +196,51 @@ public class GameManager : MonoBehaviour
     void Update()
     {
 
-        if (gameOver || currentHighlighted == null) return;
-          if (isGamePaused && gameState != GameStates.PAUSED) PauseGame();
+        // if (gameOver || currentHighlighted == null) return;
+
+        if (isGamePaused && gameState != GameStates.PAUSED) PauseGame();
         else if (!isGamePaused && gameState == GameStates.PAUSED) ResumeGame();
 
+         if (changeScene && gameState == GameStates.DONE)
+        {
+            restartGame();
+            changeScene = false;
+        }
+        else
+        {
+            changeScene = false;
+        }
+
+        if (currentHighlighted == null) return;
 
         if (Input.GetKey(KeyCode.LeftControl) && Input.GetKeyDown(KeyCode.G))
         {
             speedControlsVisible = !speedControlsVisible;
-
-            increaseSpeed.SetActive(speedControlsVisible);
-            decreaseSpeed.SetActive(speedControlsVisible);
             SetVisibility(speedControlsVisible);
 
         }
 
         // if (isGamePaused && gameState != GameStates.PAUSED) pauseGame();
         // else if (!isGamePaused && gameState == GameStates.PAUSED) resumeGame();
-        if ((isFinished && Input.GetKeyDown(KeyCode.P)) || (isFinished && isButtonPressed))
-        {
+        // if ((isFinished && Input.GetKeyDown(KeyCode.P)) || (isFinished && isButtonPressed))
+        // {
 
-            if (AppData.Instance.aanController.state == PlutoAANController.PlutoAANState.AROMMOVING
-                    || AppData.Instance.aanController.state == PlutoAANController.PlutoAANState.IDLE)
-            {
-                OnReStartButtonClick();
-            }
-            isButtonPressed = false;
-        }
+        //     if (AppData.Instance.aanController.state == PlutoAANController.PlutoAANState.AROMMOVING
+        //             || AppData.Instance.aanController.state == PlutoAANController.PlutoAANState.IDLE)
+        //     {
+        // OnReStartButtonClick();
+        //     }
+        //     isButtonPressed = false;
+        // }
         // PlayerPosition = GameObject.FindGameObjectWithTag("Player").transform.position;
-
-
+//        Debug.Log($"chageScene - {changeScene && gameState == GameStates.DONE},   --{changeScene},--{gameState}");
+       
 
         if (currentHighlighted != null)
         {
             highlightTimer += Time.deltaTime;
 
-        // Calculate remaining time
+            // Calculate remaining time
             float remainingTime = Mathf.Max(0, highlightDuration - highlightTimer);
 
             // Fade out based on remaining time
@@ -262,15 +268,15 @@ public class GameManager : MonoBehaviour
                     // originalColor.a = 1f;
                     // highlighterRenderer.material.color = originalColor;
 
-    //                 Color target = new Color(0f, 1f, 0f, 1f); // pure green, full alpha
-    // highlighterRenderer.material.color = Color.Lerp(
-    //     highlighterRenderer.material.color, 
-    //     target, 
-    //     Time.deltaTime * 5f // speed of transition
-    // );
-                    
+                    //                 Color target = new Color(0f, 1f, 0f, 1f); // pure green, full alpha
+                    // highlighterRenderer.material.color = Color.Lerp(
+                    //     highlighterRenderer.material.color, 
+                    //     target, 
+                    //     Time.deltaTime * 5f // speed of transition
+                    // );
+
                 }
-            
+
             }
             if (highlightTimer >= highlightDuration && !hasGrownThisCycle)
             {
@@ -296,20 +302,13 @@ public class GameManager : MonoBehaviour
             }
             else
             {
-                // rainTimer = 0f;
-                // Option 1: decay gradually
                 rainTimer = Mathf.Max(0, rainTimer - Time.deltaTime);
-                Debug.Log($"RainTimer: {rainTimer}, IsBeingRainedOn: {currentHighlighted.IsBeingRainedOn}");
-
             }
         }
 
         // Score.text = $"Score : {score}";
         Score.text = $"Score : {score}";
-        // Score.text = $"Score : {rainTimer}";
-        rainT.text = $"t :{rainTimer}";
         Timer.text = "Time :" + trialTimeLeft.ToString("F0");
-        speed.text = $"GS :{(int)gameSpeed}";
     }
 
     void FixedUpdate()
@@ -326,9 +325,14 @@ public class GameManager : MonoBehaviour
     {
            if (gameSpeed >= 40.0f) return;
 
-            gameSpeed += 1.0f;
-            UpdateBallSpeedAndDuration();
-            Debug.Log($"gs - {AppData.Instance.speedData.gameSpeed} + {gameSpeed}");
+        gameSpeed += 1.0f;
+        gsc.gameSpeedText.text = $"{gameSpeed:F2}";
+        highlightDuration = CalculateHighlightDuration(gameSpeed);
+
+        Debug.Log($"gs - {AppData.Instance.speedData.gameSpeed} + {gameSpeed}");
+        AppLogger.LogInfo($"{AppData.Instance.selectedGameName}'s  game speed decreased to {gameSpeed} - HightlightDuration decreased - set to {highlightDuration}");
+
+        
     }
     public void decreaseGameSpeed()
     {
@@ -339,9 +343,9 @@ public class GameManager : MonoBehaviour
             return;
 
         gameSpeed -= 1.0f;
-        UpdateBallSpeedAndDuration();
-        
-
+        gsc.gameSpeedText.text = $"{gameSpeed:F2}";
+        highlightDuration = CalculateHighlightDuration(gameSpeed);
+        AppLogger.LogInfo($"{AppData.Instance.selectedGameName}'s  game speed decreased to {gameSpeed} - HightlightDuration decreased - set to {highlightDuration}");
     }
     private void SetVisibility(bool state)
     {
@@ -352,22 +356,10 @@ public class GameManager : MonoBehaviour
         }
     }
 
-    private void UpdateBallSpeedAndDuration()
-    {
-        string mech = PlutoComm.MECHANISMS[PlutoComm.mechanism];
-        bool isFME = mech == "FME1" || mech == "FME2";
-
-        highlightDuration = CalculateHighlightDuration(gameSpeed);
-    }
 
     void initializeGame()
     {
-        // Time.timeScale = 0;
-        // StartButton.SetActive(true);
-        // PauseButton.SetActive(false);
-        // ResumeButton.SetActive(false);
         reminderPanel = GameObject.FindGameObjectWithTag("ReminderPanel");
-
         gameState = GameStates.WAITING;
         isGameStarted = false;
         isGameFinished = false;
@@ -384,24 +376,43 @@ public class GameManager : MonoBehaviour
         // Attach PLUTO button event.
         PlutoComm.OnButtonReleased += onPlutoButtonReleased;
         reminderPanel.SetActive(false);
-        
-        
+        initializeGameSpeedController();
+
+    }
+     private void initializeGameSpeedController()
+    {
+        // Hide game speed control initially
+        // gameSpeedControl.SetActive(false);
+
+        gsc = gameSpeedControl.GetComponent<GameSpeedController>();
+        if (gsc == null) return;
+
+        // Attach the buttons
+        if (gsc.decreaseButton != null)
+            gsc.decreaseButton.onClick.AddListener(() => decreaseGameSpeed());
+        if (gsc.increaseButton != null)
+            gsc.increaseButton.onClick.AddListener(() => increaseGameSpeed());
+
+        // Set the initial game speed
+        gsc.gameSpeedText.text = $"{AppData.Instance.speedData.gameSpeed:F2}";
     }
 
     private void onPlutoButtonReleased()
     {
         if (gameState == GameStates.WAITING) isGameStarted = true;
-        else if (gameState != GameStates.STOP) isGamePaused = !isGamePaused;
-    }
-    public void OnStartButtonClick()
-    {
-        isGameStarted = true;
-        // Time.timeScale = 1;
-    }
+        else if (gameState != GameStates.STOP && gameState != GameStates.DONE) isGamePaused = !isGamePaused;
+        else if (gameState == GameStates.DONE && isGameFinished) changeScene = true;
 
-    public void OnReStartButtonClick()
+        AppLogger.LogInfo("PLUTO button pressed");
+    }
+  
+
+    public void restartGame()
     {
-        SceneManager.LoadScene(SceneManager.GetActiveScene().name);
+        HideFinished();
+        string currentSceneName = SceneManager.GetActiveScene().name;
+        AppLogger.LogInfo($"The Game is restarted {currentSceneName}");
+        SceneManager.LoadScene(currentSceneName);
     }
 
     public bool IsGamePlaying()
@@ -439,7 +450,7 @@ public class GameManager : MonoBehaviour
                     // Get new target position.
                     // targetAngle = HomerTherapy.GetNewTargetPosition(arom, prom);
                     targetAngle = HomerTherapy.GetNewTargetPositionUniformFull(arom, aprom);
-                  //  targetPosition = AngleToScreen(targetAngle);
+                    //  targetPosition = AngleToScreen(targetAngle);
                     if (currentHighlighted != null)
                     {
                         currentHighlighted.SetHighlight(false);
@@ -470,7 +481,7 @@ public class GameManager : MonoBehaviour
                 break;
 
             case GameStates.MOVE:
-            // Update AANController.
+                // Update AANController.
                 AppData.Instance.aanController.Update(PlutoComm.angle, Time.deltaTime, false);
                 // Set AAN target if needed.
                 if (AppData.Instance.aanController.stateChange) UpdatePlutoAANTarget();
@@ -507,6 +518,7 @@ public class GameManager : MonoBehaviour
                 break;
 
             case GameStates.PAUSED:
+                AppLogger.LogInfo($"{AppData.Instance.selectedGameName} -- Game Paused");
                 break;
 
             case GameStates.STOP:
@@ -516,14 +528,13 @@ public class GameManager : MonoBehaviour
                  seed.highLighter.SetActive(false);
                 }
 
-             // Update AANController.
+                // Update AANController.
                 AppData.Instance.aanController.Update(PlutoComm.angle, Time.deltaTime, true);
                 // Set AAN target if needed.
                 isGameFinished = true;
                 AppData.Instance.previousSuccessRates =null;
                 if (AppData.Instance.speedData.gameSpeed != gameSpeed)
                 {
-                    AppData.Instance.speedData.updateGameSpeedfromGame(gameSpeed);
                     AppData.Instance.speedData.setGameSpeed(gameSpeed);
                 }
                 
@@ -547,18 +558,19 @@ public class GameManager : MonoBehaviour
                         }
                         else
                         {
-                            AppData.Instance.previousSuccessRates = AppData.Instance.userData.GetLastTwoSuccessRates(AppData.Instance.selectedMechanism.name, AppData.Instance.selectedGame);
-                            SceneManager.LoadScene(SceneManager.GetActiveScene().name);
+                            AppData.Instance.previousSuccessRates = AppData.Instance.userData.GetLastTwoSuccessRates(AppData.Instance.selectedMechanism.name, AppData.Instance.selectedGameName);
+                            // SceneManager.LoadScene(SceneManager.GetActiveScene().name);
+                            ShowFinished();
                         }
 
 
                     }
                     if (AppData.Instance.selectedMechanism.trialNumberDay == AppData.Instance.userData.mechMoveTimePrsc[AppData.Instance.selectedMechanism.name])
                     {
+                        AppLogger.LogInfo($"{AppData.Instance.selectedGameName}-- game finished and changed to Choose Mechanism scene due to allocated trials has over.");
                         SceneManager.LoadScene("CHMECH");
                     }
                 }
-                // SceneManager.LoadScene(SceneManager.GetActiveScene().name);
 
                 break;
         }
@@ -581,7 +593,8 @@ private IEnumerator ShowForSeconds(GameObject obj, float seconds)
 
         obj.SetActive(false);
         loadingImage.gameObject.SetActive(false);
-        AppData.Instance.previousSuccessRates = AppData.Instance.userData.GetLastTwoSuccessRates(AppData.Instance.selectedMechanism.name, AppData.Instance.selectedGame);
+        AppLogger.LogInfo($"{AppData.Instance.selectedGameName} - highest score recorded");
+        AppData.Instance.previousSuccessRates = AppData.Instance.userData.GetLastTwoSuccessRates(AppData.Instance.selectedMechanism.name, AppData.Instance.selectedGameName);
         SceneManager.LoadScene(SceneManager.GetActiveScene().name);
     }
 
@@ -602,14 +615,32 @@ private IEnumerator ShowForSeconds(GameObject obj, float seconds)
                 break;
         }
     }
- float GetHighlightedSeedAngle()
-{
-    if (currentHighlighted == null) return 0f;
+    float GetHighlightedSeedAngle()
+    {
+        if (currentHighlighted == null) return 0f;
 
+        float minX = float.MaxValue;
+        float maxX = float.MinValue;
+
+        // find true min/max X among all seeds
+        foreach (var seed in seeds)
+        {
+            float x = seed.transform.position.x;
+            if (x < minX) minX = x;
+            if (x > maxX) maxX = x;
+        }
+
+        float seedX = currentHighlighted.transform.position.x;
+
+        // map seedX → angle
+        return Mathf.Lerp(aprom[0], aprom[1], Mathf.InverseLerp(minX, maxX, seedX));
+    }
+float GetXPositionFromAngle(float targetAngle)
+{
     float minX = float.MaxValue;
     float maxX = float.MinValue;
 
-    // find true min/max X among all seeds
+    // find true min/max X among all seeds (same as your original function)
     foreach (var seed in seeds)
     {
         float x = seed.transform.position.x;
@@ -617,15 +648,15 @@ private IEnumerator ShowForSeconds(GameObject obj, float seconds)
         if (x > maxX) maxX = x;
     }
 
-    float seedX = currentHighlighted.transform.position.x;
-
-    // map seedX → angle
-    return Mathf.Lerp(aprom[0], aprom[1], Mathf.InverseLerp(minX, maxX, seedX));
+    // map angle → normalized position → X position
+    float normalizedPosition = Mathf.InverseLerp(aprom[0], aprom[1], targetAngle);
+    return Mathf.Lerp(minX, maxX, normalizedPosition);
 }
 
 
 
-    public float AngleToScreen(float angle) => Mathf.Lerp(-PLAYSIZE, PLAYSIZE, (angle - aprom[0]) / (aprom[1] - aprom[0]));
+    // public float AngleToScreen(float angle) => Mathf.Lerp(-PLAYSIZE, PLAYSIZE, (angle - aprom[0]) / (aprom[1] - aprom[0]));
+    public float AngleToScreen(float angle) => Mathf.Lerp(-7.5f, 7.5f, (angle - aprom[0]) / (aprom[1] - aprom[0]));
 
     private void showPaused()
     {
@@ -650,7 +681,9 @@ private IEnumerator ShowForSeconds(GameObject obj, float seconds)
 
     public void ShowFinished()
     {
-        Time.timeScale = 0;
+        // Time.timeScale = 0;
+        finalScore.text = $"{AppData.Instance.selectedGame.cummulativeHits:D4}";
+        AppLogger.LogInfo($" {AppData.Instance.selectedGameName} - Game finished");
         // RestartButton.SetActive(true);
         foreach (GameObject g in finishObjects) g.SetActive(true);
     }
@@ -701,17 +734,19 @@ private IEnumerator ShowForSeconds(GameObject obj, float seconds)
         // PauseButton.SetActive(true);
         // ResumeButton.SetActive(false);
         ExitButton.SetActive(true);
-            reminderPanel.SetActive(false);
+        reminderPanel.SetActive(false);
+            
 
          // Send PLUTO heartbeat
         PlutoComm.sendHeartbeat();
-        
-         if ((PlutoComm.MECHANISMS[PlutoComm.mechanism] != "FME1") && (PlutoComm.MECHANISMS[PlutoComm.mechanism] != "FME2"))
+
+        if ((PlutoComm.MECHANISMS[PlutoComm.mechanism] != "FME1") && (PlutoComm.MECHANISMS[PlutoComm.mechanism] != "FME2"))
         {
             PlutoComm.setControlType("POSITIONAAN");
             PlutoComm.setControlBound(AppData.Instance.CurrentControlBound);
             PlutoComm.setControlDir(0);
         }
+        AppLogger.LogInfo($"{AppData.Instance.selectedGameName} -- game resumed");
     }
 
     public void TargetReached()
@@ -771,10 +806,11 @@ private IEnumerator ShowForSeconds(GameObject obj, float seconds)
             nTargets++;
             lastHighlighted = currentHighlighted;
             // Convert its X position back to angle
-    // float seedX = currentHighlighted.transform.position.x;
-     convertedAngle = GetHighlightedSeedAngle();
-            Debug.Log($"Angle {targetAngle:F1} → Highlighting Seed {bin+1} -> {convertedAngle}");
-        // if (!currentHighlighted.IsFullyGrown)
+            // float seedX = currentHighlighted.transform.position.x;
+            convertedAngle = GetHighlightedSeedAngle();
+     
+            Debug.Log($"Angle {targetAngle:F1} → Highlighting Seed {bin+1} -> {convertedAngle}-> X POSITION{GetXPositionFromAngle(convertedAngle)}");
+            // if (!currentHighlighted.IsFullyGrown)
             // {
             //     currentHighlighted.SetHighlight(true);
             //     nTargets++;
@@ -804,6 +840,7 @@ private IEnumerator ShowForSeconds(GameObject obj, float seconds)
             float gameTime = HomerTherapy.TrialDuration - trialTimeLeft;
             Others.gameTime = (gameTime < HomerTherapy.TrialDuration) ? gameTime : HomerTherapy.TrialDuration;
             AppData.Instance.aanController.Update(PlutoComm.angle, Time.deltaTime, true);
+            if (AppData.Instance.speedData.gameSpeed != gameSpeed)  AppData.Instance.speedData.setGameSpeed(gameSpeed);
             AppData.Instance.StopTrial(nTargets, nSuccess, nFailure);
             gameState = GameStates.DONE;
             Time.timeScale = 1f;

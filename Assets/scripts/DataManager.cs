@@ -42,13 +42,15 @@ public static class DataManager
 
     
 
-    // Sessions file definitions.
+        // Sessions file definitions.
     public static string[] SESSIONFILEHEADER = new string[] {
         "SessionNumber", "DateTime",
-        "TrialNumberDay", "TrialNumberSession", "TrialType", "TrialStartTime", "TrialStopTime", "TrialRawDataFile", 
-        "Mechanism", 
-        "GameName", "GameParameter", "GameSpeed",  
-        "AssistMode", "DesiredSuccessRate", "SuccessRate", "CurrentControlBound", "NextControlBound","MoveTime"
+        "TrialNumberDay", "TrialNumberSession", "TrialType", "TrialStartTime", "TrialStopTime", "TrialRawDataFile",
+        "Mechanism",
+        "GameName", "GameParameter", "GameSpeed",
+        "AssistMode", "DesiredSuccessRate", "SuccessRate", "CurrentControlBound", "NextControlBound","MoveTime",
+        "CurrentTargets", "CurrentHits", "CurrentMisses",
+        "CummulativeTargets", "CummulativeHits", "CummulativeMisses",
     };
 
     // Raw data header.    

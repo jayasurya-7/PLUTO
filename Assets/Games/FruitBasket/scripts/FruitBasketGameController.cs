@@ -4,6 +4,7 @@ using System.Collections.Generic;
 using UnityEngine;
 using UnityEngine.SceneManagement;
 using UnityEngine.UI;
+using TMPro;
 using static FruitBasketGameController;
 
 public class FruitBasketGameController : MonoBehaviour
@@ -48,7 +49,7 @@ public class FruitBasketGameController : MonoBehaviour
     public bool isFailure { get; private set; } = false;
 
     private float eventDelayTimer = 0f, gameSpeed;
-    private bool runOnce = false;
+    private bool runOnce = false, changeScene = false;
 
     // Game score related variables.
     public int nTargets = 0;
@@ -63,7 +64,10 @@ public class FruitBasketGameController : MonoBehaviour
     private  static float FRUITENDY;
     bool speedControlsVisible = false;
     public  float FRUITSPEED, MOVEDURATION;
-
+    public GameObject gameSpeedControl, gameOverPanel;
+    public TextMeshProUGUI  finalScore;
+   
+    private GameSpeedController gsc = null;
     public Vector3? PlayerPosition;
     public Vector3? TargetPosition;
     private GameObject targetTemp;
@@ -94,10 +98,10 @@ public class FruitBasketGameController : MonoBehaviour
     }
     void Start()
     {
-    
+        initializeGameSpeedController();
         canvasRect = mainCanvas.GetComponent<RectTransform>();
-        PLAYSIZE = canvasRect.rect.width/2f;//canvasWidth
-     
+        PLAYSIZE = canvasRect.rect.width / 2f;//canvasWidth
+
         FRUITSTARTY = (canvasRect.rect.height / 2f) - 50;//just below screen start 
         FRUITENDY = -(canvasRect.rect.height / 2f) + 120f;//just above the screen end
 
@@ -111,8 +115,8 @@ public class FruitBasketGameController : MonoBehaviour
 
         detailObjects = GameObject.FindGameObjectsWithTag("detailViewer");
         SetVisibility(false);
-
-       // Set the position of the AROM lines.
+        gameOverPanel.SetActive(false);
+        // Set the position of the AROM lines.
         aromLeft.transform.localPosition = new Vector3(
         AngleToScreen(AppData.Instance.selectedMechanism.currRom.aromMin),
         aromLeft.transform.localPosition.y,
@@ -123,7 +127,7 @@ public class FruitBasketGameController : MonoBehaviour
             aromRight.transform.localPosition.y,
             aromRight.transform.localPosition.z
         );
-            bestScore.text = $"{(int)Others.highestSuccessRate:F0}%";
+        bestScore.text = $"{(int)Others.highestSuccessRate:F0}%";
 
         if (AppData.Instance.previousSuccessRates != null)
         {
@@ -131,13 +135,13 @@ public class FruitBasketGameController : MonoBehaviour
             preSuccRate.text = $"PrevSuccessRate:{AppData.Instance.previousSuccessRates[0].ToString("F0")}";
             currSuccRate.text = $"currSuccessRate:{AppData.Instance.previousSuccessRates[1].ToString("F0")}";
         }
-      
+
         gameSpeed = AppData.Instance.speedData.gameSpeed;
         Debug.Log("gamespeed");
         FRUITSPEED = 70f + ((gameSpeed - 10f) / 30f) * 120f;
-       
+
         FRUITSPEED = Mathf.Clamp(FRUITSPEED, 70f, 250f);
-       
+
         MOVEDURATION = 0.5f * (FRUITSTARTY - FRUITENDY) / FRUITSPEED;
         if (AppData.Instance.selectedMechanism.trialNumberDay >= AppData.Instance.userData.mechMoveTimePrsc[AppData.Instance.selectedMechanism.name])
         {
@@ -151,6 +155,23 @@ public class FruitBasketGameController : MonoBehaviour
         }
 
     }
+        private void initializeGameSpeedController()
+    {
+        // Hide game speed control initially
+        // gameSpeedControl.SetActive(false);
+
+        gsc = gameSpeedControl.GetComponent<GameSpeedController>();
+        if (gsc == null) return;
+
+        // Attach the buttons
+        if (gsc.decreaseButton != null)
+            gsc.decreaseButton.onClick.AddListener(() => decreaseGameSpeed());
+        if (gsc.increaseButton != null)
+            gsc.increaseButton.onClick.AddListener(() => increaseGameSpeed());
+
+        // Set the initial game speed
+        gsc.gameSpeedText.text = $"{AppData.Instance.speedData.gameSpeed:F2}";
+    }
 
     // Update is called once per frame
     void Update()
@@ -158,6 +179,15 @@ public class FruitBasketGameController : MonoBehaviour
 
         if (isGamePaused && gameState != GameStates.PAUSE) pauseGame();
         else if (!isGamePaused && gameState == GameStates.PAUSE) resumeGame();
+          if (changeScene && gameState == GameStates.DONE)
+        {
+            restartGame();
+            changeScene = false;
+        }
+        else
+        {
+            changeScene = false;
+        }
 
         updateGUI();
         if (Input.GetKey(KeyCode.LeftControl) && Input.GetKeyDown(KeyCode.G))
@@ -171,15 +201,22 @@ public class FruitBasketGameController : MonoBehaviour
     public void FixedUpdate()
     {
         PlutoComm.sendHeartbeat();
-        
+
         runStateMachine();
-       
+
         if (!isGamePlaying()) return;
         playerTemp = GameObject.FindGameObjectWithTag("Player");
-        PlayerPosition = playerTemp!= null? playerTemp.transform.localPosition:null;
+        PlayerPosition = playerTemp != null ? playerTemp.transform.localPosition : null;
         targetTemp = GameObject.FindGameObjectWithTag("Target");
         TargetPosition = targetTemp != null ? targetTemp.transform.localPosition : null;
-        
+
+    }
+    public void restartGame()
+    {
+        gameOverPanel.SetActive(false);
+        string currentSceneName = SceneManager.GetActiveScene().name;
+        AppLogger.LogInfo($"The Game is restarted {currentSceneName}");
+        SceneManager.LoadScene(currentSceneName);
     }
     public void runStateMachine()
     {
@@ -243,7 +280,7 @@ public class FruitBasketGameController : MonoBehaviour
                 break;
 
             case GameStates.PAUSE:
-                Debug.Log(isGamePaused);
+                AppLogger.LogInfo($"{AppData.Instance.selectedGameName}-- game paused");
                 break;
             case GameStates.SUCCESS:
             case GameStates.FAILURE:
@@ -272,7 +309,6 @@ public class FruitBasketGameController : MonoBehaviour
                 AppData.Instance.previousSuccessRates = null;
                 if (AppData.Instance.speedData.gameSpeed != gameSpeed)
                 {
-                    AppData.Instance.speedData.updateGameSpeedfromGame(gameSpeed);
                     AppData.Instance.speedData.setGameSpeed(gameSpeed);
                 }
 
@@ -297,14 +333,22 @@ public class FruitBasketGameController : MonoBehaviour
                         }
                         else
                         {
-                            AppData.Instance.previousSuccessRates = AppData.Instance.userData.GetLastTwoSuccessRates(AppData.Instance.selectedMechanism.name, AppData.Instance.selectedGame);
+                            AppData.Instance.previousSuccessRates = AppData.Instance.userData.GetLastTwoSuccessRates(AppData.Instance.selectedMechanism.name, AppData.Instance.selectedGameName);
                             if (AppData.Instance.selectedMechanism.trialNumberDay == AppData.Instance.userData.mechMoveTimePrsc[AppData.Instance.selectedMechanism.name])
                             {
+                                AppLogger.LogInfo($"{AppData.Instance.selectedGameName}-- game finished and changed to Choose Mechanism scene due to allocated trials has over.");
                                 SceneManager.LoadScene("CHMECH");
                                 return;
                             }
+                            finalScore.text = $"{AppData.Instance.selectedGame.cummulativeHits:D4}";
+
+                            gameOverPanel.SetActive(true);
+                            // finalScore.text = $"{nSuccess:D3}";
+
+                            AppLogger.LogInfo($"{AppData.Instance.selectedGameName}-- game finished");
+
                             
-                            SceneManager.LoadScene(SceneManager.GetActiveScene().name);
+                            // SceneManager.LoadScene(SceneManager.GetActiveScene().name);
                         }
                        
 
@@ -335,8 +379,11 @@ public class FruitBasketGameController : MonoBehaviour
         if (gameSpeed >= 40.0f) return;
 
         gameSpeed += 1.0f;
+        gsc.gameSpeedText.text = $"{(int)gameSpeed}";
+
         UpdateBallSpeedAndDuration();
         Debug.Log($"gs - {AppData.Instance.speedData.gameSpeed} + {gameSpeed}");
+        AppLogger.LogInfo($"{AppData.Instance.selectedGameName}'s game speed increased to {gameSpeed} and the Fruit Speed is {FRUITSPEED}");
     }
     public void decreaseGameSpeed()
     {
@@ -347,7 +394,11 @@ public class FruitBasketGameController : MonoBehaviour
             return;
 
         gameSpeed -= 1.0f;
+        gsc.gameSpeedText.text = $"{(int)gameSpeed}";
+
         UpdateBallSpeedAndDuration();
+        AppLogger.LogInfo($"{AppData.Instance.selectedGameName}'s game speed increased to {gameSpeed} and the Fruit Speed is {FRUITSPEED}");
+
 
 
     }
@@ -377,6 +428,8 @@ public class FruitBasketGameController : MonoBehaviour
         obj.transform.SetAsLastSibling();
         //loadingImage.gameObject.SetActive(true);
         //loadingImage.fillAmount = 0f;
+        AppLogger.LogInfo($"{AppData.Instance.selectedGameName}-- game's highest score recorded ");
+
 
         float elapsed = 0f;
         while (elapsed < seconds)
@@ -388,10 +441,11 @@ public class FruitBasketGameController : MonoBehaviour
 
         obj.SetActive(false);
         //loadingImage.gameObject.SetActive(false);
-        AppData.Instance.previousSuccessRates = AppData.Instance.userData.GetLastTwoSuccessRates(AppData.Instance.selectedMechanism.name, AppData.Instance.selectedGame);
+        AppData.Instance.previousSuccessRates = AppData.Instance.userData.GetLastTwoSuccessRates(AppData.Instance.selectedMechanism.name, AppData.Instance.selectedGameName);
         if (AppData.Instance.selectedMechanism.trialNumberDay == AppData.Instance.userData.mechMoveTimePrsc[AppData.Instance.selectedMechanism.name])
         {
             SceneManager.LoadScene("CHMECH");
+
             
         }
         else
@@ -458,6 +512,11 @@ public class FruitBasketGameController : MonoBehaviour
         successRateBanner.SetActive(false);
         setupBasketsForTrial();
         AppData.Instance.StartNewTrial();
+
+        gsc.sessionDetailsText.text = $"sessionNo: {AppData.Instance.currentSessionNumber}\n" +
+             $"trialNo: {AppData.Instance.selectedMechanism.trialNumberSession}\n" +
+             $"CB: {AppData.Instance.CurrentControlBound}";
+              
         preSuccRate.gameObject.SetActive(false);
         currSuccRate.gameObject.SetActive(false);
 
@@ -506,6 +565,8 @@ public class FruitBasketGameController : MonoBehaviour
             PlutoComm.setControlBound(AppData.Instance.CurrentControlBound);
             PlutoComm.setControlDir(0);
         }
+        AppLogger.LogInfo($"{AppData.Instance.selectedGameName}-- game resumed");
+
     }
     public void setSuccess()
     {
@@ -537,10 +598,13 @@ public class FruitBasketGameController : MonoBehaviour
             float gameTime = HomerTherapy.TrialDuration - trialTimeLeft;
             Others.gameTime = (gameTime < HomerTherapy.TrialDuration) ? gameTime : HomerTherapy.TrialDuration;
             AppData.Instance.aanController.Update(PlutoComm.angle, Time.deltaTime, true);
+            if (AppData.Instance.speedData.gameSpeed != gameSpeed)  AppData.Instance.speedData.setGameSpeed(gameSpeed);
             AppData.Instance.StopTrial(nTargets, nSuccess, nFailure);
             gameState = GameStates.DONE;
             Time.timeScale = 1f;
             SceneManager.LoadScene(prevScene);
+        AppLogger.LogInfo($"{AppData.Instance.selectedGameName}-- game exit");
+
         }
     }
     //shuffle the basket for every trail
@@ -575,12 +639,12 @@ public class FruitBasketGameController : MonoBehaviour
     }
     public void updateGUI()
     {
-        status.text = $"s.no: {AppData.Instance.currentSessionNumber}\n" +
-                       $"trialNo: {AppData.Instance.selectedMechanism.trialNumberSession}\n" +
-                       $"CB: {AppData.Instance.CurrentControlBound}\n" +
-                       $"GS: {(int)gameSpeed}\n" +
-                       $"TG: {(int)nTargets}" +
-                       $"MD:{(int)MOVEDURATION}";
+        // status.text = $"s.no: {AppData.Instance.currentSessionNumber}\n" +
+        //                $"trialNo: {AppData.Instance.selectedMechanism.trialNumberSession}\n" +
+        //                $"CB: {AppData.Instance.CurrentControlBound}\n" +
+        //                $"GS: {(int)gameSpeed}\n" +
+        //                $"TG: {(int)nTargets}" +
+        //                $"MD:{(int)MOVEDURATION}";
 
         onPause.gameObject.SetActive(isGamePaused);
         gameOver.gameObject.SetActive(gameState == GameStates.DONE);
@@ -595,8 +659,11 @@ public class FruitBasketGameController : MonoBehaviour
     }
     private void onPlutoButtonReleased()
     {
-        // This can mean different things depending on the game state.
         if (gameState == GameStates.WAITFORSTART) isGameStarted = true;
-        else if (gameState != GameStates.DONE) isGamePaused = !isGamePaused;
+        else if (gameState != GameStates.STOP && gameState != GameStates.DONE) isGamePaused = !isGamePaused;
+        else if (gameState == GameStates.DONE && isGameFinished) changeScene = true;
+        
+        AppLogger.LogInfo($"{AppData.Instance.selectedGameName}-- PLUTO button Pressed");
+
     }
 }

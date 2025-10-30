@@ -8,7 +8,7 @@ public class assessmentSceneHandler : MonoBehaviour
 
     public Button promButton;
 
-    public Button RedoARom, exitButton;
+    public Button RedoARom;
     public Button aromButton;
     public TextMeshProUGUI mechName;
     
@@ -33,13 +33,12 @@ public class assessmentSceneHandler : MonoBehaviour
         }
         AppLogger.SetCurrentScene(SceneManager.GetActiveScene().name);
         AppLogger.LogInfo($"'{SceneManager.GetActiveScene().name}' scene started.");
-
+        
         // Select PROM first.
         SelectAROM();
 
         // Set mechanism name
         mechName.text = PlutoComm.MECHANISMSTEXT[PlutoComm.GetPlutoCodeFromLabel(PlutoComm.MECHANISMS, AppData.Instance.selectedMechanism.name)];
-        exitButton.gameObject.SetActive(AppData.Instance.selectedMechanism.currRom != null);
     }
 
     void Update()

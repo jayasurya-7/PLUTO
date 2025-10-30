@@ -395,7 +395,7 @@ public class HatGameControllerCV : MonoBehaviour
                     gameState = GameStates.DONE;
                     if (AppData.Instance.previousSuccessRates == null)
                     {
-                        AppData.Instance.previousSuccessRates = AppData.Instance.userData.GetLastTwoSuccessRates(AppData.Instance.selectedMechanism.name, AppData.Instance.selectedGame);
+                        AppData.Instance.previousSuccessRates = AppData.Instance.userData.GetLastTwoSuccessRates(AppData.Instance.selectedMechanism.name, AppData.Instance.selectedGameName);
                         SceneManager.LoadScene(SceneManager.GetActiveScene().name);
                     }
                 }

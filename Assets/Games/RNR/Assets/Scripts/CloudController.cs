@@ -9,15 +9,26 @@ public class CloudController : MonoBehaviour
     private float emotionTimer = 0f, position;
     private float[] aprom;
     public ParticleSystem rainEffect;
-    public Collider2D rainAreaCollider;   // <- assign RainArea BoxCollider2D in Inspector
+    public Collider2D rainAreaCollider;
     private bool isRaining = false;
+    private float cloudHalfWidth;
+
     void Start()
     {
         ChangeEmotion();
         aprom = AppData.Instance.selectedMechanism.CurrentAProm;
-
         PLAYSIZE = Camera.main.orthographicSize * Camera.main.aspect;
 
+        // Calculate the cloud's half width based on its sprite bounds
+        if (cloudRenderer != null)
+        {
+            cloudHalfWidth = cloudRenderer.bounds.extents.x;
+        }
+        else
+        {
+            // Fallback if no renderer found
+            cloudHalfWidth = 0.5f;
+        }
 
         // Optional auto-find if you forgot to assign:
         if (rainAreaCollider == null)
@@ -33,20 +44,26 @@ public class CloudController : MonoBehaviour
     {
         position = AngleToScreen(PlutoComm.angle);
 
-        // position = (AppData.Instance.IsTrainingSide("RIGHT") && AppData.Instance.selectedMechanism.IsMechanism("HOC")) ? HatGameController.Instance.AngleToScreen(-PlutoComm.angle):HatGameController.Instance.AngleToScreen((PlutoComm.angle));
-        // MovementTracker.UpdatePosition( this.transform.position);
-
         Vector2 pos = new Vector2(position, this.transform.position.y);
-        // Movement
-        //         float moveX = Input.GetAxis("Horizontal");
-        // transform.position += new Vector3(moveX, 0, 0) * moveSpeed * Time.deltaTime;
-
-        // Clamp to camera view
-        // Vector3 pos = transform.position;
-        float halfWidth = Camera.main.orthographicSize * Camera.main.aspect;
-        float leftBound = -halfWidth + 0.5f;   // margin
-        float rightBound = halfWidth - 0.5f;
-        pos.x = Mathf.Clamp(pos.x, leftBound, rightBound);
+        
+        // Clamp to camera view with cloud bounds consideration
+        float cameraHalfWidth = Camera.main.orthographicSize * Camera.main.aspect;
+        
+        // Calculate bounds that ensure the entire cloud stays within camera
+        float leftBound = -cameraHalfWidth + cloudHalfWidth;
+        float rightBound = cameraHalfWidth - cloudHalfWidth;
+        
+        // Additional safety check to prevent negative bounds if cloud is too large
+        if (leftBound > rightBound)
+        {
+            // If cloud is larger than screen, center it
+            pos.x = 0f;
+        }
+        else
+        {
+            pos.x = Mathf.Clamp(pos.x, leftBound, rightBound);
+        }
+        
         transform.position = pos;
 
         // Emotion change
@@ -55,9 +72,13 @@ public class CloudController : MonoBehaviour
         {
             ChangeEmotion();
             emotionTimer = 0f;
+            
+            // Recalculate cloud bounds if sprite changes size
+            if (cloudRenderer != null)
+            {
+                cloudHalfWidth = cloudRenderer.bounds.extents.x;
+            }
         }
-
-       
     }
 
     public void ChangeEmotion()
@@ -66,8 +87,13 @@ public class CloudController : MonoBehaviour
         {
             int index = Random.Range(0, emotionSprites.Length);
             cloudRenderer.sprite = emotionSprites[index];
+
+            // Update cloud bounds after sprite change
+            cloudHalfWidth = cloudRenderer.bounds.extents.x;
         }
     }
-   public float AngleToScreen(float angle) => Mathf.Lerp(-PLAYSIZE, PLAYSIZE, (angle - aprom[0]) / (aprom[1]- aprom[0]));
 
-}
+    // public float AngleToScreen(float angle) => Mathf.Lerp(-PLAYSIZE, PLAYSIZE, (angle - aprom[0]) / (aprom[1] - aprom[0]));
+    public float AngleToScreen(float angle) => Mathf.Lerp(-7.1f, 7.1f, (angle - aprom[0]) / (aprom[1] - aprom[0]));
+    
+}   

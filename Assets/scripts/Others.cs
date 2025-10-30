@@ -34,7 +34,9 @@ public static class HomerTherapy
     public static readonly Dictionary<string, float> GameSpeedIncrements = new Dictionary<string, float>  {
         { "PING-PONG", 0.5f },
         { "TUK-TUK", 0.2f },
-        { "HAT-Trick", 1f }
+        { "HAT-Trick", 1f },
+        { "FRUITCH", 1f },
+        { "RNR", 1f }
     };
     
     private static float? lastTarget = null;
@@ -139,11 +141,11 @@ public class MechanismSpeed
 {
     public float gameSpeed { get; private set; } = -1f;
 
-    private string mechanismToCheck;
+    // private string AppData.Instance.selectedMechanism.name;
 
     private DataTable sessionTable;
     private string mechParamsCsvPath;
-    private static readonly string[] speedChMode = new string[] { "manual", "automatic" };
+    private static readonly string[] speedChMode = new string[] {"DEFAULT","MANUAL", "AUTO" };
     public static readonly Dictionary<string, float> DefaultMechanismSpeeds = new Dictionary<string, float>
     {
         { "WFE", 10.0f },
@@ -155,14 +157,15 @@ public class MechanismSpeed
     };
     public MechanismSpeed()
     {
-        this.mechanismToCheck = AppData.Instance.selectedMechanism.name;
         this.sessionTable = AppData.Instance.userData.dTableSession;
         this.mechParamsCsvPath = DataManager.GetMechFileName(AppData.Instance.selectedMechanism.name);
+        EvaluateAndUpdateGameSpeed();
     }
 
-    public void setGameSpeed(float gs)
+    public void setGameSpeed(float gamespeed)
     {
-        gameSpeed = gs;
+        gameSpeed = gamespeed;
+        updateGameSpeedfromGame(gamespeed);
     }
     public void EvaluateAndUpdateGameSpeed()
     {
@@ -172,7 +175,7 @@ public class MechanismSpeed
             return;
         }
         var mechData = sessionTable.AsEnumerable()
-            .Where(row => row.Field<string>("Mechanism") == mechanismToCheck)
+            .Where(row => row.Field<string>("Mechanism") == AppData.Instance.selectedMechanism.name)
             .ToList();
         // Debug.Log($"mechData:{mechData.Count}");
         var groupedByDate = mechData
@@ -185,6 +188,7 @@ public class MechanismSpeed
         {
             GetLastDateFromMechParams();
             Debug.Log("Not enough different dates for evaluation.");
+            AppLogger.LogWarning("Not enough different dates for evaluation.");
             return;
         }
 
@@ -225,7 +229,11 @@ public class MechanismSpeed
             if ((DateTime.Today - lastUpdate.Value).Days >= 3 && sessionDatesBetween.Count >= 2)
             {
                 if (gameSpeed < 40.0f) UpdateGameSpeed();
-                else GetLastDateFromMechParams();
+                else
+                {
+                    GetLastDateFromMechParams();
+                    AppLogger.LogInfo(" Maximum Limit has been reached.");
+                }
             }
             else
             {
@@ -235,6 +243,7 @@ public class MechanismSpeed
         else
         {
             GetLastDateFromMechParams();
+            AppLogger.LogInfo("Game speed not updated. Conditions not met");
             Debug.Log("Conditions for game speed update not met.");
         }
     }
@@ -307,39 +316,38 @@ public class MechanismSpeed
 
     private void WriteInitialSpeed()
     {
-        gameSpeed = DefaultMechanismSpeeds[mechanismToCheck];
+        gameSpeed = DefaultMechanismSpeeds[AppData.Instance.selectedMechanism.name];
         using (var writer = new StreamWriter(mechParamsCsvPath, false))
         {
             writer.WriteLine("DateTime,Mode,Speed");
-            writer.WriteLine($"{DateTime.Now.ToString("yyyy-MM-dd HH:mm:ss")},Default,{gameSpeed}");
+            writer.WriteLine($"{DateTime.Now.ToString("yyyy-MM-dd HH:mm:ss")},{speedChMode[0]},{gameSpeed}");
+            AppLogger.LogInfo($"{AppData.Instance.selectedMechanism.name} - Mech and Game speed initiated to {gameSpeed} deg/sec in {speedChMode[0]}");
         }
     }
 
-    private void UpdateGameSpeed(int mode = 1)
+    private void UpdateGameSpeed(int mode = 2)
     {
         if (gameSpeed <= 0)
         {
-            gameSpeed = DefaultMechanismSpeeds[mechanismToCheck];
+            gameSpeed = DefaultMechanismSpeeds[AppData.Instance.selectedMechanism.name];
         }
-            
-            string chMode = speedChMode[mode];
-            gameSpeed = gameSpeed * 1.1f;
 
-            using (var writer = new StreamWriter(mechParamsCsvPath, true))
-            {
-                writer.WriteLine($"{DateTime.Now:yyyy-MM-dd HH:mm:ss},{chMode},{gameSpeed}");
-            }
+        string chMode = speedChMode[mode];
+        gameSpeed = gameSpeed * 1.1f;
 
-            Debug.Log($"Game speed updated to: {gameSpeed}");
-
-        
+        using (var writer = new StreamWriter(mechParamsCsvPath, true))
+        {
+            writer.WriteLine($"{DateTime.Now:yyyy-MM-dd HH:mm:ss},{chMode},{gameSpeed}");
+        }
+        AppLogger.LogInfo($"Game speed updated to {gameSpeed} deg/sec in {chMode}");
+        Debug.Log($"Game speed updated to: {gameSpeed}");
     }
 
-    public void updateGameSpeedfromGame(float gs, int mode = 0)
+    public void updateGameSpeedfromGame(float gs, int mode = 1)
     {
         if (gs <= 0)
         {
-            gs= DefaultMechanismSpeeds[mechanismToCheck];
+            gs= DefaultMechanismSpeeds[AppData.Instance.selectedMechanism.name];
         }
 
         string chMode = speedChMode[mode];
@@ -349,6 +357,7 @@ public class MechanismSpeed
             writer.WriteLine($"{DateTime.Now:yyyy-MM-dd HH:mm:ss},{chMode},{gs}");
         }
 
+        AppLogger.LogInfo($"Game speed updated to {gameSpeed} deg/sec");
         Debug.Log($"Game speed updated to: {gs}");
 
     }
@@ -367,7 +376,8 @@ public class PlutoUserData
     public Dictionary<string, float> mechMoveTimePrsc { get; private set; } // Prescribed movement time
     public Dictionary<string, float> mechMoveTimePrev { get; private set; } // Previous movement time 
     public Dictionary<string, float> mechMoveTimeCurr { get; private set; } // Current movement time
-    public bool isExceeded{ private set; get; }
+    public bool isExceeded { private set; get; }
+
 
     // Total movement times.
     public float totalMoveTimePrsc
@@ -437,6 +447,9 @@ public class PlutoUserData
     //         }
     //     }
     // }
+
+    // Constructor
+
     public int totalMoveTimeRemaining
 
     {
@@ -486,9 +499,8 @@ public class PlutoUserData
         }
 
     }
-    
 
-    // Constructor
+
     public PlutoUserData(string configData, string sessionData)
     {
         if (File.Exists(configData))
@@ -609,15 +621,15 @@ public class PlutoUserData
             AppLogger.LogInfo($"Game speed for '{game.Key}' is set to {game.Value}.");
             if (game.Key == "PING-PONG")
             {
-               // gameData.gameSpeedPP = game.Value;
+                // gameData.gameSpeedPP = game.Value;
             }
             else if (game.Key == "TUK-TUK")
             {
-               // gameData.gameSpeedTT = game.Value;
+                // gameData.gameSpeedTT = game.Value;
             }
             else if (game.Key == "HAT-Trick")
             {
-               // gameData.gameSpeedHT = game.Value;
+                // gameData.gameSpeedHT = game.Value;
             }
         }
     }
@@ -628,7 +640,7 @@ public class PlutoUserData
         hospNumber = lastRow.Field<string>("HospitalNumber");
         rightHand = lastRow.Field<string>("TrainingSide") == "right";
         //AppData.trainingSide = ; // lastRow.Field<string>("TrainingSide");
-        startDate = DateTime.ParseExact(lastRow.Field<string>("startdate"), "dd-MM-yyyy", CultureInfo.InvariantCulture);
+        startDate = DateTime.ParseExact(lastRow.Field<string>("StartDate"), "dd-MM-yyyy", CultureInfo.InvariantCulture);
         mechMoveTimePrsc = createMoveTimeDictionary();//prescribed time
         for (int i = 0; i < PlutoDefs.Mechanisms.Length; i++)
         {
@@ -732,8 +744,6 @@ public class PlutoUserData
                     float controlBound = float.Parse(row.Field<string>("CurrentControlBound"), CultureInfo.InvariantCulture);
                     return successRate * (PlutoAANController.MAXCONTROLBOUND - controlBound);
                 });
-
-            Debug.Log(Others.highestSuccessRate);
         }
         else
         {
@@ -786,9 +796,73 @@ public class PlutoUserData
         return lastTwoSuccessRates;
     }
 
+    public int[] readCummulativeHitsMissesForGameMovement(string gameName, string mech)
+    {
+        // Get the last row for the given game.
+        var lastGameRows = dTableSession.AsEnumerable()?
+            .Where(row => row.Field<string>("GameName") == gameName && row.Field<string>("Mechanism") == mech).LastOrDefault();
+        // If there are no rows, set the cummulative score to zero.
+        if (lastGameRows == null)
+        {
+            AppLogger.LogInfo($"No previous data found for game '{gameName}' and movement '{mech}'. Cummulative hits and misses set to zero.");
+            return new int[] { 0, 0, 0 };
+        }
+        // Get the cummulative hits and misses for the game from the last row.
+        int[] cuScores = new int[]
+        {
+            Convert.ToInt32(lastGameRows.Field<string>("CummulativeTargets")),
+            Convert.ToInt32(lastGameRows.Field<string>("CummulativeHits")),
+            Convert.ToInt32(lastGameRows.Field<string>("CummulativeMisses"))
+        };
+        AppLogger.LogInfo($"Cummulative hits and misses for game '{gameName}' and '{mech}' updated. Targets: {cuScores[0]} | Hits: {cuScores[1]} | Misses: {cuScores[2]}.");
+        return cuScores;
+    }
 
 
 }
+
+public class PlutoGame
+{
+    public string name { get; private set; } = null;
+    public string mech { get; set; } = null;
+    public float gameSpeed { get; private set; }
+    public float gameDuration { get; set; } = 0f;
+    // public MarsArom arom { get; private set; } = null;
+    public int currentTargets { get; private set; } = 0;
+    public int currentHits { get; private set; } = 0;
+    public int currentMisses { get; private set; } = 0;
+    public int cummulativeTargets { get; private set; } = 0;
+    public int cummulativeHits { get; private set; } = 0;
+    public int cummulativeMisses { get; private set; } = 0;
+
+    public PlutoGame(string gName, string mName, int gCuTargets, int gCuHits, int gCuMisses)
+    {
+        name = gName?.ToUpper() ?? string.Empty;
+        mech = mName?.ToUpper() ?? string.Empty;
+        cummulativeTargets = gCuTargets;
+        cummulativeHits = gCuHits;
+        cummulativeMisses = gCuMisses;
+    }
+
+    public void ResetCummulativeScore()
+    {
+        cummulativeTargets = 0;
+        cummulativeHits = 0;
+        cummulativeMisses = 0;
+    }
+
+    public void UpdateTargetsHitsMisses(int targets, int hits, int misses)
+    {
+        currentTargets = targets;
+        currentHits = hits;
+        currentMisses = misses;
+        cummulativeTargets += targets;
+        cummulativeHits += hits;
+        cummulativeMisses += misses;
+    }
+}
+
+
 public static class MovementTracker
 {
     private static Vector3 previousPlayerPosition;
@@ -1083,7 +1157,7 @@ public class ROM
     private void ReadFromFile(string mechanismName)
     {
         string fileName = DataManager.GetRomFileName(mechanismName);
-        // Create the file if it doesn't exist
+
         if (!File.Exists(fileName))
         {
             using (var writer = new StreamWriter(fileName, false, Encoding.UTF8))
