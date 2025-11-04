@@ -635,6 +635,10 @@ PrefabInstance:
     serializedVersion: 3
     m_TransformParent: {fileID: 1895689831}
     m_Modifications:
+    - target: {fileID: 1876408299158359136, guid: bf34280f6e5797143a30e047f9c7dfe0, type: 3}
+      propertyPath: m_text
+      value: 9999
+      objectReference: {fileID: 0}
     - target: {fileID: 2573650506292658664, guid: bf34280f6e5797143a30e047f9c7dfe0, type: 3}
       propertyPath: m_Pivot.x
       value: 0.5
@@ -1428,8 +1432,8 @@ MonoBehaviour:
   messageTxt: {fileID: 688446176}
   audioSource: {fileID: 422574514}
   soundClips:
-  - {fileID: 8300000, guid: 3289c5a69b7cb3046839e1c27801a5dd, type: 3}
-  - {fileID: 8300000, guid: 3289c5a69b7cb3046839e1c27801a5dd, type: 3}
+  - {fileID: 8300000, guid: d1380de16628da242a35ae73760f9679, type: 3}
+  - {fileID: 8300000, guid: f9b061111c66c1f4cb607aecc4698c6c, type: 3}
   aromLeft: {fileID: 8359927}
   aromRight: {fileID: 967930708}
   HSC: {fileID: 641727553}
@@ -1479,13 +1483,13 @@ AudioSource:
   m_audioClip: {fileID: 8300000, guid: 11e258279462b4c4ca3082b85a8e6066, type: 3}
   m_Resource: {fileID: 8300000, guid: 11e258279462b4c4ca3082b85a8e6066, type: 3}
   m_PlayOnAwake: 1
-  m_Volume: 1
+  m_Volume: 0.135
   m_Pitch: 1
   Loop: 1
   Mute: 0
   Spatialize: 0
   SpatializePostEffects: 0
-  Priority: 156
+  Priority: 67
   DopplerLevel: 1
   MinDistance: 1
   MaxDistance: 500
@@ -5952,15 +5956,15 @@ PrefabInstance:
       objectReference: {fileID: 0}
     - target: {fileID: 3130446233160689567, guid: 4c23e107673652f43a67a1e76592834a, type: 3}
       propertyPath: m_text
-      value: 1/10
+      value: 22/20
       objectReference: {fileID: 0}
     - target: {fileID: 3130446233160689567, guid: 4c23e107673652f43a67a1e76592834a, type: 3}
       propertyPath: m_fontSize
-      value: 29.41
+      value: 25
       objectReference: {fileID: 0}
     - target: {fileID: 3130446233160689567, guid: 4c23e107673652f43a67a1e76592834a, type: 3}
       propertyPath: m_fontSizeBase
-      value: 29.41
+      value: 25
       objectReference: {fileID: 0}
     - target: {fileID: 3350104718673794646, guid: 4c23e107673652f43a67a1e76592834a, type: 3}
       propertyPath: m_Pivot.x

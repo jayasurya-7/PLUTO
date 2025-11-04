@@ -122,6 +122,7 @@ public class PongGameController : MonoBehaviour
         detailObjects = GameObject.FindGameObjectsWithTag("detailViewer");
         targetPosition = new Vector2(5.95f, 0f);
         hideFinished();
+        showPaused();
         SetVisibility(false);
         playSize = Camera.main.orthographicSize;
         GameObject ballClone;
@@ -213,14 +214,11 @@ public class PongGameController : MonoBehaviour
         // else if (!isGamePaused && gameState == GameStates.PAUSED) resumeGame();
         if ((isFinished && Input.GetKeyDown(KeyCode.P)) || (isFinished && isButtonPressed))
         {
-
-            if (AppData.Instance.aanController.state == PlutoAANController.PlutoAANState.AROMMOVING
-                    || AppData.Instance.aanController.state == PlutoAANController.PlutoAANState.IDLE)
-            {
                 Reload();
-            }
             isButtonPressed = false;
         }
+        Debug.Log($" gamestate : {gameState} + {isGameStarted}");
+
 
     }
 
@@ -330,7 +328,7 @@ public class PongGameController : MonoBehaviour
     }
 
     private float timeToReach(){
-          if (targetTemp != null)
+        if (targetTemp != null)
         {
             Rigidbody2D ballRB = targetTemp.GetComponent<Rigidbody2D>();
 
@@ -383,16 +381,20 @@ public class PongGameController : MonoBehaviour
         obj.SetActive(false);
         loadingImage.gameObject.SetActive(false);
         AppData.Instance.previousSuccessRates = AppData.Instance.userData.GetLastTwoSuccessRates(AppData.Instance.selectedMechanism.name, AppData.Instance.selectedGameName);
-        showFinished();
+        // showFinished();
         AppLogger.LogInfo($"{AppData.Instance.selectedGameName} -- game's highest score recorded");
         
-        gameEnd();
+        // gameEnd();
+                        SceneManager.LoadScene(SceneManager.GetActiveScene().name);
+        
     }
     public void Reload()
     {
-        playerScore = enemyScore = 0;
-        SceneManager.LoadScene(SceneManager.GetActiveScene().name);
-        AppLogger.LogInfo($"{AppData.Instance.selectedGameName} -- game restarted");
+        // playerScore = enemyScore = 0;
+        // hideFinished();
+        string currentSceneName = SceneManager.GetActiveScene().name;
+        AppLogger.LogInfo($"The Game is restarted {currentSceneName}");
+        SceneManager.LoadScene(currentSceneName);
 
     }
 
@@ -405,11 +407,15 @@ public class PongGameController : MonoBehaviour
 
     public void showPaused()
     {
-          if(AppData.Instance.previousSuccessRates!=null)
+        if(AppData.Instance.previousSuccessRates!=null)
         {
             SuccessRateBanner.SetActive(true);
             prevSR.text = $" previous SR : {AppData.Instance.previousSuccessRates[0]}%";
             currSR.text = $"Current Success Rate : {AppData.Instance.previousSuccessRates[1]}%";
+        }
+        else
+        {
+            Debug.Log("Hello gamestate");
         }
         foreach (GameObject g in pauseObjects)
         {
@@ -436,12 +442,12 @@ public class PongGameController : MonoBehaviour
             g.SetActive(true);
         }
         
-        if(AppData.Instance.previousSuccessRates!=null)
-        {
-            SuccessRateBanner.SetActive(true);
-            prevSR.text = $" previous SR : {AppData.Instance.previousSuccessRates[0]}%";
-            currSR.text = $"Current Success Rate : {AppData.Instance.previousSuccessRates[1]}%";
-        }
+        // if(AppData.Instance.previousSuccessRates!=null)
+        // {
+        //     SuccessRateBanner.SetActive(true);
+        //     prevSR.text = $" previous SR : {AppData.Instance.previousSuccessRates[0]}%";
+        //     currSR.text = $"Current Success Rate : {AppData.Instance.previousSuccessRates[1]}%";
+        // }
         gameOverText.text = (playerScore >= enemyScore) ? "GAME OVER!\nPLAYER WON!" : "GAME OVER!\nENEMY WON!";
         AppLogger.LogInfo($"{AppData.Instance.selectedGameName} -- game finished");
          
@@ -477,6 +483,8 @@ public class PongGameController : MonoBehaviour
                 showPaused();
                 // Check of game has been started.
                 if (isGameStarted) gameState = GameStates.START;
+                Debug.Log($" gamestate x1: {gameState} + {isGameStarted}");
+
                 break;
             case GameStates.START:
                 hidePaused();

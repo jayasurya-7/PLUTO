@@ -399,7 +399,6 @@ public class dataUpload : MonoBehaviour
         }
  
         try
-
         {
 
             Process process = new Process();
@@ -439,25 +438,16 @@ public class dataUpload : MonoBehaviour
                 Debug.Log("Python uploader finished.");
 
             }).Start();
-
         }
-
         catch (System.Exception ex)
-
         {
-
             Debug.LogError("Error running Python script: " + ex.Message);
-
         }
-
     }
 
     private void OnPythonOutput(object sender, DataReceivedEventArgs e)
-
     {
-
         if (string.IsNullOrEmpty(e.Data))
-
             return;
 
         Debug.Log($"[Python] {e.Data}");
@@ -465,109 +455,60 @@ public class dataUpload : MonoBehaviour
         // --- Handle total file info (don't show on UI) ---
 
         if (e.Data.StartsWith("TOTAL_FILES:"))
-
         {
-
             totalFiles = int.Parse(e.Data.Split(':')[1]);
-
             return; // Skip showing in UI text
-
         }
-
         if (e.Data.StartsWith("COMMAND:"))
-
         {
- 
             message = e.Data.Split(':')[1];
-
             return; // Skip showing in UI text
-
         }
-
         // Try to parse progress (Python prints numbers like 25.0, 50.0, etc.)
-
         if (float.TryParse(e.Data, out float p))
-
         {
-
             progress = Mathf.Clamp(p, 0f, 100f);
-
         }
-
         else if (e.Data == "DONE")
-
         {
-
             progress = 100f;
-
             Debug.Log("Upload complete!");
-
             message = e.Data;
-
         }
-
         else if (e.Data.StartsWith("ERROR"))
-
         {
-
             Debug.LogError(e.Data);
-
             message = e.Data;
-
             ShutdownSystem();
-
         }
-
     }
  
     private void OnPythonError(object sender, DataReceivedEventArgs e)
-
     {
-
         if (!string.IsNullOrEmpty(e.Data))
-
         {
-
             Debug.LogError("[Python ERROR] " + e.Data);
-
         }
-
     }
  
-   
-
     void ShutdownSystem()
-
     {
-
         try
-
         {
-
             Application.Quit();
-
             // Process.Start("shutdown", "/s /t 0");
 
-#if UNITY_EDITOR
-
-            UnityEditor.EditorApplication.isPlaying = false;
-
-#endif
+            #if UNITY_EDITOR
+                        UnityEditor.EditorApplication.isPlaying = false;
+            #endif
 
             // Process.Start("shutdown", "/s /t 0");
-
         }
-
         catch (System.Exception ex)
-
         {
-
             Debug.LogError("Failed to shutdown: " + ex.Message);
-
         }
-
     }
-
 }
 
  
