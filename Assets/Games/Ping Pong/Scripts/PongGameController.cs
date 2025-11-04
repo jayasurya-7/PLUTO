@@ -122,6 +122,7 @@ public class PongGameController : MonoBehaviour
         detailObjects = GameObject.FindGameObjectsWithTag("detailViewer");
         targetPosition = new Vector2(5.95f, 0f);
         hideFinished();
+        showPaused();
         SetVisibility(false);
         playSize = Camera.main.orthographicSize;
         GameObject ballClone;
@@ -383,10 +384,10 @@ public class PongGameController : MonoBehaviour
         obj.SetActive(false);
         loadingImage.gameObject.SetActive(false);
         AppData.Instance.previousSuccessRates = AppData.Instance.userData.GetLastTwoSuccessRates(AppData.Instance.selectedMechanism.name, AppData.Instance.selectedGameName);
-        showFinished();
+        // showFinished();
         AppLogger.LogInfo($"{AppData.Instance.selectedGameName} -- game's highest score recorded");
-        
-        gameEnd();
+        SceneManager.LoadScene(SceneManager.GetActiveScene().name);
+        // gameEnd();
     }
     public void Reload()
     {
