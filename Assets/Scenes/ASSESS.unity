@@ -4281,10 +4281,8 @@ GameObject:
   serializedVersion: 6
   m_Component:
   - component: {fileID: 241951472}
-  - component: {fileID: 241951477}
   - component: {fileID: 241951476}
   - component: {fileID: 241951475}
-  - component: {fileID: 241951474}
   - component: {fileID: 241951473}
   - component: {fileID: 241951478}
   m_Layer: 5
@@ -4341,18 +4339,6 @@ MonoBehaviour:
   m_ChildScaleWidth: 0
   m_ChildScaleHeight: 0
   m_ReverseArrangement: 0
---- !u!114 &241951474
-MonoBehaviour:
-  m_ObjectHideFlags: 0
-  m_CorrespondingSourceObject: {fileID: 0}
-  m_PrefabInstance: {fileID: 0}
-  m_PrefabAsset: {fileID: 0}
-  m_GameObject: {fileID: 241951471}
-  m_Enabled: 1
-  m_EditorHideFlags: 0
-  m_Script: {fileID: 11500000, guid: 9a2e82b06c2ed1847bd32d353cd674c8, type: 3}
-  m_Name: 
-  m_EditorClassIdentifier: 
 --- !u!114 &241951475
 MonoBehaviour:
   m_ObjectHideFlags: 0
@@ -4391,18 +4377,6 @@ CanvasRenderer:
   m_PrefabAsset: {fileID: 0}
   m_GameObject: {fileID: 241951471}
   m_CullTransparentMesh: 1
---- !u!114 &241951477
-MonoBehaviour:
-  m_ObjectHideFlags: 0
-  m_CorrespondingSourceObject: {fileID: 0}
-  m_PrefabInstance: {fileID: 0}
-  m_PrefabAsset: {fileID: 0}
-  m_GameObject: {fileID: 241951471}
-  m_Enabled: 1
-  m_EditorHideFlags: 0
-  m_Script: {fileID: 11500000, guid: 18b42570416bdca4697b2749e5bf8c5c, type: 3}
-  m_Name: 
-  m_EditorClassIdentifier: 
 --- !u!114 &241951478
 MonoBehaviour:
   m_ObjectHideFlags: 0
@@ -35852,6 +35826,7 @@ MonoBehaviour:
   promSelected:
   - {fileID: 2756669747190576305}
   - {fileID: 1177709862}
+  exitButton: {fileID: 241951471}
 --- !u!1 &1936397115
 GameObject:
   m_ObjectHideFlags: 0

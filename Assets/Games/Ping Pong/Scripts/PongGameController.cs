@@ -723,7 +723,7 @@ public class PongGameController : MonoBehaviour
     }
     private void UpdateText()
     {
-        timeLeftText.text = $"Time Left: {(int)triaTimeLeft}";
+        timeLeftText.text = $"TIME: {(int)triaTimeLeft}";
         // gameSpeedViewer.text = $"GS :{(int)gameSpeed}";
         //core.text = $"Score: {nSuccess}";
     }

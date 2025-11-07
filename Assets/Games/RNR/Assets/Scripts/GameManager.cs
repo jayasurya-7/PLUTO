@@ -80,7 +80,7 @@ public class GameManager : MonoBehaviour
     private float rainTimer = 0f, convertedAngle=0f;
     private float highlightTimer = 0f;
 
-    private float rainDurationToGrow = 1.0f;    // needs 1s of rain
+    private float rainDurationToGrow = 0.5f;    // needs 1s of rain
     public float highlightDuration;     // highlighted for 3s
     private bool hasGrownThisCycle = false, runOnce = false;
     private SeedController lastHighlighted = null; // store last seed
@@ -307,8 +307,8 @@ public class GameManager : MonoBehaviour
         }
 
         // Score.text = $"Score : {score}";
-        Score.text = $"Score : {score}";
-        Timer.text = "Time :" + trialTimeLeft.ToString("F0");
+        Score.text = $"SCORE: {score}";
+        Timer.text = "TIME: " + trialTimeLeft.ToString("F0");
     }
 
     void FixedUpdate()

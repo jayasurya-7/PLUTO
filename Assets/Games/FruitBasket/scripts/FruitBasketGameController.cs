@@ -654,7 +654,7 @@ public class FruitBasketGameController : MonoBehaviour
                         ? "PRESS PLUTO BUTTON TO START GAME"
                         : "";
 
-        timertxt.text = $"Timer :{trialTimeLeft.ToString("F0")}s";
+        timertxt.text = $"TIME: {trialTimeLeft.ToString("F0")}s";
         scoreTxt.text = nSuccess.ToString();
     }
     private void onPlutoButtonReleased()

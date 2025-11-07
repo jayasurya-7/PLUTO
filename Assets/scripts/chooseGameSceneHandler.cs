@@ -82,6 +82,13 @@ public class ChooseGameSceneHandler : MonoBehaviour
                     PlutoComm.setControlGain(parsedGain);
                 }
             }
+
+            if (AppData.Instance.selectedMechanism.currRom == null && AppData.Instance.selectedMechanism.name != "FME1" && AppData.Instance.selectedMechanism.name != "FME2" )
+            {
+                AppLogger.LogInfo("Current ROM is null. Going to assessment scene.");
+                SceneManager.LoadScene("ASSESS");
+                return;
+            }
         }
 
         // Update App Logger

@@ -640,7 +640,7 @@ public class HatGameController : MonoBehaviour
     private void UpdateText()
     {
         timeLeftText.text = $": {(int)triaTimeLeft}";
-        ScoreText.text = $"Score: {nSuccess}";
+        ScoreText.text = $"SCORE: {nSuccess}";
     }
 
     public void exitGame()
