@@ -142,6 +142,7 @@ public class AssistsceneHandler : MonoBehaviour
         // Update central text.
         cText.gameObject.SetActive(AppData.Instance.selectedMechanism.IsMechanism("HOC"));
         cText.text = AppData.Instance.selectedMechanism.IsMechanism("HOC") ? "Closed" : "";
+        inst1.text = "Press PLUTO button to start the AAN";
 
         // Update the left and right text.
         (_rinx, _linx) = AppData.Instance.IsTrainingSide("RIGHT") ? (1, 0) : (0, 1);
@@ -151,7 +152,7 @@ public class AssistsceneHandler : MonoBehaviour
         // Set the state to INIT.
         _state = AssessStates.INIT;
         inst.text = "";
-        inst1.text = "";
+        // inst1.text = "";
 
         // Attach callback for PLUTO button release.
         PlutoComm.OnButtonReleased +=    OnPlutoButtonReleased;
@@ -383,7 +384,8 @@ public class AssistsceneHandler : MonoBehaviour
         PlutoComm.sendHeartbeat();
 
         currentAngle = PlutoComm.angle;
-        jointAngle.text = $"{((int)PlutoComm.angle).ToString()} + Torque :{PlutoComm.target}";
+        // jointAngle.text = $"{((int)PlutoComm.angle).ToString()} + Torque :{PlutoComm.target}";
+        jointAngle.text = $"Angle: {((int)PlutoComm.angle).ToString()}";
         jointAngleHoc.text = ((int)PlutoComm.getHOCDisplay(PlutoComm.angle)).ToString();
         runAssessmentStateMachine();
         // Debug.Log($" ct: {PlutoComm.CONTROLTYPE[PlutoComm.controlType]} + tor :{PlutoComm.target}");
@@ -480,6 +482,7 @@ public class AssistsceneHandler : MonoBehaviour
         Debug.Log("Assessment started");
         apromSlider.startAssessment(PlutoComm.angle);
         apromSlider.UpdateMinMaxvalues = true;
+        inst1.text = "";
     }
 
     private void UpdateStatusText()
