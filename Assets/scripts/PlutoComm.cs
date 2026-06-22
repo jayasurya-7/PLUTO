@@ -39,9 +39,9 @@ public static class PlutoComm
         "Position-AAN"
     };
     public static readonly int[] SENSORNUMBER = new int[] {
-        5,  // SENSORSTREAM 
+        6,  // SENSORSTREAM 
         0,  // CONTROLPARAM
-        8   // DIAGNOSTICS
+        9   // DIAGNOSTICS
     };
     public static readonly double MAXTORQUE = 1.0; // Nm
     public static readonly int[] INDATATYPECODES = new int[] { 0x00, 0x01, 0x02, 0x03, 0x04, 0x05, 0x06, 0x07, 0x08, 0x09, 0x0A, 0x0B, 0x0C, 0x0D, 0x80 };
@@ -241,21 +241,28 @@ public static class PlutoComm
     {
         get
         {
-            return currentSensorData[6];
+            return currentSensorData[7];
         }
     }
     static public float errDiff
     {
         get
         {
-            return currentSensorData[7];
+            return currentSensorData[8];
         }
     }
     static public float errSum
     {
         get
         {
-            return currentSensorData[8];
+            return currentSensorData[9];
+        }
+    }
+    static public float torque_estimation
+    {
+        get
+        {
+            return currentSensorData[6];
         }
     }
 
@@ -647,7 +654,7 @@ public static class PlutoComLogger
             if (logWriter != null)
             {
                 string _user = AppData.Instance.userData != null ? AppData.Instance.userData.hospNumber : "";
-                string _msg = $"{DateTime.Now:dd-MM-yyyy HH:mm:ss} {logMsgType,-7} {InBraces(_user), -10} {InBraces(AppLogger.currentScene), -12} {InBraces(AppLogger.currentMechanism), -8} {InBraces(AppLogger.currentGame), -8} >> {message}";
+                string _msg = $"{DateTime.Now:dd-MM-yyyy HH:mm:ss} {logMsgType,-7} {InBraces(_user), -12} {InBraces(AppLogger.currentScene), -16} {InBraces(AppLogger.currentMechanism), -8} {InBraces(AppLogger.currentGame), -10} >> {message}";
                 logWriter.WriteLine(_msg);
                 logWriter.Flush();
                 if (DEBUG) Debug.Log(_msg);

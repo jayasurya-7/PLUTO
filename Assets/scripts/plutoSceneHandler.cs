@@ -33,6 +33,7 @@ public class Pluto_SceneHandler : MonoBehaviour
 
     // Data logging
     public UnityEngine.UI.Toggle tglDataLog;
+    public UnityEngine.UI.Button btnLogData;
 
     // Calibration variables
     private bool isCalibrating = false;
@@ -42,6 +43,7 @@ public class Pluto_SceneHandler : MonoBehaviour
     // Control variables
     private bool isControl = false;
     private bool _changeSliderLimits = false;
+    private bool plutoEventsAttached = false;
     private float controlTarget = 0.0f;
     private float controlBound = 0.0f;
     private float controlGain = 1.0f;
@@ -54,11 +56,30 @@ public class Pluto_SceneHandler : MonoBehaviour
     private StreamWriter logFile = null;
     private string _dataLogDir = "Assets\\data\\diagnostics\\";
 
+    // Timed data logging
+    private bool isTimedLogging = false;
+    private float timedLoggingStartTime = 0f;
+    private const float TIMED_LOGGING_DURATION = 60f;
+    private string _rawDataDir = null;
+
     // Start is called before the first frame update
     void Start()
     {
         // Ensure the application continues running even when in the background
         Application.runInBackground = true;
+
+        // Create diagnostics directory if it doesn't exist
+        if (!Directory.Exists(_dataLogDir))
+        {
+            Directory.CreateDirectory(_dataLogDir);
+        }
+
+        // Setup raw data directory path
+        _rawDataDir = $"Assets\\data\\{AppData.Instance.userID}\\data\\rawdata\\";
+        if (!Directory.Exists(_rawDataDir))
+        {
+            Directory.CreateDirectory(_rawDataDir);
+        }
 
         // Initialize UI
         InitializeUI();
@@ -94,6 +115,12 @@ public class Pluto_SceneHandler : MonoBehaviour
             PlutoComm.setControlTarget(controlTarget);
         }
 
+        // Check if timed logging has exceeded 60 seconds
+        if (isTimedLogging && (Time.time - timedLoggingStartTime) >= TIMED_LOGGING_DURATION)
+        {
+            StopTimedLogging();
+        }
+
         // Udpate UI
         UpdateUI();
 
@@ -126,11 +153,71 @@ public class Pluto_SceneHandler : MonoBehaviour
         // AAN Demo Button click.
         btnAANDemo.onClick.AddListener(delegate { OnAANDemoSceneLoad(); });
 
+        // Log Data button click (60 seconds)
+        btnLogData.onClick.AddListener(delegate { OnLogDataClick(); });
+
         // Listen to PLUTO's event
         PlutoComm.OnButtonReleased += onPlutoButtonReleased;
         PlutoComm.OnControlModeChange += onPlutoControlModeChange;
         PlutoComm.OnMechanismChange += PlutoComm_OnMechanismChange;
         PlutoComm.OnNewPlutoData += onNewPlutoData;
+        plutoEventsAttached = true;
+    }
+
+    private void OnLogDataClick()
+    {
+        if (isTimedLogging)
+        {
+            StopTimedLogging();
+        }
+        else
+        {
+            StartTimedLogging();
+        }
+    }
+
+    private void StartTimedLogging()
+    {
+        // Close any existing log file
+        closeLogFile(logFile);
+
+        // Create a new log file in rawdata structure
+        string timestamp = DateTime.Now.ToString("yyyy-MM-dd-HH-mm-ss");
+        logFileName = _rawDataDir + $"raw-{timestamp}-PLUTO.csv";
+        logFile = new StreamWriter(logFileName, false);
+
+        // Write header with PLUTO device fields only
+        logFile.WriteLine("DeviceRunTime,PacketNumber,Status,DataType,ErrorStatus,ControlType,Calibration,Mechanism,Button,Angle,Torque,Desired,Control,ControlBound,ControlDir,Target,Error,ErrorDiff,ErrorSum,TorqueEstimation");
+
+        // Mark that we're in timed logging mode
+        isTimedLogging = true;
+        timedLoggingStartTime = Time.time;
+
+        // Disable button during logging
+        btnLogData.interactable = false;
+
+        Debug.Log($"Started timed logging for 60 seconds: {logFileName}");
+    }
+
+    private void StopTimedLogging()
+    {
+        // Flush and close the log file
+        if (logFile != null)
+        {
+            logFile.Flush();
+            closeLogFile(logFile);
+            logFile = null;
+        }
+        logFileName = null;
+
+        // Mark that timed logging has stopped
+        isTimedLogging = false;
+
+        // Re-enable button so user can log again
+        btnLogData.interactable = true;
+
+        float elapsedTime = Time.time - timedLoggingStartTime;
+        Debug.Log($"Stopped timed logging after {elapsedTime:F2} seconds");
     }
 
     private void OnAANDemoSceneLoad()
@@ -152,7 +239,7 @@ public class Pluto_SceneHandler : MonoBehaviour
         // Log data if needed. Else move on.
         if (logFile == null) return;
 
-        // Log data
+        // Log PLUTO device data only
         String[] rowcomps = new string[]
         {
             $"{PlutoComm.runTime}",
@@ -173,9 +260,10 @@ public class Pluto_SceneHandler : MonoBehaviour
             $"{PlutoComm.target}",
             $"{PlutoComm.err}",
             $"{PlutoComm.errDiff}",
-            $"{PlutoComm.errSum}"
+            $"{PlutoComm.errSum}",
+            $"{PlutoComm.torque_estimation}"
         };
-        logFile.WriteLine(String.Join(", ", rowcomps));
+        logFile.WriteLine(String.Join(",", rowcomps));
     }
 
     private void OnControlTargetChange()
@@ -493,6 +581,7 @@ public class Pluto_SceneHandler : MonoBehaviour
             _dispstr += $" [{PlutoComm.getHOCDisplay(PlutoComm.angle),6:F2} cm]";
         }
         _dispstr += $"\nTorque        : {0f,6:F2} Nm";
+        _dispstr += $"\nTorque Est    : {PlutoComm.torque_estimation,6:F2}";
         _dispstr += $"\nControl       : {PlutoComm.control,6:F2}";
         _dispstr += $"\nCtrl Bnd (Dir): {PlutoComm.controlBound,6:F2} ({PlutoComm.controlDir})";
         _dispstr += $"\nCtrl Gain     : {PlutoComm.controlGain,6:F2}";
@@ -567,6 +656,17 @@ public class Pluto_SceneHandler : MonoBehaviour
             case CalibrationState.ALL_DONE:
                 tglCalibSelect.isOn = false;
                 break;
+        }
+    }
+
+    private void OnDestroy()
+    {
+        if (plutoEventsAttached)
+        {
+            PlutoComm.OnButtonReleased -= onPlutoButtonReleased;
+            PlutoComm.OnControlModeChange -= onPlutoControlModeChange;
+            PlutoComm.OnMechanismChange -= PlutoComm_OnMechanismChange;
+            PlutoComm.OnNewPlutoData -= onNewPlutoData;
         }
     }
 

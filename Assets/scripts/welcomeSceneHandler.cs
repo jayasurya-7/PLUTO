@@ -30,9 +30,11 @@ public class welcomSceneHandler : MonoBehaviour
     void Start()
     {
 
-        if (!Directory.Exists(DataManager.basePath)) 
+        if (!AppData.isNRSVersion)
         {
-            SceneManager.LoadScene("GETCONFIG");
+            if (!Directory.Exists(DataManager.basePath)) 
+        {
+            SceneManager.LoadScene("CONFIG");
             return;
         }
 
@@ -51,17 +53,19 @@ public class welcomSceneHandler : MonoBehaviour
 
         if (!File.Exists(DataManager.configFile)) 
         {
-            SceneManager.LoadScene("GETCONFIG");
+            SceneManager.LoadScene("CONFIG");
             return;
+        }
         }
 
         
         // Initialize.
         AppData.Instance.Initialize(SceneManager.GetActiveScene().name);
+
         AppLogger.SetCurrentScene(SceneManager.GetActiveScene().name);
         AppLogger.LogInfo($"'{SceneManager.GetActiveScene().name}' scene started.");
         daySummaries = AppData.Instance.userData.CalculateMoveTimePerDay();
-        AppData.Instance.userData.ReadFile();
+        // AppData.Instance.userData.ReadFile();
         Debug.Log($"status : {DataManager.status}");
 
         
@@ -71,30 +75,36 @@ public class welcomSceneHandler : MonoBehaviour
             UpdateUserData();
             UpdatePieChart();
         }
-        Task.Run(() =>  // Run in a background task
-            {
-            // if (!awsManager.IsTaskScheduled(awsManager.taskName))
-            // {
-            //     awsManager.ScheduleTask();
-            // }
-            awsManager.RunAWSpythonScript();
+        // Task.Run(() =>  // Run in a background task
+        //     {
+        //     // if (!awsManager.IsTaskScheduled(awsManager.taskName))
+        //     // {
+        //     //     awsManager.ScheduleTask();
+        //     // }
+        //     awsManager.RunAWSpythonScript();
 
-            });
+        //     });
        
     }
 
     void Update()
     {
-        // PlutoComm.sendHeartbeat();
+        PlutoComm.sendHeartbeat();
         if (!attachPlutoButtonEvent && Time.timeSinceLevelLoad > 1)
         {
             attachPlutoButtonEvent = true;
             PlutoComm.OnButtonReleased += onPlutoButtonReleased;
         }
-        // Check if it time to switch to the next scene
         if (changeScene == true ) {
             LoadTargetScene();
             changeScene = false;
+        }
+        if (Input.GetKey(KeyCode.LeftControl) &&
+            Input.GetKey(KeyCode.LeftShift) &&
+            Input.GetKeyDown(KeyCode.X))
+        {
+            SceneManager.LoadScene("CONFIG");
+            Debug.Log("Key pressed");
         }
     }
 
@@ -150,7 +160,7 @@ public class welcomSceneHandler : MonoBehaviour
 
     private void OnDestroy()
     {
-        if (ConnectToRobot.isPLUTO)
+        if (attachPlutoButtonEvent)
         {
             PlutoComm.OnButtonReleased -= onPlutoButtonReleased;
         }

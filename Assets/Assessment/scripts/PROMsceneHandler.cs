@@ -17,7 +17,6 @@ public class PROMsceneHandler : MonoBehaviour
     public TMP_Text cText;
     public TMP_Text relaxText;
     public TMP_Text JointAngle;
-    public TMP_Text JointAngleHoc;
     public TMP_Text warningText;
 
     private float _tmin = 0f, _tmax = 0f ,angLimit = 0f;
@@ -26,28 +25,27 @@ public class PROMsceneHandler : MonoBehaviour
     public GameObject nextButton;
     public GameObject startButton;
     public GameObject curreposition;
-    public GameObject currepositionHoc;
 
     private AssessStates _state;
 
-    
+
     public DoubleSlider promSlider;
-    public DoubleSlider promSliderHOC;
 
     public bool isSelected = false;
     private bool isRestarting = false;
     public bool isButtonPressed = false;
 
     public bool runOnce = false;
+    private bool plutoButtonEventAttached = false;
 
     public assessmentSceneHandler panelControl;
 
     private List<string[]> DirectionText = new List<string[]>
      {
          new string[] { "Flexion", "Extension" },
-         new string[] { "Ulnar Dev.", "Radial Dev."},
+         new string[] { "Radial Dev" ,"Ulnar Dev"},
          new string[] { "Pronation", "Supination" },
-         new string[]{ "Open", "Open"},
+         new string[]{ "Open", "Closed"},
          new string[] {"",""},
          new string[] {"",""}
      };
@@ -59,33 +57,49 @@ public class PROMsceneHandler : MonoBehaviour
     {
         // Attach callback for PLUTO button event.
         PlutoComm.OnButtonReleased += OnPlutoButtonReleased;
+        plutoButtonEventAttached = true;
     }
 
     private void InitializeAssessment()
     {
-        // Set control to NONE.
-      //  PlutoComm.setControlType("TORQUE");
-
         promSlider.UpdateMinMaxvalues = false;
         nextButton.SetActive(false);
 
-        angLimit = AppData.Instance.selectedMechanism.IsMechanism("HOC") ? PlutoComm.CALIBANGLE[PlutoComm.mechanism] : PlutoComm.MECHOFFSETVALUE[PlutoComm.mechanism];
-        promSlider.Setup(-angLimit, angLimit, AppData.Instance.selectedMechanism.oldRom.promMin, AppData.Instance.selectedMechanism.oldRom.promMax);
+        // Unified slider setup: measured ROM for HOC, -angLimit to angLimit for others
+        float sliderMin = AppData.Instance.selectedMechanism.IsMechanism("HOC") ? -93f : -PlutoComm.MECHOFFSETVALUE[PlutoComm.mechanism] - 10.0f;
+        float sliderMax = AppData.Instance.selectedMechanism.IsMechanism("HOC") ? 0f : PlutoComm.MECHOFFSETVALUE[PlutoComm.mechanism] + 10.0f;
+
+        promSlider.Setup(
+            sliderMin, sliderMax,
+            AppData.Instance.selectedMechanism.oldRom.promMin,
+            AppData.Instance.selectedMechanism.oldRom.promMax
+        );
         promSlider.minAng = 0;
         promSlider.maxAng = 0;
 
-        // Handle HOC and other mechanisms differently.
-        cText.gameObject.SetActive(AppData.Instance.selectedMechanism.IsMechanism("HOC"));
+        // Hide old ROM reference during PROM assessment
+        promSlider.startAssessment(PlutoComm.angle);
+
+        // cText label not needed with unified sliders
+        cText.gameObject.SetActive(false);
         rText.gameObject.SetActive(true);
         lText.gameObject.SetActive(true);
-        cText.text = AppData.Instance.selectedMechanism.IsMechanism("HOC")  ? "Closed" : "";
 
-        // Handle the right and left sides differently.
-        (_rinx, _linx) = AppData.Instance.trainingSide == "right" ? (1, 0) : (0, 1);
-        rText.text = DirectionText[PlutoComm.mechanism - 1][_rinx];
-        lText.text = DirectionText[PlutoComm.mechanism - 1][_linx];
-        
-        // Set initial state.
+        // Update the left and right text.
+        // HOC labels are always fixed (not affected by training side)
+        if (AppData.Instance.selectedMechanism.IsMechanism("HOC"))
+        {
+            lText.text = "Open";    // negative side
+            rText.text = "Closed";  // positive side
+        }
+        else
+        {
+            (_rinx, _linx) = AppData.Instance.IsTrainingSide("RIGHT") ? (1, 0) : (0, 1);
+            rText.text = DirectionText[PlutoComm.mechanism - 1][_rinx];
+            lText.text = DirectionText[PlutoComm.mechanism - 1][_linx];
+        }
+
+        // Set initial state
         _state = AssessStates.INIT;
 
         UpdateStatusText();
@@ -129,7 +143,7 @@ public class PROMsceneHandler : MonoBehaviour
         switch (_state)
         {
             case AssessStates.INIT:
-                startButton.SetActive(true);
+                startButton.SetActive(false); // Hidden - use PLUTO button instead
                 if(!runOnce){
                 InitializeAssessment();
                 runOnce = true;
@@ -143,9 +157,10 @@ public class PROMsceneHandler : MonoBehaviour
                 {
                     relaxText.color = Color.red;
                     relaxText.text = "PROM Should not below the range of AROM \n " +
-                                     "Please REDO AROM AGAIN";
+                                     "Please REDO AROM AGAIN\n\nPress PLUTO button to restart";
                 }
-                else relaxText.text = FormatRelaxText(AppData.Instance.selectedMechanism.oldRom.promMin, AppData.Instance.selectedMechanism.oldRom.promMax);
+                else relaxText.text = FormatRelaxText(AppData.Instance.selectedMechanism.oldRom.promMin, AppData.Instance.selectedMechanism.oldRom.promMax)
+                    + "\n\nPress PLUTO button to start";
                 break;
             case AssessStates.ASSESS:
                 startButton.SetActive(false);
@@ -153,8 +168,9 @@ public class PROMsceneHandler : MonoBehaviour
                 _tmax = promSlider.maxAng;
                 Debug.Log("max angle :" + _tmax);
                 relaxText.color= Color.white;
-                relaxText.text = FormatRelaxText(AppData.Instance.selectedMechanism.oldRom.promMin, AppData.Instance.selectedMechanism.oldRom.promMax);
-                nextButton.SetActive(true);
+                relaxText.text = FormatRelaxText(AppData.Instance.selectedMechanism.oldRom.promMin, AppData.Instance.selectedMechanism.oldRom.promMax)
+                    + "\n\nPress PLUTO button to confirm PROM";
+                nextButton.SetActive(false); // Hidden - use PLUTO button instead
                 if (isButtonPressed || Input.GetKeyDown(KeyCode.Return))
                 {
                     OnNextButtonClick();
@@ -166,7 +182,7 @@ public class PROMsceneHandler : MonoBehaviour
     }
 
 
-    private void checkPromLimits()
+    private bool checkPromLimits()
     {
         bool isHOC=AppData.Instance.selectedMechanism.IsMechanism("HOC");
         bool FME = AppData.Instance.selectedMechanism.IsMechanism("FME1") || AppData.Instance.selectedMechanism.IsMechanism("FME2");
@@ -174,19 +190,17 @@ public class PROMsceneHandler : MonoBehaviour
 
         if (isHOC)
         {
-            Debug.Log($"prom min: {_tmin},{_tmax},  arom :{AppData.Instance.selectedMechanism.newRom.aromMin}, {AppData.Instance.selectedMechanism.newRom.aromMax}");
-            Debug.Log($"condition : {_tmin}, {AppData.Instance.selectedMechanism.newRom.aromMin},{_tmin > AppData.Instance.selectedMechanism.newRom.aromMin},{_tmin< AppData.Instance.selectedMechanism.newRom.aromMin}");
-
-            condition = _tmin > AppData.Instance.selectedMechanism.newRom.aromMin;
-            Debug.Log($"condition : {condition}");
+            Debug.Log($"prom: {_tmin},{_tmax},  arom :{AppData.Instance.selectedMechanism.newRom.aromMin}, {AppData.Instance.selectedMechanism.newRom.aromMax}");
+            // PROM must encompass AROM: promMin <= aromMin AND promMax >= aromMax
+            condition = _tmin > AppData.Instance.selectedMechanism.newRom.aromMin || _tmax < AppData.Instance.selectedMechanism.newRom.aromMax;
+            Debug.Log($"PROM violation (narrower than AROM): {condition}");
         }
         else
         {
-            Debug.Log(_tmin > (AppData.Instance.selectedMechanism.newRom.aromMin + 5.0f));
-            Debug.Log(_tmax < (AppData.Instance.selectedMechanism.newRom.aromMax - 5.0f));
-            Debug.Log($"condition : {_tmin},{_tmax}, {AppData.Instance.selectedMechanism.newRom.aromMin},{AppData.Instance.selectedMechanism.newRom.aromMax},{_tmin > AppData.Instance.selectedMechanism.newRom.aromMin + 5.0f},{_tmax < AppData.Instance.selectedMechanism.newRom.aromMax - 5.0f}");
-            condition = _tmin > (AppData.Instance.selectedMechanism.newRom.aromMin + 5.0f) || _tmax < (AppData.Instance.selectedMechanism.newRom.aromMax - 5.0f);
-            Debug.Log(condition);
+            Debug.Log($"prom: {_tmin},{_tmax}, arom :{AppData.Instance.selectedMechanism.newRom.aromMin},{AppData.Instance.selectedMechanism.newRom.aromMax}");
+            // PROM must encompass AROM: promMin <= aromMin AND promMax >= aromMax
+            condition = _tmin > AppData.Instance.selectedMechanism.newRom.aromMin || _tmax < AppData.Instance.selectedMechanism.newRom.aromMax;
+            Debug.Log($"PROM violation (narrower than AROM): {condition}");
         }
         if (condition)
         {
@@ -198,7 +212,7 @@ public class PROMsceneHandler : MonoBehaviour
             isButtonPressed = false;
             isRestarting = true;
             curreposition.SetActive(true);
-            currepositionHoc.SetActive(AppData.Instance.selectedMechanism.IsMechanism("HOC"));
+            return false;  // Validation failed
         }
         else
         {
@@ -206,8 +220,7 @@ public class PROMsceneHandler : MonoBehaviour
             Debug.Log($" min :{promSlider._currePostion.value}, arom { AppData.Instance.selectedMechanism.newRom.aromMax},,{promSlider._currePostion.value <= AppData.Instance.selectedMechanism.newRom.aromMax}");
             promSlider.UpdateMinMaxvalues = true;
             curreposition.SetActive(true);
-            currepositionHoc.SetActive(AppData.Instance.selectedMechanism.IsMechanism("HOC"));
-
+            return true;  // Validation passed
         }
 
     }
@@ -221,10 +234,12 @@ public class PROMsceneHandler : MonoBehaviour
 
     public void OnNextButtonClick()
     {
-        checkPromLimits();
-        onSavePressed();
-        nextButton.SetActive(false);
-        promSlider.UpdateMinMaxvalues = false;
+        if (checkPromLimits())  // Only save if validation passes
+        {
+            onSavePressed();
+            nextButton.SetActive(false);
+            promSlider.UpdateMinMaxvalues = false;
+        }
     }
 
     public void startAssessment()
@@ -232,7 +247,6 @@ public class PROMsceneHandler : MonoBehaviour
         _state = AssessStates.ASSESS;
         nextButton.SetActive(false);
         startButton.SetActive(false);
-        promSlider.startAssessment(PlutoComm.angle);
         promSlider.UpdateMinMaxvalues = true;
     }
 
@@ -269,13 +283,10 @@ public class PROMsceneHandler : MonoBehaviour
         logMessage += $" | New AROM: [{AppData.Instance.selectedMechanism.newRom.aromMin:F2} ,  {AppData.Instance.selectedMechanism.newRom.aromMax:F2}]";
         AppLogger.LogInfo(logMessage);
 
-        // Switch scene if assessment is complete.
-        if (AppData.Instance.selectedMechanism.promCompleted && AppData.Instance.selectedMechanism.aromCompleted && mechFME) SceneManager.LoadScene(nextScene);
-        else if (AppData.Instance.selectedMechanism.promCompleted && AppData.Instance.selectedMechanism.aromCompleted && !mechFME)
+        if (AppData.Instance.selectedMechanism.promCompleted && AppData.Instance.selectedMechanism.aromCompleted)
         {
             AppData.Instance.selectedMechanism.SetNewAPromValues(promSlider.minAng, promSlider.maxAng);
-            AppData.Instance.selectedMechanism.SaveAssessmentData();
-            SceneManager.LoadScene("CHGAME");
+            SceneManager.LoadScene(nextScene);
         }
     }
 
@@ -287,17 +298,17 @@ public class PROMsceneHandler : MonoBehaviour
     }
 
     private float ConvertToCM(float value) => Mathf.Abs(Mathf.Deg2Rad * value * 6f);
-   
+
     private void UpdateStatusText()
     {
-        if (AppData.Instance.selectedMechanism.IsMechanism("HOC") == false)
+        JointAngle.text = PlutoComm.angle.ToString("0.0");
+    }
+
+    private void OnDestroy()
+    {
+        if (plutoButtonEventAttached)
         {
-            JointAngle.text = (PlutoComm.angle).ToString("0.0");
-        }
-        else
-        {
-            // JointAngle.text = "Aperture" + ConvertToCM(PlutoComm.angle).ToString("0.0") + "cm";
-            // JointAngleHoc.text = "Aperture" + ConvertToCM(PlutoComm.angle).ToString("0.0") + "cm";
+            PlutoComm.OnButtonReleased -= OnPlutoButtonReleased;
         }
     }
 }

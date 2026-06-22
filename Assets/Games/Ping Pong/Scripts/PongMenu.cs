@@ -14,6 +14,7 @@ public class PongMenu : MonoBehaviour
     public static bool isButtonPressed = false;
     private string choosegameScene = "CHGAME";
     private string gameScene = "PONGGAME";
+    private bool plutoButtonEventAttached = false;
     void Start()
     {
 
@@ -32,6 +33,7 @@ public class PongMenu : MonoBehaviour
         if (ConnectToRobot.isPLUTO)
         {
             PlutoComm.OnButtonReleased += onPlutoButtonReleased;
+            plutoButtonEventAttached = true;
         }
         if (isButtonPressed)
         {
@@ -57,7 +59,7 @@ public class PongMenu : MonoBehaviour
     }
     private void OnDestroy()
     {
-        if (ConnectToRobot.isPLUTO)
+        if (plutoButtonEventAttached)
         {
             PlutoComm.OnButtonReleased -= onPlutoButtonReleased;
         }

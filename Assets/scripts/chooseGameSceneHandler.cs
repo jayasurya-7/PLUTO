@@ -26,6 +26,7 @@ public class ChooseGameSceneHandler : MonoBehaviour
         {"FRUITCH","FRUITBASKETS"}
     };
     private bool loadgame = false;
+    private bool plutoButtonEventAttached = false;
 
     void Start()
     {
@@ -40,14 +41,13 @@ public class ChooseGameSceneHandler : MonoBehaviour
         if (Time.timeScale == 0) Time.timeScale = 1;
         // Create a new AAN controller.
         AppData.Instance.aanController = new PlutoAANController(
-            mechanism: AppData.Instance.selectedMechanism,
-            sessionData: AppData.Instance.userData.dTableSession,
-            sessionNo: AppData.Instance.currentSessionNumber
+            mechanism: AppData.Instance.selectedMechanism
         );
         bool isFME = AppData.Instance.selectedMechanism.IsMechanism("FME1") || AppData.Instance.selectedMechanism.IsMechanism("FME2");
 
         ImgBanner1.SetActive(!isFME);
         ImgBanner2.SetActive(!isFME);
+        AppLogger.SetCurrentGame(null);
         
         // If no mechanism is selected, got to the scene to choose mechanism.
         if (AppData.Instance.selectedMechanism == null)
@@ -156,6 +156,7 @@ public class ChooseGameSceneHandler : MonoBehaviour
         changeMech.onClick.AddListener(OnMechButtonClicked);
         // PLUTO Button
         PlutoComm.OnButtonReleased += OnPlutoButtonReleased;
+        plutoButtonEventAttached = true;
     }
 
     void AttachToggleListeners()
@@ -245,7 +246,7 @@ public class ChooseGameSceneHandler : MonoBehaviour
 
     private void OnDestroy()
     {
-        if (ConnectToRobot.isPLUTO)
+        if (plutoButtonEventAttached)
         {
             PlutoComm.OnButtonReleased -= OnPlutoButtonReleased;
         }

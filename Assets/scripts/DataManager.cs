@@ -4,7 +4,7 @@ using System.IO;
 using System.Data;
 using UnityEngine;
 using System.Text;
-
+using SimpleJSON;
 
 /*
  * Summary Data Class
@@ -54,16 +54,19 @@ public static class DataManager
         "AssistMode", "DesiredSuccessRate", "SuccessRate", "CurrentControlBound", "NextControlBound","MoveTime",
         "CurrentTargets", "CurrentHits", "CurrentMisses",
         "CummulativeTargets", "CummulativeHits", "CummulativeMisses",
+         "CurrentStar","CummulativeStars"
     };
 
-    // Raw data header.    
+    // Raw data header.
     public static string[] RAWFILEHEADER = new string[] {
-        "DeviceRunTime", "PacketNumber", "Status", "DataType", "ErrorStatus", 
-        "ControlType", "Calibration",  "Mechanism", 
-        "Button", "Angle", "Torque", "Desired", "Control", "ControlBound", "ControlDir", "Target", 
-        "Error", "ErrorDiff", "ErrorSum",
+        "DeviceRunTime", "PacketNumber", "Status", "DataType", "ErrorStatus",
+        "ControlType", "Calibration",  "Mechanism",
+        "Button", "Angle", "Torque", "Desired", "Control", "ControlBound", "ControlDir", "Target",
+        "Error", "ErrorDiff", "ErrorSum", "TorqueEstimation",
         "GamePlayerX", "GamePlayerY", "GameTargetX", "GameTargetY", "GameState",
-        "AanTargetPosition", "AanInitialPosition", "AanState"
+        "AanTargetPosition", "AanInitialPosition", "AanState",
+        "Annotation",
+        "Miscellaneous"
     };
 
     // Date format strict.
@@ -107,10 +110,7 @@ public static class DataManager
     {
         directoryPathConfig = FixPath(basePath + "/configuration");
         sessionPath = FixPath(Path.Combine(basePath, "sessions"));
-        gamePath = FixPath(Path.Combine(basePath, "gameparams"));
         mechPath = FixPath(Path.Combine(basePath, "mechparams"));
-        aanAdaptPath = FixPath(Path.Combine(basePath, "aanadapt"));
-        aanExecPath = FixPath(Path.Combine(basePath, "aanexec"));
         rawPath = FixPath(Path.Combine(basePath, "rawdata"));
         romPath = FixPath(Path.Combine(basePath, "rom"));
         logPath = FixPath(Path.Combine(basePath, "applog"));
@@ -118,15 +118,91 @@ public static class DataManager
         sessionFile = FixPath(Path.Combine(sessionPath, "sessions.csv"));
         // Check if the directory exists
         Directory.CreateDirectory(sessionPath);
-        Directory.CreateDirectory(gamePath);
         Directory.CreateDirectory(mechPath);
-        Directory.CreateDirectory(aanAdaptPath);
-        Directory.CreateDirectory(aanExecPath);
         Directory.CreateDirectory(rawPath);
         Directory.CreateDirectory(romPath);
         Directory.CreateDirectory(logPath);
         Directory.CreateDirectory(controlGainPath);
     }
+    public static string getLapConfig()
+    {
+        string lapConfigPath = @"C:/lapconfig.json";
+
+
+        if (!File.Exists(lapConfigPath)) return "";
+
+        var json = JSON.Parse(File.ReadAllText(lapConfigPath));
+
+        var mars = json["pluto"];  
+
+        string comport = mars["comport"];
+
+        string pythonpath = mars["pythonpath"];
+
+        awsManager.pythonExecutionPath = FixPath(pythonpath);
+
+        return comport;
+
+    }
+
+        public static void saveCSV(DataTable table, string path)
+    {
+        if (table == null || table.Columns.Count == 0)
+        {
+            UnityEngine.Debug.LogError("Invalid DataTable. Cannot save CSV.");
+            return;
+        }
+
+        StringBuilder sb = new StringBuilder();
+
+        // =========================
+        // HEADER
+        // =========================
+        for (int i = 0; i < table.Columns.Count; i++)
+        {
+            sb.Append(table.Columns[i].ColumnName);
+            if (i < table.Columns.Count - 1)
+                sb.Append(",");
+        }
+        sb.AppendLine();
+
+        // =========================
+        // ROWS
+        // =========================
+        foreach (DataRow row in table.Rows)
+        {
+            for (int i = 0; i < table.Columns.Count; i++)
+            {
+                string value = row[i]?.ToString();
+
+                // Handle commas safely
+                if (value != null && value.Contains(","))
+                {
+                    value = $"\"{value}\"";
+                }
+
+                sb.Append(value);
+
+                if (i < table.Columns.Count - 1)
+                    sb.Append(",");
+            }
+            sb.AppendLine();
+        }
+
+        // =========================
+        // WRITE FILE (overwrite)
+        // =========================
+        try
+        {
+            File.WriteAllText(path, sb.ToString());
+            UnityEngine.Debug.Log("CSV saved successfully: " + path);
+        }
+        catch (IOException e)
+        {
+            UnityEngine.Debug.LogError("Error saving CSV: " + e.Message);
+        }
+    }
+ 
 
     public static DataTable loadCSV(string filePath)
     {
@@ -179,8 +255,9 @@ public static class DataManager
             using (var writer = new StreamWriter(DataManager.sessionFile, false, Encoding.UTF8))
             {
                 // Write the preheader details
-                writer.WriteLine($":Device: {device}");
                 writer.WriteLine($":Location: {location}");
+                writer.WriteLine($":Device: {device}");
+                writer.WriteLine($":User: {AppData.Instance.userID}");
                 writer.WriteLine(String.Join(",", header));
             }
             AppLogger.LogWarning("Sessions.csv file not founds. Created one.");
@@ -285,7 +362,7 @@ public static class AppLogger
             if (logWriter != null)
             {
                 string _user = AppData.Instance.userData != null ? AppData.Instance.userData.hospNumber : "";
-                string _msg = $"{DateTime.Now:dd-MM-yyyy HH:mm:ss} {logMsgType,-7} {InBraces(_user), -10} {InBraces(currentScene), -12} {InBraces(currentMechanism), -8} {InBraces(currentGame), -8} >> {message}";
+                string _msg = $"{DateTime.Now:dd-MM-yyyy HH:mm:ss} {logMsgType,-7} {InBraces(_user), -12} {InBraces(currentScene), -16} {InBraces(currentMechanism), -8} {InBraces(currentGame), -10} >> {message}";
                 logWriter.WriteLine(_msg);
                 logWriter.Flush();
                 if (DEBUG) Debug.Log(_msg);

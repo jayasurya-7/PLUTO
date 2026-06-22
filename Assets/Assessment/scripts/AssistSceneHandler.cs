@@ -5,6 +5,8 @@ using TS.DoubleSlider;
 using UnityEngine.SceneManagement;
 using UnityEngine.UI;
 using System.Collections;
+using System.IO;
+using System;
 
 
 public class AssistsceneHandler : MonoBehaviour
@@ -15,6 +17,7 @@ public class AssistsceneHandler : MonoBehaviour
         ASSESS
     };
     private bool isButtonPressed = false;
+    private bool plutoButtonEventAttached = false;
     public TMP_Text lText;
     public TMP_Text rText;
     public TMP_Text insText;
@@ -22,14 +25,12 @@ public class AssistsceneHandler : MonoBehaviour
     public TMP_Text relaxText;
     
     public TMP_Text jointAngle;
-    public TMP_Text jointAngleHoc;
     public TextMeshProUGUI mechName;
 
     private int _linx, _rinx;
     private float _tmin = 0f, _tmax  =0f;
 
     public GameObject CurrPositioncursor;
-    public GameObject CurrPositioncursorHoc;
     public GameObject redoButton;
     private AssessStates _state;
 
@@ -45,7 +46,7 @@ public class AssistsceneHandler : MonoBehaviour
          new string[] { "Flexion", "Extension" },
          new string[] { "Ulnar Dev", "Radial Dev" },
          new string[] { "Pronation", "Supination" },
-         new string[] { "Open", "Open"},
+         new string[] { "Open", "Closed"},
          new string[] { "", "" },
          new string[] { "", "" }
      };
@@ -61,6 +62,9 @@ public class AssistsceneHandler : MonoBehaviour
     // Track if reached both ends
     bool reachedPositive = false;
     bool reachedNegative = false;
+
+    // Store raw APROM assessment samples
+    private List<(float angle, float torque, float time)> _aromSamples = new();
 
     // Flags to track which side we're heading toward
     bool goingPositive = true;
@@ -126,28 +130,46 @@ public class AssistsceneHandler : MonoBehaviour
         ResetAssessment();
 
         // Update the min and max values.
-        angLimit = AppData.Instance.selectedMechanism.IsMechanism("HOC") ? PlutoComm.CALIBANGLE[PlutoComm.mechanism] : PlutoComm.MECHOFFSETVALUE[PlutoComm.mechanism];
-        targetNegativeEnd = AppData.Instance.selectedMechanism.IsMechanism("HOC") ? AppData.Instance.selectedMechanism.newRom.promMin : AppData.Instance.selectedMechanism.newRom.promMin;
-        targetPositiveEnd = AppData.Instance.selectedMechanism.IsMechanism("HOC") ? 0.0f: AppData.Instance.selectedMechanism.newRom.promMax;
+        angLimit = AppData.Instance.selectedMechanism.IsMechanism("HOC") ? 93f : PlutoComm.MECHOFFSETVALUE[PlutoComm.mechanism] + 10.0f;
 
+        if (AppData.Instance.selectedMechanism.IsMechanism("HOC"))
+        {
+            // HOC: use measured PROM values (negative = OPEN, positive = CLOSED)
+            targetPositiveEnd = 0.0f;  // CLOSED limit
+            targetNegativeEnd = AppData.Instance.selectedMechanism.newRom.promMin;  // OPEN limit
+        }
+        else
+        {
+            // Non-HOC: standard positive/negative ranges
+            targetNegativeEnd = AppData.Instance.selectedMechanism.newRom.promMin;
+            targetPositiveEnd = AppData.Instance.selectedMechanism.newRom.promMax;
+        }
 
-        float sliderPE = AppData.Instance.selectedMechanism.IsMechanism("HOC") ? -AppData.Instance.selectedMechanism.newRom.promMin : AppData.Instance.selectedMechanism.newRom.promMax;
-        float sliderNE = AppData.Instance.selectedMechanism.IsMechanism("HOC") ? AppData.Instance.selectedMechanism.newRom.promMin : AppData.Instance.selectedMechanism.newRom.promMin;
+        // Unified slider setup: measured ROM for HOC, -angLimit to angLimit for others
+        float sliderMin = AppData.Instance.selectedMechanism.IsMechanism("HOC") ? -93f : targetNegativeEnd;
+        float sliderMax = AppData.Instance.selectedMechanism.IsMechanism("HOC") ? 0f : targetPositiveEnd;
 
-       apromSlider.Setup(sliderNE, sliderPE, 0, 0);
-
-        //apromSlider.Setup(-angLimit, angLimit, 0, 0);
+        apromSlider.Setup(sliderMin, sliderMax, 0, 0);
         apromSlider.minAng = 0;
         apromSlider.maxAng = 0;
-        // Update central text.
-        cText.gameObject.SetActive(AppData.Instance.selectedMechanism.IsMechanism("HOC"));
-        cText.text = AppData.Instance.selectedMechanism.IsMechanism("HOC") ? "Closed" : "";
+        apromSlider.startAssessment(PlutoComm.angle);
+        // cText label not needed with unified sliders
+        cText.gameObject.SetActive(false);
         inst1.text = "Press PLUTO button to start the AAN";
 
         // Update the left and right text.
-        (_rinx, _linx) = AppData.Instance.IsTrainingSide("RIGHT") ? (1, 0) : (0, 1);
-        rText.text = DirectionText[PlutoComm.mechanism - 1][_rinx];
-        lText.text = DirectionText[PlutoComm.mechanism - 1][_linx];
+        // HOC labels are always fixed (not affected by training side)
+        if (AppData.Instance.selectedMechanism.IsMechanism("HOC"))
+        {
+            lText.text = "Open";    // negative side
+            rText.text = "Closed";  // positive side
+        }
+        else
+        {
+            (_rinx, _linx) = AppData.Instance.IsTrainingSide("RIGHT") ? (1, 0) : (0, 1);
+            rText.text = DirectionText[PlutoComm.mechanism - 1][_rinx];
+            lText.text = DirectionText[PlutoComm.mechanism - 1][_linx];
+        }
 
         // Set the state to INIT.
         _state = AssessStates.INIT;
@@ -156,16 +178,42 @@ public class AssistsceneHandler : MonoBehaviour
 
         // Attach callback for PLUTO button release.
         PlutoComm.OnButtonReleased +=    OnPlutoButtonReleased;
+        plutoButtonEventAttached = true;
 
         UpdateStatusText();
     }
 
     IEnumerator RunAssessment()
     {
+        float rampDownTimer = 0f;
+        const float RAMP_DOWN_DURATION = 2f;  // 2 seconds to ramp down from full to zero
+
         while (!reachedPositive || !reachedNegative)
         {
+            _aromSamples.Add((PlutoComm.angle, torque, stopClock));
             //stopClock -= Time.deltaTime;
             //stopClock = Mathf.Max(0, stopClock);
+
+            // Once both endpoints reached, skip direction-specific logic and go straight to ramp-down
+            if (reachedPositive && reachedNegative)
+            {
+                rampDownTimer += 0.05f;
+                float rampProgress = Mathf.Clamp01(rampDownTimer / RAMP_DOWN_DURATION);
+                torque = Mathf.Lerp(torque, 0f, rampProgress);
+                PlutoComm.setControlTarget(torque);
+
+                if (rampDownTimer >= RAMP_DOWN_DURATION)
+                {
+                    torque = 0f;
+                    PlutoComm.setControlTarget(0f);
+                    break;  // Exit loop after ramp-down complete
+                }
+
+                previousAngle = currentAngle;
+                yield return new WaitForSeconds(0.05f);
+                stopClock += 0.05f;
+                continue;
+            }
 
             float deltaAngle = Mathf.Abs(currentAngle - previousAngle);
             bool movingTowardTarget = (goingPositive && !AppData.Instance.selectedMechanism.IsMechanism("HOC"))
@@ -246,7 +294,7 @@ public class AssistsceneHandler : MonoBehaviour
                         continue;
                     }
 
-                    if (onceReached && currentAngle > previousAngle)
+                    if (onceReached && currentAngle > previousAngle && !reachedNegative)
                         torque -= 0.1f;
 
                     torque = Mathf.Clamp(torque, 0.0f, 1.0f);
@@ -338,7 +386,7 @@ public class AssistsceneHandler : MonoBehaviour
                         continue;
                     }
 
-                    if (onceReached && currentAngle < previousAngle)
+                    if (onceReached && currentAngle < previousAngle && !reachedPositive)
                         torque += 0.1f;
 
                     torque = Mathf.Clamp(torque, -1.0f, 0.0f);
@@ -363,14 +411,13 @@ public class AssistsceneHandler : MonoBehaviour
             }
 
             previousAngle = currentAngle;
-            yield return new WaitForSeconds(0.05f); // ⏱️ Delay of 0.1 sec between each torque update
+            yield return new WaitForSeconds(0.05f); // ⏱️ Delay of 0.05 sec between each torque update
             stopClock += 0.05f; // match WaitForSeconds
 
         }
 
-       
-
 }
+
 
 
     public void OnExit()
@@ -384,18 +431,14 @@ public class AssistsceneHandler : MonoBehaviour
         PlutoComm.sendHeartbeat();
 
         currentAngle = PlutoComm.angle;
-        // jointAngle.text = $"{((int)PlutoComm.angle).ToString()} + Torque :{PlutoComm.target}";
         jointAngle.text = $"Angle: {((int)PlutoComm.angle).ToString()}";
-        jointAngleHoc.text = ((int)PlutoComm.getHOCDisplay(PlutoComm.angle)).ToString();
         runAssessmentStateMachine();
-        // Debug.Log($" ct: {PlutoComm.CONTROLTYPE[PlutoComm.controlType]} + tor :{PlutoComm.target}");
     }
 
     void runAssessmentStateMachine()
     {
         Debug.Log($"state : {_state}");
         CurrPositioncursor.SetActive(true);
-        CurrPositioncursorHoc.SetActive(AppData.Instance.selectedMechanism.IsMechanism("HOC"));
         switch (_state)
         {
             case AssessStates.INIT:
@@ -432,7 +475,11 @@ public class AssistsceneHandler : MonoBehaviour
                             isButtonPressed = false;
 
                             if (AppData.Instance.selectedMechanism.apromCompleted)
-                                SceneManager.LoadScene("CHGAME");
+
+                            if(AppData.isPlanSetup)
+                            SceneManager.LoadScene("PLANSETUP");
+                            else
+                            SceneManager.LoadScene("CHGAME");
                         }
                     }
                 break;
@@ -461,10 +508,36 @@ public class AssistsceneHandler : MonoBehaviour
 
     public void OnSaveClick()
     {
+        StoreAPromRawData();
         AppData.Instance.selectedMechanism.SaveAssessmentData();
         apromSlider.UpdateMinMaxvalues = false;
         CurrPositioncursor.SetActive(false);
-        CurrPositioncursorHoc.SetActive(false);
+    }
+
+    private void StoreAPromRawData()
+    {
+        string mechName = AppData.Instance.selectedMechanism.name;
+        string dateString = System.DateTime.Now.ToString("yyyy-MM-dd");
+        string timestamp = System.DateTime.Now.ToString("yyyy-MM-dd HH:mm:ss");
+
+        // Create assistProfile folder under patient data
+        string folderPath = Path.Combine(Path.GetDirectoryName(DataManager.rawPath), "assistProfile");
+        if (!Directory.Exists(folderPath))
+            Directory.CreateDirectory(folderPath);
+
+        string filePath = Path.Combine(folderPath, $"assistProfile_{dateString}_{mechName}.csv");
+
+        using (StreamWriter writer = new StreamWriter(filePath, false))
+        {
+            writer.WriteLine("DateTime,Mechanism,Time(s),Angle(deg),Torque");
+            foreach (var sample in _aromSamples)
+            {
+                writer.WriteLine($"{timestamp},{mechName},{sample.time:F2},{sample.angle:F1},{sample.torque:F2}");
+            }
+        }
+
+        _aromSamples.Clear();
+        AppLogger.LogInfo($"[APROM] Raw data stored: {filePath}");
     }
 
     private string FormatRelaxText(float min, float max)
@@ -487,14 +560,14 @@ public class AssistsceneHandler : MonoBehaviour
 
     private void UpdateStatusText()
     {
-        if (AppData.Instance.selectedMechanism.IsMechanism("HOC") == false)
+        jointAngle.text = $"Angle: {PlutoComm.angle.ToString("0.0")}";
+    }
+
+    private void OnDestroy()
+    {
+        if (plutoButtonEventAttached)
         {
-            jointAngle.text = $"{(PlutoComm.angle).ToString("0.0")}+ torque :{PlutoComm.target}";
-        }
-        else
-        {
-            jointAngle.text = "Aperture" + ConvertToCM(PlutoComm.angle).ToString("0.0") + "cm";
-            jointAngleHoc.text = "Aperture" + ConvertToCM(PlutoComm.angle).ToString("0.0") + "cm";
+            PlutoComm.OnButtonReleased -= OnPlutoButtonReleased;
         }
     }
 }

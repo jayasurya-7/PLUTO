@@ -16,6 +16,7 @@ public class calibrationSceneHandler : MonoBehaviour
     private bool doneCalibration = false;
     private string prevScene = "CHMECH";
     private string nextScene = "CHGAME";
+    private bool plutoButtonEventAttached = false;
 
     void Start()
     {
@@ -35,6 +36,7 @@ public class calibrationSceneHandler : MonoBehaviour
         if (ConnectToRobot.isPLUTO)
         {
             PlutoComm.OnButtonReleased += OnPlutoButtonReleased;
+            plutoButtonEventAttached = true;
         }
         exit.onClick.AddListener(OnExitButtonClicked);
     }
@@ -172,9 +174,17 @@ public class calibrationSceneHandler : MonoBehaviour
             AppData.Instance.selectedMechanism.SetNewAPromValues(-90.0f, 90.0f);
             AppData.Instance.selectedMechanism.SaveAssessmentData();
         }
+        if (AppData.isPlanSetup)
+        {
+           AppLogger.LogInfo($"Switching scene to ASSESS.");
+        SceneManager.LoadScene("ASSESS");
+        }
+        else
+        {
         // Load the next scene.
         AppLogger.LogInfo($"Switching scene to '{nextScene}'.");
         SceneManager.LoadScene(nextScene);
+        }
     }
 
     private void ApplyCounterClockwiseTorque()
@@ -201,12 +211,20 @@ public class calibrationSceneHandler : MonoBehaviour
 
     private void OnExitButtonClicked()
     {
+        if (AppData.isPlanSetup)
+        {
+        SceneManager.LoadScene("PLANSETUP");
+
+        }
+        else
+        {
         SceneManager.LoadScene(prevScene);
+        }
     }
 
     private void OnDestroy()
     {
-        if (ConnectToRobot.isPLUTO)
+        if (plutoButtonEventAttached)
         {
             PlutoComm.OnButtonReleased -= OnPlutoButtonReleased;
         }

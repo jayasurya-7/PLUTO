@@ -8,6 +8,7 @@ public class RNRMenuManager : MonoBehaviour
     public static bool isButtonPressed = false;
     private string choosegameScene = "CHGAME";
     private string gameScene = "RNR";
+    private bool plutoButtonEventAttached = false;
     // Start is called before the first frame update
     void Start()
     {
@@ -24,6 +25,7 @@ public class RNRMenuManager : MonoBehaviour
         if (ConnectToRobot.isPLUTO)
         {
             PlutoComm.OnButtonReleased += onPlutoButtonReleased;
+            plutoButtonEventAttached = true;
         }
         if (isButtonPressed)
         {
@@ -47,7 +49,7 @@ public class RNRMenuManager : MonoBehaviour
     }
     private void OnDestroy()
     {
-        if (ConnectToRobot.isPLUTO)
+        if (plutoButtonEventAttached)
         {
             PlutoComm.OnButtonReleased -= onPlutoButtonReleased;
         }

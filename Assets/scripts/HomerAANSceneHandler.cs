@@ -38,6 +38,7 @@ public class Homer_AAN_SceneHandler : MonoBehaviour
 
     // Control variables
     private bool isRunning = false;
+    private bool plutoEventsAttached = false;
 
     // Discrete movements related variables
     private uint trialNo = 0;
@@ -275,6 +276,7 @@ public class Homer_AAN_SceneHandler : MonoBehaviour
         // Listen to PLUTO's event
         PlutoComm.OnButtonReleased += onPlutoButtonReleased;
         PlutoComm.OnNewPlutoData += onNewPlutoData;
+        plutoEventsAttached = true;
     }
 
     private void onNewPlutoData()
@@ -303,7 +305,8 @@ public class Homer_AAN_SceneHandler : MonoBehaviour
             $"{PlutoComm.desired}",
             $"{PlutoComm.err}",
             $"{PlutoComm.errDiff}",
-            $"{PlutoComm.errSum}"
+            $"{PlutoComm.errSum}",
+            $"{PlutoComm.torque_estimation}"
         };
         if (logRawFile != null)
         { 
@@ -406,7 +409,7 @@ public class Homer_AAN_SceneHandler : MonoBehaviour
         logRawFile.WriteLine($"Start Datetime = {_writetime}");
         string[] headernames = { "time", "packetno", "status", "datatype", "errorstatus", "controltype", "calibration",
             "mechanism", "button", "angle", "torque", "control", "controlbound", "controldir", "target", "desired",
-            "error", "errordiff", "errorsum"
+            "error", "errordiff", "errorsum", "torqueestimation"
         };
         logRawFile.WriteLine(String.Join(", ", headernames));
 
@@ -572,6 +575,7 @@ public class Homer_AAN_SceneHandler : MonoBehaviour
             _dispstr += $" [{PlutoComm.getHOCDisplay(PlutoComm.angle),6:F2} cm]";
         }
         _dispstr += $"\nTorque        : {0f,6:F2} Nm";
+        _dispstr += $"\nTorque Est    : {PlutoComm.torque_estimation,6:F2}";
         _dispstr += $"\nControl       : {PlutoComm.control,6:F2}";
         _dispstr += $"\nCtrl Bnd (Dir): {PlutoComm.controlBound,6:F2} ({PlutoComm.controlDir})";
         _dispstr += $"\nTarget        : {PlutoComm.target,6:F2}";
@@ -636,6 +640,15 @@ public class Homer_AAN_SceneHandler : MonoBehaviour
         if (!Directory.Exists(directoryPath))
         {
             Directory.CreateDirectory(directoryPath);
+        }
+    }
+
+    private void OnDestroy()
+    {
+        if (plutoEventsAttached)
+        {
+            PlutoComm.OnButtonReleased -= onPlutoButtonReleased;
+            PlutoComm.OnNewPlutoData -= onNewPlutoData;
         }
     }
 
